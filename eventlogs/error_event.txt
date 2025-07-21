@@ -196,3 +196,5 @@
 [2025-07-17 05:19:11.514] ERROR | FIR : Init error: No I2C device at address: 0x5a
 [2025-07-17 05:19:12.603] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
 [2025-07-17 05:19:19.543] ERROR | Barometer : MID 100 not handled
+[2025-07-21 08:46:08.916] Log file generated
+[2025-07-21 08:46:08.916] Log file generated
