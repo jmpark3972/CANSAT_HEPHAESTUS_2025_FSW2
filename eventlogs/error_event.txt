@@ -1,0 +1,198 @@
+[2025-07-09 00:15:12.667] Log file generated
+[2025-07-09 00:15:12.667] Log file generated
+[2025-07-10 23:21:22.273] Log file generated
+[2025-07-10 23:21:22.273] Log file generated
+[2025-07-10 23:21:22.295] ERROR | Main : CONFIG IS SELECTED AS NONE, TERMINATING FSW
+[2025-07-10 15:53:14.954] Log file generated
+[2025-07-10 15:53:14.954] Log file generated
+[2025-07-10 15:53:14.978] ERROR | Main : CONFIG IS SELECTED AS NONE, TERMINATING FSW
+[2025-07-10 17:41:03.452] Log file generated
+[2025-07-10 17:41:03.455] Log file generated
+[2025-07-10 17:41:03.479] ERROR | Main : CONFIG IS SELECTED AS NONE, TERMINATING FSW
+[2025-07-10 17:46:28.142] Log file generated
+[2025-07-10 17:46:28.143] Log file generated
+[2025-07-10 17:47:53.704] Log file generated
+[2025-07-10 17:47:53.704] Log file generated
+[2025-07-10 18:25:52.024] Log file generated
+[2025-07-10 18:25:52.025] Log file generated
+[2025-07-10 18:25:57.249] Log file generated
+[2025-07-10 18:25:57.249] Log file generated
+[2025-07-10 18:26:40.310] Log file generated
+[2025-07-10 18:26:40.310] Log file generated
+[2025-07-10 18:32:43.704] Log file generated
+[2025-07-10 18:32:43.704] Log file generated
+<<<<<<< HEAD
+[2025-07-12 18:47:39.813] Log file generated
+[2025-07-12 18:47:39.813] Log file generated
+=======
+[2025-07-12 10:29:30.976] Log file generated
+[2025-07-12 10:29:30.977] Log file generated
+[2025-07-12 10:31:09.833] Log file generated
+[2025-07-12 10:31:09.834] Log file generated
+[2025-07-12 10:39:56.585] Log file generated
+[2025-07-12 10:39:56.585] Log file generated
+[2025-07-12 10:44:52.614] Log file generated
+[2025-07-12 10:44:52.614] Log file generated
+[2025-07-12 10:53:36.534] Log file generated
+[2025-07-12 10:53:36.534] Log file generated
+[2025-07-12 10:57:00.908] Log file generated
+[2025-07-12 10:57:00.908] Log file generated
+[2025-07-12 10:59:18.470] Log file generated
+[2025-07-12 10:59:18.470] Log file generated
+[2025-07-12 10:59:18.608] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-12 10:59:18.738] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-12 10:59:18.981] ERROR | FIR : Init error: Could not determine Jetson model
+[2025-07-12 10:59:18.981] ERROR | IMU : Error during initialization
+[2025-07-12 10:59:18.981] ERROR | Thermo : Init error: Could not determine Jetson model
+[2025-07-12 11:05:24.361] Log file generated
+[2025-07-12 11:05:24.361] Log file generated
+[2025-07-12 11:05:24.472] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-12 11:05:24.593] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-12 11:05:24.647] ERROR | IMU : Error during initialization
+[2025-07-12 11:05:24.690] ERROR | FIR : Init error: Could not determine Jetson model
+[2025-07-12 11:05:24.764] ERROR | ThermalCamera : Init error: Could not determine Jetson model
+[2025-07-12 11:05:24.766] ERROR | Thermo : Init error: Could not determine Jetson model
+[2025-07-15 07:00:49.697] Log file generated
+[2025-07-15 07:00:49.697] Log file generated
+[2025-07-15 07:00:49.988] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-15 07:00:50.084] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-15 07:00:50.167] ERROR | IMU : Error during initialization
+[2025-07-15 07:00:50.304] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-15 07:00:50.351] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-15 07:00:50.379] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 03:30:50.925] Log file generated
+[2025-07-17 03:30:50.925] Log file generated
+[2025-07-17 03:30:51.225] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 03:30:51.354] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 03:30:51.420] ERROR | IMU : Error during initialization
+[2025-07-17 03:30:51.553] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 03:30:51.732] ERROR | FIR : Init error: No I2C device at address: 0x5a
+>>>>>>> d353c2a (nir)
+[2025-07-17 03:50:19.910] Log file generated
+[2025-07-17 03:50:19.910] Log file generated
+[2025-07-17 03:50:20.032] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 03:50:20.146] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 03:50:20.209] ERROR | IMU : Error during initialization
+[2025-07-17 03:50:20.313] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 03:50:20.344] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:00:48.995] Log file generated
+[2025-07-17 04:00:48.995] Log file generated
+[2025-07-17 04:00:49.092] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:00:49.174] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:00:49.302] ERROR | IMU : Error during initialization
+[2025-07-17 04:00:49.366] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:00:49.505] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:02:32.793] Log file generated
+[2025-07-17 04:02:32.793] Log file generated
+[2025-07-17 04:02:32.890] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:02:32.971] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:02:33.066] ERROR | IMU : Error during initialization
+[2025-07-17 04:02:33.107] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:02:33.374] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:04:09.677] Log file generated
+[2025-07-17 04:04:09.677] Log file generated
+[2025-07-17 04:04:09.772] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:04:09.906] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:04:09.999] ERROR | IMU : Error during initialization
+[2025-07-17 04:04:10.019] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:04:10.236] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:08:34.462] Log file generated
+[2025-07-17 04:08:34.462] Log file generated
+[2025-07-17 04:13:43.568] Log file generated
+[2025-07-17 04:13:43.568] Log file generated
+[2025-07-17 04:13:43.669] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:13:43.755] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:13:43.899] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:13:43.906] ERROR | IMU : Error during initialization
+[2025-07-17 04:13:44.018] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:13:55.648] Log file generated
+[2025-07-17 04:13:55.648] Log file generated
+[2025-07-17 04:15:47.707] Log file generated
+[2025-07-17 04:15:47.708] Log file generated
+[2025-07-17 04:15:47.828] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:15:47.924] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:15:48.019] ERROR | IMU : Error during initialization
+[2025-07-17 04:15:48.046] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:15:48.063] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:15:48.135] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:16:54.218] Log file generated
+[2025-07-17 04:16:54.218] Log file generated
+[2025-07-17 04:16:54.328] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:16:54.415] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:16:54.464] ERROR | IMU : Error during initialization
+[2025-07-17 04:16:54.574] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:16:54.587] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:16:54.723] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:18:51.055] Log file generated
+[2025-07-17 04:18:51.055] Log file generated
+[2025-07-17 04:21:43.771] Log file generated
+[2025-07-17 04:21:43.771] Log file generated
+[2025-07-17 04:21:44.141] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:21:44.235] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:21:44.448] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:21:44.463] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:21:44.522] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:39:02.268] Log file generated
+[2025-07-17 04:39:02.268] Log file generated
+[2025-07-17 04:39:02.367] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:39:02.440] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:39:02.598] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:39:02.614] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:39:02.711] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:40:00.447] Log file generated
+[2025-07-17 04:40:00.447] Log file generated
+[2025-07-17 04:40:00.542] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:40:00.603] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:40:00.760] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:40:00.774] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:40:00.935] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:46:18.804] Log file generated
+[2025-07-17 04:46:18.804] Log file generated
+[2025-07-17 04:46:18.931] ERROR | Barometer : Error during initialization: No module named 'adafruit_bmp3xx'
+[2025-07-17 04:46:19.018] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:46:19.185] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 04:46:19.198] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:46:19.282] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 04:52:58.338] Log file generated
+[2025-07-17 04:52:58.338] Log file generated
+[2025-07-17 04:52:58.573] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 04:52:58.640] ERROR | Barometer : Error during initialization: Could not determine Jetson model
+[2025-07-17 04:52:58.656] ERROR | Thermo : Init error: Could not determine Jetson model
+[2025-07-17 04:52:58.672] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 04:52:58.708] ERROR | IMU : Error during initialization
+[2025-07-17 04:52:58.723] ERROR | FIR : Init error: Could not determine Jetson model
+[2025-07-17 04:52:58.739] ERROR | ThermalCamera : Init error: Could not determine Jetson model
+[2025-07-17 05:03:42.897] Log file generated
+[2025-07-17 05:03:42.897] Log file generated
+[2025-07-17 05:03:43.190] ERROR | Barometer : Error during initialization: Board not supported raspberrypi.
+[2025-07-17 05:03:43.191] ERROR | IMU : Error during initialization
+[2025-07-17 05:03:43.200] ERROR | FIR : Init error: Board not supported raspberrypi.
+[2025-07-17 05:03:43.215] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 05:03:43.245] ERROR | ThermalCamera : Init error: Board not supported raspberrypi.
+[2025-07-17 05:03:43.267] ERROR | Thermo : Init error: Board not supported raspberrypi.
+[2025-07-17 05:03:43.275] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 05:04:10.739] Log file generated
+[2025-07-17 05:04:10.739] Log file generated
+[2025-07-17 05:04:10.917] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 05:04:10.922] ERROR | IMU : Error during initialization
+[2025-07-17 05:04:10.961] ERROR | FIR : Init error: Board not supported raspberrypi.
+[2025-07-17 05:04:10.968] ERROR | ThermalCamera : Init error: Board not supported raspberrypi.
+[2025-07-17 05:04:10.988] ERROR | Barometer : Error during initialization: Board not supported raspberrypi.
+[2025-07-17 05:04:11.015] ERROR | Thermo : Init error: Board not supported raspberrypi.
+[2025-07-17 05:04:11.023] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 05:08:39.300] Log file generated
+[2025-07-17 05:08:39.301] Log file generated
+[2025-07-17 05:08:39.498] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 05:08:39.614] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 05:08:39.637] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 05:08:39.901] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 05:08:40.346] ERROR | FlightLogic : flightlogicapp error : module 'lib.appargs' has no attribute 'CameraAppArg'
+[2025-07-17 05:08:59.614] ERROR | Barometer : MID 100 not handled
+[2025-07-17 05:19:11.019] Log file generated
+[2025-07-17 05:19:11.019] Log file generated
+[2025-07-17 05:19:11.254] ERROR | FlightLogic : Error during initialization
+[2025-07-17 05:19:11.316] ERROR | Communication : Error during initialization : [Errno 2] could not open port /dev/serial0: [Errno 2] No such file or directory: '/dev/serial0'
+[2025-07-17 05:19:11.350] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-17 05:19:11.514] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-17 05:19:12.603] ERROR | Motor : motorapp runtime error: type object 'FlightlogicAppArg' has no attribute 'MID_SetPayloadMotorAngle'
+[2025-07-17 05:19:19.543] ERROR | Barometer : MID 100 not handled

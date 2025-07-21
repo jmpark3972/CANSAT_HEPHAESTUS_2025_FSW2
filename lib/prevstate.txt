@@ -1,0 +1,6 @@
+# Prevstate.txt
+# The Config below stores the prev flight data
+# DO NOT EDIT MANUALLY
+STATE=NONE
+ALTCAL=NONE
+MAXALT=NONE

@@ -1,0 +1,10 @@
+sensorlogs/
+*.pyc
+<<<<<<< HEAD
+__pycache__/\n*.pyc
+=======
+eventlogs/*.txt" >> .gitignore
+>>>>>>> 29069bc (Clean *.pyc, update motor + barometer submodules)
+
+# ignore mis-named file
+main

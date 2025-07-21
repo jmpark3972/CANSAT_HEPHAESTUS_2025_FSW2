@@ -1,0 +1,7 @@
+# Config.txt
+# Select the FSW operation mode
+# Currently supports PAYLOAD, CONTAINER, ROCKET
+# SELECTED=NONE
+ SELECTED=PAYLOAD
+# SELECTED=CONTAINER
+# SELECTED=ROCKET
