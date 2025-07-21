@@ -1891,3 +1891,136 @@
 [2025-07-21 08:46:08.952] INFO | RECOVERY : Prev state is NONE
 [2025-07-21 08:46:08.952] INFO | RECOVERY : Prev calibration is NONE
 [2025-07-21 08:46:08.952] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 12:50:56.215] Log file generated
+[2025-07-21 12:50:56.259] INFO | RECOVERY : Prev state is NONE
+[2025-07-21 12:50:56.259] INFO | RECOVERY : Prev calibration is NONE
+[2025-07-21 12:50:56.260] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 12:52:44.731] Log file generated
+[2025-07-21 12:52:44.738] INFO | RECOVERY : Prev state is NONE
+[2025-07-21 12:52:44.738] INFO | RECOVERY : Prev calibration is NONE
+[2025-07-21 12:52:44.738] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 12:59:24.370] Log file generated
+[2025-07-21 12:59:24.378] INFO | RECOVERY : Prev state is NONE
+[2025-07-21 12:59:24.378] INFO | RECOVERY : Prev calibration is NONE
+[2025-07-21 12:59:24.378] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 13:00:37.402] Log file generated
+[2025-07-21 13:00:37.409] INFO | RECOVERY : Prev state is NONE
+[2025-07-21 13:00:37.409] INFO | RECOVERY : Prev calibration is NONE
+[2025-07-21 13:00:37.409] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 13:01:36.295] Log file generated
+[2025-07-21 13:01:36.302] INFO | RECOVERY : Prev state is NONE
+[2025-07-21 13:01:36.302] INFO | RECOVERY : Prev calibration is NONE
+[2025-07-21 13:01:36.302] INFO | RECOVERY : Prev maxalt is NONE
+[2025-07-21 13:01:36.453] INFO | HK : Initializating hkapp
+[2025-07-21 13:01:36.454] INFO | HK : hkapp Initialization Complete
+[2025-07-21 13:01:36.459] INFO | Barometer : Initializating barometerapp
+[2025-07-21 13:01:36.465] INFO | GPS : Initializating gpsapp
+[2025-07-21 13:01:36.468] INFO | IMU : Initializating imuapp
+[2025-07-21 13:01:36.481] INFO | FlightLogic : Initializating flightlogicapp
+[2025-07-21 13:01:36.487] INFO | FlightLogic : CHANGED STATE TO STANDBY
+[2025-07-21 13:01:36.490] INFO | Motor : Initialising motorapp (pigpio)
+[2025-07-21 13:01:36.492] INFO | FlightLogic : Setting Current state to 0
+[2025-07-21 13:01:36.492] INFO | Communication : Initializating commapp
+[2025-07-21 13:01:36.493] INFO | FlightLogic : Flightlogicapp Initialization Complete
+[2025-07-21 13:01:36.495] INFO | GPS : Gpsapp Initialization Complete
+[2025-07-21 13:01:36.507] INFO | Motor : Motorapp initialised, servo at 0°
+[2025-07-21 13:01:36.518] INFO | FIR : Initializing firapp
+[2025-07-21 13:01:36.526] INFO | ThermalCamera : Initializing thermocamapp
+[2025-07-21 13:01:36.533] INFO | Thermo : Initializing thermoapp
+[2025-07-21 13:01:37.120] INFO | Communication : Sending XBEE reset pulse...
+[2025-07-21 13:01:37.192] INFO | FlightLogic : Terminating flightlogicapp
+[2025-07-21 13:01:37.192] INFO | FlightLogic : Terminating thread HKSender_Thread
+[2025-07-21 13:01:37.281] INFO | FIR : Firapp initialization complete
+[2025-07-21 13:01:37.331] INFO | Communication : Commapp Initialization Complete
+[2025-07-21 13:01:37.467] INFO | Barometer : Barometerapp Initialization Complete
+[2025-07-21 13:01:37.495] INFO | ThermalCamera : Thermocamapp initialization complete
+[2025-07-21 13:01:37.509] INFO | FlightLogic : Terminating thread HKSender_Thread Complete
+[2025-07-21 13:01:37.510] INFO | FlightLogic : Terminating thread SendCurrentState_Thread
+[2025-07-21 13:01:37.511] INFO | FlightLogic : Terminating thread SendCurrentState_Thread Complete
+[2025-07-21 13:01:37.511] INFO | FlightLogic : Terminating flightlogicapp complete
+[2025-07-21 13:01:38.411] INFO | IMU : Imuapp Initialization Complete
+[2025-07-21 13:01:43.746] INFO | Main : KeyboardInterrupt Detected, Terminating FSW
+[2025-07-21 13:01:43.747] INFO | Main : Terminating AppID 2
+[2025-07-21 13:01:43.747] INFO | Main : Terminating AppID 10
+[2025-07-21 13:01:43.747] INFO | HK : HKAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.748] INFO | Main : Terminating AppID 12
+[2025-07-21 13:01:43.748] INFO | HK : Terminating hkapp
+[2025-07-21 13:01:43.748] INFO | HK : Terminating thread PrintHKStat_Thread
+[2025-07-21 13:01:43.748] INFO | Main : Terminating AppID 13
+[2025-07-21 13:01:43.749] INFO | GPS : GPSAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.749] INFO | Main : Terminating AppID 14
+[2025-07-21 13:01:43.749] INFO | GPS : Terminating gpsapp
+[2025-07-21 13:01:43.749] INFO | Main : Terminating AppID 16
+[2025-07-21 13:01:43.749] INFO | Barometer : BAROMETERAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.749] INFO | GPS : Terminating thread HKSender_Thread
+[2025-07-21 13:01:43.749] INFO | IMU : IMUAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.749] INFO | Main : Terminating AppID 24
+[2025-07-21 13:01:43.749] INFO | IMU : Terminating imuapp
+[2025-07-21 13:01:43.750] INFO | Barometer : Terminating barometerapp
+[2025-07-21 13:01:43.750] INFO | Barometer : Terminating thread HKSender_Thread
+[2025-07-21 13:01:43.750] INFO | IMU : Terminating thread HKSender_Thread
+[2025-07-21 13:01:43.750] INFO | Main : Terminating AppID 20
+[2025-07-21 13:01:43.751] INFO | Communication : COMMAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.751] INFO | Communication : Terminating commapp
+[2025-07-21 13:01:43.751] INFO | Main : Terminating AppID 22
+[2025-07-21 13:01:43.751] INFO | Communication : Terminating thread HKSender_Thread
+[2025-07-21 13:01:43.752] INFO | FIR : FIRAPP termination detected
+[2025-07-21 13:01:43.752] INFO | Main : Terminating AppID 23
+[2025-07-21 13:01:43.753] INFO | Motor : Termination command received
+[2025-07-21 13:01:43.753] INFO | FIR : Terminating firapp
+[2025-07-21 13:01:43.753] INFO | ThermalCamera : THERMOCAMAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.753] INFO | Motor : Terminating motorapp
+[2025-07-21 13:01:43.754] INFO | ThermalCamera : Terminating thermocamapp
+[2025-07-21 13:01:43.754] INFO | Main : Joining AppID 2
+[2025-07-21 13:01:43.754] INFO | Thermo : THERMOAPP TERMINATION DETECTED
+[2025-07-21 13:01:43.754] INFO | Thermo : Terminating thermoapp
+[2025-07-21 13:01:44.294] INFO | FIR : Firapp termination complete
+[2025-07-21 13:01:44.337] INFO | Communication : Terminating thread HKSender_Thread Complete
+[2025-07-21 13:01:44.338] INFO | Communication : Terminating thread TlmSender_Thread
+[2025-07-21 13:01:44.347] INFO | Communication : Terminating thread TlmSender_Thread Complete
+[2025-07-21 13:01:44.347] INFO | Communication : Terminating thread CmdReader_Thread
+[2025-07-21 13:01:44.416] INFO | IMU : Terminating thread HKSender_Thread Complete
+[2025-07-21 13:01:44.416] INFO | IMU : Terminating thread ReadImuData_Thread
+[2025-07-21 13:01:44.417] INFO | IMU : Terminating thread ReadImuData_Thread Complete
+[2025-07-21 13:01:44.417] INFO | IMU : Terminating thread SendImuData_Thread
+[2025-07-21 13:01:44.418] INFO | IMU : Terminating thread SendImuData_Thread Complete
+[2025-07-21 13:01:44.418] INFO | IMU : Terminating imuapp complete
+[2025-07-21 13:01:44.458] INFO | HK : Terminating thread PrintHKStat_Thread Complete
+[2025-07-21 13:01:44.459] INFO | HK : Terminating hkapp complete
+[2025-07-21 13:01:44.465] INFO | Main : Terminating AppID 2 complete
+[2025-07-21 13:01:44.466] INFO | Main : Joining AppID 10
+[2025-07-21 13:01:44.472] INFO | Barometer : Terminating thread HKSender_Thread Complete
+[2025-07-21 13:01:44.473] INFO | Barometer : Terminating thread SendBarometerData_Thread
+[2025-07-21 13:01:44.473] INFO | Barometer : Terminating thread SendBarometerData_Thread Complete
+[2025-07-21 13:01:44.473] INFO | Barometer : Terminating thread ReadBarometerData_Thread
+[2025-07-21 13:01:44.474] INFO | Barometer : Terminating thread ReadBarometerData_Thread Complete
+[2025-07-21 13:01:44.474] INFO | Barometer : Terminating barometerapp complete
+[2025-07-21 13:01:44.483] INFO | Main : Terminating AppID 10 complete
+[2025-07-21 13:01:44.483] INFO | Main : Joining AppID 12
+[2025-07-21 13:01:44.501] INFO | ThermalCamera : Thermocamapp termination complete
+[2025-07-21 13:01:44.515] INFO | GPS : Terminating thread HKSender_Thread Complete
+[2025-07-21 13:01:44.516] INFO | GPS : Terminating thread ReadAndSendGpsData_Thread
+[2025-07-21 13:01:44.518] INFO | Motor : Motorapp termination complete
+[2025-07-21 13:01:44.539] INFO | GPS : Terminating thread ReadAndSendGpsData_Thread Complete
+[2025-07-21 13:01:44.540] INFO | GPS : GPS connection terminated
+[2025-07-21 13:01:44.541] INFO | GPS : Terminating gpsapp complete
+[2025-07-21 13:01:44.548] INFO | Main : Terminating AppID 12 complete
+[2025-07-21 13:01:44.549] INFO | Main : Joining AppID 13
+[2025-07-21 13:01:44.549] INFO | Main : Terminating AppID 13 complete
+[2025-07-21 13:01:44.549] INFO | Main : Joining AppID 14
+[2025-07-21 13:01:44.550] INFO | Main : Terminating AppID 14 complete
+[2025-07-21 13:01:44.550] INFO | Main : Joining AppID 16
+[2025-07-21 13:01:44.753] INFO | Communication : Terminating thread CmdReader_Thread Complete
+[2025-07-21 13:01:44.754] INFO | Communication : Terminating commapp complete
+[2025-07-21 13:01:44.762] INFO | Main : Terminating AppID 16 complete
+[2025-07-21 13:01:44.762] INFO | Main : Joining AppID 24
+[2025-07-21 13:01:44.762] INFO | Main : Terminating AppID 24 complete
+[2025-07-21 13:01:44.763] INFO | Main : Joining AppID 20
+[2025-07-21 13:01:44.763] INFO | Main : Terminating AppID 20 complete
+[2025-07-21 13:01:44.764] INFO | Main : Joining AppID 22
+[2025-07-21 13:01:44.764] INFO | Main : Terminating AppID 22 complete
+[2025-07-21 13:01:44.764] INFO | Main : Joining AppID 23
+[2025-07-21 13:01:45.195] INFO | Thermo : Thermoapp termination complete
+[2025-07-21 13:01:45.202] INFO | Main : Terminating AppID 23 complete
+[2025-07-21 13:01:45.203] INFO | Main : Manual termination! Resetting prev state file
+[2025-07-21 13:01:45.204] INFO | Main : All Termination Process complete, terminating FSW

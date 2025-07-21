@@ -198,3 +198,29 @@
 [2025-07-17 05:19:19.543] ERROR | Barometer : MID 100 not handled
 [2025-07-21 08:46:08.916] Log file generated
 [2025-07-21 08:46:08.916] Log file generated
+[2025-07-21 12:50:56.230] Log file generated
+[2025-07-21 12:50:56.230] Log file generated
+[2025-07-21 12:52:44.731] Log file generated
+[2025-07-21 12:52:44.731] Log file generated
+[2025-07-21 12:59:24.371] Log file generated
+[2025-07-21 12:59:24.371] Log file generated
+[2025-07-21 13:00:37.402] Log file generated
+[2025-07-21 13:00:37.402] Log file generated
+[2025-07-21 13:01:36.295] Log file generated
+[2025-07-21 13:01:36.295] Log file generated
+[2025-07-21 13:01:37.175] ERROR | Thermo : Init error: module 'lib.prevstate' has no attribute 'PREV_THERMO_TOFF'
+[2025-07-21 13:01:37.191] ERROR | FlightLogic : flightlogicapp error : type object 'FlightlogicAppArg' has no attribute 'MID_SetMotorAngle'
+[2025-07-21 13:01:38.190] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:38.297] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:39.192] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:39.299] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:40.194] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:40.302] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:41.197] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:41.305] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:42.199] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:42.308] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:43.203] ERROR | Communication : MID 2303 not handled
+[2025-07-21 13:01:43.311] ERROR | Communication : MID 2002 not handled
+[2025-07-21 13:01:43.749] ERROR | Barometer : MID 100 not handled
+[2025-07-21 13:01:43.752] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer

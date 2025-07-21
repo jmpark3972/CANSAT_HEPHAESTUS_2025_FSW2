@@ -1,0 +1,63 @@
+[2025-07-21 13:01:37.334] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:37, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : 0.0 , 0.0, 0.0
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:38.338] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:38, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : 0.0 , 0.0, 0.0
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:39.339] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:39, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : 42.67 , 28.13, 1008.17
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:40.341] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:40, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : 42.67 , 28.13, 1008.17
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:41.342] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:41, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : 42.67 , 28.13, 1008.17
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:42.344] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:42, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : 42.67 , 28.13, 1008.17
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
+[2025-07-21 13:01:43.346] DEBUG | Communication : 
+ID : 3139 TIME : 13:01:43, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : 42.67 , 28.13, 1008.17
+Voltage : 0.0
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+GPS : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
+Rotation Rate : 0.0
+
