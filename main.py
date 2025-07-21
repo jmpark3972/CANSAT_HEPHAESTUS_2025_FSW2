@@ -210,7 +210,7 @@ app_dict[appargs.FirAppArg.AppID] = cameraapp_elements
 # CameraApp                                             #
 #########################################################
 
-from thermal_camrea import thermo_cameraapp
+from thermal_camera import thermo_cameraapp
 
 parent_pipe, child_pipe = Pipe()
 
