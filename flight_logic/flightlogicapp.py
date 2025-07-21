@@ -264,7 +264,7 @@ BAROMETER_DESCENT_COUNTER = 0
 BAROMETER_PROBE_RELEASE_COUNTER = 0
 BAROMETER_LANDED_COUNTER = 0
 
-# Tilt data beyond threshold will be considered as a deploy condition.
+# IMU 관련 상수(실제 사용처 없으면 삭제, 전역 변수로만 유지)
 IMU_ROLL_THRESHOLD = 70
 IMU_PITCH_THRESHOLD = 70
 
@@ -396,115 +396,38 @@ def barometer_logic(Main_Queue:Queue, altitude:float):
 
     return
 
-def launchpad_state_transition(Main_Queue : Queue):
+def log_and_update_state(state: int, log_msg: str):
     global CURRENT_STATE
-    global MAX_ALT
-    global recent_alt
-
-    # Set the Current State to 0 ; Standby
-    CURRENT_STATE = 0
-    # Set the max alt to 0 and clear the recent alt list
-    MAX_ALT = 0
-    recent_alt.clear()
-
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO STANDBY")
-    
-    # Store the current state to prev state file
+    CURRENT_STATE = state
+    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, log_msg)
     prevstate.update_prevstate(CURRENT_STATE)
 
-    # Reset the mechanism depending on the FSW config
-    #if config.FSW_CONF == config.CONF_CONTAINER:
-    #    PayloadReleaseMotorStandbyMsg = msgstructure.MsgStructure()
-    #    msgstructure.send_msg(Main_Queue, PayloadReleaseMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_PayloadReleaseMotorStandby, "")
-
-    #if config.FSW_CONF == config.CONF_ROCKET:
-    #    RocketMotorStandbyMsg = msgstructure.MsgStructure()
-    #    msgstructure.send_msg(Main_Queue, RocketMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorStandby, "")
-
+def launchpad_state_transition(Main_Queue : Queue):
+    global MAX_ALT
+    global recent_alt
+    log_and_update_state(0, "CHANGED STATE TO STANDBY")
+    MAX_ALT = 0
+    recent_alt.clear()
     return
 
 def ascent_state_transition(Main_Queue : Queue):
-    global CURRENT_STATE
-    
-    # Set the Current State to 1 ; Ascent
-    CURRENT_STATE = 1
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO ASCENT")
-
-    # Store the current state to prev state file
-    prevstate.update_prevstate(CURRENT_STATE)
-
-    # Perform Action for Ascent State
-
-    ActivateCameraToCamappMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, ActivateCameraToCamappMsg, appargs.FlightlogicAppArg.AppID, appargs.CameraAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCameraActivateToCam, "")
-
+    log_and_update_state(1, "CHANGED STATE TO ASCENT")
     return
 
 def apogee_state_transition(Main_Queue : Queue):
-    global CURRENT_STATE
-
-    # Set the Current State to 2 ; Apogee
-    CURRENT_STATE = 2
-
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO APOGEE")
-    prevstate.update_prevstate(CURRENT_STATE)
-
+    log_and_update_state(2, "CHANGED STATE TO APOGEE")
+    return
 
 def descent_state_transition(Main_Queue:Queue):
-    global CURRENT_STATE
-    
-    # Set the Current State to 3 ; Deploy
-    CURRENT_STATE = 3
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO DESCENT")
-
-    # Store the current state to prev state file
-    prevstate.update_prevstate(CURRENT_STATE)
-
-    # Perform Action for Deploy State
-
-    ActivateCameraToCamappMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, ActivateCameraToCamappMsg, appargs.FlightlogicAppArg.AppID, appargs.CameraAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCameraActivateToCam, "")
-
-    # Rocket -> Activate Motor to release container. Only for test launch!
-    #RocketMotorActivateMsg = msgstructure.MsgStructure()
-    #msgstructure.send_msg(Main_Queue, RocketMotorActivateMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorActivate, "")
-
+    log_and_update_state(3, "CHANGED STATE TO DESCENT")
     return
 
 def probe_release_state_transition(Main_Queue:Queue):
-    global CURRENT_STATE
-    
-    # Set the Current State to 4 ; Payload Sep
-    CURRENT_STATE = 4
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO PROBE RELEASE")
-
-    # Store the current state to prev state file
-    prevstate.update_prevstate(CURRENT_STATE)
-
-    # Perform Action for Payload Separation State
-
-    ActivateCameraToCamappMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, ActivateCameraToCamappMsg, appargs.FlightlogicAppArg.AppID, appargs.CameraAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCameraActivateToCam, "")
-
-    PayloadReleaseMotorActivateMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, PayloadReleaseMotorActivateMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_PayloadReleaseMotorActivate, "")
-    
-    # Container -> Activate Motor to release payload
-
+    log_and_update_state(4, "CHANGED STATE TO PROBE RELEASE")
     return
 
 def landed_state_transition(Main_Queue : Queue):
-    global CURRENT_STATE
-    
-    # Set the Current State to 5 ; Landing
-    CURRENT_STATE = 5
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "CHANGED STATE TO LANDED")
-
-    # Store the current state to prev state file
-    prevstate.update_prevstate(CURRENT_STATE)
-
-    # Perform Action for Landing State
-
+    log_and_update_state(5, "CHANGED STATE TO LANDED")
     return
 
 def check_simulation_status(Main_Queue:Queue):

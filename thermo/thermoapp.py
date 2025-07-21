@@ -18,14 +18,13 @@ OFFSET_MUTEX = threading.Lock()
 
 # 보정 직후 잘못된 데이터 송신 방지
 RESET_MUTEX = threading.Lock()
-THERMO_OFFSET = getattr(prevstate, "PREV_THERMO_TOFF", 0.0)
 # ────────────────────────────────────────────────
 # 1) 기본 메시지 핸들러
 # ────────────────────────────────────────────────
 def command_handler(Main_Queue: Queue,
                     recv_msg: msgstructure.MsgStructure,
                     dht_device):
-    global THERMOAPP_RUNSTATUS, TEMP_OFFSET, HUMI_OFFSET
+    global THERMOAPP_RUNSTATUS
 
     # 1-A) 프로세스 종료
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
@@ -36,28 +35,8 @@ def command_handler(Main_Queue: Queue,
 
     # 1-B) 센서 보정(CAL) : “tempOffset,humOffset” 두 실수
     if recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
-        try:
-            temp_off, hum_off = map(float, recv_msg.data.split(","))
-        except Exception:
-            events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                            "CAL cmd parsing error")
-            return
-
-        with OFFSET_MUTEX:
-            TEMP_OFFSET, HUMI_OFFSET = temp_off, hum_off
-
-        # FLIGHTLOGIC 쪽에 “리셋됐음” 알리기(Optional)
-        with RESET_MUTEX:
-            ResetThermoCmd = msgstructure.MsgStructure()
-            msgstructure.send_msg(Main_Queue, ResetThermoCmd,
-                                  appargs.ThermoAppArg.AppID,
-                                  appargs.FlightlogicAppArg.AppID,
-                                  appargs.ThermoAppArg.MID_ResetThermoCal, "")
-            time.sleep(0.5)
-
         events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                        f"Thermo offset set to T={TEMP_OFFSET}, H={HUMI_OFFSET}")
-        prevstate.update_thermocal(TEMP_OFFSET, HUMI_OFFSET)
+                        "CAL cmd ignored: DHT11 thermo does not use offset.")
         return
 
     events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
@@ -81,8 +60,6 @@ def send_hk(Main_Queue: Queue):
 # 3) 초기화 · 종료
 # ────────────────────────────────────────────────
 def thermoapp_init():
-    global TEMP_OFFSET, HUMI_OFFSET
-
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
@@ -90,10 +67,6 @@ def thermoapp_init():
 
         # DHT11 초기화
         dht_device = thermo.init_dht()
-
-        # 이전 보정값 로드
-        TEMP_OFFSET = float(prevstate.PREV_THERMO_TOFF)
-        HUMI_OFFSET = float(prevstate.PREV_THERMO_HOFF)
 
         events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
                         "Thermoapp initialization complete")
@@ -122,52 +95,21 @@ def thermoapp_terminate(dht_device):
 # 4) 센서 읽기 / 메시지 송신 스레드
 # ────────────────────────────────────────────────
 TEMP_C, HUMI = 0.0, 0.0
-TEMP_OFFSET, HUMI_OFFSET = 0.0, 0.0   # 보정값
 
 def read_thermo_data(dht_device):
-    global TEMP_C, HUMI, TEMP_OFFSET, HUMI_OFFSET, THERMOAPP_RUNSTATUS
-
-    while THERMOAPP_RUNSTATUS:
-	
-    	if dht_device is None:
-        	time.sleep(2)
-        	continue            # 초기화 실패 → 재시도만 하고 루프 유지
-
-    	t, h = thermo.read_dht(dht_device)
-    	if t is None and h is None:
-        	time.sleep(2)
-        	continue     
-
-def send_thermo_data(Main_Queue: Queue):
     global TEMP_C, HUMI, THERMOAPP_RUNSTATUS
 
-    # 10 Hz로 FLIGHTLOGIC·1 Hz로 텔레메트리
-    fl_msg = msgstructure.MsgStructure()
-    tlm_msg = msgstructure.MsgStructure()
-    cnt = 0
-
     while THERMOAPP_RUNSTATUS:
-        with RESET_MUTEX:
-            # FlightLogic 전송 (10 Hz)
-            msgstructure.send_msg(Main_Queue, fl_msg,
-                                  appargs.ThermoAppArg.AppID,
-                                  appargs.FlightlogicAppArg.AppID,
-                                  appargs.ThermoAppArg.MID_SendThermoFlightLogicData,
-                                  f"{TEMP_C},{HUMI}")
+    
+        if dht_device is None:
+            time.sleep(2)
+            continue            # 초기화 실패 → 재시도만 하고 루프 유지
 
-        if cnt >= 10:  # 1 Hz
-            status = msgstructure.send_msg(Main_Queue, tlm_msg,
-                                           appargs.ThermoAppArg.AppID,
-                                           appargs.CommAppArg.AppID,
-                                           appargs.ThermoAppArg.MID_SendThermoTlmData,
-                                           f"{TEMP_C},{HUMI}")
-            if not status:
-                events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                                "Error sending Thermo TLM")
-            cnt = 0
-
-        cnt += 1
-        time.sleep(0.1)
+        t, h = thermo.read_dht(dht_device)
+        if t is None and h is None:
+            time.sleep(2)
+            continue     
+        TEMP_C, HUMI = t, h
 
 # ────────────────────────────────────────────────
 # 5) 메인 엔트리

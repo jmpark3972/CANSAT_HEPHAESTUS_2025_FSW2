@@ -125,6 +125,31 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendSimulationStatustoTlm:
         tlm_data.mode = recv_msg.data
 
+    elif recv_msg.MsgID == appargs.ThermoAppArg.MID_SendThermoTlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 2:
+            tlm_data.thermo_temp = float(sep_data[0])
+            tlm_data.thermo_humi = float(sep_data[1])
+
+    elif recv_msg.MsgID == appargs.FirAppArg.MID_SendFirTlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 2:
+            tlm_data.fir_amb = float(sep_data[0])
+            tlm_data.fir_obj = float(sep_data[1])
+
+    elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirTlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 2:
+            tlm_data.nir_amb = float(sep_data[0])
+            tlm_data.nir_obj = float(sep_data[1])
+
+    elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 3:
+            tlm_data.thermal_camera_avg = float(sep_data[0])
+            tlm_data.thermal_camera_min = float(sep_data[1])
+            tlm_data.thermal_camera_max = float(sep_data[2])
+
     else:
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
     return
@@ -243,6 +268,15 @@ class _tlm_data_format:
     filtered_pitch : float = 0.0
     filtered_yaw : float = 0.0
     cmd_echo : str = "None"
+    thermo_temp: float = 0.0
+    thermo_humi: float = 0.0
+    fir_amb: float = 0.0
+    fir_obj: float = 0.0
+    nir_amb: float = 0.0
+    nir_obj: float = 0.0
+    thermal_camera_avg: float = 0.0
+    thermal_camera_min: float = 0.0
+    thermal_camera_max: float = 0.0
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -294,14 +328,17 @@ def send_tlm(serial_instance):
 
         tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
                 f"Barometer : {tlm_data.altitude} , {tlm_data.temperature}, {tlm_data.pressure}\n" \
-                 f"Voltage : {tlm_data.voltage}\n" \
+                 f"Thermo : {tlm_data.thermo_temp}, {tlm_data.thermo_humi}\n" \
+                 f"FIR : {tlm_data.fir_amb}, {tlm_data.fir_obj}\n" \
+                 f"nir :({tlm_data.nir_amb}, {tlm_data.nir_obj})\n" \
+                 f"thermal_camera :({tlm_data.thermal_camera_avg}, {tlm_data.thermal_camera_min}, {tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                  f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
                  f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
                  f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}) \n" \
                  f"GPS : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
-                 f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
-                 f"Rotation Rate : {tlm_data.rot_rate}\n"
+                 f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
+                 #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, tlm_debug_text)
 

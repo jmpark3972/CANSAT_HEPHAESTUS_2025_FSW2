@@ -65,7 +65,7 @@ class CommAppArg:
     MID_RouteCmd_CAM:  types.MID = 1609
 
 class MotorAppArg:
-    AppID: types.AppID = 24      # ★다른 AppID와 겹치지 않게
+    AppID: types.AppID = 17      # 24에서 17로 변경 (10번대, 중복되지 않게)
     AppName = "Motor"
     MID_SendHK:          types.MID = 2401   # 1 Hz HK
     # Flightlogic → MotorApp 각도 지시를 Motor 쪽에서 받을 때 사용할 MID
@@ -86,11 +86,15 @@ class NirAppArg:
     AppID: types.AppID = 21
     AppName = "NIR"
     MID_SendHK: types.MID = 2101
+    MID_SendNirTlmData: types.MID = 2102
+    MID_SendNirFlightLogicData: types.MID = 2103
 
 class ThermalcameraAppArg:
     AppID: types.AppID = 22          # ← 20과 중복되던 부분 수정
     AppName = "ThermalCamera"
     MID_SendHK: types.MID = 2201
+    MID_SendCamTlmData: types.MID = 2202
+    MID_SendCamFlightLogicData: types.MID = 2203
 
 
 class ThermoAppArg:

@@ -1,54 +1,50 @@
+# NIR Sensor App
+# Author : Jeongmin Park
+# sensor : G-TPCO-035 + INA333 + 10Kohm + ADC1115
+
 import time
 import os
 from datetime import datetime
 
-log_dir = './sensorlogs'
-if not os.path.exists(log_dir): 
-    os.makedirs(log_dir)
+import board, busio
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 
-## Create sensor log file
-firlogfile = open(os.path.join(log_dir, 'fir.txt'), 'a')
+LOG_DIR = "./sensorlogs"
+os.makedirs(LOG_DIR, exist_ok=True)
+nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
 
-def log_fir(text):
+def log_nir(text):
+    t = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+    nir_log.write(f"{t},{text}\n")
+    nir_log.flush()
 
-    t = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-    string_to_write = f'{t},{text}\n'
-    firlogfile.write(string_to_write)
-    firlogfile.flush()
-    
+def init_nir():
+    i2c = busio.I2C(board.SCL, board.SDA)
+    ads = ADS.ADS1115(i2c)
+    chan = AnalogIn(ads, ADS.P0)  # G-TPCO-035 신호가 연결된 채널
+    return i2c, ads, chan
 
-def init_mlx90614():
-    import busio
-    import board
-    import adafruit_mlx90614
+def read_nir(chan, offset=0.0):
+    voltage = chan.voltage
+    # 열전쌍+INA333의 출력 전압을 온도로 변환 (예시: 1mV/°C, 증폭비 등 실제 하드웨어에 맞게 조정)
+    temp_c = (voltage - offset) * 100.0  # 예시 변환식
+    log_nir(f"{voltage:.5f},{temp_c:.2f}")
+    return voltage, temp_c
 
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
-    sensor = adafruit_mlx90614.MLX90614(i2c)
-    return i2c, sensor
-
-
-def read_sensor_data(sensor):
-    ambient_temp = sensor.ambient_temperature
-    object_temp = sensor.object_temperature
-
-    log_fir(f"Ambient Temp: {ambient_temp:.2f} C, Object Temp: {object_temp:.2f} C")
-    return ambient_temp, object_temp
-
-
-
-def terminate_fir(i2c):
-    i2c.deinit()
-    return
+def terminate_nir(i2c):
+    try:
+        i2c.deinit()
+    except AttributeError:
+        pass
+    nir_log.close()
 
 if __name__ == "__main__":
-    i2c, sensor = init_mlx90614()
+    i2c, ads, chan = init_nir()
     try:
         while True:
-            try:
-                ambient_temp, object_temp = read_sensor_data(sensor)
-                print(f"Ambient Temperature: {ambient_temp:.2f} C, Object Temperature: {object_temp:.2f} C")
-            except Exception as e:
-                print(f"Error reading sensor data: {e}")
+            voltage, temp_c = read_nir(chan)
+            print(f"NIR Voltage: {voltage:.5f} V, Temp: {temp_c:.2f} °C")
             time.sleep(1.0)
     except KeyboardInterrupt:
-        terminate_fir(i2c)
+        terminate_nir(i2c)
