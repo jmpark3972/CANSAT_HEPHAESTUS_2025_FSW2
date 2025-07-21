@@ -80,6 +80,7 @@ class FirAppArg:
     MID_SendFirFlightLogicData: types.MID = 2003  # 10 Hz 객체온도
     MID_FirCalibration:    types.MID = 2004  # CAL 처리용(옵션)
 
+
 # ────────── NIR, 열화상 등 ──────────
 class NirAppArg:
     AppID: types.AppID = 21

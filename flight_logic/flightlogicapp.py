@@ -159,7 +159,7 @@ def set_motor_angle(Main_Queue: Queue, angle: int) -> None:
     msgstructure.send_msg(Main_Queue, msg,
                           appargs.FlightlogicAppArg.AppID,
                           appargs.MotorAppArg.AppID,
-                          appargs.FlightlogicAppArg.MID_SetMotorAngle,
+                          appargs.FlightlogicAppArg.MID_SetServoAngle,
                           str(angle))
     events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
                     f"Motor angle cmd → {angle}°")
@@ -413,13 +413,13 @@ def launchpad_state_transition(Main_Queue : Queue):
     prevstate.update_prevstate(CURRENT_STATE)
 
     # Reset the mechanism depending on the FSW config
-    if config.FSW_CONF == config.CONF_CONTAINER:
-        PayloadReleaseMotorStandbyMsg = msgstructure.MsgStructure()
-        msgstructure.send_msg(Main_Queue, PayloadReleaseMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_PayloadReleaseMotorStandby, "")
+    #if config.FSW_CONF == config.CONF_CONTAINER:
+    #    PayloadReleaseMotorStandbyMsg = msgstructure.MsgStructure()
+    #    msgstructure.send_msg(Main_Queue, PayloadReleaseMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_PayloadReleaseMotorStandby, "")
 
-    if config.FSW_CONF == config.CONF_ROCKET:
-        RocketMotorStandbyMsg = msgstructure.MsgStructure()
-        msgstructure.send_msg(Main_Queue, RocketMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorStandby, "")
+    #if config.FSW_CONF == config.CONF_ROCKET:
+    #    RocketMotorStandbyMsg = msgstructure.MsgStructure()
+    #    msgstructure.send_msg(Main_Queue, RocketMotorStandbyMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorStandby, "")
 
     return
 
@@ -466,8 +466,8 @@ def descent_state_transition(Main_Queue:Queue):
     msgstructure.send_msg(Main_Queue, ActivateCameraToCamappMsg, appargs.FlightlogicAppArg.AppID, appargs.CameraAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCameraActivateToCam, "")
 
     # Rocket -> Activate Motor to release container. Only for test launch!
-    RocketMotorActivateMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, RocketMotorActivateMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorActivate, "")
+    #RocketMotorActivateMsg = msgstructure.MsgStructure()
+    #msgstructure.send_msg(Main_Queue, RocketMotorActivateMsg, appargs.FlightlogicAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.FlightlogicAppArg.MID_RocketMotorActivate, "")
 
     return
 

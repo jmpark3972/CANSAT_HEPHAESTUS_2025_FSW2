@@ -224,3 +224,5 @@
 [2025-07-21 13:01:43.311] ERROR | Communication : MID 2002 not handled
 [2025-07-21 13:01:43.749] ERROR | Barometer : MID 100 not handled
 [2025-07-21 13:01:43.752] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-21 23:56:09.584] Log file generated
+[2025-07-21 23:56:09.584] Log file generated

@@ -6,6 +6,8 @@ from lib import events
 PREV_ALT_CAL = 0
 PREV_STATE  = 0
 PREV_MAX_ALT = 0
+PREV_THERMO_TOFF = 0.0
+PREV_THERMO_HOFF = 0.0
 
 prevstate_file_path = 'lib/prevstate.txt'
 
@@ -13,13 +15,17 @@ def write_prevstate_file():
     global PREV_ALT_CAL
     global PREV_STATE
     global PREV_MAX_ALT
+    global PREV_THERMO_TOFF
+    global PREV_THERMO_HOFF
 
     content = f"""# Prevstate.txt
 # The Config below stores the prev flight data
 # DO NOT EDIT MANUALLY
 STATE={PREV_STATE}
 ALTCAL={PREV_ALT_CAL}
-MAXALT={PREV_MAX_ALT}"""
+MAXALT={PREV_MAX_ALT}
+THERMO_TOFF={PREV_THERMO_TOFF}
+THERMO_HOFF={PREV_THERMO_HOFF}"""
 
     with open(prevstate_file_path, 'w') as file:
         file.write(content)
@@ -52,11 +58,20 @@ def update_maxalt(alt:float):
     PREV_MAX_ALT = alt
     write_prevstate_file()
 
+def update_thermocal(temp_off: float, humi_off: float):
+    global PREV_THERMO_TOFF, PREV_THERMO_HOFF
+    PREV_THERMO_TOFF = temp_off
+    PREV_THERMO_HOFF = humi_off
+    write_prevstate_file()
+    return
+
 def init_prevstate():
 
     global PREV_STATE
     global PREV_ALT_CAL
     global PREV_MAX_ALT
+    global PREV_THERMO_TOFF
+    global PREV_THERMO_HOFF
     if not os.path.exists(prevstate_file_path):
         print(f"#################################################################\n\nPrevstate file does not exist, Using initial state\n\n#################################################################")
         write_prevstate_file()
@@ -98,5 +113,14 @@ def init_prevstate():
                 else:
                     events.LogEvent("RECOVERY", events.EventType.info, f"Prev maxalt is {prev_maxalt}")
                     PREV_MAX_ALT = float(prev_maxalt)
-
+            elif "THERMO_TOFF=" in prevstate_line:
+                try:
+                    PREV_THERMO_TOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_THERMO_TOFF = 0.0
+            elif "THERMO_HOFF=" in prevstate_line:
+                try:
+                    PREV_THERMO_HOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_THERMO_HOFF = 0.0
     return

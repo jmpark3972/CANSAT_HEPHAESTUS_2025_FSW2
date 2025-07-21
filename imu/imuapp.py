@@ -182,7 +182,7 @@ def send_imu_data(Main_Queue : Queue):
         status = msgstructure.send_msg(Main_Queue, 
                                        YawDataToMotorMsg,
                                        appargs.ImuAppArg.AppID,
-                                       appargs.GimbalmotorAppArg.AppID,
+                                       appargs.MotorAppArg.AppID,
                                        appargs.ImuAppArg.MID_SendYawData,
                                        f"{IMU_YAW:.2f}")
         
