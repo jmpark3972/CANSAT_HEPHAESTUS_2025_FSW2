@@ -657,8 +657,9 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     thread_dict["CmdReader_Thread"] = threading.Thread(target=read_cmd, args=(Main_Queue, serial_instance), name="CmdReader_Thread")
 
     # Spawn Each Threads
-    for thread_name in thread_dict:
-        thread_dict[thread_name].start()
+    for t in thread_dict.values():
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
     try:
         while COMMAPP_RUNSTATUS:

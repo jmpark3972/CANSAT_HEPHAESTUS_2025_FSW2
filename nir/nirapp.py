@@ -143,7 +143,8 @@ def nirapp_main(main_q: Queue, main_pipe: connection.Connection):
     thread_dict["READ"] = threading.Thread(target=read_nir_data, args=(chan,), name="READ")
     thread_dict["SEND"] = threading.Thread(target=send_nir_data, args=(main_q,), name="SEND")
     for t in thread_dict.values():
-        t.start()
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
     try:
         while NIRAPP_RUNSTATUS:
             raw = main_pipe.recv()
