@@ -146,6 +146,10 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
         target = float(recv.data)
         set_servo_angle(target)
 
+    if recv.MsgID == appargs.ImuAppArg.MID_SendYawData:
+        # 필요하다면 Yaw 데이터 활용, 아니면 pass
+        pass
+
     events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
                     f"Unhandled MID {recv.MsgID}")
 

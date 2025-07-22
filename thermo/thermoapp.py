@@ -39,6 +39,10 @@ def command_handler(Main_Queue: Queue,
                         "CAL cmd ignored: DHT11 thermo does not use offset.")
         return
 
+    if recv_msg.MsgID == appargs.ImuAppArg.MID_SendYawData:
+        # 필요하다면 Yaw 데이터 활용, 아니면 pass
+        pass
+
     events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
                     f"MID {recv_msg.MsgID} not handled")
 
