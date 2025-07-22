@@ -327,16 +327,16 @@ def send_tlm(serial_instance):
         #events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info,tlm_to_send)
 
         tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
-                f"Barometer : {tlm_data.altitude} , {tlm_data.temperature}, {tlm_data.pressure}\n" \
-                 f"Thermo : {tlm_data.thermo_temp}, {tlm_data.thermo_humi}\n" \
-                 f"FIR : {tlm_data.fir_amb}, {tlm_data.fir_obj}\n" \
-                 f"nir :({tlm_data.nir_voltage}, {tlm_data.nir_obj})\n" \
-                 f"thermal_camera :({tlm_data.thermal_camera_avg}, {tlm_data.thermal_camera_min}, {tlm_data.thermal_camera_max})\n" \
+                f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
+                 f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
+                 f"Fir : Ambient({tlm_data.fir_amb}), Object({tlm_data.fir_obj})\n" \
+                 f"Nir : Voltage({tlm_data.nir_voltage}), Object({tlm_data.nir_obj})\n" \
+                 f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                  f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
                  f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
                  f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}) \n" \
-                 f"GPS : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
+                 f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
                  f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
                  #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
