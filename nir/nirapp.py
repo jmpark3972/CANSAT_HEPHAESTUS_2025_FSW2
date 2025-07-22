@@ -68,10 +68,15 @@ def send_hk(main_q: Queue):
 def read_nir_data(chan):
     global NIR_VOLTAGE, NIR_TEMP, NIRAPP_RUNSTATUS, NIR_OFFSET
     while NIRAPP_RUNSTATUS:
-        with OFFSET_MUTEX:
-            voltage, temp = nir.read_nir(chan, NIR_OFFSET)
-            NIR_VOLTAGE = voltage
-            NIR_TEMP = temp
+        try:
+            with OFFSET_MUTEX:
+                voltage, temp = nir.read_nir(chan, NIR_OFFSET)
+                NIR_VOLTAGE = voltage
+                NIR_TEMP = temp
+        except Exception as e:
+            events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error, f"NIR read error: {e}")
+            NIR_VOLTAGE = 0.0
+            NIR_TEMP = 0.0
         time.sleep(0.2)
 
 # 데이터 전송 스레드

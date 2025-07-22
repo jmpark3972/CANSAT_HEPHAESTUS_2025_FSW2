@@ -124,30 +124,36 @@ def read_imu_data(imu_instance):
     
     global IMUAPP_RUNSTATUS
     while IMUAPP_RUNSTATUS:
-        # Read data from IMU
-        rcv_data = imu.read_sensor_data(imu_instance)
+        try:
+            # Read data from IMU
+            rcv_data = imu.read_sensor_data(imu_instance)
 
-        # Continue if Quaternion data is empty
-        if rcv_data == False:
-            continue
-        else:         
-            #새로운 자세 정보 저장
-            IMU_ROLL        = rcv_data[0]
-            IMU_PITCH       = rcv_data[1]
-            IMU_YAW         = rcv_data[2]
-            
-            IMU_ACCX        = rcv_data[3]
-            IMU_ACCY        = rcv_data[4]
-            IMU_ACCZ        = rcv_data[5]
+            # Continue if Quaternion data is empty
+            if rcv_data == False:
+                continue
+            else:         
+                #새로운 자세 정보 저장
+                IMU_ROLL        = rcv_data[0]
+                IMU_PITCH       = rcv_data[1]
+                IMU_YAW         = rcv_data[2]
+                
+                IMU_ACCX        = rcv_data[3]
+                IMU_ACCY        = rcv_data[4]
+                IMU_ACCZ        = rcv_data[5]
 
-            IMU_MAGX        = rcv_data[6]
-            IMU_MAGY        = rcv_data[7]
-            IMU_MAGZ        = rcv_data[8]
+                IMU_MAGX        = rcv_data[6]
+                IMU_MAGY        = rcv_data[7]
+                IMU_MAGZ        = rcv_data[8]
 
-            IMU_GYRX        = rcv_data[9]
-            IMU_GYRY        = rcv_data[10]
-            IMU_GYRZ        = rcv_data[11]
-
+                IMU_GYRX        = rcv_data[9]
+                IMU_GYRY        = rcv_data[10]
+                IMU_GYRZ        = rcv_data[11]
+        except Exception as e:
+            events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
+            IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
+            IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
+            IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
+            IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
         # The imu runs on 100Hz
         time.sleep(0.01)
 
