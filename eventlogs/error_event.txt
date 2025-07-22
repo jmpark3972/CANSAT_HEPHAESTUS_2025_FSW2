@@ -273,3 +273,15 @@
 [2025-07-22 11:36:08.744] ERROR | NIR : Init error: too many values to unpack (expected 3)
 [2025-07-22 11:36:17.463] ERROR | Barometer : MID 100 not handled
 [2025-07-22 11:36:17.470] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 13:57:26.460] Log file generated
+[2025-07-22 13:57:26.460] Log file generated
+[2025-07-22 13:57:27.228] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-22 13:57:27.257] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-22 13:57:27.288] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-22 13:57:27.474] ERROR | IMU : Error during initialization
+[2025-07-22 13:57:51.445] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 14:14:39.349] Log file generated
+[2025-07-22 14:14:39.349] Log file generated
+[2025-07-22 14:14:40.204] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-22 14:14:51.662] ERROR | Barometer : MID 100 not handled
+[2025-07-22 14:14:51.666] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
