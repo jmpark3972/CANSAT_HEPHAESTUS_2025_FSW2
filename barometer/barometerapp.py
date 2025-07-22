@@ -134,23 +134,18 @@ ALTITUDE = 0
 # Set the offset of baromter
 BAROMETER_OFFSET = 0
 
-def read_barometer_data(barometer_instance):
-    global PRESSURE
-    global TEMPERATURE
-    global ALTITUDE
-    global BAROMETER_OFFSET
-    global OFFSET_MUTEX
-
-    # Do not forget to use runstatus variable on a global scope
-    global BAROMETERAPP_RUNSTATUS
-
+def read_barometer_data(barometer_instance, BAROMETER_OFFSET):
+    global PRESSURE, TEMPERATURE, ALTITUDE, BAROMETERAPP_RUNSTATUS
     while BAROMETERAPP_RUNSTATUS:
-        # Read data from Barometer
-        with OFFSET_MUTEX:
-            PRESSURE, TEMPERATURE, ALTITUDE = barometer.read_barometer(barometer_instance, BAROMETER_OFFSET)
-
-        # Sleep for 0.1 second
-        time.sleep(0.1)
+        try:
+            pressure, temperature, altitude = barometer.read_barometer(barometer_instance, BAROMETER_OFFSET)
+            PRESSURE = pressure
+            TEMPERATURE = temperature
+            ALTITUDE = altitude
+        except Exception:
+            # 에러 메시지 출력하지 않고, 이전 값 유지
+            pass
+        time.sleep(0.2)
 
 def send_barometer_data(Main_Queue : Queue):
     global PRESSURE
@@ -206,6 +201,22 @@ def send_barometer_data(Main_Queue : Queue):
 
 thread_dict = dict[str, threading.Thread]()
 
+# 스레드 자동 재시작 래퍼
+import threading
+
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while BAROMETERAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
+
 # This method is called from main app. Initialization, runloop process
 def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     global BAROMETERAPP_RUNSTATUS
@@ -217,7 +228,7 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
     thread_dict["SendBarometerData_Thread"] = threading.Thread(target=send_barometer_data, args=(Main_Queue, ), name="SendBarometerData_Thread")
-    thread_dict["ReadBarometerData_Thread"] = threading.Thread(target=read_barometer_data, args=(barometer_instance, ), name="ReadBarometerData_Thread")
+    thread_dict["READ"] = resilient_thread(read_barometer_data, args=(barometer_instance, BAROMETER_OFFSET), name="READ")
 
     # Spawn Each Threads
     for thread_name in thread_dict:

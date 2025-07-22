@@ -103,9 +103,9 @@ def read_cam_data(cam):
             if data is not None:
                 _, tmin, tmax, tavg = data
                 MIN_T, MAX_T, AVG_T = round(tmin, 1), round(tmax, 1), round(tavg, 1)
-        except Exception as e:
-            events.LogEvent(appargs.ThermalcameraAppArg.AppName, events.EventType.error, f"ThermalCam read error: {e}")
-            MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
+        except Exception:
+            # 에러 메시지 출력하지 않고, 이전 값 유지
+            pass
         time.sleep(0.5)
 
 def send_cam_data(Main_Queue: Queue):
@@ -140,6 +140,22 @@ def send_cam_data(Main_Queue: Queue):
 # ──────────────────────────────
 thread_dict: dict[str, threading.Thread] = {}
 
+# 스레드 자동 재시작 래퍼
+import threading
+
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while THERMOCAMAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
+
 def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     global THERMOCAMAPP_RUNSTATUS
     THERMOCAMAPP_RUNSTATUS = True
@@ -151,8 +167,7 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     # 스레드 생성
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(Main_Queue,),
                                          name="HKSender_Thread")
-    thread_dict["READ"] = threading.Thread(target=read_cam_data, args=(cam,),
-                                           name="ReadCamData_Thread")
+    thread_dict["READ"] = resilient_thread(read_cam_data, args=(cam,), name="ReadCamData_Thread")
     thread_dict["SEND"] = threading.Thread(target=send_cam_data, args=(Main_Queue,),
                                            name="SendCamData_Thread")
 

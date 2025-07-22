@@ -93,29 +93,18 @@ def gpsapp_terminate():
 ######################################################
 
 
-def read_and_send_gps_data(Main_Queue : Queue, gps_instance):
-    global GPSAPP_RUNSTATUS
-    SendGPSTlmDataMsg = msgstructure.MsgStructure()
-
+def read_gps_data(gps_instance):
+    global GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS, GPSAPP_RUNSTATUS
     while GPSAPP_RUNSTATUS:
-        # add function that Reads the GPS data
-        rcv_data = gps.gps_readdata(gps_instance)
-        GPS_TIME = rcv_data[0]
-        GPS_ALT  = rcv_data[1]
-        GPS_LAT  = rcv_data[2]
-        GPS_LON  = rcv_data[3]
-        GPS_SATS = rcv_data[4]
-        msgstructure.send_msg(Main_Queue, 
-                              SendGPSTlmDataMsg,
-                              appargs.GpsAppArg.AppID,
-                              appargs.CommAppArg.AppID,
-                              appargs.GpsAppArg.MID_SendGpsTlmData,
-                              f"{GPS_TIME},{GPS_ALT},{GPS_LAT},{GPS_LON},{GPS_SATS}")
-
+        try:
+            lat, lon, alt, time_str, sats = gps.read_gps(gps_instance)
+            if lat is not None and lon is not None and alt is not None and time_str is not None and sats is not None:
+                GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS = lat, lon, alt, time_str, sats
+        except Exception:
+            # 에러 메시지 출력하지 않고, 이전 값 유지
+            pass
         time.sleep(1)
-        
-    return
-    
+
 # Put user-defined methods here!
 
 ######################################################
@@ -123,6 +112,22 @@ def read_and_send_gps_data(Main_Queue : Queue, gps_instance):
 ######################################################
 
 thread_dict = dict[str, threading.Thread]()
+
+# 스레드 자동 재시작 래퍼
+import threading
+
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while GPSAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
 
 # This method is called from main app. Initialization, runloop process
 def gpsapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
@@ -134,7 +139,7 @@ def gpsapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
-    thread_dict["ReadAndSendGpsData_Thread"] = threading.Thread(target=read_and_send_gps_data, args=(Main_Queue, gps_instance,  ), name="ReadAndSendGpsData_Thread")
+    thread_dict["READ"] = resilient_thread(read_gps_data, args=(gps_instance,), name="READ")
 
     # Spawn Each Threads
     for thread_name in thread_dict:

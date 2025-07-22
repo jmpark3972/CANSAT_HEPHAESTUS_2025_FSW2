@@ -159,6 +159,35 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
 
 thread_dict: dict[str, threading.Thread] = {}
 
+def read_motor_status():
+    global MOTOR_STATUS, MOTORAPP_RUNSTATUS
+    while MOTORAPP_RUNSTATUS:
+        try:
+            # 실제 모터 상태 읽기 코드 (예시)
+            status = get_motor_status()
+            if status is not None:
+                MOTOR_STATUS = status
+        except Exception:
+            # 에러 메시지 출력하지 않고, 이전 값 유지
+            pass
+        time.sleep(1)
+
+# 스레드 자동 재시작 래퍼
+import threading
+
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while MOTORAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
+
 def motorapp_main(main_q: Queue, main_pipe: connection.Connection):
     global MOTORAPP_RUNSTATUS
     MOTORAPP_RUNSTATUS = True
@@ -169,6 +198,9 @@ def motorapp_main(main_q: Queue, main_pipe: connection.Connection):
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(main_q,),
                                          name="HKSender_Thread")
     thread_dict["HK"].start()
+
+    # 스레드 자동 재시작 래퍼
+    thread_dict["READ"] = resilient_thread(read_motor_status, name="READ")
 
     try:
         while MOTORAPP_RUNSTATUS:

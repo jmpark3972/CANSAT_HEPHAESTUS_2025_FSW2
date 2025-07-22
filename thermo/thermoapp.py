@@ -102,18 +102,18 @@ TEMP_C, HUMI = 0.0, 0.0
 
 def read_thermo_data(dht_device):
     global TEMP_C, HUMI, THERMOAPP_RUNSTATUS
-
     while THERMOAPP_RUNSTATUS:
-    
-        if dht_device is None:
-            time.sleep(2)
-            continue            # 초기화 실패 → 재시도만 하고 루프 유지
-
-        t, h = thermo.read_dht(dht_device)
-        if t is None and h is None:
-            time.sleep(2)
-            continue     
-        TEMP_C, HUMI = t, h
+        try:
+            if dht_device is None:
+                time.sleep(2)
+                continue
+            t, h = thermo.read_dht(dht_device)
+            if t is not None and h is not None:
+                TEMP_C, HUMI = t, h
+        except Exception:
+            # 에러 메시지 출력하지 않고, 이전 값 유지
+            pass
+        time.sleep(2)
 
 def send_thermo_data(Main_Queue: Queue):
     global TEMP_C, HUMI, THERMOAPP_RUNSTATUS
@@ -146,6 +146,22 @@ def send_thermo_data(Main_Queue: Queue):
 # ────────────────────────────────────────────────
 thread_dict: dict[str, threading.Thread] = {}
 
+# 스레드 자동 재시작 래퍼
+import threading
+
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while THERMOAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
+
 def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     global THERMOAPP_RUNSTATUS
     dht = thermoapp_init()
@@ -153,7 +169,7 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     # 스레드 생성
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(Main_Queue,))
     thread_dict["SEND"] = threading.Thread(target=send_thermo_data, args=(Main_Queue,))
-    thread_dict["READ"] = threading.Thread(target=read_thermo_data, args=(dht,))
+    thread_dict["READ"] = resilient_thread(read_thermo_data, args=(dht,), name="READ")
 
     for t in thread_dict.values():
         t.start()

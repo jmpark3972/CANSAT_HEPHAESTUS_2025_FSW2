@@ -161,6 +161,19 @@ def firapp_terminate(i2c):
 # ──────────────────────────────────────────────
 thread_dict: dict[str, threading.Thread] = {}
 
+def resilient_thread(target, args=(), name=None):
+    def wrapper():
+        while FIRAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception:
+                pass
+            time.sleep(1)
+    t = threading.Thread(target=wrapper, name=name)
+    t.daemon = True
+    t.start()
+    return t
+
 def firapp_main(main_q: Queue, main_pipe: connection.Connection):
     global FIRAPP_RUNSTATUS
     FIRAPP_RUNSTATUS = True
@@ -171,7 +184,7 @@ def firapp_main(main_q: Queue, main_pipe: connection.Connection):
 
     # spawn threads
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(main_q,), name="HK")
-    thread_dict["READ"] = threading.Thread(target=read_fir_data, args=(sensor,), name="READ")
+    thread_dict["READ"] = resilient_thread(read_fir_data, args=(sensor,), name="READ")
     thread_dict["SEND"] = threading.Thread(target=send_fir_data, args=(main_q,), name="SEND")
     for t in thread_dict.values():
         t.start()
