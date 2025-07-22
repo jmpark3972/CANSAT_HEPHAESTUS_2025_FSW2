@@ -97,7 +97,7 @@ def motorapp_terminate() -> None:
 
     for t in thread_dict.values():
         if not hasattr(t, '_is_resilient') or not t._is_resilient:
-            t.start()
+            t.join()
 
 # ────────────────────────────────────────────
 # HK sender thread
