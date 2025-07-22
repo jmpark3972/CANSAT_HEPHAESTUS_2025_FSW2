@@ -201,12 +201,12 @@ from nir import nirapp
 parent_pipe, child_pipe = Pipe()
 
 # Add Process, pipe to elements dictionary
-cameraapp_elements = app_elements()
-cameraapp_elements.process = Process(target = firapp.firapp_main, args = (main_queue, child_pipe, ))
-cameraapp_elements.pipe = parent_pipe
+nirapp_elements = app_elements()
+nirapp_elements.process = Process(target = nirapp.nirapp_main, args = (main_queue, child_pipe, ))
+nirapp_elements.pipe = parent_pipe
 
 # Add the process to dictionary
-app_dict[appargs.FirAppArg.AppID] = cameraapp_elements
+app_dict[appargs.NirAppArg.AppID] = nirapp_elements
 
 #########################################################
 # CameraApp                                             #
