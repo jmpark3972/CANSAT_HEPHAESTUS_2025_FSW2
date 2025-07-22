@@ -179,12 +179,12 @@ def send_imu_data(Main_Queue : Queue):
         send_counter += 1
 
         # Send Yaw data to motor
-        status = msgstructure.send_msg(Main_Queue, 
-                                       YawDataToMotorMsg,
-                                       appargs.ImuAppArg.AppID,
-                                       appargs.MotorAppArg.AppID,
-                                       appargs.ImuAppArg.MID_SendYawData,
-                                       f"{IMU_YAW:.2f}")
+        # msgstructure.send_msg(Main_Queue, 
+        #                       YawDataToMotorMsg,
+        #                       appargs.ImuAppArg.AppID,
+        #                       appargs.MotorAppArg.AppID,
+        #                       appargs.ImuAppArg.MID_SendYawData,
+        #                       f"{IMU_YAW:.2f}")
         
         # Sending data to COMMS app occurs once a second
 

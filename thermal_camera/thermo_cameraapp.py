@@ -114,11 +114,11 @@ def send_cam_data(Main_Queue: Queue):
     cnt = 0
     while THERMOCAMAPP_RUNSTATUS:
         # ① FlightLogic (10 Hz): "avg,min,max"
-        msgstructure.send_msg(Main_Queue, fl_msg,
-                              appargs.ThermalcameraAppArg.AppID,
-                              appargs.FlightlogicAppArg.AppID,
-                              appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
-                              f"{AVG_T},{MIN_T},{MAX_T}")
+        # msgstructure.send_msg(Main_Queue, fl_msg,
+        #                       appargs.ThermalcameraAppArg.AppID,
+        #                       appargs.FlightlogicAppArg.AppID,
+        #                       appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
+        #                       f"{AVG_T},{MIN_T},{MAX_T}")
 
         # ② COMM (1 Hz)
         if cnt >= 10:

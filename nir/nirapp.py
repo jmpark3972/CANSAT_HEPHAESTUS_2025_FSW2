@@ -82,11 +82,11 @@ def send_nir_data(main_q: Queue):
     tlm_msg = msgstructure.MsgStructure()
     while NIRAPP_RUNSTATUS:
         # Flightlogic 10Hz
-        msgstructure.send_msg(main_q, fl_msg,
-                              appargs.NirAppArg.AppID,
-                              appargs.FlightlogicAppArg.AppID,
-                              appargs.NirAppArg.MID_SendNirFlightLogicData,
-                              f"{NIR_VOLTAGE},{NIR_TEMP}")
+        # msgstructure.send_msg(main_q, fl_msg,
+        #                       appargs.NirAppArg.AppID,
+        #                       appargs.FlightlogicAppArg.AppID,
+        #                       appargs.NirAppArg.MID_SendNirFlightLogicData,
+        #                       f"{NIR_VOLTAGE},{NIR_TEMP}")
         # COMM 1Hz
         if cnt >= 10:
             status = msgstructure.send_msg(main_q, tlm_msg,
