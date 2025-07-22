@@ -153,6 +153,7 @@ def resilient_thread(target, args=(), name=None):
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
+    t._is_resilient = True
     t.start()
     return t
 
@@ -172,7 +173,8 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
                                            name="SendCamData_Thread")
 
     for t in thread_dict.values():
-        t.start()
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
     try:
         while THERMOCAMAPP_RUNSTATUS:

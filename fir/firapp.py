@@ -171,6 +171,7 @@ def resilient_thread(target, args=(), name=None):
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
+    t._is_resilient = True
     t.start()
     return t
 
@@ -183,11 +184,12 @@ def firapp_main(main_q: Queue, main_pipe: connection.Connection):
         return
 
     # spawn threads
-    thread_dict["HK"] = threading.Thread(target=send_hk, args=(main_q,), name="HK")
+    thread_dict["HK"] = resilient_thread(send_hk, args=(main_q,), name="HK")
     thread_dict["READ"] = resilient_thread(read_fir_data, args=(sensor,), name="READ")
     thread_dict["SEND"] = threading.Thread(target=send_fir_data, args=(main_q,), name="SEND")
     for t in thread_dict.values():
-        t.start()
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
     try:
         while FIRAPP_RUNSTATUS:

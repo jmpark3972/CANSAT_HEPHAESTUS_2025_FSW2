@@ -96,10 +96,8 @@ def motorapp_terminate() -> None:
         pi.stop()
 
     for t in thread_dict.values():
-        t.join()
-
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Motorapp termination complete")
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
 # ────────────────────────────────────────────
 # HK sender thread
@@ -185,6 +183,7 @@ def resilient_thread(target, args=(), name=None):
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
+    t._is_resilient = True
     t.start()
     return t
 

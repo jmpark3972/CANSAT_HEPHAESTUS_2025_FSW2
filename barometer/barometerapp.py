@@ -214,6 +214,7 @@ def resilient_thread(target, args=(), name=None):
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
+    t._is_resilient = True
     t.start()
     return t
 
@@ -231,8 +232,9 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     thread_dict["READ"] = resilient_thread(read_barometer_data, args=(barometer_instance, BAROMETER_OFFSET), name="READ")
 
     # Spawn Each Threads
-    for thread_name in thread_dict:
-        thread_dict[thread_name].start()
+    for t in thread_dict.values():
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
     try:
         while BAROMETERAPP_RUNSTATUS:

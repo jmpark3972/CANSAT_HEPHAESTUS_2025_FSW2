@@ -159,6 +159,7 @@ def resilient_thread(target, args=(), name=None):
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
+    t._is_resilient = True
     t.start()
     return t
 
@@ -172,7 +173,8 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     thread_dict["READ"] = resilient_thread(read_thermo_data, args=(dht,), name="READ")
 
     for t in thread_dict.values():
-        t.start()
+        if not hasattr(t, '_is_resilient') or not t._is_resilient:
+            t.start()
 
     try:
         while THERMOAPP_RUNSTATUS:
