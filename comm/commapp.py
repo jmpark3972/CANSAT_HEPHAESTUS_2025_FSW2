@@ -330,7 +330,7 @@ def send_tlm(serial_instance):
                 f"Barometer : {tlm_data.altitude} , {tlm_data.temperature}, {tlm_data.pressure}\n" \
                  f"Thermo : {tlm_data.thermo_temp}, {tlm_data.thermo_humi}\n" \
                  f"FIR : {tlm_data.fir_amb}, {tlm_data.fir_obj}\n" \
-                 f"nir :({tlm_data.nir_amb}, {tlm_data.nir_obj})\n" \
+                 f"nir :({tlm_data.nir_amb})\n" \
                  f"thermal_camera :({tlm_data.thermal_camera_avg}, {tlm_data.thermal_camera_min}, {tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                  f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
