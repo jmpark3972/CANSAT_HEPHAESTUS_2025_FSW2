@@ -244,3 +244,32 @@
 [2025-07-22 10:08:06.695] ERROR | ThermalCamera : ThermalCam read error: [Errno 5] Input/output error
 [2025-07-22 10:08:13.070] ERROR | Barometer : MID 100 not handled
 [2025-07-22 10:08:13.073] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 10:09:37.386] Log file generated
+[2025-07-22 10:09:37.386] Log file generated
+[2025-07-22 10:09:37.822] ERROR | Barometer : Error during initialization: Failed to find BMP3XX! Chip ID 0x70
+[2025-07-22 10:10:19.767] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 10:15:56.395] Log file generated
+[2025-07-22 10:15:56.397] Log file generated
+[2025-07-22 10:15:58.825] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-22 10:16:42.850] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 10:22:03.203] Log file generated
+[2025-07-22 10:22:03.203] Log file generated
+[2025-07-22 10:22:04.277] ERROR | Barometer : Error during initialization: Failed to find BMP3XX! Chip ID 0x13
+[2025-07-22 10:23:19.384] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 10:30:15.037] Log file generated
+[2025-07-22 10:30:15.037] Log file generated
+[2025-07-22 10:30:56.694] ERROR | Barometer : MID 100 not handled
+[2025-07-22 10:30:56.703] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 11:06:20.605] Log file generated
+[2025-07-22 11:06:20.605] Log file generated
+[2025-07-22 11:06:20.943] ERROR | Barometer : Error during initialization: Failed to find BMP3XX! Chip ID 0x10
+[2025-07-22 11:07:20.204] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 11:11:05.962] Log file generated
+[2025-07-22 11:11:05.962] Log file generated
+[2025-07-22 11:11:26.245] ERROR | Barometer : MID 100 not handled
+[2025-07-22 11:11:26.254] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 11:36:08.366] Log file generated
+[2025-07-22 11:36:08.366] Log file generated
+[2025-07-22 11:36:08.744] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-22 11:36:17.463] ERROR | Barometer : MID 100 not handled
+[2025-07-22 11:36:17.470] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer

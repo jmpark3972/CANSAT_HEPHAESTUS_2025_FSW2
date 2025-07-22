@@ -1128,3 +1128,3171 @@ IMU : Gyro(0.0, -0.01, 0.0), Accel(-0.26, -0.1, 9.32), Mag(-40.75, -20.75, -97.7
 Euler angle(358.880000, 2.2900, 1.1200) 
 Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0)
 
+[2025-07-22 10:09:38.042] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:38, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:39.046] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:39, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49888), Object(49.89)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:40.047] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:40, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49838), Object(49.84)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.21, -0.11, 9.31), Mag(-40.75, -21.19, -99.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:41.047] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:41, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49838), Object(49.84)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.22, -0.09, 9.33), Mag(-41.88, -20.75, -98.06)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:42.049] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:42, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49688), Object(49.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.23, -0.1, 9.32), Mag(-40.75, -21.19, -98.5)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:43.050] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:43, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49588), Object(49.59)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.24, -0.1, 9.3), Mag(-41.5, -21.19, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:44.052] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:44, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49225), Object(49.23)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.24, -0.1, 9.31), Mag(-40.75, -20.75, -96.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:45.053] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:45, PCK_CNT : 8, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.4895), Object(48.95)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(-0.24, -0.09, 9.34), Mag(-41.5, -21.19, -98.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:46.054] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:46, PCK_CNT : 9, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.488), Object(48.8)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.23, -0.09, 9.3), Mag(-41.06, -19.69, -99.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:47.055] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:47, PCK_CNT : 10, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.48738), Object(48.74)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, -0.0), Accel(-0.22, -0.08, 9.31), Mag(-41.5, -20.75, -98.06)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:48.056] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:48, PCK_CNT : 11, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49188), Object(49.19)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.25, -0.1, 9.29), Mag(-40.0, -21.56, -98.5)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:49.057] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:49, PCK_CNT : 12, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.48688), Object(48.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.24, -0.07, 9.31), Mag(-42.25, -21.19, -98.06)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:50.058] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:50, PCK_CNT : 13, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.25, -0.08, 9.33), Mag(-40.75, -21.19, -96.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:51.061] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:51, PCK_CNT : 14, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.48675), Object(48.68)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.24, -0.1, 9.33), Mag(-41.06, -20.38, -97.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:52.062] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:52, PCK_CNT : 15, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49238), Object(49.24)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(-0.23, -0.09, 9.31), Mag(-40.75, -21.56, -98.5)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:53.064] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:53, PCK_CNT : 16, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49113), Object(49.11)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(-0.25, -0.07, 9.29), Mag(-40.0, -20.75, -98.5)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:54.065] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:54, PCK_CNT : 17, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.47713), Object(47.71)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.22, -0.07, 9.32), Mag(-41.88, -21.56, -98.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:55.067] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:55, PCK_CNT : 18, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.59013), Object(59.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.0, 0.0), Accel(-0.25, -0.08, 9.36), Mag(-42.25, -20.75, -96.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:56.067] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:56, PCK_CNT : 19, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.7415), Object(74.15)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.26, -0.08, 9.29), Mag(-41.06, -20.38, -98.5)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:57.069] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:57, PCK_CNT : 20, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.50638), Object(50.64)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.25, -0.09, 9.33), Mag(-41.06, -21.19, -97.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:58.071] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:58, PCK_CNT : 21, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.50175), Object(50.18)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.24, -0.1, 9.32), Mag(-41.5, -20.75, -98.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:09:59.072] DEBUG | Communication : 
+ID : 3139 TIME : 10:09:59, PCK_CNT : 22, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49725), Object(49.73)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.0, 0.0), Accel(-0.24, -0.08, 9.32), Mag(-41.06, -20.75, -99.38)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:00.073] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:00, PCK_CNT : 23, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.62975), Object(62.98)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(-0.25, -0.09, 9.32), Mag(-42.25, -20.75, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:01.075] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:01, PCK_CNT : 24, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49838), Object(49.84)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(-0.24, -0.1, 9.33), Mag(-41.5, -20.75, -98.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:02.075] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:02, PCK_CNT : 25, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.59113), Object(59.11)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.24, -0.08, 9.29), Mag(-41.5, -20.75, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:03.077] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:03, PCK_CNT : 26, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.25, -0.11, 9.31), Mag(-40.0, -21.56, -97.38)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:04.078] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:04, PCK_CNT : 27, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.577), Object(57.7)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(-0.22, -0.06, 9.29), Mag(-41.5, -21.19, -98.06)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:05.079] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:05, PCK_CNT : 28, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.57913), Object(57.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(-0.25, -0.11, 9.32), Mag(-41.5, -22.25, -97.38)
+Euler angle(323.120000, -17.0800, 323.9200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:06.080] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:06, PCK_CNT : 29, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.57925), Object(57.93)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(-0.26, -0.07, 9.32), Mag(-40.75, -21.56, -98.19)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:07.081] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:07, PCK_CNT : 30, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.611), Object(61.1)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.0, -0.0), Accel(-0.24, -0.08, 9.28), Mag(-41.06, -20.75, -98.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:08.082] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:08, PCK_CNT : 31, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.57137), Object(57.14)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.23, -0.11, 9.29), Mag(-40.38, -21.56, -98.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:09.083] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:09, PCK_CNT : 32, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.56875), Object(56.88)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.23, -0.09, 9.33), Mag(-40.75, -21.19, -98.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:10.085] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:10, PCK_CNT : 33, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53763), Object(53.76)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.22, -0.08, 9.33), Mag(-41.5, -21.88, -98.19)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:11.087] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:11, PCK_CNT : 34, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.533), Object(53.3)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.23, -0.09, 9.31), Mag(-40.75, -21.19, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:12.088] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:12, PCK_CNT : 35, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.5325), Object(53.25)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.23, -0.09, 9.3), Mag(-41.5, -21.19, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:13.089] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:13, PCK_CNT : 36, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53225), Object(53.23)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(-0.22, -0.09, 9.33), Mag(-41.88, -21.56, -97.38)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:14.090] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:14, PCK_CNT : 37, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53463), Object(53.46)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.25, -0.1, 9.3), Mag(-39.56, -21.19, -97.75)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:15.092] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:15, PCK_CNT : 38, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53325), Object(53.33)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.25, -0.08, 9.29), Mag(-41.88, -21.19, -98.56)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:16.093] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:16, PCK_CNT : 39, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.55512), Object(55.51)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.26, -0.06, 9.35), Mag(-24.56, -13.19, -59.06)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:17.094] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:17, PCK_CNT : 40, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.5345), Object(53.45)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.23, -0.05, 9.28), Mag(-24.88, -13.19, -60.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:18.096] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:18, PCK_CNT : 41, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53587), Object(53.59)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(-0.25, -0.11, 9.33), Mag(-23.38, -12.75, -59.88)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:10:19.098] DEBUG | Communication : 
+ID : 3139 TIME : 10:10:19, PCK_CNT : 42, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53712), Object(53.71)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(-0.25, -0.1, 9.33), Mag(-24.56, -13.19, -60.25)
+Euler angle(358.850000, 1.1500, 359.9900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:15:58.507] DEBUG | Communication : 
+ID : 3139 TIME : 10:15:58, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:00.247] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:00, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.47263), Object(47.26)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:02.779] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:02, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.55688), Object(55.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.73, -0.12, 9.29), Mag(-38.88, 1.38, -97.19)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:03.781] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:03, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.593), Object(59.3)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, -0.0), Accel(-0.72, -0.17, 9.25), Mag(-38.5, 1.38, -96.88)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:04.783] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:04, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.48175), Object(48.18)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.75, -0.11, 9.27), Mag(-39.25, 1.75, -98.06)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:05.785] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:05, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.47213), Object(47.21)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.72, -0.12, 9.3), Mag(-39.56, 1.38, -97.69)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:06.786] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:06, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.63425), Object(63.42)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(-0.73, -0.13, 9.29), Mag(-39.25, 2.19, -97.25)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:07.787] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:07, PCK_CNT : 8, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.697), Object(69.7)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.73, -0.15, 9.27), Mag(-39.25, 1.06, -96.88)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:08.789] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:08, PCK_CNT : 9, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51525), Object(51.52)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.73, -0.13, 9.3), Mag(-40.75, 0.69, -97.75)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:09.790] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:09, PCK_CNT : 10, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.49875), Object(49.88)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.7, -0.14, 9.28), Mag(-38.88, 1.75, -97.75)
+Euler angle(358.840000, 4.5900, 359.7200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:10.792] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:10, PCK_CNT : 11, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51987), Object(51.99)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.7, -0.13, 9.32), Mag(-38.5, 1.75, -97.0)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:11.793] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:11, PCK_CNT : 12, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51225), Object(51.23)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(326.98, -0.14, 9.29), Mag(-38.88, 0.69, -97.0)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:12.795] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:12, PCK_CNT : 13, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.47687), Object(47.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.73, -0.15, 9.29), Mag(-39.25, 1.06, -97.0)
+Euler angle(358.850000, 4.5900, 359.9500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:13.795] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:13, PCK_CNT : 14, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.46913), Object(46.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.14, 0.0, -0.0), Accel(-0.72, -0.1, 9.33), Mag(-39.25, 1.06, -97.75)
+Euler angle(287.080000, 4.5900, 287.9600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:14.797] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:14, PCK_CNT : 15, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.467), Object(46.7)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.71, -0.16, 9.26), Mag(-39.25, 1.06, -97.38)
+Euler angle(358.800000, 4.5900, 358.8000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:15.799] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:15, PCK_CNT : 16, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.58788), Object(58.79)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.01, -0.01), Accel(-0.74, -0.08, 9.34), Mag(-39.25, 1.75, -97.38)
+Euler angle(358.800000, 4.5900, 358.8000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:16.800] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:16, PCK_CNT : 17, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.47875), Object(47.88)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(-0.75, -0.13, 9.29), Mag(-40.0, 0.25, -98.56)
+Euler angle(358.800000, 4.5900, 358.8000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:17.802] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:17, PCK_CNT : 18, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.56225), Object(56.23)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(8.47, -1.16, -2.35), Accel(1.12, 321.35, 7.51), Mag(-43.25, 50.75, -45.38)
+Euler angle(300.440000, -10.5000, 34.8200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:18.803] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:18, PCK_CNT : 19, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.54163), Object(54.16)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.07, 0.1, 0.13), Accel(2.0, -7.12, 6.25), Mag(-27.06, 53.75, -64.25)
+Euler angle(311.190000, -9.9000, 75.0600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:19.805] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:19, PCK_CNT : 20, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53087), Object(53.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.81, 1.01, -0.11), Accel(2.15, -4.83, 8.14), Mag(-33.0, 45.56, -76.38)
+Euler angle(325.840000, -14.4800, 73.8700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:20.806] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:20, PCK_CNT : 21, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.542), Object(54.2)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.56, 0.35, -0.35), Accel(2.14, -5.44, 7.22), Mag(-29.69, 47.5, -75.38)
+Euler angle(322.370000, -12.2400, 77.1400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:21.808] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:21, PCK_CNT : 22, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.542), Object(54.2)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.5, -0.17, -0.04), Accel(1.94, -5.55, 7.69), Mag(-30.75, 45.56, -77.06)
+Euler angle(324.880000, -12.5900, 74.9400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:23.065] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:23, PCK_CNT : 23, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.48137), Object(48.14)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.38, -0.13, 0.01), Accel(-0.56, 1.14, 9.13), Mag(-30.06, 13.25, -103.56)
+Euler angle(4.260000, 3.7800, 34.3600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:24.066] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:24, PCK_CNT : 24, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.491), Object(49.1)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.62, 3.12, -1.19), Accel(1.84, 1.16, 6.61), Mag(-63.75, 0.69, -88.38)
+Euler angle(22.110000, -31.6200, 33.2100) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:25.069] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:25, PCK_CNT : 25, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53387), Object(53.39)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.15, 0.06, -0.16), Accel(3.31, 4.48, 7.24), Mag(-58.25, -11.19, -90.75)
+Euler angle(31.780000, -19.7600, 25.8700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:26.071] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:26, PCK_CNT : 26, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.53225), Object(53.23)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.28, -0.02), Accel(3.13, 3.83, 8.77), Mag(-57.06, -9.25, -90.75)
+Euler angle(28.950000, -20.3700, 26.4000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:27.073] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:27, PCK_CNT : 27, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.5145), Object(51.45)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.79, 0.69, -0.04), Accel(2.14, 1.47, 8.99), Mag(-51.88, 7.38, -94.0)
+Euler angle(11.760000, -14.8300, 28.2200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:28.076] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:28, PCK_CNT : 28, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.5155), Object(51.55)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.02, 0.0, -0.0), Accel(2.35, 1.69, 8.75), Mag(-49.75, 5.56, -95.19)
+Euler angle(10.990000, -13.3000, 28.0900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:29.077] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:29, PCK_CNT : 29, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51675), Object(51.68)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.05, -0.0, -0.01), Accel(2.35, 1.7, 8.96), Mag(-50.06, 4.75, -94.38)
+Euler angle(10.990000, -13.3000, 28.0900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:30.078] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:30, PCK_CNT : 30, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51613), Object(51.61)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.0, -0.0), Accel(2.32, 1.75, 8.87), Mag(-50.06, 4.38, -94.38)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:31.080] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:31, PCK_CNT : 31, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51575), Object(51.58)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.36, 1.78, 8.84), Mag(-50.06, 5.56, -95.88)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:32.081] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:32, PCK_CNT : 32, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51562), Object(51.56)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(2.32, 1.78, 8.84), Mag(-50.06, 5.19, -96.75)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:33.082] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:33, PCK_CNT : 33, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(2.3, 1.79, 8.86), Mag(-30.06, 3.0, -58.25)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:34.083] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:34, PCK_CNT : 34, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.5165), Object(51.65)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(2.32, 1.81, 8.87), Mag(-30.75, 4.75, -58.25)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:35.084] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:35, PCK_CNT : 35, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.515), Object(51.5)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.0, -0.0), Accel(2.3, 1.82, 8.85), Mag(-30.75, 2.56, -59.06)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:36.086] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:36, PCK_CNT : 36, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51475), Object(51.48)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.29, 1.82, 8.83), Mag(-30.75, 3.0, -58.19)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:37.086] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:37, PCK_CNT : 37, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51438), Object(51.44)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(2.32, 1.82, 8.83), Mag(-30.75, 3.69, -58.56)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:38.088] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:38, PCK_CNT : 38, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51387), Object(51.39)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.01), Accel(2.38, 1.86, 8.85), Mag(-31.19, 3.0, -58.19)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:39.089] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:39, PCK_CNT : 39, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51413), Object(51.41)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(2.27, 1.87, 8.85), Mag(-30.38, 3.0, -57.5)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:40.090] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:40, PCK_CNT : 40, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51387), Object(51.39)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(2.27, 1.87, 8.85), Mag(-30.38, 3.0, -57.5)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:16:42.294] DEBUG | Communication : 
+ID : 3139 TIME : 10:16:42, PCK_CNT : 41, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.51387), Object(51.39)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(2.27, 1.87, 8.85), Mag(-30.38, 3.0, -57.5)
+Euler angle(10.740000, -14.4800, 28.0700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:04.319] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:04, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:05.324] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:05, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(29.11)
+Nir : Voltage(0.4825), Object(48.25)
+Thermal_camera : Average(28.1), Min(27.0), Max(29.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:06.326] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:06, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.39), Object(29.11)
+Nir : Voltage(0.48538), Object(48.54)
+Thermal_camera : Average(28.1), Min(27.0), Max(30.1)
+IMU : Gyro(-0.01, -0.0, 0.0), Accel(2.09, 2.31, 8.66), Mag(-49.25, 2.56, -94.88)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:07.327] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:07, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.35), Object(29.15)
+Nir : Voltage(0.50962), Object(50.96)
+Thermal_camera : Average(28.1), Min(26.9), Max(29.9)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.08, 2.3, 8.78), Mag(-50.0, 1.38, -96.5)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:08.329] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:08, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(29.15)
+Nir : Voltage(0.55188), Object(55.19)
+Thermal_camera : Average(28.1), Min(27.0), Max(29.9)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.09, 2.35, 8.78), Mag(-49.25, 1.06, -95.38)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:09.331] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:09, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.35), Object(29.05)
+Nir : Voltage(0.564), Object(56.4)
+Thermal_camera : Average(28.1), Min(27.0), Max(29.9)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(2.09, 2.32, 8.77), Mag(-49.25, 2.56, -94.88)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:10.332] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:10, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(29.03)
+Nir : Voltage(0.59862), Object(59.86)
+Thermal_camera : Average(28.1), Min(27.0), Max(29.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:11.334] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:11, PCK_CNT : 8, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.39), Object(29.23)
+Nir : Voltage(0.572), Object(57.2)
+Thermal_camera : Average(28.2), Min(27.1), Max(30.1)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.11, 2.31, 8.81), Mag(-49.56, 2.56, -94.88)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:12.336] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:12, PCK_CNT : 9, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(28.69)
+Nir : Voltage(0.49538), Object(49.54)
+Thermal_camera : Average(28.1), Min(26.9), Max(29.8)
+IMU : Gyro(-0.01, -0.0, 0.0), Accel(2.1, 2.33, 8.75), Mag(-49.56, 1.75, -95.75)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:13.337] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:13, PCK_CNT : 10, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(27.91)
+Nir : Voltage(0.48825), Object(48.83)
+Thermal_camera : Average(28.0), Min(26.9), Max(29.8)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.12, 2.33, 8.78), Mag(-49.56, 1.38, -96.56)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:14.338] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:14, PCK_CNT : 11, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(28.11)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.2), Min(27.0), Max(30.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.11, 2.31, 8.8), Mag(-49.56, 2.19, -96.06)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:15.339] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:15, PCK_CNT : 12, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(27.95)
+Nir : Voltage(0.48625), Object(48.62)
+Thermal_camera : Average(28.2), Min(27.0), Max(29.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.09, 2.31, 8.8), Mag(-49.56, 1.38, -95.75)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:16.340] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:16, PCK_CNT : 13, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(27.87)
+Nir : Voltage(0.48763), Object(48.76)
+Thermal_camera : Average(28.1), Min(27.0), Max(29.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.1, 2.32, 8.79), Mag(-48.88, 1.38, -96.06)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:17.341] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:17, PCK_CNT : 14, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.39), Object(28.07)
+Nir : Voltage(0.56625), Object(56.62)
+Thermal_camera : Average(28.0), Min(26.8), Max(30.1)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(2.09, 2.32, 8.79), Mag(-49.25, 3.69, -94.56)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:18.343] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:18, PCK_CNT : 15, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.39), Object(27.93)
+Nir : Voltage(0.46763), Object(46.76)
+Thermal_camera : Average(28.2), Min(26.9), Max(29.9)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(2.11, 2.32, 8.78), Mag(-50.38, 1.06, -95.38)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:19.345] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:19, PCK_CNT : 16, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(27.91)
+Nir : Voltage(0.4675), Object(46.75)
+Thermal_camera : Average(28.2), Min(26.9), Max(30.3)
+IMU : Gyro(0.02, 0.0, -0.0), Accel(2.09, 2.31, 8.79), Mag(-50.38, 1.75, -96.06)
+Euler angle(15.350000, -13.8900, 358.1600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:20.346] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:20, PCK_CNT : 17, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.37), Object(27.63)
+Nir : Voltage(0.468), Object(46.8)
+Thermal_camera : Average(28.2), Min(27.1), Max(30.0)
+IMU : Gyro(0.22, -0.22, -0.26), Accel(1.2, 2.85, 8.22), Mag(-44.75, -3.75, -97.69)
+Euler angle(19.270000, -8.1600, 355.5900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:21.347] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:21, PCK_CNT : 18, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.59)
+Nir : Voltage(0.46625), Object(46.62)
+Thermal_camera : Average(28.8), Min(26.7), Max(34.9)
+IMU : Gyro(-1.49, -0.45, -0.17), Accel(7.84, 3.59, 4.94), Mag(-78.19, -7.75, -69.56)
+Euler angle(33.880000, -42.4500, 344.0100) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:22.348] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:22, PCK_CNT : 19, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.55)
+Nir : Voltage(0.47087), Object(47.09)
+Thermal_camera : Average(29.5), Min(26.9), Max(35.8)
+IMU : Gyro(0.11, -0.19, -0.33), Accel(10.72, 1.81, -0.09), Mag(-84.06, -4.5, -47.38)
+Euler angle(46.570000, -67.2500, 314.5800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:23.349] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:23, PCK_CNT : 20, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.37), Object(27.81)
+Nir : Voltage(0.467), Object(46.7)
+Thermal_camera : Average(29.8), Min(27.4), Max(35.4)
+IMU : Gyro(1.49, -0.68, 0.27), Accel(7.62, 2.34, 5.14), Mag(-80.38, -10.75, -64.88)
+Euler angle(16.550000, -48.0800, 319.4400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:24.351] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:24, PCK_CNT : 21, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.67)
+Nir : Voltage(0.46837), Object(46.84)
+Thermal_camera : Average(32.7), Min(27.3), Max(35.9)
+IMU : Gyro(3.06, 0.12, 0.81), Accel(7.25, 3.51, 5.22), Mag(-80.38, -12.56, -66.88)
+Euler angle(29.390000, -48.4200, 328.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:25.352] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:25, PCK_CNT : 22, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(40.0)
+Fir : Ambient(25.37), Object(27.63)
+Nir : Voltage(0.46963), Object(46.96)
+Thermal_camera : Average(33.7), Min(28.0), Max(36.8)
+IMU : Gyro(-0.53, -1.79, 1.22), Accel(7.92, 1.31, 7.17), Mag(-81.56, -5.25, -66.75)
+Euler angle(78.540000, -44.7600, 327.4300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:26.353] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:26, PCK_CNT : 23, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.69)
+Nir : Voltage(0.46937), Object(46.94)
+Thermal_camera : Average(34.2), Min(29.9), Max(36.3)
+IMU : Gyro(0.03, -0.31, 0.17), Accel(9.8, 1.19, 1.38), Mag(-81.88, 4.38, -59.56)
+Euler angle(39.860000, -75.4200, 14.6500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:27.354] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:27, PCK_CNT : 24, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.79)
+Nir : Voltage(0.46937), Object(46.94)
+Thermal_camera : Average(34.2), Min(29.9), Max(36.3)
+IMU : Gyro(-1.84, 0.13, -0.09), Accel(8.58, 1.29, 3.24), Mag(-78.25, 3.69, -70.25)
+Euler angle(24.450000, -64.4300, 25.9200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:28.356] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:28, PCK_CNT : 25, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.37), Object(27.67)
+Nir : Voltage(0.46813), Object(46.81)
+Thermal_camera : Average(35.5), Min(31.1), Max(36.9)
+IMU : Gyro(-1.05, 0.01, -0.01), Accel(8.15, -3.18, 3.47), Mag(-77.88, 23.38, -44.88)
+Euler angle(320.770000, -62.1300, 22.1400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:29.357] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:29, PCK_CNT : 26, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.85)
+Nir : Voltage(0.46875), Object(46.88)
+Thermal_camera : Average(35.6), Min(30.7), Max(37.2)
+IMU : Gyro(0.97, -0.26, 0.25), Accel(8.56, 4.98, -0.22), Mag(-84.19, -15.25, -39.06)
+Euler angle(82.820000, -58.6700, 296.0900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:30.358] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:30, PCK_CNT : 27, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.37), Object(27.63)
+Nir : Voltage(0.46675), Object(46.67)
+Thermal_camera : Average(34.4), Min(28.4), Max(37.2)
+IMU : Gyro(1.72, -0.82, 0.05), Accel(8.88, 4.03, -1.43), Mag(-85.25, -6.0, -38.25)
+Euler angle(80.560000, -67.8300, 294.2200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:31.359] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:31, PCK_CNT : 28, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.81)
+Nir : Voltage(0.46863), Object(46.86)
+Thermal_camera : Average(33.4), Min(26.4), Max(36.5)
+IMU : Gyro(1.39, -0.31, -0.34), Accel(8.71, 3.53, -2.34), Mag(-84.19, -1.88, -31.88)
+Euler angle(124.670000, -64.9700, 282.4900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:32.360] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:32, PCK_CNT : 29, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.37), Object(27.53)
+Nir : Voltage(0.4825), Object(48.25)
+Thermal_camera : Average(32.7), Min(27.1), Max(35.8)
+IMU : Gyro(0.08, -0.35, 0.03), Accel(8.55, 4.01, -3.38), Mag(-83.06, -6.69, -28.25)
+Euler angle(123.870000, -59.7700, 282.8400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:33.361] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:33, PCK_CNT : 30, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.91)
+Nir : Voltage(0.48575), Object(48.58)
+Thermal_camera : Average(33.9), Min(26.9), Max(36.3)
+IMU : Gyro(-2.91, 0.35, 0.15), Accel(7.88, 3.66, 3.31), Mag(-84.19, -15.25, -43.38)
+Euler angle(59.920000, -58.4300, 302.2700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:34.363] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:34, PCK_CNT : 31, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.67)
+Nir : Voltage(0.48325), Object(48.33)
+Thermal_camera : Average(34.9), Min(29.0), Max(36.3)
+IMU : Gyro(0.1, -0.03, 0.14), Accel(7.96, 3.21, 3.76), Mag(-84.56, -18.56, -46.0)
+Euler angle(40.070000, -56.9400, 292.7400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:35.364] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:35, PCK_CNT : 32, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.59)
+Nir : Voltage(0.49413), Object(49.41)
+Thermal_camera : Average(35.4), Min(30.6), Max(36.4)
+IMU : Gyro(-0.33, 0.08, -0.13), Accel(8.98, -2.25, 2.86), Mag(-83.19, 6.56, -47.25)
+Euler angle(0.920000, -66.6600, 339.3900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:36.366] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:36, PCK_CNT : 33, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.69)
+Nir : Voltage(0.501), Object(50.1)
+Thermal_camera : Average(35.1), Min(30.8), Max(36.5)
+IMU : Gyro(0.29, -0.16, -0.12), Accel(9.28, 0.51, 1.99), Mag(-50.5, -7.0, -0.06)
+Euler angle(19.930000, -75.9300, 323.6700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:37.367] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:37, PCK_CNT : 34, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.85)
+Nir : Voltage(0.49725), Object(49.73)
+Thermal_camera : Average(35.2), Min(30.6), Max(36.3)
+IMU : Gyro(1.65, -0.77, -1.16), Accel(9.21, 2.32, 2.14), Mag(-52.75, 0.19, -12.25)
+Euler angle(54.430000, -73.3500, 296.5300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:38.368] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:38, PCK_CNT : 35, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.99)
+Nir : Voltage(0.48813), Object(48.81)
+Thermal_camera : Average(34.1), Min(28.6), Max(36.1)
+IMU : Gyro(0.58, -0.0, -0.2), Accel(3.24, 3.79, 6.35), Mag(-39.06, -3.19, -40.0)
+Euler angle(22.540000, -29.0900, 348.5200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:39.369] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:39, PCK_CNT : 36, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.39), Object(27.85)
+Nir : Voltage(0.484), Object(48.4)
+Thermal_camera : Average(32.5), Min(27.1), Max(36.2)
+IMU : Gyro(-0.56, 0.84, -0.43), Accel(2.4, 1.2, 10.48), Mag(-30.5, 5.25, -49.19)
+Euler angle(10.840000, -16.7400, 351.1700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:40.370] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:40, PCK_CNT : 37, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.5), Humidity(40.0)
+Fir : Ambient(25.41), Object(27.93)
+Nir : Voltage(0.47787), Object(47.79)
+Thermal_camera : Average(27.0), Min(25.3), Max(32.0)
+IMU : Gyro(0.09, -0.09, 0.04), Accel(2.83, 1.58, 8.91), Mag(-30.06, 5.0, -47.88)
+Euler angle(9.740000, -17.1000, 311.7300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:41.371] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:41, PCK_CNT : 38, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(28.01)
+Nir : Voltage(0.468), Object(46.8)
+Thermal_camera : Average(26.4), Min(25.6), Max(27.7)
+IMU : Gyro(0.24, 0.09, 0.47), Accel(2.88, 0.96, 8.65), Mag(-27.75, 5.69, -48.19)
+Euler angle(8.760000, -17.7000, 318.3500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:42.373] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:42, PCK_CNT : 39, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.87)
+Nir : Voltage(0.4695), Object(46.95)
+Thermal_camera : Average(26.5), Min(25.8), Max(27.4)
+IMU : Gyro(-0.1, -0.16, 0.14), Accel(2.58, 1.61, 8.75), Mag(-23.06, 7.5, -51.56)
+Euler angle(9.920000, -16.3800, 331.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:43.375] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:43, PCK_CNT : 40, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.93)
+Nir : Voltage(0.46775), Object(46.77)
+Thermal_camera : Average(26.6), Min(25.6), Max(27.3)
+IMU : Gyro(-0.03, 0.01, 0.04), Accel(2.98, 0.76, 8.53), Mag(-22.88, 13.0, -50.38)
+Euler angle(5.450000, -18.6600, 341.6400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:44.377] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:44, PCK_CNT : 41, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(27.93)
+Nir : Voltage(0.47575), Object(47.58)
+Thermal_camera : Average(26.5), Min(25.5), Max(27.7)
+IMU : Gyro(0.53, 0.04, -0.14), Accel(2.2, 2.05, 9.04), Mag(-19.56, 6.56, -53.88)
+Euler angle(13.310000, -16.7400, 348.7100) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:45.378] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:45, PCK_CNT : 42, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(28.07)
+Nir : Voltage(0.46787), Object(46.79)
+Thermal_camera : Average(26.4), Min(25.4), Max(27.1)
+IMU : Gyro(7.6, -2.81, -3.13), Accel(1.7, 0.38, 3.64), Mag(-4.69, 20.25, -55.25)
+Euler angle(359.040000, -6.6700, 357.0600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:46.380] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:46, PCK_CNT : 43, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(28.07)
+Nir : Voltage(0.46875), Object(46.88)
+Thermal_camera : Average(26.6), Min(25.7), Max(27.6)
+IMU : Gyro(-0.05, 0.03, -0.01), Accel(2.81, 1.22, 8.95), Mag(-24.75, 10.19, -51.06)
+Euler angle(8.140000, -17.4600, 337.7300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:47.381] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:47, PCK_CNT : 44, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.79)
+Nir : Voltage(0.56888), Object(56.89)
+Thermal_camera : Average(26.7), Min(25.9), Max(27.8)
+IMU : Gyro(0.21, 0.25, -0.13), Accel(2.53, 1.39, 8.9), Mag(-28.06, 9.19, -49.5)
+Euler angle(9.070000, -16.9800, 325.8100) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:48.383] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:48, PCK_CNT : 45, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.95)
+Nir : Voltage(0.503), Object(50.3)
+Thermal_camera : Average(26.8), Min(25.9), Max(28.0)
+IMU : Gyro(-0.21, -0.14, -0.02), Accel(1.58, 2.72, 8.81), Mag(-21.56, 0.06, -54.25)
+Euler angle(17.010000, -10.1400, 324.7500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:49.384] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:49, PCK_CNT : 46, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.93)
+Nir : Voltage(0.55138), Object(55.14)
+Thermal_camera : Average(27.0), Min(26.1), Max(28.2)
+IMU : Gyro(0.02, -0.0, 0.0), Accel(2.76, 1.1, 8.83), Mag(-28.0, 12.19, -49.75)
+Euler angle(7.480000, -16.8600, 327.1000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:50.386] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:50, PCK_CNT : 47, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(27.91)
+Nir : Voltage(0.4925), Object(49.25)
+Thermal_camera : Average(26.9), Min(25.9), Max(28.1)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(2.75, 1.1, 8.85), Mag(-26.5, 10.25, -51.88)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:51.388] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:51, PCK_CNT : 48, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.37), Object(27.87)
+Nir : Voltage(0.7295), Object(72.95)
+Thermal_camera : Average(27.1), Min(26.1), Max(28.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(2.76, 1.07, 8.86), Mag(-27.56, 11.5, -51.75)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:52.389] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:52, PCK_CNT : 49, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(28.05)
+Nir : Voltage(0.46963), Object(46.96)
+Thermal_camera : Average(27.1), Min(26.1), Max(28.4)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(2.75, 1.09, 8.85), Mag(-27.19, 11.06, -50.56)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:53.391] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:53, PCK_CNT : 50, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(28.13)
+Nir : Voltage(0.475), Object(47.5)
+Thermal_camera : Average(27.2), Min(26.2), Max(28.4)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.77, 1.07, 8.85), Mag(-27.19, 10.69, -51.5)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:54.393] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:54, PCK_CNT : 51, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.93)
+Nir : Voltage(0.48363), Object(48.36)
+Thermal_camera : Average(27.3), Min(26.4), Max(28.7)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(2.76, 1.1, 8.83), Mag(-27.19, 11.06, -51.5)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:55.395] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:55, PCK_CNT : 52, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.87)
+Nir : Voltage(0.4775), Object(47.75)
+Thermal_camera : Average(27.2), Min(26.4), Max(28.6)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(2.75, 1.1, 8.85), Mag(-26.88, 10.69, -51.38)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:56.396] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:56, PCK_CNT : 53, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(27.93)
+Nir : Voltage(0.47863), Object(47.86)
+Thermal_camera : Average(27.3), Min(26.4), Max(28.6)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.77, 1.12, 8.87), Mag(-26.5, 11.06, -50.19)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:57.397] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:57, PCK_CNT : 54, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.07)
+Nir : Voltage(0.47613), Object(47.61)
+Thermal_camera : Average(27.4), Min(26.5), Max(28.8)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(2.76, 1.1, 8.84), Mag(-26.5, 10.25, -51.38)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:58.399] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:58, PCK_CNT : 55, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(28.13)
+Nir : Voltage(0.47575), Object(47.58)
+Thermal_camera : Average(27.5), Min(26.6), Max(29.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(2.74, 1.08, 8.84), Mag(-28.0, 10.69, -51.75)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:22:59.400] DEBUG | Communication : 
+ID : 3139 TIME : 10:22:59, PCK_CNT : 56, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.47), Object(28.23)
+Nir : Voltage(0.4745), Object(47.45)
+Thermal_camera : Average(27.5), Min(26.6), Max(28.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.76, 1.08, 8.83), Mag(-27.19, 10.69, -51.38)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:00.401] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:00, PCK_CNT : 57, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.45)
+Nir : Voltage(0.47425), Object(47.42)
+Thermal_camera : Average(27.5), Min(26.6), Max(28.9)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.77, 1.09, 8.84), Mag(-26.5, 11.06, -51.38)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:01.402] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:01, PCK_CNT : 58, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(28.17)
+Nir : Voltage(0.4765), Object(47.65)
+Thermal_camera : Average(27.6), Min(26.6), Max(29.3)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(2.75, 1.1, 8.84), Mag(-27.19, 10.69, -51.75)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:02.403] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:02, PCK_CNT : 59, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(29.19)
+Nir : Voltage(0.47263), Object(47.26)
+Thermal_camera : Average(27.6), Min(26.5), Max(29.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(2.76, 1.11, 8.86), Mag(-28.0, 11.5, -52.19)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:03.405] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:03, PCK_CNT : 60, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.39), Object(27.17)
+Nir : Voltage(0.47263), Object(47.26)
+Thermal_camera : Average(27.6), Min(26.7), Max(29.6)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(2.77, 1.1, 8.82), Mag(-26.88, 9.56, -50.56)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:04.406] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:04, PCK_CNT : 61, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.41), Object(28.19)
+Nir : Voltage(0.47275), Object(47.27)
+Thermal_camera : Average(27.7), Min(26.7), Max(29.6)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(2.74, 1.08, 8.85), Mag(-26.88, 11.06, -51.38)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:05.407] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:05, PCK_CNT : 62, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.05)
+Nir : Voltage(0.47237), Object(47.24)
+Thermal_camera : Average(27.7), Min(26.7), Max(29.3)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(2.75, 1.09, 8.86), Mag(-27.19, 10.25, -51.75)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:06.409] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:06, PCK_CNT : 63, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.23)
+Nir : Voltage(0.47225), Object(47.23)
+Thermal_camera : Average(27.7), Min(26.7), Max(29.1)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(2.77, 1.11, 8.86), Mag(-25.69, 10.69, -50.56)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:07.411] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:07, PCK_CNT : 64, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.47), Object(28.23)
+Nir : Voltage(0.4725), Object(47.25)
+Thermal_camera : Average(27.7), Min(26.8), Max(29.3)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(2.75, 1.11, 8.82), Mag(-27.56, 11.5, -51.75)
+Euler angle(7.670000, -16.8600, 325.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:08.412] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:08, PCK_CNT : 65, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.31)
+Nir : Voltage(0.47275), Object(47.27)
+Thermal_camera : Average(27.9), Min(26.8), Max(29.4)
+IMU : Gyro(-0.03, 0.03, 0.08), Accel(1.56, 1.71, 9.13), Mag(-21.75, 7.06, -63.25)
+Euler angle(10.500000, -9.7900, 323.8800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:09.413] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:09, PCK_CNT : 66, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.47), Object(28.27)
+Nir : Voltage(0.47213), Object(47.21)
+Thermal_camera : Average(34.3), Min(31.3), Max(36.2)
+IMU : Gyro(-0.03, 0.07, -0.02), Accel(1.68, 1.32, 9.05), Mag(-22.5, 7.06, -53.25)
+Euler angle(9.420000, -10.3700, 323.8700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:10.414] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:10, PCK_CNT : 67, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.27)
+Nir : Voltage(0.47275), Object(47.27)
+Thermal_camera : Average(34.6), Min(33.9), Max(35.6)
+IMU : Gyro(-0.09, -0.11, -0.27), Accel(2.14, 1.7, 8.53), Mag(-25.75, 6.25, -54.06)
+Euler angle(10.790000, -14.4800, 324.5500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:11.415] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:11, PCK_CNT : 68, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.47), Object(28.19)
+Nir : Voltage(0.47237), Object(47.24)
+Thermal_camera : Average(30.0), Min(25.9), Max(34.6)
+IMU : Gyro(0.01, -0.03, 0.02), Accel(2.82, 1.04, 8.8), Mag(-26.56, 9.56, -52.06)
+Euler angle(8.350000, -16.8600, 325.7000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:12.417] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:12, PCK_CNT : 69, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.23)
+Nir : Voltage(0.4725), Object(47.25)
+Thermal_camera : Average(27.0), Min(26.1), Max(28.5)
+IMU : Gyro(0.02, -0.03, -0.0), Accel(2.72, 1.32, 8.85), Mag(-27.25, 9.56, -52.06)
+Euler angle(8.800000, -16.8600, 325.6300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:13.418] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:13, PCK_CNT : 70, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.43)
+Nir : Voltage(0.47087), Object(47.09)
+Thermal_camera : Average(27.5), Min(26.1), Max(28.9)
+IMU : Gyro(-1.71, -2.79, 0.99), Accel(7.59, -4.16, 4.79), Mag(-37.75, 38.0, -24.0)
+Euler angle(326.750000, -48.4800, 78.1200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:14.419] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:14, PCK_CNT : 71, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.05)
+Nir : Voltage(0.58688), Object(58.69)
+Thermal_camera : Average(27.2), Min(25.7), Max(35.1)
+IMU : Gyro(-1.76, 0.45, 0.19), Accel(8.76, 2.52, -2.47), Mag(-43.75, -23.0, 36.19)
+Euler angle(144.860000, -70.0800, 86.4400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:15.420] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:15, PCK_CNT : 72, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.45), Object(28.37)
+Nir : Voltage(0.5965), Object(59.65)
+Thermal_camera : Average(26.5), Min(25.3), Max(33.6)
+IMU : Gyro(1.07, 0.09, -1.16), Accel(7.17, -4.64, 2.44), Mag(-47.38, 36.56, 2.69)
+Euler angle(304.440000, -59.3300, 147.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:16.421] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:16, PCK_CNT : 73, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.7), Humidity(40.0)
+Fir : Ambient(25.47), Object(27.85)
+Nir : Voltage(0.53425), Object(53.42)
+Thermal_camera : Average(27.0), Min(25.6), Max(34.9)
+IMU : Gyro(-0.13, 0.85, -0.62), Accel(5.4, -0.88, 9.45), Mag(-41.0, 26.69, -33.38)
+Euler angle(355.750000, -36.3300, 334.8600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:17.422] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:17, PCK_CNT : 74, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.7), Humidity(40.0)
+Fir : Ambient(25.49), Object(28.47)
+Nir : Voltage(0.50238), Object(50.24)
+Thermal_camera : Average(27.2), Min(26.3), Max(31.1)
+IMU : Gyro(-0.01, 0.01, 0.0), Accel(1.72, 0.15, 9.23), Mag(-19.69, 18.5, -50.88)
+Euler angle(1.210000, -9.2100, 330.9800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:23:18.423] DEBUG | Communication : 
+ID : 3139 TIME : 10:23:18, PCK_CNT : 75, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.7), Humidity(40.0)
+Fir : Ambient(25.47), Object(28.65)
+Nir : Voltage(0.50187), Object(50.19)
+Thermal_camera : Average(27.1), Min(26.2), Max(28.6)
+IMU : Gyro(-0.0, 0.01, -0.0), Accel(1.74, 0.11, 9.2), Mag(-19.69, 19.5, -52.38)
+Euler angle(1.210000, -9.2100, 330.9800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:15.619] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:15, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:16.623] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:16, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.35)
+Nir : Voltage(0.53787), Object(53.79)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.5)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:17.624] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:17, PCK_CNT : 3, MODE : F, STATE : ASCENT
+Barometer : Altitude(4890.53), Temperature(24.83), Pressure(1007.95)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.57)
+Nir : Voltage(0.53787), Object(53.79)
+Thermal_camera : Average(28.9), Min(27.6), Max(30.7)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.65, 0.13, 9.1), Mag(-44.06, 14.38, -94.0)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:18.625] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:18, PCK_CNT : 4, MODE : F, STATE : PROBE_RELEASE
+Barometer : Altitude(44.32), Temperature(-132.02), Pressure(1007.95)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.31)
+Nir : Voltage(0.53812), Object(53.81)
+Thermal_camera : Average(28.9), Min(27.6), Max(30.7)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(1.66, 0.12, 9.18), Mag(-44.5, 14.38, -93.56)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:19.626] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:19, PCK_CNT : 5, MODE : F, STATE : PROBE_RELEASE
+Barometer : Altitude(44.35), Temperature(24.86), Pressure(1007.97)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.55), Object(29.29)
+Nir : Voltage(0.53825), Object(53.83)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.7)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.65, 0.13, 9.21), Mag(-43.38, 14.06, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:20.628] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:20, PCK_CNT : 6, MODE : F, STATE : LANDED
+Barometer : Altitude(44.19), Temperature(24.83), Pressure(1007.94)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.45)
+Nir : Voltage(0.5395), Object(53.95)
+Thermal_camera : Average(28.9), Min(28.0), Max(30.5)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(1.66, 0.14, 9.21), Mag(-44.5, 13.69, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:21.629] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:21, PCK_CNT : 7, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(24.77), Pressure(505.02)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.15)
+Nir : Voltage(0.55925), Object(55.93)
+Thermal_camera : Average(28.8), Min(27.6), Max(30.7)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.66, 0.12, 9.18), Mag(-44.5, 14.06, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:22.631] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:22, PCK_CNT : 8, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(24.85), Pressure(213.46)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.57), Object(29.11)
+Nir : Voltage(0.53825), Object(53.83)
+Thermal_camera : Average(28.8), Min(27.5), Max(30.5)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(1.67, 0.13, 9.17), Mag(-42.56, 14.38, -95.69)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:23.632] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:23, PCK_CNT : 9, MODE : F, STATE : LANDED
+Barometer : Altitude(44.22), Temperature(24.86), Pressure(1058.42)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(29.35)
+Nir : Voltage(0.5385), Object(53.85)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.4)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(1.67, 0.14, 9.17), Mag(-43.0, 14.06, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:24.633] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:24, PCK_CNT : 10, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(24.83), Pressure(1007.95)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.55), Object(27.99)
+Nir : Voltage(0.5385), Object(53.85)
+Thermal_camera : Average(28.8), Min(27.6), Max(30.2)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(1.67, 0.12, 9.17), Mag(-44.06, 13.69, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:25.635] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:25, PCK_CNT : 11, MODE : F, STATE : LANDED
+Barometer : Altitude(44.26), Temperature(24.92), Pressure(1007.93)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.61), Object(28.13)
+Nir : Voltage(0.52538), Object(52.54)
+Thermal_camera : Average(28.7), Min(27.5), Max(30.3)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.66, 0.14, 9.2), Mag(-43.38, 13.69, -93.69)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:26.636] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:26, PCK_CNT : 12, MODE : F, STATE : LANDED
+Barometer : Altitude(44.26), Temperature(24.92), Pressure(1007.93)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.43)
+Nir : Voltage(0.71537), Object(71.54)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.2)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:27.638] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:27, PCK_CNT : 13, MODE : F, STATE : LANDED
+Barometer : Altitude(4890.53), Temperature(-120.49), Pressure(988.66)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.55), Object(28.13)
+Nir : Voltage(0.54075), Object(54.08)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.6)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.66, 0.12, 9.19), Mag(-44.5, 13.69, -92.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:28.640] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:28, PCK_CNT : 14, MODE : F, STATE : LANDED
+Barometer : Altitude(4890.53), Temperature(24.85), Pressure(1007.97)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.27)
+Nir : Voltage(0.52225), Object(52.23)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.6)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.65, 0.14, 9.18), Mag(-43.75, 13.69, -94.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:29.642] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:29, PCK_CNT : 15, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.24), Temperature(24.81), Pressure(643.29)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.37)
+Nir : Voltage(0.50475), Object(50.48)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.5)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.65, 0.14, 9.21), Mag(-44.06, 13.69, -95.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:30.643] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:30, PCK_CNT : 16, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.24), Temperature(24.81), Pressure(643.29)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.37)
+Nir : Voltage(0.66638), Object(66.64)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.6)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(1.66, 0.11, 9.2), Mag(-43.38, 14.06, -93.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:31.644] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:31, PCK_CNT : 17, MODE : F, STATE : LANDED
+Barometer : Altitude(44.18), Temperature(-98.69), Pressure(1007.98)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.27)
+Nir : Voltage(0.65863), Object(65.86)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.65, 0.12, 9.21), Mag(-44.5, 14.75, -93.56)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:32.645] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:32, PCK_CNT : 18, MODE : F, STATE : LANDED
+Barometer : Altitude(44.19), Temperature(24.89), Pressure(1007.92)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.39)
+Nir : Voltage(0.64), Object(64.0)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.8)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(1.66, 0.11, 9.21), Mag(-44.5, 14.38, -94.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:33.646] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:33, PCK_CNT : 19, MODE : F, STATE : LANDED
+Barometer : Altitude(44.16), Temperature(-132.02), Pressure(1007.94)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.23)
+Nir : Voltage(0.63813), Object(63.81)
+Thermal_camera : Average(28.9), Min(27.7), Max(30.5)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(1.66, 0.12, 9.21), Mag(-43.75, 13.25, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:34.647] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:34, PCK_CNT : 20, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(-124.13), Pressure(1058.42)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.19)
+Nir : Voltage(0.542), Object(54.2)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.4)
+IMU : Gyro(-0.01, 0.01, 0.0), Accel(1.63, 0.18, 9.2), Mag(-43.0, 13.69, -94.88)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:35.649] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:35, PCK_CNT : 21, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(-124.13), Pressure(1058.42)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.43)
+Nir : Voltage(0.65825), Object(65.83)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.5)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.67, 0.1, 9.18), Mag(-43.75, 14.06, -94.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:36.650] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:36, PCK_CNT : 22, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(-124.13), Pressure(1058.42)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.45)
+Nir : Voltage(0.56363), Object(56.36)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.6)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(1.67, 0.12, 9.2), Mag(-44.06, 13.69, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:37.651] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:37, PCK_CNT : 23, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(-124.13), Pressure(1058.42)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.23)
+Nir : Voltage(0.53938), Object(53.94)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.7)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(1.68, 0.12, 9.21), Mag(-42.56, 14.38, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:38.652] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:38, PCK_CNT : 24, MODE : F, STATE : LANDED
+Barometer : Altitude(-363.08), Temperature(-122.31), Pressure(1007.95)
+Thermo : Temperature(24.6), Humidity(41.0)
+Fir : Ambient(25.61), Object(28.33)
+Nir : Voltage(0.56), Object(56.0)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.7)
+IMU : Gyro(-0.0, 0.01, -0.0), Accel(1.66, 0.12, 9.2), Mag(-44.06, 13.69, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:39.653] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:39, PCK_CNT : 25, MODE : F, STATE : LANDED
+Barometer : Altitude(-363.08), Temperature(-122.31), Pressure(1007.95)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.17)
+Nir : Voltage(0.72125), Object(72.12)
+Thermal_camera : Average(28.9), Min(27.7), Max(30.5)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(1.65, 0.13, 9.21), Mag(-43.75, 12.88, -95.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:40.654] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:40, PCK_CNT : 26, MODE : F, STATE : LANDED
+Barometer : Altitude(44.31), Temperature(24.87), Pressure(1007.94)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.27)
+Nir : Voltage(0.6315), Object(63.15)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.7)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.65, 0.12, 9.2), Mag(-43.38, 14.38, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:41.656] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:41, PCK_CNT : 27, MODE : F, STATE : LANDED
+Barometer : Altitude(44.41), Temperature(24.92), Pressure(1007.95)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.99)
+Nir : Voltage(0.5225), Object(52.25)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.6)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(1.66, 0.14, 9.21), Mag(-43.75, 14.38, -93.56)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:42.658] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:42, PCK_CNT : 28, MODE : F, STATE : LANDED
+Barometer : Altitude(4890.54), Temperature(-122.31), Pressure(1057.65)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.57), Object(29.23)
+Nir : Voltage(0.667), Object(66.7)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.3)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(1.64, 0.12, 9.21), Mag(-43.75, 14.06, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:43.659] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:43, PCK_CNT : 29, MODE : F, STATE : LANDED
+Barometer : Altitude(-369.25), Temperature(-132.02), Pressure(1058.42)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.43)
+Nir : Voltage(0.69212), Object(69.21)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.9)
+IMU : Gyro(-0.0, -0.02, 0.0), Accel(1.68, 0.11, 9.21), Mag(-44.06, 13.25, -92.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:44.659] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:44, PCK_CNT : 30, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(24.88), Pressure(1007.98)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.57)
+Nir : Voltage(0.54238), Object(54.24)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.6)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(1.65, 0.11, 9.2), Mag(-44.06, 13.69, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:45.661] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:45, PCK_CNT : 31, MODE : F, STATE : LANDED
+Barometer : Altitude(44.26), Temperature(24.86), Pressure(1007.96)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.63), Object(28.43)
+Nir : Voltage(0.50038), Object(50.04)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.5)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.67, 0.11, 9.2), Mag(-44.88, 13.25, -93.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:46.661] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:46, PCK_CNT : 32, MODE : F, STATE : LANDED
+Barometer : Altitude(197.76), Temperature(24.8), Pressure(1007.96)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.45)
+Nir : Voltage(0.63613), Object(63.61)
+Thermal_camera : Average(29.0), Min(27.8), Max(30.5)
+IMU : Gyro(0.01, 0.0, 0.01), Accel(1.66, 0.11, 9.19), Mag(-43.38, 12.88, -93.69)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:47.663] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:47, PCK_CNT : 33, MODE : F, STATE : LANDED
+Barometer : Altitude(44.03), Temperature(-113.82), Pressure(1007.98)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.59), Object(28.37)
+Nir : Voltage(0.49675), Object(49.68)
+Thermal_camera : Average(29.0), Min(27.8), Max(30.5)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(1.67, 0.12, 9.19), Mag(-43.75, 13.69, -94.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:48.664] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:48, PCK_CNT : 34, MODE : F, STATE : LANDED
+Barometer : Altitude(44.03), Temperature(-113.82), Pressure(1007.98)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.61), Object(28.39)
+Nir : Voltage(0.58875), Object(58.88)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.5)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(1.68, 0.14, 9.2), Mag(-44.88, 14.06, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:49.665] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:49, PCK_CNT : 35, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(-132.02), Pressure(1007.95)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.57), Object(28.51)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.5)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(1.67, 0.13, 9.2), Mag(-43.75, 13.69, -94.06)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:50.666] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:50, PCK_CNT : 36, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(-132.02), Pressure(1007.95)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.61), Object(28.45)
+Nir : Voltage(0.53812), Object(53.81)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.5)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(1.66, 0.11, 9.22), Mag(-43.38, 14.38, -93.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:51.668] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:51, PCK_CNT : 37, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(-132.02), Pressure(1007.95)
+Thermo : Temperature(24.7), Humidity(41.0)
+Fir : Ambient(25.63), Object(28.47)
+Nir : Voltage(0.53663), Object(53.66)
+Thermal_camera : Average(28.9), Min(27.7), Max(30.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(1.66, 0.12, 9.19), Mag(-44.06, 13.69, -93.69)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:52.669] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:52, PCK_CNT : 38, MODE : F, STATE : LANDED
+Barometer : Altitude(44.21), Temperature(-132.02), Pressure(1007.95)
+Thermo : Temperature(25.0), Humidity(58.0)
+Fir : Ambient(25.61), Object(28.59)
+Nir : Voltage(0.64463), Object(64.46)
+Thermal_camera : Average(29.0), Min(27.9), Max(30.8)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(1.66, 0.12, 9.17), Mag(-44.06, 13.69, -93.25)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:53.670] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:53, PCK_CNT : 39, MODE : F, STATE : LANDED
+Barometer : Altitude(44.0), Temperature(24.88), Pressure(1007.96)
+Thermo : Temperature(25.0), Humidity(58.0)
+Fir : Ambient(25.59), Object(28.45)
+Nir : Voltage(0.59888), Object(59.89)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.6)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(1.66, 0.13, 9.2), Mag(-44.5, 14.38, -94.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:54.672] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:54, PCK_CNT : 40, MODE : F, STATE : LANDED
+Barometer : Altitude(44.04), Temperature(-132.02), Pressure(1058.42)
+Thermo : Temperature(25.3), Humidity(63.0)
+Fir : Ambient(25.61), Object(28.37)
+Nir : Voltage(0.58437), Object(58.44)
+Thermal_camera : Average(28.9), Min(28.0), Max(30.7)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(1.64, 0.08, 9.2), Mag(-44.5, 14.06, -94.5)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:55.677] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:55, PCK_CNT : 41, MODE : F, STATE : LANDED
+Barometer : Altitude(44.17), Temperature(24.96), Pressure(1007.98)
+Thermo : Temperature(25.3), Humidity(63.0)
+Fir : Ambient(25.61), Object(28.57)
+Nir : Voltage(0.567), Object(56.7)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.7)
+IMU : Gyro(0.04, 0.03, -0.01), Accel(1.62, 0.13, 9.2), Mag(-27.75, 9.25, -58.19)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 10:30:56.678] DEBUG | Communication : 
+ID : 3139 TIME : 10:30:56, PCK_CNT : 42, MODE : F, STATE : LANDED
+Barometer : Altitude(-366.68), Temperature(-132.02), Pressure(548.0)
+Thermo : Temperature(25.3), Humidity(63.0)
+Fir : Ambient(25.61), Object(28.51)
+Nir : Voltage(0.54025), Object(54.02)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.6)
+IMU : Gyro(-0.01, 0.01, -0.0), Accel(1.7, 0.09, 9.21), Mag(-26.06, 8.06, -56.38)
+Euler angle(1.160000, -10.3700, 359.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:21.198] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:21, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:22.203] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:22, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.17), Object(28.43)
+Nir : Voltage(0.4765), Object(47.65)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:23.205] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:23, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.17), Object(29.55)
+Nir : Voltage(0.4765), Object(47.65)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.7)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.08, -0.22, 9.32), Mag(-25.19, 19.25, -99.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:24.207] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:24, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.51)
+Nir : Voltage(0.47663), Object(47.66)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.1)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.07, -0.23, 9.31), Mag(-25.56, 18.88, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:25.209] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:25, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(29.65)
+Nir : Voltage(0.47475), Object(47.48)
+Thermal_camera : Average(28.8), Min(28.0), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -0.24, 9.3), Mag(-24.75, 19.56, -100.69)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:26.211] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:26, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.15), Object(28.69)
+Nir : Voltage(0.4755), Object(47.55)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.5)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.05, -0.22, 9.3), Mag(-25.19, 18.06, -101.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:27.212] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:27, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.79)
+Nir : Voltage(0.4755), Object(47.55)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.2)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.05, -0.24, 9.31), Mag(-24.06, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:28.213] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:28, PCK_CNT : 8, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.19)
+Nir : Voltage(0.47425), Object(47.42)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.07, -0.24, 9.31), Mag(-24.75, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:29.215] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:29, PCK_CNT : 9, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(29.25)
+Nir : Voltage(0.47425), Object(47.42)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.08, -0.23, 9.28), Mag(-26.25, 18.06, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:30.216] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:30, PCK_CNT : 10, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.75)
+Nir : Voltage(0.47437), Object(47.44)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.06, -0.22, 9.28), Mag(-24.06, 18.88, -102.25)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:31.218] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:31, PCK_CNT : 11, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.25)
+Nir : Voltage(0.47437), Object(47.44)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.06, -0.2, 9.29), Mag(-24.75, 18.88, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:32.220] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:32, PCK_CNT : 12, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.15), Object(28.17)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.5)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.08, -0.19, 9.3), Mag(-25.19, 18.88, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:33.221] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:33, PCK_CNT : 13, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.65)
+Nir : Voltage(0.4745), Object(47.45)
+Thermal_camera : Average(28.8), Min(28.0), Max(30.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.04, -0.23, 9.31), Mag(-25.56, 18.88, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:34.222] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:34, PCK_CNT : 14, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(30.53)
+Nir : Voltage(0.4745), Object(47.45)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.2)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.05, -0.26, 9.33), Mag(-24.38, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:35.224] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:35, PCK_CNT : 15, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(30.45)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -0.25, 9.34), Mag(-25.19, 18.5, -101.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:36.225] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:36, PCK_CNT : 16, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(30.63)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.7), Min(27.9), Max(30.3)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.09, -0.22, 9.33), Mag(-25.88, 18.5, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:37.226] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:37, PCK_CNT : 17, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(29.65)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.3)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.05, -0.24, 9.29), Mag(-25.19, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:38.228] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:38, PCK_CNT : 18, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.75)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.5)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.07, -0.22, 9.31), Mag(-25.56, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:39.229] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:39, PCK_CNT : 19, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.01)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.06, -0.23, 9.29), Mag(-24.38, 18.88, -101.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:40.231] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:40, PCK_CNT : 20, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.93)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.6)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -0.22, 9.33), Mag(-24.38, 19.56, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:41.232] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:41, PCK_CNT : 21, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.49)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -0.23, 9.3), Mag(-24.75, 19.25, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:42.234] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:42, PCK_CNT : 22, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.17)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.1)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(0.08, -0.24, 9.3), Mag(-24.75, 18.5, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:43.235] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:43, PCK_CNT : 23, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.73)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.6), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.07, -0.22, 9.31), Mag(-25.56, 19.25, -100.25)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:44.236] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:44, PCK_CNT : 24, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.79)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.6), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.09, -0.23, 9.3), Mag(-24.75, 18.06, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:45.237] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:45, PCK_CNT : 25, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.69)
+Nir : Voltage(0.47425), Object(47.42)
+Thermal_camera : Average(28.6), Min(27.8), Max(30.3)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.06, -0.24, 9.31), Mag(-24.38, 17.0, -101.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:46.238] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:46, PCK_CNT : 26, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.43)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.04, -0.24, 9.3), Mag(-24.06, 20.0, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:47.239] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:47, PCK_CNT : 27, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(27.73)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.7), Min(27.9), Max(30.3)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.06, -0.22, 9.29), Mag(-25.19, 18.88, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:48.241] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:48, PCK_CNT : 28, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.57)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.1)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.06, -0.24, 9.34), Mag(-25.19, 18.5, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:49.242] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:49, PCK_CNT : 29, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.11)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.6), Min(27.7), Max(30.1)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.06, -0.22, 9.33), Mag(-24.38, 18.5, -100.38)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:50.245] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:50, PCK_CNT : 30, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.59)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.1)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.05, -0.25, 9.27), Mag(-24.75, 19.25, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:51.246] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:51, PCK_CNT : 31, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.87)
+Nir : Voltage(0.47425), Object(47.42)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.5)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.07, -0.25, 9.3), Mag(-25.19, 18.5, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:52.248] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:52, PCK_CNT : 32, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(27.81)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.5)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.08, -0.23, 9.32), Mag(-24.75, 19.25, -99.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:53.249] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:53, PCK_CNT : 33, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(27.81)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.4)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.06, -1.53, 9.32), Mag(-25.19, 19.25, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:54.250] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:54, PCK_CNT : 34, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.73)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.3)
+IMU : Gyro(0.0, -0.14, -0.0), Accel(0.08, -0.25, 9.3), Mag(-25.19, 18.88, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:55.253] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:55, PCK_CNT : 35, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.19)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.06, -0.22, 9.31), Mag(-25.19, 18.5, -101.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:56.255] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:56, PCK_CNT : 36, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.61)
+Nir : Voltage(0.47375), Object(47.38)
+Thermal_camera : Average(28.8), Min(27.6), Max(30.2)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -0.25, 9.29), Mag(-25.19, 18.5, -101.88)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:57.256] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:57, PCK_CNT : 37, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.47)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.7), Min(27.6), Max(30.1)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.07, -0.24, 9.28), Mag(-24.75, 18.06, -99.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:58.258] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:58, PCK_CNT : 38, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(27.61)
+Nir : Voltage(0.47375), Object(47.38)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.3)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.07, -0.27, 9.3), Mag(-25.56, 18.5, -100.75)
+Euler angle(317.100000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:06:59.259] DEBUG | Communication : 
+ID : 3139 TIME : 11:06:59, PCK_CNT : 39, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.93)
+Nir : Voltage(0.47475), Object(47.48)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.2)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.05, -0.25, 9.32), Mag(-25.19, 19.25, -101.06)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:00.261] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:00, PCK_CNT : 40, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(27.87)
+Nir : Voltage(0.47475), Object(47.48)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.2)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.07, -0.24, 9.31), Mag(-24.38, 18.5, -100.38)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:01.262] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:01, PCK_CNT : 41, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.81)
+Nir : Voltage(0.47375), Object(47.38)
+Thermal_camera : Average(28.7), Min(27.7), Max(30.2)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -0.23, 9.3), Mag(-24.06, 17.75, -100.38)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:02.263] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:02, PCK_CNT : 42, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.87)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.6), Min(27.7), Max(30.3)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -0.23, 9.31), Mag(-25.19, 18.5, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:03.265] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:03, PCK_CNT : 43, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.93)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.2)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.07, -0.24, 9.31), Mag(-25.56, 18.88, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:04.266] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:04, PCK_CNT : 44, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(27.81)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.2)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(0.08, -0.24, 9.29), Mag(-24.38, 18.5, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:05.267] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:05, PCK_CNT : 45, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(27.93)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.1)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.07, -0.22, 9.28), Mag(-24.38, 19.25, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:06.268] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:06, PCK_CNT : 46, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.05)
+Nir : Voltage(0.47525), Object(47.52)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.5)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(0.07, -0.24, 9.31), Mag(-26.25, 18.5, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:07.269] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:07, PCK_CNT : 47, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.19)
+Nir : Voltage(0.47537), Object(47.54)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.3)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -0.23, 9.3), Mag(-24.38, 19.25, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:08.270] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:08, PCK_CNT : 48, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.17)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.7), Min(27.8), Max(30.1)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -0.21, 9.34), Mag(-24.38, 18.88, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:09.272] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:09, PCK_CNT : 49, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.27)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.5)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.07, -0.22, 9.3), Mag(-25.56, 18.88, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:10.273] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:10, PCK_CNT : 50, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.43)
+Nir : Voltage(0.474), Object(47.4)
+Thermal_camera : Average(28.7), Min(27.7), Max(29.9)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.07, -0.22, 9.32), Mag(-24.75, 18.5, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:11.274] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:11, PCK_CNT : 51, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.43)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.8), Max(30.7)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.07, -0.24, 9.31), Mag(-24.06, 18.88, -102.0)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:12.275] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:12, PCK_CNT : 52, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.27)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.9), Min(28.1), Max(30.4)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.06, -0.24, 9.31), Mag(-24.38, 18.88, -101.56)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:13.276] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:13, PCK_CNT : 53, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.33)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.9), Min(27.9), Max(30.4)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.07, -0.23, 9.29), Mag(-25.56, 20.0, -100.38)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:14.278] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:14, PCK_CNT : 54, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.71)
+Nir : Voltage(0.47375), Object(47.38)
+Thermal_camera : Average(28.7), Min(27.6), Max(30.1)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -0.22, 9.29), Mag(-24.75, 18.06, -102.0)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:15.279] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:15, PCK_CNT : 55, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.15), Object(28.07)
+Nir : Voltage(0.47375), Object(47.38)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.6)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -0.21, 9.3), Mag(-24.75, 18.5, -100.75)
+Euler angle(287.310000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:16.280] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:16, PCK_CNT : 56, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.27)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.8), Min(27.9), Max(30.4)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -0.23, 9.32), Mag(-24.75, 18.5, -101.19)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:17.281] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:17, PCK_CNT : 57, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.23), Object(28.37)
+Nir : Voltage(0.47387), Object(47.39)
+Thermal_camera : Average(28.9), Min(27.8), Max(30.4)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.06, -0.22, 9.31), Mag(-25.19, 18.06, -102.0)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:18.283] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:18, PCK_CNT : 58, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.19), Object(28.27)
+Nir : Voltage(0.47363), Object(47.36)
+Thermal_camera : Average(28.7), Min(27.6), Max(30.3)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.08, -0.23, 9.3), Mag(-24.38, 18.88, -100.75)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:07:19.284] DEBUG | Communication : 
+ID : 3139 TIME : 11:07:19, PCK_CNT : 59, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(24.8), Humidity(40.0)
+Fir : Ambient(25.17), Object(28.57)
+Nir : Voltage(0.47413), Object(47.41)
+Thermal_camera : Average(28.8), Min(27.7), Max(30.5)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.06, -0.19, 9.3), Mag(-24.38, 18.06, -100.5)
+Euler angle(358.850000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:06.526] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:06, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:07.528] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:07, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(43.45), Temperature(24.99), Pressure(1008.07)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.35), Object(25.47)
+Nir : Voltage(0.46425), Object(46.42)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:08.529] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:08, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(43.45), Temperature(24.99), Pressure(1008.07)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.31), Object(25.41)
+Nir : Voltage(0.46375), Object(46.38)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:09.530] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:09, PCK_CNT : 4, MODE : F, STATE : PROBE_RELEASE
+Barometer : Altitude(1084.68), Temperature(24.98), Pressure(1058.42)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.33), Object(25.35)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(30.1), Min(25.0), Max(34.8)
+IMU : Gyro(0.08, 0.03, -0.03), Accel(-3.94, -8.98, -0.84), Mag(0.0, 66.69, -63.25)
+Euler angle(265.860000, 22.9500, 334.9600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:10.531] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:10, PCK_CNT : 5, MODE : F, STATE : LANDED
+Barometer : Altitude(-223.01), Temperature(-82.98), Pressure(1008.05)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.35), Object(25.53)
+Nir : Voltage(0.4645), Object(46.45)
+Thermal_camera : Average(30.0), Min(24.7), Max(34.6)
+IMU : Gyro(0.03, 0.0, -0.01), Accel(-3.84, -8.99, -0.63), Mag(0.38, 66.69, -62.5)
+Euler angle(265.860000, 22.9500, 334.9600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:11.533] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:11, PCK_CNT : 6, MODE : F, STATE : LANDED
+Barometer : Altitude(43.32), Temperature(24.97), Pressure(1008.06)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.31), Object(25.47)
+Nir : Voltage(0.46463), Object(46.46)
+Thermal_camera : Average(30.2), Min(24.9), Max(34.5)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-3.9, -8.99, -0.7), Mag(0.38, 67.06, -63.69)
+Euler angle(265.860000, 22.9500, 334.9600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:12.534] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:12, PCK_CNT : 7, MODE : F, STATE : LANDED
+Barometer : Altitude(4890.53), Temperature(-75.14), Pressure(1008.04)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.33), Object(25.61)
+Nir : Voltage(0.46437), Object(46.44)
+Thermal_camera : Average(30.5), Min(25.0), Max(35.0)
+IMU : Gyro(-0.02, -0.0, 0.0), Accel(-3.88, -8.99, -0.72), Mag(-0.69, 66.25, -63.25)
+Euler angle(265.860000, 22.9500, 334.9600) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:13.535] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:13, PCK_CNT : 8, MODE : F, STATE : LANDED
+Barometer : Altitude(43.66), Temperature(24.96), Pressure(1008.04)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.31), Object(25.59)
+Nir : Voltage(0.46388), Object(46.39)
+Thermal_camera : Average(30.2), Min(24.7), Max(35.1)
+IMU : Gyro(-0.0, -0.01, 0.0), Accel(-3.87, -9.01, -0.65), Mag(-0.69, 67.38, -62.88)
+Euler angle(266.430000, 22.4600, 335.8000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:14.537] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:14, PCK_CNT : 9, MODE : F, STATE : LANDED
+Barometer : Altitude(43.66), Temperature(24.96), Pressure(1008.04)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.33), Object(25.85)
+Nir : Voltage(0.46425), Object(46.42)
+Thermal_camera : Average(30.4), Min(24.7), Max(35.2)
+IMU : Gyro(0.01, 0.0, -0.01), Accel(-3.94, -8.99, -0.79), Mag(0.0, 66.69, -62.06)
+Euler angle(266.570000, 22.4600, 336.1700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:15.538] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:15, PCK_CNT : 10, MODE : F, STATE : LANDED
+Barometer : Altitude(43.66), Temperature(24.96), Pressure(1008.04)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.29), Object(26.09)
+Nir : Voltage(0.4645), Object(46.45)
+Thermal_camera : Average(30.2), Min(24.4), Max(35.1)
+IMU : Gyro(-0.01, -0.01, 0.0), Accel(-3.91, -8.99, -0.73), Mag(0.38, 67.38, -62.06)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:16.540] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:16, PCK_CNT : 11, MODE : F, STATE : LANDED
+Barometer : Altitude(43.4), Temperature(-132.62), Pressure(1012.53)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.29), Object(25.79)
+Nir : Voltage(0.46437), Object(46.44)
+Thermal_camera : Average(30.1), Min(24.9), Max(35.4)
+IMU : Gyro(-0.0, -0.01, 0.0), Accel(-3.9, -8.99, -0.72), Mag(0.38, 67.38, -62.5)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:17.542] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:17, PCK_CNT : 12, MODE : F, STATE : LANDED
+Barometer : Altitude(-363.08), Temperature(24.86), Pressure(59.63)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.29), Object(26.23)
+Nir : Voltage(0.46425), Object(46.42)
+Thermal_camera : Average(30.1), Min(24.5), Max(34.9)
+IMU : Gyro(-0.0, -0.01, 0.0), Accel(-3.89, -8.99, -0.71), Mag(1.5, 66.69, -62.5)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:18.543] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:18, PCK_CNT : 13, MODE : F, STATE : LANDED
+Barometer : Altitude(43.26), Temperature(24.86), Pressure(996.44)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.31), Object(26.05)
+Nir : Voltage(0.46425), Object(46.42)
+Thermal_camera : Average(30.4), Min(24.9), Max(35.5)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-3.89, -8.96, -0.73), Mag(0.75, 67.38, -63.69)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:19.546] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:19, PCK_CNT : 14, MODE : F, STATE : LANDED
+Barometer : Altitude(43.26), Temperature(24.86), Pressure(996.44)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.29), Object(25.19)
+Nir : Voltage(0.46437), Object(46.44)
+Thermal_camera : Average(30.2), Min(25.0), Max(34.7)
+IMU : Gyro(-0.0, -0.01, 0.0), Accel(-3.88, -8.97, -0.7), Mag(0.38, 67.75, -63.75)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:20.547] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:20, PCK_CNT : 15, MODE : F, STATE : LANDED
+Barometer : Altitude(43.36), Temperature(-104.74), Pressure(730.44)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.27), Object(25.19)
+Nir : Voltage(0.46463), Object(46.46)
+Thermal_camera : Average(30.0), Min(24.9), Max(34.7)
+IMU : Gyro(0.0, -0.01, -0.0), Accel(-3.9, -8.99, -0.76), Mag(1.5, 67.06, -63.25)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:21.550] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:21, PCK_CNT : 16, MODE : F, STATE : LANDED
+Barometer : Altitude(43.38), Temperature(-132.61), Pressure(1003.38)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.31), Object(25.61)
+Nir : Voltage(0.46437), Object(46.44)
+Thermal_camera : Average(30.0), Min(24.7), Max(34.7)
+IMU : Gyro(0.09, 0.03, -0.03), Accel(-3.89, -8.94, -0.76), Mag(0.75, 67.06, -62.56)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:22.551] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:22, PCK_CNT : 17, MODE : F, STATE : LANDED
+Barometer : Altitude(-48.0), Temperature(-105.34), Pressure(1008.04)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.27), Object(25.43)
+Nir : Voltage(0.46437), Object(46.44)
+Thermal_camera : Average(30.1), Min(25.0), Max(34.8)
+IMU : Gyro(-0.11, -0.05, 0.02), Accel(-3.92, -9.02, -0.84), Mag(0.75, 67.06, -63.25)
+Euler angle(266.230000, 22.9500, 336.7200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:23.552] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:23, PCK_CNT : 18, MODE : F, STATE : LANDED
+Barometer : Altitude(43.4), Temperature(24.95), Pressure(1008.06)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.27), Object(25.47)
+Nir : Voltage(0.46413), Object(46.41)
+Thermal_camera : Average(30.1), Min(24.8), Max(34.7)
+IMU : Gyro(0.04, -0.0, -0.01), Accel(-3.76, -8.94, -0.42), Mag(0.38, 67.75, -62.88)
+Euler angle(250.440000, 0.3600, 300.2500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:24.554] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:24, PCK_CNT : 19, MODE : F, STATE : LANDED
+Barometer : Altitude(43.48), Temperature(24.87), Pressure(1008.05)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.27), Object(25.75)
+Nir : Voltage(0.46413), Object(46.41)
+Thermal_camera : Average(30.1), Min(25.1), Max(34.7)
+IMU : Gyro(0.04, 0.03, -0.01), Accel(-3.92, -9.04, -0.77), Mag(0.38, 67.06, -61.38)
+Euler angle(266.550000, 22.9500, 336.7800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:11:25.555] DEBUG | Communication : 
+ID : 3139 TIME : 11:11:25, PCK_CNT : 20, MODE : F, STATE : LANDED
+Barometer : Altitude(43.63), Temperature(-132.02), Pressure(1008.06)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(25.27), Object(25.79)
+Nir : Voltage(0.46425), Object(46.42)
+Thermal_camera : Average(30.1), Min(25.0), Max(34.8)
+IMU : Gyro(0.02, 0.03, 0.0), Accel(-3.92, -9.03, -0.87), Mag(0.38, 67.38, -62.56)
+Euler angle(265.560000, 23.4500, 336.9000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:08.978] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:08, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:09.983] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:09, PCK_CNT : 2, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(24.97), Object(30.97)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:10.985] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:10, PCK_CNT : 3, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-15175.14), Temperature(228.86), Pressure(2821.17)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(24.95), Object(31.07)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.2), Min(24.2), Max(35.9)
+IMU : Gyro(0.02, 0.0, -0.0), Accel(-3.99, 0.63, -9.06), Mag(12.56, 16.56, 26.75)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:11.987] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:11, PCK_CNT : 4, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-14563.22), Temperature(-281.48), Pressure(4763.75)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.97), Object(31.07)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.4), Min(24.5), Max(35.7)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(-3.99, 0.62, -9.03), Mag(13.0, 16.56, 25.56)
+Euler angle(175.780000, 24.2000, 176.5400) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:12.989] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:12, PCK_CNT : 5, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-15175.49), Temperature(228.83), Pressure(4509.82)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.95), Object(31.13)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.3), Min(24.5), Max(35.8)
+IMU : Gyro(-0.01, -0.0, 0.0), Accel(-3.99, 0.65, -9.01), Mag(12.56, 16.25, 26.06)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:13.990] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:13, PCK_CNT : 6, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-14560.37), Temperature(228.52), Pressure(4509.23)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.97), Object(30.77)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.3), Min(24.3), Max(36.0)
+IMU : Gyro(-0.01, -0.0, 0.01), Accel(-3.99, 0.66, -8.99), Mag(12.56, 15.88, 26.75)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:14.991] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:14, PCK_CNT : 7, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-9531.81), Temperature(228.8), Pressure(4510.55)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.97), Object(30.93)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.3), Min(24.3), Max(36.0)
+IMU : Gyro(0.03, 0.0, -0.01), Accel(-4.0, 0.66, -8.96), Mag(12.25, 16.56, 26.06)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:15.992] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:15, PCK_CNT : 8, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-14347.84), Temperature(128.54), Pressure(4321.78)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.95), Object(30.53)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.3), Min(24.3), Max(36.0)
+IMU : Gyro(-0.01, 0.0, -0.0), Accel(-3.99, 0.65, -8.97), Mag(11.5, 17.0, 25.69)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-22 11:36:16.994] DEBUG | Communication : 
+ID : 3139 TIME : 11:36:16, PCK_CNT : 9, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(-14564.54), Temperature(228.65), Pressure(4509.35)
+Thermo : Temperature(24.8), Humidity(39.0)
+Fir : Ambient(24.95), Object(30.93)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(28.3), Min(24.3), Max(35.8)
+IMU : Gyro(0.01, -0.0, -0.0), Accel(-3.99, 0.61, -9.01), Mag(12.25, 16.25, 25.25)
+Euler angle(175.830000, 24.2000, 176.7900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+

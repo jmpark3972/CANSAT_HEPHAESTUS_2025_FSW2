@@ -19,7 +19,6 @@ print("------------------------------------")
 v_in = 3.3
 r_ref = 220
 sensitivity = 0.034
-t_offset = -82
 while True:
     chan0,chan1 = init_ads1115()
     voltage = chan0.voltage
