@@ -93,7 +93,7 @@ def send_nir_data(main_q: Queue):
                                            appargs.NirAppArg.AppID,
                                            appargs.CommAppArg.AppID,
                                            appargs.NirAppArg.MID_SendNirTlmData,
-                                           f"{NIR_VOLTAGE},{NIR_TEMP}")
+                                           f"{NIR_VOLTAGE:.5f},{NIR_TEMP:.2f}")
             if not status:
                 events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
                                 "Error sending NIR TLM")
