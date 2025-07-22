@@ -96,15 +96,17 @@ def thermocamapp_terminate(i2c):
 MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
-    """센서를 읽어 전역 통계치 업데이트 (약 2 Hz)."""
     global MIN_T, MAX_T, AVG_T
-
     while THERMOCAMAPP_RUNSTATUS:
-        data = tcam.read_cam(cam, ascii=False)
-        if data is not None:
-            _, tmin, tmax, tavg = data
-            MIN_T, MAX_T, AVG_T = round(tmin, 1), round(tmax, 1), round(tavg, 1)
-        time.sleep(0.5)  # refresh_hz=2 ➞ 0.5 s
+        try:
+            data = tcam.read_cam(cam, ascii=False)
+            if data is not None:
+                _, tmin, tmax, tavg = data
+                MIN_T, MAX_T, AVG_T = round(tmin, 1), round(tmax, 1), round(tavg, 1)
+        except Exception as e:
+            events.LogEvent(appargs.ThermalcameraAppArg.AppName, events.EventType.error, f"ThermalCam read error: {e}")
+            MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
+        time.sleep(0.5)
 
 def send_cam_data(Main_Queue: Queue):
     global MIN_T, MAX_T, AVG_T
@@ -121,19 +123,16 @@ def send_cam_data(Main_Queue: Queue):
         #                       f"{AVG_T},{MIN_T},{MAX_T}")
 
         # ② COMM (1 Hz)
-        if cnt >= 10:
-            status = msgstructure.send_msg(Main_Queue, tlm_msg,
+        status = msgstructure.send_msg(Main_Queue, tlm_msg,
                                            appargs.ThermalcameraAppArg.AppID,
                                            appargs.CommAppArg.AppID,
                                            appargs.ThermalcameraAppArg.MID_SendCamTlmData,
                                            f"{AVG_T},{MIN_T},{MAX_T}")
-            if not status:
-                events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                                events.EventType.error,
-                                "Error sending ThermoCam TLM")
-            cnt = 0
+        if not status:
+            events.LogEvent(appargs.ThermalcameraAppArg.AppName,
+                            events.EventType.error,
+                            "Error sending ThermoCam TLM")
 
-        cnt += 1
         time.sleep(0.1)
 
 # ──────────────────────────────

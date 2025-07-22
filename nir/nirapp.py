@@ -88,17 +88,14 @@ def send_nir_data(main_q: Queue):
         #                       appargs.NirAppArg.MID_SendNirFlightLogicData,
         #                       f"{NIR_VOLTAGE},{NIR_TEMP}")
         # COMM 1Hz
-        if cnt >= 10:
-            status = msgstructure.send_msg(main_q, tlm_msg,
-                                           appargs.NirAppArg.AppID,
-                                           appargs.CommAppArg.AppID,
-                                           appargs.NirAppArg.MID_SendNirTlmData,
-                                           f"{NIR_VOLTAGE:.5f},{NIR_TEMP:.2f}")
-            if not status:
-                events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
-                                "Error sending NIR TLM")
-            cnt = 0
-        cnt += 1
+        status = msgstructure.send_msg(main_q, tlm_msg,
+                                       appargs.NirAppArg.AppID,
+                                       appargs.CommAppArg.AppID,
+                                       appargs.NirAppArg.MID_SendNirTlmData,
+                                       f"{NIR_VOLTAGE:.5f},{NIR_TEMP:.2f}")
+        if not status:
+            events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
+                            "Error sending NIR TLM")
         time.sleep(0.1)
 
 # 초기화/종료
