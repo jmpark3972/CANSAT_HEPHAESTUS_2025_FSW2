@@ -139,9 +139,9 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 1:
-            tlm_data.nir_amb = float(sep_data[0])
-            tlm_data.nir_obj = 0.0
+        if len(sep_data) == 2:
+            tlm_data.nir_voltage = float(sep_data[0])
+            tlm_data.nir_obj = float(sep_data[1])
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
@@ -272,7 +272,7 @@ class _tlm_data_format:
     thermo_humi: float = 0.0
     fir_amb: float = 0.0
     fir_obj: float = 0.0
-    nir_amb: float = 0.0
+    nir_voltage: float = 0.0
     nir_obj: float = 0.0
     thermal_camera_avg: float = 0.0
     thermal_camera_min: float = 0.0
@@ -330,7 +330,7 @@ def send_tlm(serial_instance):
                 f"Barometer : {tlm_data.altitude} , {tlm_data.temperature}, {tlm_data.pressure}\n" \
                  f"Thermo : {tlm_data.thermo_temp}, {tlm_data.thermo_humi}\n" \
                  f"FIR : {tlm_data.fir_amb}, {tlm_data.fir_obj}\n" \
-                 f"nir :({tlm_data.nir_amb})\n" \
+                 f"nir :({tlm_data.nir_voltage}, {tlm_data.nir_obj})\n" \
                  f"thermal_camera :({tlm_data.thermal_camera_avg}, {tlm_data.thermal_camera_min}, {tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                  f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \

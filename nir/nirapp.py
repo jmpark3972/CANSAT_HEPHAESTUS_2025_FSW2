@@ -86,14 +86,14 @@ def send_nir_data(main_q: Queue):
                               appargs.NirAppArg.AppID,
                               appargs.FlightlogicAppArg.AppID,
                               appargs.NirAppArg.MID_SendNirFlightLogicData,
-                              f"{NIR_TEMP}")
+                              f"{NIR_VOLTAGE},{NIR_TEMP}")
         # COMM 1Hz
         if cnt >= 10:
             status = msgstructure.send_msg(main_q, tlm_msg,
                                            appargs.NirAppArg.AppID,
                                            appargs.CommAppArg.AppID,
                                            appargs.NirAppArg.MID_SendNirTlmData,
-                                           f"{NIR_TEMP}")
+                                           f"{NIR_VOLTAGE},{NIR_TEMP}")
             if not status:
                 events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
                                 "Error sending NIR TLM")
