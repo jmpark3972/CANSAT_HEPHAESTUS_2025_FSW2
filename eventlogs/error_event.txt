@@ -285,3 +285,8 @@
 [2025-07-22 14:14:40.204] ERROR | NIR : Init error: too many values to unpack (expected 3)
 [2025-07-22 14:14:51.662] ERROR | Barometer : MID 100 not handled
 [2025-07-22 14:14:51.666] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-22 14:22:09.139] Log file generated
+[2025-07-22 14:22:09.141] Log file generated
+[2025-07-22 14:22:09.767] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-22 14:22:16.513] ERROR | Barometer : MID 100 not handled
+[2025-07-22 14:22:16.517] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
