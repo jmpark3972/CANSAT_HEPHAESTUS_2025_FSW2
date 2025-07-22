@@ -94,6 +94,10 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
         evaluate_motor_logic(Main_Queue)
         return
 
+    elif recv_msg.MsgID == appargs.FirAppArg.MID_SendFirFlightLogicData:
+        # FIR FlightLogic 데이터 처리 (필요시 저장/로직 추가, 아니면 pass)
+        pass
+
     elif recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_SS:
         # When received Set State command
         recv_state = int(recv_msg.data)

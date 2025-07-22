@@ -111,6 +111,32 @@ def read_thermo_data(dht_device):
             continue     
         TEMP_C, HUMI = t, h
 
+def send_thermo_data(Main_Queue: Queue):
+    global TEMP_C, HUMI, THERMOAPP_RUNSTATUS
+    fl_msg = msgstructure.MsgStructure()
+    tlm_msg = msgstructure.MsgStructure()
+    cnt = 0
+    while THERMOAPP_RUNSTATUS:
+        # FlightLogic 전송 (10 Hz)
+        msgstructure.send_msg(Main_Queue, fl_msg,
+                              appargs.ThermoAppArg.AppID,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.ThermoAppArg.MID_SendThermoFlightLogicData,
+                              f"{TEMP_C},{HUMI}")
+        # COMM 전송 (1 Hz)
+        if cnt >= 10:
+            status = msgstructure.send_msg(Main_Queue, tlm_msg,
+                                           appargs.ThermoAppArg.AppID,
+                                           appargs.CommAppArg.AppID,
+                                           appargs.ThermoAppArg.MID_SendThermoTlmData,
+                                           f"{TEMP_C},{HUMI}")
+            if not status:
+                events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
+                                "Error sending Thermo TLM")
+            cnt = 0
+        cnt += 1
+        time.sleep(0.1)
+
 # ────────────────────────────────────────────────
 # 5) 메인 엔트리
 # ────────────────────────────────────────────────

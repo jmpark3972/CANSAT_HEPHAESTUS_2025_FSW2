@@ -142,9 +142,9 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
             events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
                             f"Bad angle cmd: {recv.data} – {e}")
         return
-    if recv_msg.MsgID == appargs.MotorAppArg.MID_SetServoAngle:
-        target = float(recv_msg.data)
-        set_servo(target)
+    if recv.MsgID == appargs.MotorAppArg.MID_SetServoAngle:
+        target = float(recv.data)
+        set_servo_angle(target)
 
     events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
                     f"Unhandled MID {recv.MsgID}")
