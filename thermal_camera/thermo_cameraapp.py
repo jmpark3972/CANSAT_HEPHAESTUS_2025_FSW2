@@ -107,15 +107,12 @@ def read_cam_data(cam):
         time.sleep(0.5)  # refresh_hz=2 ➞ 0.5 s
 
 def send_cam_data(Main_Queue: Queue):
-    """FlightLogic(10 Hz)·COMM(1 Hz)로 통계값 송신."""
     global MIN_T, MAX_T, AVG_T
 
     fl_msg = msgstructure.MsgStructure()
     tlm_msg = msgstructure.MsgStructure()
     cnt = 0
-"""
     while THERMOCAMAPP_RUNSTATUS:
-
         # ① FlightLogic (10 Hz): "avg,min,max"
         msgstructure.send_msg(Main_Queue, fl_msg,
                               appargs.ThermalcameraAppArg.AppID,
@@ -138,7 +135,7 @@ def send_cam_data(Main_Queue: Queue):
 
         cnt += 1
         time.sleep(0.1)
-"""
+
 # ──────────────────────────────
 # 5. 메인 엔트리
 # ──────────────────────────────
