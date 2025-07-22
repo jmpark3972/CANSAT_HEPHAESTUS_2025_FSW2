@@ -139,9 +139,9 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 2:
+        if len(sep_data) == 1:
             tlm_data.nir_amb = float(sep_data[0])
-            tlm_data.nir_obj = float(sep_data[1])
+            tlm_data.nir_obj = 0.0
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
