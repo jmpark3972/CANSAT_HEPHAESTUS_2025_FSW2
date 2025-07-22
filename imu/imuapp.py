@@ -149,7 +149,7 @@ def read_imu_data(imu_instance):
                 IMU_GYRY        = rcv_data[10]
                 IMU_GYRZ        = rcv_data[11]
         except Exception as e:
-            events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
+            # events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
             IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
             IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
             IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0

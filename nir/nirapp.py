@@ -74,7 +74,6 @@ def read_nir_data(chan):
                 NIR_VOLTAGE = voltage
                 NIR_TEMP = temp
         except Exception as e:
-            events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error, f"NIR read error: {e}")
             NIR_VOLTAGE = 0.0
             NIR_TEMP = 0.0
         time.sleep(0.2)
