@@ -21,7 +21,7 @@ FLIGHTLOGICAPP_RUNSTATUS = True
 CURRENT_TEMP: float = 0.0  # DHT11 temperature (°C)
 CURRENT_ALT:  float = 0.0  # Barometer altitude (m)
 # <NEW/> 마지막으로 실제 서보에 지시한 각도 (스팸 방지용). –1이면 미전송 상태
-MOTOR_TARGET_ANGLE: int = -1
+MOTOR_TARGET_PULSE: int = -1  # mg996r: 500=open, 2500=close
 
 
 ######################################################
@@ -91,7 +91,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
             events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
                             "Thermo data parse error")
             return
-        evaluate_motor_logic(Main_Queue)
+        update_motor_logic(Main_Queue)
         return
 
     elif recv_msg.MsgID == appargs.FirAppArg.MID_SendFirFlightLogicData:
@@ -151,32 +151,35 @@ def send_hk(Main_Queue : Queue):
 # Motor‑control helpers <NEW/>
 ######################################################
 
-def set_motor_angle(Main_Queue: Queue, angle: int) -> None:
-    """MotorApp 로 각도 명령 전송 (스팸 방지)."""
-    global MOTOR_TARGET_ANGLE
-    angle = 0 if angle < 0 else 180 if angle > 180 else int(angle)
-    if angle == MOTOR_TARGET_ANGLE:
-        return  # 이미 같은 각도로 지시함
-    MOTOR_TARGET_ANGLE = angle
-
+def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
+    """MG996R 모터에 펄스 명령 전송 (스팸 방지)."""
+    global MOTOR_TARGET_PULSE
+    if pulse == MOTOR_TARGET_PULSE:
+        return  # 이미 같은 펄스로 지시함
+    MOTOR_TARGET_PULSE = pulse
     msg = msgstructure.MsgStructure()
     msgstructure.send_msg(Main_Queue, msg,
                           appargs.FlightlogicAppArg.AppID,
                           appargs.MotorAppArg.AppID,
                           appargs.FlightlogicAppArg.MID_SetServoAngle,
-                          str(angle))
+                          str(pulse))
     events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                    f"Motor angle cmd → {angle}°")
+                    f"Motor pulse cmd → {pulse}")
 
+# 최근 0.5초(5회) 동안 고도가 모두 70m 이하인지 체크
+RECENT_ALT_CHECK_LEN = 5  # 0.5초(10Hz)
 
-def evaluate_motor_logic(Main_Queue: Queue) -> None:
-    """현재 고도·온도 조건을 보고 서보 목표각 결정."""
-    desired = 0  # 기본은 0°
-    if CURRENT_ALT > 70:
-        if CURRENT_TEMP > 50:
-            desired = 180
-    # alt ≤70 이면 항상 0° (안전)
-    set_motor_angle(Main_Queue, desired)
+def update_motor_logic(Main_Queue: Queue):
+    """고도/온도 조건에 따라 MG996R 모터 제어 (500=open, 2500=close)"""
+    # recent_alt의 최신값이 최근 5개 모두 70m 이하라면 닫힘
+    if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= 70 for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
+        set_motor_pulse(Main_Queue, 2500)  # 닫힘
+        return
+    # 온도 조건
+    if CURRENT_TEMP >= 40:
+        set_motor_pulse(Main_Queue, 500)  # 열림
+    else:
+        set_motor_pulse(Main_Queue, 2500)  # 닫힘
 
 ######################################################
 ## INITIALIZATION, TERMINATION                      ##

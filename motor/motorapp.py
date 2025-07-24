@@ -51,15 +51,13 @@ pi: pigpio.pi | None = None
 
 PAYLOAD_MOTOR_PIN = 12 #motor.PAYLOAD_MOTOR_PIN  # default GPIO 12
 
-def set_servo_angle(angle: int | float) -> None:
-    """Clamp 0‑180°, convert to pulse width and command the servo."""
+def set_servo_pulse(pulse: int) -> None:
+    """pulse값(500~2500)을 직접 받아서 모터에 전달"""
     global CURRENT_ANGLE
     if pi is None or not pi.connected:
         raise RuntimeError("pigpio not initialised")
-
-    pulse = motor._angle_to_pulse(angle)
-    pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, pulse)
-    CURRENT_ANGLE = int(max(0, min(180, int(angle))))
+    pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, int(pulse))
+    CURRENT_ANGLE = int(pulse)  # 실제 각도와 다르지만, 상태 보고용
 
 # ────────────────────────────────────────────
 # Initialisation / termination
@@ -79,7 +77,7 @@ def motorapp_init() -> None:
         raise SystemExit(1)
 
     # Set initial angle 0° (pulse 500 µs)
-    set_servo_angle(0)
+    set_servo_pulse(500)
     events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
                     "Motorapp initialised, servo at 0°")
 
@@ -132,17 +130,17 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
     # Angle command from Flightlogic
     if recv.MsgID == appargs.FlightlogicAppArg.MID_SetServoAngle:
         try:
-            angle = float(recv.data)
-            set_servo_angle(angle)
+            pulse = int(float(recv.data))
+            set_servo_pulse(pulse)
             events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                            f"Servo moved to {angle}° (pulse={motor._angle_to_pulse(angle)}µs)")
+                            f"Servo pulse set to {pulse}µs (from flightlogic)")
         except Exception as e:
             events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                            f"Bad angle cmd: {recv.data} – {e}")
+                            f"Bad pulse cmd: {recv.data} – {e}")
         return
     if recv.MsgID == appargs.MotorAppArg.MID_SetServoAngle:
-        target = float(recv.data)
-        set_servo_angle(target)
+        pulse = int(float(recv.data))
+        set_servo_pulse(pulse)
 
     if recv.MsgID == appargs.ImuAppArg.MID_SendYawData:
         # 필요하다면 Yaw 데이터 활용, 아니면 pass
@@ -232,7 +230,7 @@ if __name__ == "__main__":
             a = input("Angle 0‑180 › ")
             if a.strip() == "":
                 continue
-            set_servo_angle(float(a))
+            set_servo_pulse(float(a))
     except KeyboardInterrupt:
         print()
     finally:
