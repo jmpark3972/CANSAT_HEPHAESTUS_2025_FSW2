@@ -193,6 +193,22 @@ firapp_elements.pipe = parent_pipe
 app_dict[appargs.FirAppArg.AppID] = firapp_elements
 
 #########################################################
+# THERMISApp                                            #
+#########################################################
+
+from thermis import thermisapp
+
+parent_pipe, child_pipe = Pipe()
+
+# Add Process, pipe to elements dictionary
+thermisapp_elements = app_elements()
+thermisapp_elements.process = Process(target = thermisapp.thermisapp_main, args = (main_queue, child_pipe, ))
+thermisapp_elements.pipe = parent_pipe
+
+# Add the process to dictionary
+app_dict[appargs.ThermisAppArg.AppID] = thermisapp_elements
+
+#########################################################
 # NIRApp                                                #
 #########################################################
 

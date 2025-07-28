@@ -80,6 +80,15 @@ class FirAppArg:
     MID_SendFirFlightLogicData: types.MID = 2003  # 10 Hz 객체온도
     MID_FirCalibration:    types.MID = 2004  # CAL 처리용(옵션)
 
+# ────────── THERMIS (ADS1115) ──────────
+class ThermisAppArg:
+    AppID: types.AppID = 24          # **고유해야 함**
+    AppName = "THERMIS"
+    MID_SendHK:            types.MID = 2401
+    MID_SendThermisTlmData:    types.MID = 2402  # 1 Hz 텔레메트리 (temp)
+    MID_SendThermisFlightLogicData: types.MID = 2403  # 10 Hz 온도
+    MID_ThermisCalibration:    types.MID = 2404  # CAL 처리용(옵션)
+
 
 # ────────── NIR, 열화상 등 ──────────
 class NirAppArg:

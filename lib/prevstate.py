@@ -8,6 +8,9 @@ PREV_STATE  = 0
 PREV_MAX_ALT = 0
 PREV_THERMO_TOFF = 0.0
 PREV_THERMO_HOFF = 0.0
+PREV_FIR_AOFF = 0.0
+PREV_FIR_OOFF = 0.0
+PREV_THERMIS_OFF = 0.0
 
 prevstate_file_path = 'lib/prevstate.txt'
 
@@ -25,7 +28,10 @@ STATE={PREV_STATE}
 ALTCAL={PREV_ALT_CAL}
 MAXALT={PREV_MAX_ALT}
 THERMO_TOFF={PREV_THERMO_TOFF}
-THERMO_HOFF={PREV_THERMO_HOFF}"""
+THERMO_HOFF={PREV_THERMO_HOFF}
+FIR_AOFF={PREV_FIR_AOFF}
+FIR_OOFF={PREV_FIR_OOFF}
+THERMIS_OFF={PREV_THERMIS_OFF}"""
 
     with open(prevstate_file_path, 'w') as file:
         file.write(content)
@@ -65,6 +71,19 @@ def update_thermocal(temp_off: float, humi_off: float):
     write_prevstate_file()
     return
 
+def update_fircal(amb_off: float, obj_off: float):
+    global PREV_FIR_AOFF, PREV_FIR_OOFF
+    PREV_FIR_AOFF = amb_off
+    PREV_FIR_OOFF = obj_off
+    write_prevstate_file()
+    return
+
+def update_thermiscal(temp_off: float):
+    global PREV_THERMIS_OFF
+    PREV_THERMIS_OFF = temp_off
+    write_prevstate_file()
+    return
+
 def init_prevstate():
 
     global PREV_STATE
@@ -72,6 +91,9 @@ def init_prevstate():
     global PREV_MAX_ALT
     global PREV_THERMO_TOFF
     global PREV_THERMO_HOFF
+    global PREV_FIR_AOFF
+    global PREV_FIR_OOFF
+    global PREV_THERMIS_OFF
     if not os.path.exists(prevstate_file_path):
         print(f"#################################################################\n\nPrevstate file does not exist, Using initial state\n\n#################################################################")
         write_prevstate_file()
@@ -123,4 +145,19 @@ def init_prevstate():
                     PREV_THERMO_HOFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
                     PREV_THERMO_HOFF = 0.0
+            elif "FIR_AOFF=" in prevstate_line:
+                try:
+                    PREV_FIR_AOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_FIR_AOFF = 0.0
+            elif "FIR_OOFF=" in prevstate_line:
+                try:
+                    PREV_FIR_OOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_FIR_OOFF = 0.0
+            elif "THERMIS_OFF=" in prevstate_line:
+                try:
+                    PREV_THERMIS_OFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_THERMIS_OFF = 0.0
     return
