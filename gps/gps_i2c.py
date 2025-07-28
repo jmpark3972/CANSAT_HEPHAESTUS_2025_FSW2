@@ -25,32 +25,48 @@ def _log(line: str) -> None:
 # 2) 초기화 / 종료
 # ─────────────────────────────
 def init_gps_i2c():
-    """MAX-M10S GPS 객체를 I2C로 초기화해 (i2c, gps) 튜플 반환."""
+    """GPS I2C 모듈 초기화"""
     try:
-        # I2C 초기화 (MAX-M10S는 보통 100kHz에서 작동)
         i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
+        address = 0x42
         
-        # MAX-M10S I2C 주소 (일반적으로 0x42 또는 0x43)
-        # 실제 주소는 i2c.scan()으로 확인 필요
-        gps_address = 0x42
-        
-        # I2C 스캔으로 GPS 모듈 확인
+        # GPS 모듈 존재 확인
         i2c.try_lock()
         devices = i2c.scan()
         i2c.unlock()
         
-        if gps_address not in devices:
-            # 대체 주소 시도
-            gps_address = 0x43
-            if gps_address not in devices:
-                _log(f"GPS module not found. Available devices: {[hex(d) for d in devices]}")
-                return None, None
+        if address not in devices:
+            _log("INIT_ERROR,GPS module not found on I2C bus")
+            return None, None
         
-        _log(f"GPS module found at address: {hex(gps_address)}")
-        return i2c, gps_address
+        _log("GPS I2C module initialized successfully")
+        
+        # GPS 모듈 초기화 명령어 전송
+        init_commands = [
+            b"$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n",  # GGA, RMC만 출력
+            b"$PMTK220,100*2F\r\n",  # 10Hz 업데이트
+            b"$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n",  # 설정 재확인
+        ]
+        
+        for cmd in init_commands:
+            try:
+                i2c.try_lock()
+                i2c.writeto(address, cmd)
+                i2c.unlock()
+                time.sleep(0.1)
+            except Exception as e:
+                _log(f"INIT_ERROR,Command send failed: {e}")
+        
+        _log("GPS initialization commands sent")
+        
+        # GPS 모듈이 위성 신호를 받기까지 대기
+        print("GPS 모듈 초기화 중... 위성 신호 대기 중...")
+        time.sleep(3)  # 3초 대기
+        
+        return i2c, address
         
     except Exception as e:
-        _log(f"GPS I2C init error: {e}")
+        _log(f"INIT_ERROR,{e}")
         return None, None
 
 def terminate_gps_i2c(i2c):
@@ -264,13 +280,18 @@ def read_gps_i2c(i2c, address):
         
         # 표준 형식으로 변환
         if parsed_data['type'] == 'GGA':
-            return [
-                parsed_data['time'],
-                parsed_data['altitude'],
-                parsed_data['latitude'],
-                parsed_data['longitude'],
-                parsed_data['satellites']
-            ]
+            # 위성 수가 0이 아닌 경우에만 유효한 데이터로 간주
+            if parsed_data['satellites'] > 0:
+                return [
+                    parsed_data['time'],
+                    parsed_data['altitude'],
+                    parsed_data['latitude'],
+                    parsed_data['longitude'],
+                    parsed_data['satellites']
+                ]
+            else:
+                # 위성 수가 0이면 None 반환 (신호 없음)
+                return None
         elif parsed_data['type'] == 'RMC':
             return [
                 parsed_data['time'],
