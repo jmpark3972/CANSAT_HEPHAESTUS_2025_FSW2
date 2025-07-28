@@ -55,11 +55,8 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
 def send_hk(Main_Queue: Queue):
     while PITOTAPP_RUNSTATUS:
         try:
-            hk_msg = msgstructure.MsgStructure(
-                AppID=appargs.PitotAppArg.AppID,
-                MsgID=appargs.PitotAppArg.MID_SendHK,
-                data="PITOT_HK_OK"
-            )
+            hk_msg = msgstructure.MsgStructure()
+            msgstructure.fill_msg(hk_msg, appargs.PitotAppArg.AppID, appargs.MainAppArg.AppID, appargs.PitotAppArg.MID_SendHK, "PITOT_HK_OK")
             Main_Queue.put(hk_msg)
             time.sleep(5.0)  # 5초마다 HK 전송
         except Exception as e:
@@ -84,20 +81,14 @@ def read_pitot_data(Main_Queue: Queue):
                     
                     # FlightLogic용 데이터 전송
                     flight_data = f"{dp_cal:.2f},{temp_cal:.2f}"
-                    flight_msg = msgstructure.MsgStructure(
-                        AppID=appargs.PitotAppArg.AppID,
-                        MsgID=appargs.PitotAppArg.MID_SendPitotFlightLogicData,
-                        data=flight_data
-                    )
+                    flight_msg = msgstructure.MsgStructure()
+                    msgstructure.fill_msg(flight_msg, appargs.PitotAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.PitotAppArg.MID_SendPitotFlightLogicData, flight_data)
                     Main_Queue.put(flight_msg)
                     
                     # Telemetry용 데이터 전송
                     tlm_data = f"{dp_cal:.2f},{temp_cal:.2f}"
-                    tlm_msg = msgstructure.MsgStructure(
-                        AppID=appargs.PitotAppArg.AppID,
-                        MsgID=appargs.PitotAppArg.MID_SendPitotTlmData,
-                        data=tlm_data
-                    )
+                    tlm_msg = msgstructure.MsgStructure()
+                    msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
                     Main_Queue.put(tlm_msg)
             
             time.sleep(0.2)  # 5Hz (200ms 간격)
