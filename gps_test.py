@@ -18,3 +18,4 @@ try:
         time.sleep(0.1)
 finally:
     ser.close()
+
