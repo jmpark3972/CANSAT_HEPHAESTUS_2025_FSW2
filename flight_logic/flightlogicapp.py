@@ -716,3 +716,4 @@ def log_dht11_data(raw_data):
 
 def log_error(msg):
     log_csv(ERROR_LOG_PATH, ["epoch","iso","error_msg"], [now_epoch(), now_iso(), msg])
+
