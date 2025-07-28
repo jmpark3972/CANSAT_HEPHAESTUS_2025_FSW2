@@ -290,3 +290,47 @@
 [2025-07-22 14:22:09.767] ERROR | NIR : Init error: too many values to unpack (expected 3)
 [2025-07-22 14:22:16.513] ERROR | Barometer : MID 100 not handled
 [2025-07-22 14:22:16.517] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 18:06:13.262] Log file generated
+[2025-07-28 18:06:13.263] Log file generated
+[2025-07-28 18:06:14.258] ERROR | IMU : Error during initialization
+[2025-07-28 18:06:14.264] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 18:06:14.265] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-28 18:06:14.269] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-28 18:06:14.269] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 18:06:14.289] ERROR | FlightLogic : Exception in command_handler: AttributeError: type object 'GpsAppArg' has no attribute 'MID_SendGpsFlightLogicData'
+[2025-07-28 18:06:14.289] ERROR | FlightLogic : flightlogicapp error : type object 'GpsAppArg' has no attribute 'MID_SendGpsFlightLogicData'
+[2025-07-28 18:06:15.289] ERROR | Communication : MID 2402 not handled
+[2025-07-28 18:06:16.291] ERROR | Communication : MID 2402 not handled
+[2025-07-28 18:06:17.293] ERROR | Communication : MID 2402 not handled
+[2025-07-28 18:06:18.296] ERROR | Communication : MID 2402 not handled
+[2025-07-28 18:06:18.962] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 18:11:41.736] Log file generated
+[2025-07-28 18:11:41.736] Log file generated
+[2025-07-28 18:11:42.223] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-28 18:11:42.238] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 18:11:42.254] ERROR | IMU : Error during initialization
+[2025-07-28 18:11:42.269] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-28 18:11:42.269] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 18:11:44.908] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 18:12:06.912] Log file generated
+[2025-07-28 18:12:06.912] Log file generated
+[2025-07-28 18:12:07.293] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-28 18:12:07.315] ERROR | NIR : Init error: too many values to unpack (expected 3)
+[2025-07-28 18:12:07.324] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 18:12:07.328] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 18:12:07.332] ERROR | IMU : Error during initialization
+[2025-07-28 18:12:24.394] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 18:14:16.436] Log file generated
+[2025-07-28 18:14:16.436] Log file generated
+[2025-07-28 18:14:16.811] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-28 18:14:16.863] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 18:14:16.866] ERROR | IMU : Error during initialization
+[2025-07-28 18:14:16.918] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 18:14:21.716] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 18:37:37.169] Log file generated
+[2025-07-28 18:37:37.171] Log file generated
+[2025-07-28 18:37:44.724] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 18:37:44.728] ERROR | IMU : Error during initialization
+[2025-07-28 18:37:44.736] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
+[2025-07-28 18:37:44.737] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 18:37:58.490] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
