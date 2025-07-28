@@ -69,26 +69,6 @@ def terminate_dht(sensor_tuple):
 # ─────────────────────────────────────────────
 # 2)  MLX90614(FIR) 헬퍼
 # ─────────────────────────────────────────────
-def init_fir():
-    import adafruit_mlx90614, board, busio
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
-    sensor = adafruit_mlx90614.MLX90614(i2c)
-    return i2c, sensor
-
-def read_fir(sensor):
-    try:
-        amb = round(float(sensor.ambient_temperature), 2)
-        obj = round(float(sensor.object_temperature),  2)
-        return amb, obj
-    except Exception:
-        return None, None
-
-def terminate_fir(i2c):
-    try:
-        i2c.deinit()
-    except AttributeError:
-        pass
-
 # ─────────────────────────────────────────────
 # 3)  G-TPCO-035(ADS1115) 헬퍼
 # ─────────────────────────────────────────────
@@ -119,7 +99,7 @@ def terminate_nir(i2c):
 # ─────────────────────────────────────────────
 def main():
     dht         = init_dht()
-    i2c_fir, F  = init_fir()
+    #i2c_fir, F  = init_fir()
     i2c_nir, N  = init_nir()
 
     print("=== multisensor_single 시작 (Ctrl-C 종료) ===")
@@ -128,17 +108,17 @@ def main():
             now = datetime.now().isoformat(sep=" ", timespec="milliseconds")
 
             dht_t, dht_h   = read_dht(dht)
-            fir_amb, fir_o = read_fir(F)
+            #fir_amb, fir_o = read_fir(F)
             nir_v,  nir_t  = read_nir(N)
 
             print(f"[{now}] "
                   f"DHT: {dht_t or '--'}°C {dht_h or '--'}%  | "
-                  f"FIR: {fir_amb or '--'}°C {fir_o or '--'}°C  | "
+                  #f"FIR: {fir_amb or '--'}°C {fir_o or '--'}°C  | "
                   f"NIR: {nir_v or '--'}V {nir_t or '--'}°C")
 
             csv_wr.writerow([
                 now, dht_t, dht_h, 
-                fir_amb, fir_o, 
+                #fir_amb, fir_o, 
                 nir_v, nir_t
             ])
             csv_fp.flush()
@@ -148,7 +128,7 @@ def main():
         print("\n종료 중…")
     finally:
         terminate_dht(dht)
-        terminate_fir(i2c_fir)
+        #terminate_fir(i2c_fir)
         terminate_nir(i2c_nir)
         csv_fp.close()
         print("로그 저장:", CSV_PATH)
