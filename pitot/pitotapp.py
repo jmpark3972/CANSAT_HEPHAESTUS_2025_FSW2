@@ -8,9 +8,6 @@ import threading
 from multiprocessing import Queue
 from multiprocessing.connection import Connection
 from lib import appargs, events, msgstructure, prevstate
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))
 import pitot
 
 # ──────────────────────────────────────────────────────────
