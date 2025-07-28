@@ -5316,3 +5316,1503 @@ IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
 Euler angle(0.000000, 0.0000, 0.0000) 
 Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
 
+[2025-07-28 20:14:40.353] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:40, PCK_CNT : 1, MODE : F, STATE : LAUNCH_PAD
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(0.0)
+Nir : Voltage(0.0), Object(0.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:41.358] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:41, PCK_CNT : 2, MODE : F, STATE : ASCENT
+Barometer : Altitude(0.0), Temperature(0.0), Pressure(0.0)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.06475), Object(0.68)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.0, 0.0, 0.0), Mag(0.0, 0.0, 0.0)
+Euler angle(0.000000, 0.0000, 0.0000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:42.359] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:42, PCK_CNT : 3, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.51), Temperature(25.18), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.58)
+Nir : Voltage(0.06488), Object(0.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.0, 0.0), Accel(-0.56, -3.95, 8.51), Mag(-2.19, 35.88, -90.75)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:43.361] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:43, PCK_CNT : 4, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.3), Temperature(25.19), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.06438), Object(0.74)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.54, -3.97, 8.59), Mag(-2.88, 36.25, -90.75)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:44.363] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:44, PCK_CNT : 5, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.38), Temperature(25.19), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.58)
+Nir : Voltage(0.0645), Object(0.6)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.5, -3.94, 8.56), Mag(-1.75, 35.56, -92.06)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:45.365] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:45, PCK_CNT : 6, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.43), Temperature(25.19), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.00762), Object(-2.22)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.51, -3.98, 8.57), Mag(-2.19, 35.88, -90.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:46.367] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:46, PCK_CNT : 7, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.12), Temperature(25.19), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.06438), Object(0.66)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.52, -3.98, 8.59), Mag(-1.38, 35.56, -91.25)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:47.368] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:47, PCK_CNT : 8, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.22), Temperature(25.19), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.064), Object(0.65)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.52, -3.97, 8.58), Mag(-1.75, 35.56, -92.5)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:48.369] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:48, PCK_CNT : 9, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.32), Temperature(25.2), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.06488), Object(0.69)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.52, -4.02, 8.59), Mag(-2.56, 36.25, -91.0)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:49.370] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:49, PCK_CNT : 10, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.25), Temperature(25.21), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.06425), Object(0.66)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.54, -4.0, 8.53), Mag(-1.75, 35.56, -90.19)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:50.371] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:50, PCK_CNT : 11, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.25), Temperature(25.21), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.06863), Object(0.9)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.53, -3.99, 8.57), Mag(-1.38, 35.56, -91.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:51.374] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:51, PCK_CNT : 12, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.2), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.065), Object(0.7)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.52, -4.03, 8.58), Mag(-1.06, 35.56, -91.0)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:52.375] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:52, PCK_CNT : 13, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.2), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(1.63712), Object(79.35)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, -0.0, 0.0), Accel(-0.47, -3.97, 8.62), Mag(-1.38, 36.25, -90.56)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:53.376] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:53, PCK_CNT : 14, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.23), Temperature(25.2), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.06438), Object(0.78)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.53, -4.03, 8.55), Mag(-1.38, 34.75, -91.75)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:54.377] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:54, PCK_CNT : 15, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.19), Temperature(25.2), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.065), Object(0.65)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(-0.52, -4.02, 8.57), Mag(-1.75, 35.88, -91.0)
+Euler angle(305.220000, -15.2500, 322.0300) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:55.379] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:55, PCK_CNT : 16, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.44), Temperature(25.2), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.06438), Object(0.78)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.53, -4.0, 8.56), Mag(-1.38, 35.88, -91.75)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:56.380] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:56, PCK_CNT : 17, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.15), Temperature(25.2), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(1.63738), Object(79.39)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.53, -4.02, 8.53), Mag(-1.38, 36.69, -91.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:57.382] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:57, PCK_CNT : 18, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.42), Temperature(25.2), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.066), Object(0.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(-0.56, -4.02, 8.56), Mag(-0.69, 36.25, -91.0)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:58.384] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:58, PCK_CNT : 19, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.34), Temperature(25.19), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.0645), Object(0.74)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.53, -4.02, 8.56), Mag(-1.38, 35.56, -91.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:14:59.386] DEBUG | Communication : 
+ID : 3139 TIME : 20:14:59, PCK_CNT : 20, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.31), Temperature(25.18), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(-0.00025), Object(-2.42)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.52, -4.04, 8.58), Mag(-2.19, 35.88, -91.0)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:00.388] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:00, PCK_CNT : 21, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.42), Temperature(25.17), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06413), Object(0.8)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.52, -4.05, 8.55), Mag(-1.75, 36.25, -91.06)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:01.389] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:01, PCK_CNT : 22, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.21), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06488), Object(0.83)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.51, -4.03, 8.55), Mag(-1.38, 35.88, -90.56)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:02.390] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:02, PCK_CNT : 23, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.0), Temperature(25.18), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06438), Object(0.83)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, 0.0), Accel(-0.54, -4.05, 8.54), Mag(-2.19, 36.69, -90.56)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:03.391] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:03, PCK_CNT : 24, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.0), Temperature(25.18), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06463), Object(0.85)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.51, -4.04, 8.56), Mag(-1.38, 36.25, -89.75)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:04.393] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:04, PCK_CNT : 25, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.36), Temperature(25.18), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.2595), Object(10.57)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.54, -4.04, 8.57), Mag(-1.38, 35.88, -91.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:05.394] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:05, PCK_CNT : 26, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.21), Temperature(25.16), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06475), Object(0.78)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(-0.53, -4.03, 8.6), Mag(-1.06, 36.25, -89.38)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:06.396] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:06, PCK_CNT : 27, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.33), Temperature(25.16), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.58)
+Nir : Voltage(0.06438), Object(0.83)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(-0.53, -4.07, 8.56), Mag(-0.25, 36.25, -90.25)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:07.397] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:07, PCK_CNT : 28, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.23), Temperature(25.16), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.065), Object(0.86)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.5, -4.05, 8.55), Mag(-1.75, 36.25, -91.06)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:08.398] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:08, PCK_CNT : 29, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.52), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.59)
+Nir : Voltage(0.065), Object(0.72)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(-0.53, -4.06, 8.53), Mag(-1.38, 35.88, -90.69)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:09.399] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:09, PCK_CNT : 30, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.11), Temperature(25.16), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06575), Object(0.81)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(-0.54, -4.05, 8.56), Mag(-2.56, 35.56, -91.06)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:10.400] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:10, PCK_CNT : 31, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.41), Temperature(25.16), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(0.06438), Object(0.81)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(-0.53, -4.06, 8.58), Mag(-1.38, 36.25, -90.56)
+Euler angle(335.660000, 3.4400, 359.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:11.401] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:11, PCK_CNT : 32, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.11), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.6)
+Nir : Voltage(-0.00038), Object(-2.45)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.02, 0.02, 0.0), Accel(-0.39, -3.99, 8.48), Mag(-3.25, 35.88, -91.5)
+Euler angle(335.690000, 2.2900, 359.5200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:12.403] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:12, PCK_CNT : 33, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.09), Temperature(25.16), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.0645), Object(0.79)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.03, -0.02, 0.01), Accel(-0.39, -3.9, 8.6), Mag(-1.69, 21.88, -54.25)
+Euler angle(335.690000, 2.2900, 359.5200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:13.405] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:13, PCK_CNT : 34, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.34), Temperature(25.16), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06475), Object(0.85)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.07, 0.04, 0.0), Accel(-0.33, -3.97, 8.65), Mag(-2.38, 22.38, -56.06)
+Euler angle(334.950000, 2.2900, 359.5000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:14.406] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:14, PCK_CNT : 35, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.34), Temperature(25.16), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06513), Object(0.85)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.04, 0.02, 0.0), Accel(-0.2, -3.99, 8.63), Mag(-2.56, 21.5, -54.06)
+Euler angle(334.460000, 2.2900, 359.5000) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:15.407] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:15, PCK_CNT : 36, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.24), Temperature(25.16), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06425), Object(0.88)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.03, -0.09, -0.01), Accel(0.03, -4.15, 8.52), Mag(-4.06, 22.0, -54.75)
+Euler angle(334.480000, 0.0000, 358.8800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:16.407] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:16, PCK_CNT : 37, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.21), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06488), Object(0.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.07, -0.0, 0.01), Accel(0.07, -4.18, 8.49), Mag(-5.0, 22.88, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:17.409] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:17, PCK_CNT : 38, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.17), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.065), Object(0.94)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.02, 0.0), Accel(0.04, -4.14, 8.52), Mag(-3.88, 22.5, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:18.410] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:18, PCK_CNT : 39, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.34), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(-0.00038), Object(-2.33)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, -0.0), Accel(0.05, -4.19, 8.5), Mag(-5.0, 22.5, -54.69)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:19.412] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:19, PCK_CNT : 40, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.18), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06513), Object(0.97)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.07, -4.19, 8.47), Mag(-4.19, 22.5, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:20.415] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:20, PCK_CNT : 41, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.06), Temperature(25.17), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(1.63813), Object(79.59)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(0.06, -4.19, 8.48), Mag(-5.0, 22.5, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:21.415] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:21, PCK_CNT : 42, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.42), Temperature(25.17), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.065), Object(0.99)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.02, 0.01, -0.0), Accel(0.04, -4.17, 8.46), Mag(-4.56, 23.56, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:22.417] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:22, PCK_CNT : 43, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.13), Temperature(25.17), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06425), Object(0.97)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.0, -0.0), Accel(0.04, -4.2, 8.47), Mag(-6.06, 23.19, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:23.419] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:23, PCK_CNT : 44, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.1), Temperature(25.18), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.07175), Object(1.37)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, 0.0), Accel(0.06, -4.2, 8.47), Mag(-5.0, 22.88, -55.88)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:24.420] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:24, PCK_CNT : 45, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.31), Temperature(25.18), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06488), Object(1.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.06, -4.21, 8.49), Mag(-5.25, 23.19, -54.69)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:25.422] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:25, PCK_CNT : 46, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.31), Temperature(25.18), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06375), Object(0.92)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.07, -4.21, 8.45), Mag(-4.19, 23.56, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:26.423] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:26, PCK_CNT : 47, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.11), Temperature(25.18), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06425), Object(1.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.01, 0.0), Accel(0.08, -4.18, 8.47), Mag(-5.25, 22.5, -57.06)
+Euler angle(334.460000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:27.424] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:27, PCK_CNT : 48, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.17), Temperature(25.17), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06513), Object(1.04)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.11, -4.22, 8.47), Mag(-5.25, 22.88, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:28.425] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:28, PCK_CNT : 49, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.3), Temperature(25.18), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.065), Object(1.06)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.01, 0.0), Accel(0.07, -4.2, 8.49), Mag(-4.56, 22.88, -55.5)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:29.426] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:29, PCK_CNT : 50, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.22), Temperature(25.18), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06438), Object(1.03)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.08, -4.21, 8.49), Mag(-5.0, 22.5, -53.88)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:30.427] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:30, PCK_CNT : 51, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.08), Temperature(25.19), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.069), Object(1.21)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.09, -4.21, 8.48), Mag(-4.56, 22.5, -55.5)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:31.429] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:31, PCK_CNT : 52, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.96), Temperature(25.19), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.064), Object(1.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -4.22, 8.47), Mag(-5.25, 22.88, -54.25)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:32.430] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:32, PCK_CNT : 53, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.39), Temperature(25.19), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.064), Object(0.98)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, 0.0), Accel(0.09, -4.2, 8.43), Mag(-5.69, 22.88, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:33.431] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:33, PCK_CNT : 54, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.92), Temperature(25.2), Pressure(995.63)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(-50.77)
+Nir : Voltage(0.06388), Object(0.98)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.06, -4.22, 8.49), Mag(-5.69, 22.88, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:34.432] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:34, PCK_CNT : 55, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.99), Temperature(25.2), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06388), Object(0.98)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, 0.0), Accel(0.09, -4.21, 8.44), Mag(-4.19, 22.88, -54.25)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:35.433] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:35, PCK_CNT : 56, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.45), Temperature(25.2), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06513), Object(1.02)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(0.1, -4.25, 8.45), Mag(-5.0, 23.56, -54.38)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:36.434] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:36, PCK_CNT : 57, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.45), Temperature(25.2), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.065), Object(1.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, -0.0), Accel(0.11, -4.23, 8.42), Mag(-4.56, 23.19, -55.56)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:37.435] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:37, PCK_CNT : 58, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.14), Temperature(25.2), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(-0.00025), Object(-2.28)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, -0.0), Accel(0.11, -4.27, 8.41), Mag(-5.69, 22.88, -55.06)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:38.437] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:38, PCK_CNT : 59, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.22), Temperature(25.19), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.064), Object(0.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, -0.0), Accel(0.07, -4.25, 8.47), Mag(-5.25, 23.56, -54.38)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:39.439] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:39, PCK_CNT : 60, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.92), Temperature(25.18), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06438), Object(0.95)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.1, -4.24, 8.43), Mag(-5.69, 23.56, 1993.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:40.440] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:40, PCK_CNT : 61, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.27), Temperature(25.19), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06475), Object(0.97)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(0.1, -4.24, 8.48), Mag(-5.25, 23.19, -53.88)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:41.441] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:41, PCK_CNT : 62, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.14), Temperature(25.2), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.0645), Object(0.86)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.09, -4.24, 8.47), Mag(-4.56, 22.88, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:42.443] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:42, PCK_CNT : 63, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.19), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06513), Object(1.04)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, -0.0), Accel(0.1, -4.25, 8.44), Mag(-3.88, 22.88, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:43.444] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:43, PCK_CNT : 64, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.97), Temperature(25.2), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.0645), Object(0.98)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.09, -4.23, 8.45), Mag(-4.56, 22.5, -54.38)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:44.445] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:44, PCK_CNT : 65, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.37), Temperature(25.19), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.07), Object(1.31)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.09, -4.26, 8.42), Mag(-5.0, 23.19, -54.38)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:45.447] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:45, PCK_CNT : 66, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.19), Temperature(25.19), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06525), Object(1.05)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -4.26, 8.45), Mag(-4.25, 23.19, -54.0)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:46.448] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:46, PCK_CNT : 67, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.19), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.064), Object(1.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.1, -4.23, 8.41), Mag(-5.25, 23.56, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:47.451] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:47, PCK_CNT : 68, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.19), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.065), Object(1.11)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(0.1, -4.26, 8.44), Mag(-5.0, 23.56, -55.88)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:48.452] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:48, PCK_CNT : 69, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.02), Temperature(25.18), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06438), Object(1.07)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.09, -4.26, 8.42), Mag(-4.25, 23.19, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:49.454] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:49, PCK_CNT : 70, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.36), Temperature(25.17), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(-50.37)
+Nir : Voltage(0.06563), Object(1.14)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.1, -4.26, 8.46), Mag(-5.69, 23.56, -54.0)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:50.456] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:50, PCK_CNT : 71, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.1), Temperature(25.17), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06513), Object(1.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.09, -4.26, 8.45), Mag(-4.56, 23.56, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:51.457] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:51, PCK_CNT : 72, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.16), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(-0.00025), Object(-2.16)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.11, -4.29, 8.45), Mag(-3.88, 23.56, -55.19)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:52.459] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:52, PCK_CNT : 73, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.15), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.065), Object(1.06)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.01, 0.0), Accel(0.0, -4.22, 8.5), Mag(-4.56, 23.19, -55.19)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:53.460] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:53, PCK_CNT : 74, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.04), Temperature(25.14), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06488), Object(1.03)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, -0.0), Accel(0.1, -4.29, 8.45), Mag(-5.0, 24.0, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:54.461] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:54, PCK_CNT : 75, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.07), Temperature(25.13), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06513), Object(1.04)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.02, -0.0), Accel(0.09, -4.26, 8.48), Mag(-4.5, 23.19, -54.75)
+Euler angle(334.710000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:55.463] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:55, PCK_CNT : 76, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.11), Temperature(25.13), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.064), Object(1.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.01, -0.0), Accel(0.09, -4.3, 8.42), Mag(-4.75, 22.88, -54.25)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:56.464] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:56, PCK_CNT : 77, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.24), Temperature(25.12), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.20563), Object(7.99)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(0.09, -4.3, 8.38), Mag(-4.88, 23.5, -53.0)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:57.466] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:57, PCK_CNT : 78, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.24), Temperature(25.12), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.065), Object(0.99)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.02, 0.03, 0.01), Accel(0.04, -4.27, 8.44), Mag(-4.5, 23.0, -55.0)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:58.466] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:58, PCK_CNT : 79, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.95), Temperature(25.13), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.61)
+Nir : Voltage(0.06425), Object(0.88)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -4.28, 8.44), Mag(-4.88, 23.75, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:15:59.468] DEBUG | Communication : 
+ID : 3139 TIME : 20:15:59, PCK_CNT : 80, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.3), Temperature(25.11), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06463), Object(0.94)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, 0.0), Accel(0.07, -4.29, 8.42), Mag(-4.19, 22.69, -55.06)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:00.469] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:00, PCK_CNT : 81, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.21), Temperature(25.12), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06563), Object(0.97)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.1, -4.27, 8.44), Mag(-3.38, 22.69, -55.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:01.471] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:01, PCK_CNT : 82, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.12), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06538), Object(0.93)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.09, -4.28, 8.44), Mag(-5.56, 23.38, -53.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:02.472] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:02, PCK_CNT : 83, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.35), Temperature(25.11), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06488), Object(0.93)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.11, -4.29, 8.43), Mag(-3.38, 23.75, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:03.474] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:03, PCK_CNT : 84, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.51), Temperature(25.1), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(-0.00013), Object(-2.32)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.09, -4.29, 8.43), Mag(-5.56, 22.69, -55.0)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:04.477] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:04, PCK_CNT : 85, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.31), Temperature(25.1), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.62)
+Nir : Voltage(0.06475), Object(0.95)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.09, -4.28, 8.45), Mag(-5.19, 23.0, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:05.479] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:05, PCK_CNT : 86, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.07), Temperature(25.11), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06525), Object(1.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.09, -4.29, 8.42), Mag(-4.5, 23.0, -54.19)
+Euler angle(272.370000, 0.0000, 287.3500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:06.481] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:06, PCK_CNT : 87, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.24), Temperature(25.11), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06513), Object(0.92)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.09, -4.28, 8.46), Mag(-5.19, 23.75, -53.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:07.482] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:07, PCK_CNT : 88, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.36), Temperature(25.09), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06438), Object(0.93)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(0.09, -4.29, 8.4), Mag(-5.19, 23.0, -53.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:08.484] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:08, PCK_CNT : 89, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.36), Temperature(25.09), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.10762), Object(3.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.1, -4.28, 8.44), Mag(-4.5, 23.0, -53.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:09.485] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:09, PCK_CNT : 90, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.23), Temperature(25.08), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06413), Object(0.97)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.09, -4.3, 8.43), Mag(-5.19, 23.38, -54.19)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:10.486] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:10, PCK_CNT : 91, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.19), Temperature(25.09), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.065), Object(0.91)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.09, -4.31, 8.42), Mag(-4.5, 23.0, -53.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:11.488] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:11, PCK_CNT : 92, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.37), Temperature(25.09), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06488), Object(1.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -4.3, 8.44), Mag(-4.19, 23.75, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:12.489] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:12, PCK_CNT : 93, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.97), Temperature(25.09), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06425), Object(1.0)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.02, 0.0), Accel(0.08, -4.29, 8.43), Mag(-5.19, 22.69, -55.06)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:13.490] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:13, PCK_CNT : 94, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.21), Temperature(25.09), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.63)
+Nir : Voltage(0.06488), Object(1.03)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -4.27, 8.42), Mag(-6.25, 37.38, -90.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:14.492] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:14, PCK_CNT : 95, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.2), Temperature(25.08), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06475), Object(1.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -4.29, 8.42), Mag(-7.0, 38.19, -91.25)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:15.493] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:15, PCK_CNT : 96, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.17), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.07188), Object(1.33)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, -0.0), Accel(0.09, -4.31, 8.44), Mag(-6.25, 37.06, -90.0)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:16.494] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:16, PCK_CNT : 97, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.37), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.065), Object(1.08)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.01, 0.0), Accel(0.1, -4.3, 8.44), Mag(-5.88, 37.06, -90.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:17.495] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:17, PCK_CNT : 98, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.06), Temperature(25.1), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06538), Object(1.05)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, -0.0), Accel(0.08, -4.31, 8.42), Mag(-6.25, 37.75, -90.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:18.496] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:18, PCK_CNT : 99, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.42), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.0645), Object(1.06)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.07, -4.31, 8.47), Mag(-5.88, 37.38, -91.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:19.497] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:19, PCK_CNT : 100, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.42), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06463), Object(1.01)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.01, 0.0), Accel(0.11, -4.31, 8.41), Mag(-6.25, 37.38, -90.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:20.499] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:20, PCK_CNT : 101, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.98), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06488), Object(1.12)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.01, -0.0), Accel(0.08, -4.31, 8.43), Mag(-7.0, 37.38, -89.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:21.501] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:21, PCK_CNT : 102, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.09), Temperature(25.08), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06413), Object(1.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.0, -0.0), Accel(0.07, -4.3, 8.42), Mag(-7.0, 37.75, -89.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:22.503] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:22, PCK_CNT : 103, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.31), Temperature(25.08), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(-0.00025), Object(-2.13)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, -0.0), Accel(0.08, -4.3, 8.44), Mag(-7.0, 38.56, -90.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:23.504] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:23, PCK_CNT : 104, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.2), Temperature(25.09), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06525), Object(1.14)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(0.09, -4.31, 8.42), Mag(-7.38, 37.06, -90.0)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:24.506] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:24, PCK_CNT : 105, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.02), Temperature(25.09), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.64)
+Nir : Voltage(0.06425), Object(1.17)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.07, -4.29, 8.42), Mag(-5.56, -2009.81, -90.75)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:25.507] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:25, PCK_CNT : 106, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.17), Temperature(25.09), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06413), Object(1.13)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.06, -4.31, 8.41), Mag(-5.56, 38.56, -89.19)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:26.508] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:26, PCK_CNT : 107, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.11), Temperature(25.08), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06513), Object(1.18)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.01, 0.0), Accel(0.07, -4.31, 8.46), Mag(-3.88, 22.75, -54.19)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:27.509] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:27, PCK_CNT : 108, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.38), Temperature(25.08), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.06525), Object(1.17)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, 0.0, 0.0), Accel(0.08, -4.3, 8.41), Mag(-3.19, 23.56, -55.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:28.510] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:28, PCK_CNT : 109, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.2), Temperature(25.07), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06488), Object(1.17)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.0, -0.0), Accel(0.07, -4.32, 8.41), Mag(-3.19, 22.38, -55.38)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:29.512] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:29, PCK_CNT : 110, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.07), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.65)
+Nir : Voltage(0.18263), Object(7.04)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, -0.02, -0.0), Accel(0.06, -4.31, 8.42), Mag(-4.19, 23.19, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:30.513] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:30, PCK_CNT : 111, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.29), Temperature(25.07), Pressure(995.6)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06413), Object(1.16)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.08, -4.33, 8.43), Mag(-4.19, 22.06, -54.56)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:31.514] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:31, PCK_CNT : 112, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.41), Temperature(25.07), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06438), Object(1.12)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, -0.0), Accel(0.07, -4.32, 8.44), Mag(-2.75, 23.19, -54.19)
+Euler angle(333.480000, 0.0000, 358.8900) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:32.516] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:32, PCK_CNT : 113, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.15), Temperature(25.08), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06463), Object(1.09)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.57, 0.68, -1.15), Accel(-0.09, -3.83, 8.64), Mag(-3.56, 21.75, -55.56)
+Euler angle(335.920000, -2.0600, 2.5500) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:33.516] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:33, PCK_CNT : 114, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.02), Temperature(25.11), Pressure(995.61)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.0645), Object(1.13)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, -0.04, -0.76), Accel(-0.41, -0.58, 9.24), Mag(-4.0, 17.38, -62.88)
+Euler angle(286.900000, 1.4900, 302.0200) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:34.518] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:34, PCK_CNT : 115, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.28), Temperature(25.18), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.66)
+Nir : Voltage(0.06713), Object(1.26)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.09, 0.25), Accel(-0.07, -0.2, 9.3), Mag(-1.0, 20.0, -63.19)
+Euler angle(357.620000, 1.1500, 350.7700) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:35.519] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:35, PCK_CNT : 116, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.13), Temperature(25.2), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06525), Object(1.17)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, 0.0, 0.0), Accel(0.35, -1.71, 9.28), Mag(-1.5, 29.69, -61.56)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:36.521] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:36, PCK_CNT : 117, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.12), Temperature(25.19), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(-0.00038), Object(-2.07)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.01, -0.01, 0.0), Accel(0.33, -1.73, 9.19), Mag(-1.19, 29.25, -60.25)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:37.522] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:37, PCK_CNT : 118, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.15), Temperature(25.18), Pressure(995.59)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06388), Object(1.17)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.34, -1.76, 9.2), Mag(-2.25, 30.06, -60.69)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:38.523] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:38, PCK_CNT : 119, MODE : F, STATE : APOGEE
+Barometer : Altitude(147.99), Temperature(25.18), Pressure(995.57)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.064), Object(1.2)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.33, -1.75, 9.2), Mag(-0.69, 28.75, -60.69)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:39.524] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:39, PCK_CNT : 120, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.26), Temperature(25.2), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.67)
+Nir : Voltage(0.06425), Object(1.24)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.01, 0.01, -0.0), Accel(0.35, -1.77, 9.23), Mag(-1.75, 30.25, -60.56)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:40.525] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:40, PCK_CNT : 121, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.27), Temperature(25.2), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.68)
+Nir : Voltage(0.06488), Object(1.27)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, 0.0), Accel(0.35, -1.77, 9.21), Mag(-1.75, 29.56, -60.69)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:41.526] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:41, PCK_CNT : 122, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.27), Temperature(25.2), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.68)
+Nir : Voltage(0.20175), Object(8.14)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.35, -1.75, 9.2), Mag(-2.19, 29.56, -59.88)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:42.528] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:42, PCK_CNT : 123, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.18), Temperature(25.21), Pressure(995.58)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.69)
+Nir : Voltage(0.06438), Object(1.32)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.35, -1.77, 9.21), Mag(-2.19, 29.56, -60.69)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:43.529] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:43, PCK_CNT : 124, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.24), Temperature(25.22), Pressure(995.56)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.69)
+Nir : Voltage(0.06438), Object(1.27)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(0.0, 0.0, 0.0), Accel(0.35, -1.77, 9.22), Mag(-1.75, 30.25, -59.88)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+
+[2025-07-28 20:16:44.530] DEBUG | Communication : 
+ID : 3139 TIME : 20:16:44, PCK_CNT : 125, MODE : F, STATE : APOGEE
+Barometer : Altitude(148.17), Temperature(25.22), Pressure(995.55)
+Thermo : Temperature(0.0), Humidity(0.0)
+Fir : Ambient(0.0), Object(0.0)
+Thermis : Temperature(24.69)
+Nir : Voltage(0.06413), Object(1.3)
+Thermal_camera : Average(0.0), Min(0.0), Max(0.0)
+IMU : Gyro(-0.0, -0.0, -0.0), Accel(0.36, -1.76, 9.24), Mag(-2.88, 29.56, -59.88)
+Euler angle(349.800000, -1.7200, 353.2800) 
+Gps : Lat(0.0), Lon(0.0), Alt(0.0), Time(00:00:00), Sats(0.0)
+

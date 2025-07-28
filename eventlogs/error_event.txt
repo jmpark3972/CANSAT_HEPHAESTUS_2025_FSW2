@@ -334,3 +334,9 @@
 [2025-07-28 18:37:44.736] ERROR | Barometer : Error during initialization: No I2C device at address: 0x77
 [2025-07-28 18:37:44.737] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
 [2025-07-28 18:37:58.490] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-28 20:14:39.082] Log file generated
+[2025-07-28 20:14:39.083] Log file generated
+[2025-07-28 20:14:40.225] ERROR | FIR : Init error: No I2C device at address: 0x5a
+[2025-07-28 20:14:40.239] ERROR | ThermalCamera : Init error: No I2C device at address: 0x33
+[2025-07-28 20:16:45.158] ERROR | Barometer : MID 100 not handled
+[2025-07-28 20:16:45.163] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
