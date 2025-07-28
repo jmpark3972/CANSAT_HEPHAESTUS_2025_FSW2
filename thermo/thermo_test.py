@@ -46,7 +46,7 @@ def init_dht(pin=None):
         try:
             import adafruit_dht, board
             if pin is None:
-                pin = board.D4
+                pin = board.D7  # GPIO 7번 핀
             sensor = adafruit_dht.DHT11(pin, use_pulseio=False)
             sensor_type = "DHT11(GPIO)"
             print("✅ DHT11 (GPIO) 센서 발견!")
