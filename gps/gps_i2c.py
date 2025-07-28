@@ -294,13 +294,13 @@ def get_satellite_info(gps_data):
     satellites = gps_data[4]
     
     if satellites == 0:
-        return "No satellites detected"
+        return f"위성 수: {satellites}개 (신호 없음)"
     elif satellites < 3:
-        return f"Low satellites: {satellites} (need 3+ for 2D fix)"
+        return f"위성 수: {satellites}개 (2D 위치 측정 불가, 3개 이상 필요)"
     elif satellites < 4:
-        return f"Satellites: {satellites} (2D fix possible)"
+        return f"위성 수: {satellites}개 (2D 위치 측정 가능)"
     else:
-        return f"Satellites: {satellites} (3D fix possible)"
+        return f"위성 수: {satellites}개 (3D 위치 측정 가능)"
 
 # ─────────────────────────────
 # 7) 데모 루프
@@ -312,16 +312,19 @@ if __name__ == "__main__":
         exit(1)
     
     try:
-        print("GPS I2C test started...")
+        print("GPS I2C 테스트 시작...")
+        print("=" * 80)
         while True:
             gps_data = read_gps_i2c(i2c, address)
             if gps_data:
                 sat_info = get_satellite_info(gps_data)
-                print(f"GPS: Time={gps_data[0]}, Alt={gps_data[1]:.2f}m, "
-                      f"Lat={gps_data[2]:.6f}, Lon={gps_data[3]:.6f}, "
+                print(f"시간: {gps_data[0]} | "
+                      f"고도: {gps_data[1]:.2f}m | "
+                      f"위도: {gps_data[2]:.6f}° | "
+                      f"경도: {gps_data[3]:.6f}° | "
                       f"{sat_info}")
             else:
-                print("No GPS data")
+                print("GPS 데이터 없음")
             time.sleep(1.0)
     except KeyboardInterrupt:
         pass
