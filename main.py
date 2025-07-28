@@ -197,6 +197,9 @@ app_dict[appargs.FirAppArg.AppID] = firapp_elements
 #########################################################
 
 from thermis import thermisapp
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'pitot'))
 import pitotapp
 
 parent_pipe, child_pipe = Pipe()
