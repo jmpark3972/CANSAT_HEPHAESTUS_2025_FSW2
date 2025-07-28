@@ -35,6 +35,7 @@ IMU_LOG_PATH = os.path.join(LOG_DIR, "imu_log.csv")
 BAROMETER_LOG_PATH = os.path.join(LOG_DIR, "barometer_log.csv")
 DHT11_LOG_PATH = os.path.join(LOG_DIR, "dht11_log.csv")
 FIR_LOG_PATH = os.path.join(LOG_DIR, "fir_log.csv")
+THERMIS_LOG_PATH = os.path.join(LOG_DIR, "thermis_log.csv")
 NIR_LOG_PATH = os.path.join(LOG_DIR, "nir_log.csv")
 THERMAL_LOG_PATH = os.path.join(LOG_DIR, "thermal_log.csv")
 HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
@@ -68,7 +69,7 @@ def safe(val):
 # Handles received message
 def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
     global SIMULATION_ACTIVATE, MAX_ALT, recent_alt, FLIGHTLOGICAPP_RUNSTATUS
-    global SIMULATION_ENABLE, CURRENT_TEMP, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_NIR, LAST_THERMAL
+    global SIMULATION_ENABLE, CURRENT_TEMP, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_THERMIS, LAST_NIR, LAST_THERMAL
     try:
         if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
             # Change Runstatus to false to start termination process
@@ -143,6 +144,22 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
             except Exception as e:
                 events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
                                 f"FIR data parse error: {type(e).__name__}: {e}")
+                return
+            update_motor_logic(Main_Queue)
+            return
+
+        elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisFlightLogicData:
+            try:
+                # 예: "temp,rawdata..." 형태로 온다고 가정
+                parts = recv_msg.data.split(",")
+                temp = float(parts[0])
+                raw_thermis = ",".join(parts[1:]) if len(parts) > 1 else None
+                LAST_THERMIS = temp
+                if raw_thermis:
+                    log_thermis_data(raw_thermis)
+            except Exception as e:
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
+                                f"THERMIS data parse error: {type(e).__name__}: {e}")
                 return
             update_motor_logic(Main_Queue)
             return
@@ -246,18 +263,18 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
 
 def send_hk(Main_Queue : Queue):
     global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, CURRENT_TEMP, recent_alt
-    global LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_NIR, MOTOR_TARGET_PULSE
+    global LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_THERMIS, LAST_NIR, MOTOR_TARGET_PULSE
     while FLIGHTLOGICAPP_RUNSTATUS:
         flightlogicHK = msgstructure.MsgStructure()
         hk_payload = (
             f"run={FLIGHTLOGICAPP_RUNSTATUS},state={CURRENT_STATE},temp={CURRENT_TEMP},alt={recent_alt[-1] if recent_alt else 'NA'},"
-            f"imu_roll={LAST_IMU_ROLL},imu_pitch={LAST_IMU_PITCH},gps={LAST_GPS},fir={LAST_FIR},nir={LAST_NIR},motor={MOTOR_TARGET_PULSE}"
+            f"imu_roll={LAST_IMU_ROLL},imu_pitch={LAST_IMU_PITCH},gps={LAST_GPS},fir={LAST_FIR},thermis={LAST_THERMIS},nir={LAST_NIR},motor={MOTOR_TARGET_PULSE}"
         )
         msgstructure.send_msg(Main_Queue, flightlogicHK, appargs.FlightlogicAppArg.AppID, appargs.HkAppArg.AppID, appargs.FlightlogicAppArg.MID_SendHK, hk_payload)
         hk_row = [now_epoch(), now_iso(), FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, safe(CURRENT_TEMP),
                   safe(recent_alt[-1] if recent_alt else None), safe(LAST_IMU_ROLL), safe(LAST_IMU_PITCH),
-                  safe(LAST_GPS), safe(LAST_FIR), safe(LAST_NIR), safe(MOTOR_TARGET_PULSE)]
-        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir","nir","motor"], hk_row)
+                  safe(LAST_GPS), safe(LAST_FIR), safe(LAST_THERMIS), safe(LAST_NIR), safe(MOTOR_TARGET_PULSE)]
+        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir","thermis","nir","motor"], hk_row)
         time.sleep(1)
     return
 
@@ -675,6 +692,7 @@ LAST_IMU_ROLL = None
 LAST_IMU_PITCH = None
 LAST_GPS = None
 LAST_FIR = None
+LAST_THERMIS = None
 LAST_NIR = None
 LAST_THERMAL = None
 LAST_BAROMETER = None
@@ -698,6 +716,9 @@ def log_thermal_frame(frame, avg, min_t, max_t):
 
 def log_fir_data(raw_data):
     log_csv(FIR_LOG_PATH, ["epoch","iso","raw_fir"], [now_epoch(), now_iso(), safe(raw_data)])
+
+def log_thermis_data(raw_data):
+    log_csv(THERMIS_LOG_PATH, ["epoch","iso","raw_thermis"], [now_epoch(), now_iso(), safe(raw_data)])
 
 def log_nir_data(raw_data):
     log_csv(NIR_LOG_PATH, ["epoch","iso","raw_nir"], [now_epoch(), now_iso(), safe(raw_data)])

@@ -150,6 +150,11 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.thermal_camera_min = float(sep_data[1])
             tlm_data.thermal_camera_max = float(sep_data[2])
 
+    elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisTlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 1:
+            tlm_data.thermis_temp = float(sep_data[0])
+
     else:
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
     return
@@ -277,6 +282,7 @@ class _tlm_data_format:
     thermal_camera_avg: float = 0.0
     thermal_camera_min: float = 0.0
     thermal_camera_max: float = 0.0
+    thermis_temp: float = 0.0
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -322,7 +328,8 @@ def send_tlm(serial_instance):
                     #f','
                     f"{tlm_data.filtered_roll:.4f}",
                     f"{tlm_data.filtered_pitch:.4f}",
-                    f"{tlm_data.filtered_yaw:.4f}"])+"\n"
+                    f"{tlm_data.filtered_yaw:.4f}",
+                    f"{tlm_data.thermis_temp:.2f}"])+"\n"
 
         #events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info,tlm_to_send)
 
@@ -330,6 +337,7 @@ def send_tlm(serial_instance):
                 f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
                  f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
                  f"Fir : Ambient({tlm_data.fir_amb}), Object({tlm_data.fir_obj})\n" \
+                 f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
                  f"Nir : Voltage({tlm_data.nir_voltage}), Object({tlm_data.nir_obj})\n" \
                  f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \

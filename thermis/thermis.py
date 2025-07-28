@@ -11,7 +11,7 @@ from datetime import datetime
 # ─────────────────────────────
 # 1) 로그 파일 준비
 # ─────────────────────────────
-LOG_DIR = "./sensorlogs"
+LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
 thermis_log = open(os.path.join(LOG_DIR, "thermis.txt"), "a")
 
