@@ -302,6 +302,24 @@ def get_satellite_info(gps_data):
     else:
         return f"위성 수: {satellites}개 (3D 위치 측정 가능)"
 
+def get_detailed_satellite_info(gps_data):
+    """위성 수에 대한 상세한 정보와 권장사항 반환"""
+    if not gps_data or len(gps_data) < 5:
+        return "GPS 데이터 없음", "GPS 모듈 연결 확인 필요"
+    
+    satellites = gps_data[4]
+    
+    if satellites == 0:
+        return f"위성 수: {satellites}개", "⚠️  GPS 신호 없음 - 실외에서 테스트하거나 안테나 확인"
+    elif satellites < 3:
+        return f"위성 수: {satellites}개", "⚠️  2D 위치 측정 불가 - 더 많은 위성 필요 (3개 이상)"
+    elif satellites < 4:
+        return f"위성 수: {satellites}개", "✅ 2D 위치 측정 가능 - 3D 측정을 위해 더 많은 위성 필요"
+    elif satellites < 6:
+        return f"위성 수: {satellites}개", "✅ 3D 위치 측정 가능 - 양호한 수신 상태"
+    else:
+        return f"위성 수: {satellites}개", "✅ 3D 위치 측정 가능 - 우수한 수신 상태"
+
 # ─────────────────────────────
 # 7) 데모 루프
 # ─────────────────────────────
@@ -314,17 +332,26 @@ if __name__ == "__main__":
     try:
         print("GPS I2C 테스트 시작...")
         print("=" * 80)
+        print("위성 수 상태:")
+        print("  0개: GPS 신호 없음")
+        print("  1-2개: 2D 위치 측정 불가")
+        print("  3개: 2D 위치 측정 가능")
+        print("  4개 이상: 3D 위치 측정 가능")
+        print("=" * 80)
+        
         while True:
             gps_data = read_gps_i2c(i2c, address)
             if gps_data:
-                sat_info = get_satellite_info(gps_data)
+                sat_count, sat_status = get_detailed_satellite_info(gps_data)
                 print(f"시간: {gps_data[0]} | "
                       f"고도: {gps_data[1]:.2f}m | "
                       f"위도: {gps_data[2]:.6f}° | "
                       f"경도: {gps_data[3]:.6f}° | "
-                      f"{sat_info}")
+                      f"{sat_count}")
+                print(f"  상태: {sat_status}")
             else:
                 print("GPS 데이터 없음")
+            print("-" * 80)
             time.sleep(1.0)
     except KeyboardInterrupt:
         pass
