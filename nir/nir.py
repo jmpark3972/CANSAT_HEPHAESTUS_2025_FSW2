@@ -6,7 +6,7 @@ import board, busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
-LOG_DIR = "./sensorlogs"
+LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
 nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
 

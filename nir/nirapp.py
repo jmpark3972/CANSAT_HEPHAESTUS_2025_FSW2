@@ -65,12 +65,12 @@ def send_hk(main_q: Queue):
 
 # 센서 데이터 읽기 스레드
 
-def read_nir_data(chan):
+def read_nir_data(chan0, chan1):
     global NIR_VOLTAGE, NIR_TEMP, NIRAPP_RUNSTATUS, NIR_OFFSET
     while NIRAPP_RUNSTATUS:
         try:
             with OFFSET_MUTEX:
-                voltage, temp = nir.read_nir(chan, NIR_OFFSET)
+                voltage, temp = nir.read_nir(chan0, chan1, NIR_OFFSET)
                 NIR_VOLTAGE = voltage
                 NIR_TEMP = temp
         except Exception as e:
@@ -110,15 +110,15 @@ def nirapp_init():
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
                         "Initializing nirapp")
-        i2c, ads, chan = nir.init_nir()
+        i2c, ads, chan0, chan1 = nir.init_nir()
         NIR_OFFSET = float(getattr(prevstate, "PREV_NIR_OFFSET", 0.0))
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
                         "Nirapp initialization complete")
-        return i2c, ads, chan
+        return i2c, ads, chan0, chan1
     except Exception as e:
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
                         f"Init error: {e}")
-        return None, None, None
+        return None, None, None, None
 
 def nirapp_terminate(i2c):
     global NIRAPP_RUNSTATUS
@@ -136,11 +136,11 @@ thread_dict: dict[str, threading.Thread] = {}
 def nirapp_main(main_q: Queue, main_pipe: connection.Connection):
     global NIRAPP_RUNSTATUS
     NIRAPP_RUNSTATUS = True
-    i2c, ads, chan = nirapp_init()
-    if chan is None:
+    i2c, ads, chan0, chan1 = nirapp_init()
+    if chan0 is None:
         return
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(main_q,), name="HK")
-    thread_dict["READ"] = threading.Thread(target=read_nir_data, args=(chan,), name="READ")
+    thread_dict["READ"] = threading.Thread(target=read_nir_data, args=(chan0, chan1), name="READ")
     thread_dict["SEND"] = threading.Thread(target=send_nir_data, args=(main_q,), name="SEND")
     for t in thread_dict.values():
         if not hasattr(t, '_is_resilient') or not t._is_resilient:

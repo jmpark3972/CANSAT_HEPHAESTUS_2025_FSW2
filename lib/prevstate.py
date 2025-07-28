@@ -11,6 +11,7 @@ PREV_THERMO_HOFF = 0.0
 PREV_FIR_AOFF = 0.0
 PREV_FIR_OOFF = 0.0
 PREV_THERMIS_OFF = 0.0
+PREV_NIR_OFFSET = 0.0
 
 prevstate_file_path = 'lib/prevstate.txt'
 
@@ -31,7 +32,8 @@ THERMO_TOFF={PREV_THERMO_TOFF}
 THERMO_HOFF={PREV_THERMO_HOFF}
 FIR_AOFF={PREV_FIR_AOFF}
 FIR_OOFF={PREV_FIR_OOFF}
-THERMIS_OFF={PREV_THERMIS_OFF}"""
+THERMIS_OFF={PREV_THERMIS_OFF}
+NIR_OFFSET={PREV_NIR_OFFSET}"""
 
     with open(prevstate_file_path, 'w') as file:
         file.write(content)
@@ -84,6 +86,12 @@ def update_thermiscal(temp_off: float):
     write_prevstate_file()
     return
 
+def update_nircal(offset: float):
+    global PREV_NIR_OFFSET
+    PREV_NIR_OFFSET = offset
+    write_prevstate_file()
+    return
+
 def init_prevstate():
 
     global PREV_STATE
@@ -94,6 +102,7 @@ def init_prevstate():
     global PREV_FIR_AOFF
     global PREV_FIR_OOFF
     global PREV_THERMIS_OFF
+    global PREV_NIR_OFFSET
     if not os.path.exists(prevstate_file_path):
         print(f"#################################################################\n\nPrevstate file does not exist, Using initial state\n\n#################################################################")
         write_prevstate_file()
@@ -160,4 +169,9 @@ def init_prevstate():
                     PREV_THERMIS_OFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
                     PREV_THERMIS_OFF = 0.0
+            elif "NIR_OFFSET=" in prevstate_line:
+                try:
+                    PREV_NIR_OFFSET = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_NIR_OFFSET = 0.0
     return
