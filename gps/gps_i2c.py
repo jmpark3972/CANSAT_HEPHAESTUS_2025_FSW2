@@ -286,6 +286,22 @@ def read_gps_i2c(i2c, address):
         _log(f"GPS read error: {e}")
         return None
 
+def get_satellite_info(gps_data):
+    """위성 수 정보를 상세히 반환"""
+    if not gps_data or len(gps_data) < 5:
+        return "No GPS data"
+    
+    satellites = gps_data[4]
+    
+    if satellites == 0:
+        return "No satellites detected"
+    elif satellites < 3:
+        return f"Low satellites: {satellites} (need 3+ for 2D fix)"
+    elif satellites < 4:
+        return f"Satellites: {satellites} (2D fix possible)"
+    else:
+        return f"Satellites: {satellites} (3D fix possible)"
+
 # ─────────────────────────────
 # 7) 데모 루프
 # ─────────────────────────────
@@ -300,9 +316,10 @@ if __name__ == "__main__":
         while True:
             gps_data = read_gps_i2c(i2c, address)
             if gps_data:
+                sat_info = get_satellite_info(gps_data)
                 print(f"GPS: Time={gps_data[0]}, Alt={gps_data[1]:.2f}m, "
                       f"Lat={gps_data[2]:.6f}, Lon={gps_data[3]:.6f}, "
-                      f"Sats={gps_data[4]}")
+                      f"{sat_info}")
             else:
                 print("No GPS data")
             time.sleep(1.0)
