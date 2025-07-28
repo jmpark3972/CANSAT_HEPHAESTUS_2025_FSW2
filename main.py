@@ -197,6 +197,7 @@ app_dict[appargs.FirAppArg.AppID] = firapp_elements
 #########################################################
 
 from thermis import thermisapp
+import pitotapp
 
 parent_pipe, child_pipe = Pipe()
 
@@ -255,6 +256,20 @@ thermoapp_elements.pipe = parent_pipe
 
 # Add the process to dictionaryF
 app_dict[appargs.ThermoAppArg.AppID] = thermoapp_elements
+
+#########################################################
+# PitotApp                                              #
+#########################################################
+
+parent_pipe, child_pipe = Pipe()
+
+# Add Process, pipe to elements dictionary
+pitotapp_elements = app_elements()
+pitotapp_elements.process = Process(target = pitotapp.pitotapp_main, args = (main_queue, child_pipe, ))
+pitotapp_elements.pipe = parent_pipe
+
+# Add the process to dictionary
+app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
 
 #########################################################
 # Add Apps HERE                                         #

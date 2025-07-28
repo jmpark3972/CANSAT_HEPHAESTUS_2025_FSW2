@@ -36,6 +36,7 @@ BAROMETER_LOG_PATH = os.path.join(LOG_DIR, "barometer_log.csv")
 DHT11_LOG_PATH = os.path.join(LOG_DIR, "dht11_log.csv")
 FIR_LOG_PATH = os.path.join(LOG_DIR, "fir_log.csv")
 THERMIS_LOG_PATH = os.path.join(LOG_DIR, "thermis_log.csv")
+PITOT_LOG_PATH = os.path.join(LOG_DIR, "pitot_log.csv")
 NIR_LOG_PATH = os.path.join(LOG_DIR, "nir_log.csv")
 THERMAL_LOG_PATH = os.path.join(LOG_DIR, "thermal_log.csv")
 HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
@@ -163,6 +164,22 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
                 return
             update_motor_logic(Main_Queue)
             return
+        elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotFlightLogicData:
+            try:
+                # 예: "pressure,temp,rawdata..." 형태로 온다고 가정
+                parts = recv_msg.data.split(",")
+                pressure, temp = map(float, parts[:2])
+                raw_pitot = ",".join(parts[2:]) if len(parts) > 2 else None
+                LAST_PITOT_PRESSURE = pressure
+                LAST_PITOT_TEMP = temp
+                if raw_pitot:
+                    log_pitot_data(raw_pitot)
+            except Exception as e:
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
+                                f"Pitot data parse error: {type(e).__name__}: {e}")
+                return
+            update_motor_logic(Main_Queue)
+            return
         elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirFlightLogicData:
             try:
                 # 예: "voltage,temp,rawdata..." 형태로 온다고 가정
@@ -273,8 +290,8 @@ def send_hk(Main_Queue : Queue):
         msgstructure.send_msg(Main_Queue, flightlogicHK, appargs.FlightlogicAppArg.AppID, appargs.HkAppArg.AppID, appargs.FlightlogicAppArg.MID_SendHK, hk_payload)
         hk_row = [now_epoch(), now_iso(), FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, safe(CURRENT_TEMP),
                   safe(recent_alt[-1] if recent_alt else None), safe(LAST_IMU_ROLL), safe(LAST_IMU_PITCH),
-                  safe(LAST_GPS), safe(LAST_FIR), safe(LAST_THERMIS), safe(LAST_NIR), safe(MOTOR_TARGET_PULSE)]
-        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir","thermis","nir","motor"], hk_row)
+                  safe(LAST_GPS), safe(LAST_FIR), safe(LAST_THERMIS), safe(LAST_PITOT_PRESSURE), safe(LAST_PITOT_TEMP), safe(LAST_NIR), safe(MOTOR_TARGET_PULSE)]
+        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir","thermis","pitot_pressure","pitot_temp","nir","motor"], hk_row)
         time.sleep(1)
     return
 
@@ -693,6 +710,8 @@ LAST_IMU_PITCH = None
 LAST_GPS = None
 LAST_FIR = None
 LAST_THERMIS = None
+LAST_PITOT_PRESSURE = None
+LAST_PITOT_TEMP = None
 LAST_NIR = None
 LAST_THERMAL = None
 LAST_BAROMETER = None
@@ -719,6 +738,9 @@ def log_fir_data(raw_data):
 
 def log_thermis_data(raw_data):
     log_csv(THERMIS_LOG_PATH, ["epoch","iso","raw_thermis"], [now_epoch(), now_iso(), safe(raw_data)])
+
+def log_pitot_data(raw_data):
+    log_csv(PITOT_LOG_PATH, ["epoch","iso","raw_pitot"], [now_epoch(), now_iso(), safe(raw_data)])
 
 def log_nir_data(raw_data):
     log_csv(NIR_LOG_PATH, ["epoch","iso","raw_nir"], [now_epoch(), now_iso(), safe(raw_data)])

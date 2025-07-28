@@ -12,6 +12,8 @@ PREV_FIR_AOFF = 0.0
 PREV_FIR_OOFF = 0.0
 PREV_THERMIS_OFF = 0.0
 PREV_NIR_OFFSET = 0.0
+PREV_PITOT_POFF = 0.0  # 압력 오프셋
+PREV_PITOT_TOFF = 0.0  # 온도 오프셋
 
 prevstate_file_path = 'lib/prevstate.txt'
 
@@ -33,7 +35,9 @@ THERMO_HOFF={PREV_THERMO_HOFF}
 FIR_AOFF={PREV_FIR_AOFF}
 FIR_OOFF={PREV_FIR_OOFF}
 THERMIS_OFF={PREV_THERMIS_OFF}
-NIR_OFFSET={PREV_NIR_OFFSET}"""
+NIR_OFFSET={PREV_NIR_OFFSET}
+PITOT_POFF={PREV_PITOT_POFF}
+PITOT_TOFF={PREV_PITOT_TOFF}"""
 
     with open(prevstate_file_path, 'w') as file:
         file.write(content)
@@ -92,6 +96,13 @@ def update_nircal(offset: float):
     write_prevstate_file()
     return
 
+def update_pitotcal(pressure_off: float, temp_off: float):
+    global PREV_PITOT_POFF, PREV_PITOT_TOFF
+    PREV_PITOT_POFF = pressure_off
+    PREV_PITOT_TOFF = temp_off
+    write_prevstate_file()
+    return
+
 def init_prevstate():
 
     global PREV_STATE
@@ -103,6 +114,8 @@ def init_prevstate():
     global PREV_FIR_OOFF
     global PREV_THERMIS_OFF
     global PREV_NIR_OFFSET
+    global PREV_PITOT_POFF
+    global PREV_PITOT_TOFF
     if not os.path.exists(prevstate_file_path):
         print(f"#################################################################\n\nPrevstate file does not exist, Using initial state\n\n#################################################################")
         write_prevstate_file()
@@ -174,4 +187,14 @@ def init_prevstate():
                     PREV_NIR_OFFSET = float(prevstate_line.split("=")[1].strip())
                 except Exception:
                     PREV_NIR_OFFSET = 0.0
+            elif "PITOT_POFF=" in prevstate_line:
+                try:
+                    PREV_PITOT_POFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_PITOT_POFF = 0.0
+            elif "PITOT_TOFF=" in prevstate_line:
+                try:
+                    PREV_PITOT_TOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_PITOT_TOFF = 0.0
     return
