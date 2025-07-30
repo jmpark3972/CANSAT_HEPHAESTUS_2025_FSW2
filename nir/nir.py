@@ -43,8 +43,8 @@ def read_nir(chan0, chan1):
         voltage = chan0.voltage
         
         # 음수 전압 처리 (노이즈나 바이어스 문제일 수 있음)
-        if voltage < 0:
-            voltage = 0.0  # 음수 전압은 0으로 처리
+        #if voltage < 0:
+        #    voltage = 0.0  # 음수 전압은 0으로 처리
         
         log_nir(f"{voltage:.5f}")
         return voltage
