@@ -39,7 +39,7 @@ def init_nir():
     
     # 채널 객체
     ch_ir  = AnalogIn(ads, ADS.P0, ADS.P1)   # **차동** (Vout-1.65)
-    ch_rtd = AnalogIn(ads, ADS.P2)           # RTD 노드 (싱글)
+    ch_rtd = AnalogIn(ads, ADS.P2, ADS.GND)           # RTD 노드 (싱글)
     
     return i2c, ads, ch_ir, ch_rtd
 
@@ -51,7 +51,7 @@ def read_nir(chan0, chan1):
         # 음수 전압 처리 (노이즈나 바이어스 문제일 수 있음)
         if voltage < 0:
             voltage = 0.0  # 음수 전압은 0으로 처리
-        
+         
         log_nir(f"{voltage:.5f}")
         return voltage
     except Exception as e:
