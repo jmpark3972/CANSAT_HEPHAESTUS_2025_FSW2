@@ -8,3 +8,8 @@ eventlogs/*.txt" >> .gitignore
 
 # ignore mis-named file
 main
+
+# local test scripts
+as_test.py
+See/
+[53/
