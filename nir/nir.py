@@ -73,12 +73,12 @@ def read_nir_with_calibration(chan0, chan1):
         ads.gain = 1          # ±4.096 V 범위
         v_rtd  = ain_rtd.voltage
         r_rtd  = R_REF * v_rtd / (V_IN - v_rtd)
-        t_rtd  = (r_rtd/1000 - 1) / ALPHA_NI
+        t_rtd  = (r_rtd/1000 - 1) / ALPHA_NI + T_OFFSET
 
         # 2) 열전소자 읽기 (gain=16)
         ads.gain = 16         # ±0.256 V, 해상도↑
         v_tp   = ain_ir.voltage        # 이미 (VOUT - 1.65 V)
-        t_obj  = (v_tp / SENS_IR) + t_rtd + T_OFFSET
+        t_obj  = ( (v_tp/0.00045) + (t_rtd+273.15)**4 )**0.25 - 273.15
 
         return v_tp, t_obj, r_rtd, t_rtd
     except Exception as e:
