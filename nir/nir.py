@@ -83,7 +83,7 @@ def read_nir_with_calibration(chan0, chan1):
         # Stefan-Boltzmann 근사
         k_ir  = 0.00045                 # 실측으로 교정!
         t_obj = ((v_tp / k_ir) + (t_rtd + 273.15)**4)**0.25 - 273.15 + T_OFFSET
-        return v_tp, t_obj, r_rtd, t_rtd
+        return v_tp, t_obj, r_rtd, t_rtd, v_rtd
     except Exception as e:
         log_nir(f"ERROR,{e}")
         print(f"NIR calibration error: {e}")
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     i2c, ads, ain_ir, ain_rtd = init_nir()
     try:
         while True:
-            voltage, temp, r_rtd, t_rtd = read_nir_with_calibration(ain_ir, ain_rtd)
-            print(f"NIR Voltage: {voltage:.5f}V, Temperature: {temp:.2f}°C, RTD_R: {r_rtd:.1f}Ω, RTD_T: {t_rtd:.1f}°C")
+            voltage, temp, r_rtd, t_rtd, v_rtd = read_nir_with_calibration(ain_ir, ain_rtd)
+            print(f"NIR Voltage: {voltage:.5f} V, Temperature: {temp:.2f}°C, RTD_R: {r_rtd:.1f}Ω, RTD_T: {t_rtd:.1f}°C, RTD_V: {v_rtd:.5f}V")
             time.sleep(1.0)
     except KeyboardInterrupt:
         terminate_nir(i2c)
