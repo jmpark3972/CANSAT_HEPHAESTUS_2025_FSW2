@@ -76,6 +76,7 @@ def read_nir_data(chan0, chan1):
         except Exception as e:
             NIR_VOLTAGE = 0.0
             NIR_TEMP = 0.0
+            events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error, f"NIR read error: {e}")
         time.sleep(0.2)
 
 # 데이터 전송 스레드

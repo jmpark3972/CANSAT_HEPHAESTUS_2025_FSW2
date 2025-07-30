@@ -12,6 +12,7 @@ import signal
 from multiprocessing import Queue, connection
 import threading
 import time
+import re
 
 from datetime import datetime, timedelta
 from comm import uartserial
@@ -522,6 +523,11 @@ def read_cmd(Main_Queue:Queue, serial_instance):
                 continue
             
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
+            
+            # Filter out GPS NMEA sentences (they start with $)
+            if rcv_cmd.startswith('$'):
+                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, f"Filtered GPS NMEA sentence: {rcv_cmd}")
+                continue
             
             # Validate commmand using regex
 

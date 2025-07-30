@@ -23,17 +23,16 @@ def init_nir():
     return i2c, ads, chan0, chan1
 
 def read_nir(chan0, chan1, offset=0.0):
-    v_in = 3.3
-    r_ref = 1000 # 저항 값
-    sensitivity = 0.02 
-    voltage = chan0.voltage
-    v_rtd = chan1.voltage
-    # 열전쌍+INA333의 출력 전압을 온도로 변환 (예시: 1mV/°C, 증폭비 등 실제 하드웨어에 맞게 조정)
-    r_rtd = (v_rtd / (v_in - v_rtd)) * r_ref
-    t_sensor = (r_rtd / 1000 - 1) / 0.006178 # RTD 온도 계산 (예시: 1000Ω RTD, 0.006178Ω/°C)
-    t_target = (voltage/ sensitivity) + t_sensor 
-    log_nir(f"{voltage:.5f},{t_target:.2f}")
-    return voltage, t_target
+    try:
+        voltage = chan0.voltage
+        # Simple linear conversion: voltage to temperature
+        # Assuming 0V = 0°C and 3.3V = 330°C (adjust as needed)
+        temp = (voltage - offset) * 100.0  # Simple linear conversion
+        log_nir(f"{voltage:.5f},{temp:.2f}")
+        return voltage, temp
+    except Exception as e:
+        log_nir(f"ERROR,{e}")
+        return 0.0, 0.0
 
 def terminate_nir(i2c):
     try:
