@@ -18,6 +18,12 @@ from nir import nir  # G-TPCO-035+INA333+ADS1115 기반 모듈
 NIRAPP_RUNSTATUS = True
 OFFSET_MUTEX = threading.Lock()
 
+# NIR 센서 보정 상수
+V_IN = 3.300      # 분압 전원
+R_REF = 1000.0    # 직렬 기준저항
+ALPHA_NI = 0.006178  # 6178 ppm/K
+SENS_IR = 0.034   # [V/°C] - 실측해 맞춘 감도
+
 NIR_OFFSET = 0.0  # 보정값 (V)
 NIR_VOLTAGE = 0.0
 NIR_TEMP = 0.0
@@ -70,9 +76,20 @@ def read_nir_data(chan0, chan1):
     while NIRAPP_RUNSTATUS:
         try:
             with OFFSET_MUTEX:
-                voltage, temp = nir.read_nir(chan0, chan1, NIR_OFFSET)
-                NIR_VOLTAGE = voltage
-                NIR_TEMP = temp
+                # 센서에서 전압 읽기
+                v_tp = nir.read_nir(chan0, chan1)  # 열전소자 전압 (이미 Vout-1.65V)
+                v_rtd = chan1.voltage  # RTD 노드 전압
+                
+                NIR_VOLTAGE = v_tp
+                
+                # RTD 온도 계산
+                r_rtd = R_REF * v_rtd / (V_IN - v_rtd)
+                t_rtd = (r_rtd / 1000.0 - 1.0) / ALPHA_NI  # 1차 근사
+                
+                # 열전소자(NIR) 대상 온도 계산 (정확한 보정식)
+                t_obj = (v_tp / SENS_IR) + t_rtd + NIR_OFFSET
+                
+                NIR_TEMP = t_obj  # 최종 온도값
         except Exception as e:
             NIR_VOLTAGE = 0.0
             NIR_TEMP = 0.0
@@ -82,7 +99,6 @@ def read_nir_data(chan0, chan1):
 # 데이터 전송 스레드
 
 def send_nir_data(main_q: Queue):
-    cnt = 0
     fl_msg = msgstructure.MsgStructure()
     tlm_msg = msgstructure.MsgStructure()
     while NIRAPP_RUNSTATUS:
