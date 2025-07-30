@@ -23,10 +23,20 @@ def send_serial_data(ser, string_to_write:str):
 def receive_serial_data(ser) -> str:
 
     if ser == None:
-        return
+        return ""
     
-    read_data = ser.readline().decode().strip()
-    return read_data
+    try:
+        read_data = ser.readline().decode().strip()
+        return read_data
+    except serial.SerialException as e:
+        print(f"Serial communication error: {e}")
+        return ""
+    except UnicodeDecodeError as e:
+        print(f"Data decode error: {e}")
+        return ""
+    except Exception as e:
+        print(f"Unexpected error in serial read: {e}")
+        return ""
 
 def terminate_serial(ser):
     if ser == None:

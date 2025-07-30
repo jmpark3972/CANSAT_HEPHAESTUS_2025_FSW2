@@ -6,6 +6,9 @@ import board, busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
+# NIR 센서 설정
+NIR_SENSITIVITY = 100.0  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
+
 LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
 nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
@@ -27,7 +30,7 @@ def init_nir():
     chan1 = AnalogIn(ads, ADS.P1)  # G-TPCO-035의 저항 그라운드 채널
     return i2c, ads, chan0, chan1
 
-def read_nir(chan0, chan1, offset=0.0):
+def read_nir(chan0, chan1, offset=1.6):
     try:
         # G-TPCO-035 (P0) - NIR 센서만 처리
         voltage = chan0.voltage
@@ -38,7 +41,7 @@ def read_nir(chan0, chan1, offset=0.0):
         
         # Simple linear conversion: voltage to temperature
         # Assuming 0V = 0°C and 3.3V = 330°C (adjust as needed)
-        temp = (voltage - offset) * 100.0  # Simple linear conversion
+        temp = (voltage - offset) * 200.0  # Simple linear conversion
         
         log_nir(f"{voltage:.5f},{temp:.2f}")
         return voltage, temp
