@@ -6,8 +6,15 @@ import board, busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
+# NIR 센서 보정 상수
+V_IN = 1.623     # 분압 전원
+R_REF = 1000.0    # 직렬 기준저항
+ALPHA_NI = 0.006178  # 6178 ppm/K
+SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
+
 # NIR 센서 설정
-NIR_SENSITIVITY = 100.0  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
+NIR_OFFSET = 25.0  # 보정값 (V) - 손/책상 온도 보정
+NIR_SENSITIVITY = 1  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
 
 LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -46,6 +53,28 @@ def read_nir(chan0, chan1):
         print(f"NIR read error: {e}")  # 콘솔에도 출력
         return 0.0
 
+def read_nir_with_calibration(chan0, chan1):
+    """보정이 적용된 NIR 온도 읽기"""
+    try:
+        # 센서에서 전압 읽기
+        v_tp = read_nir(chan0, chan1)  # 열전소자 전압
+        v_rtd = chan1.voltage  # RTD 노드 전압
+        
+        # 새로운 보정식 사용
+        t_obj = NIR_SENSITIVITY * (v_tp-V_IN)*R_REF + NIR_OFFSET
+        
+        return v_tp, t_obj
+    except Exception as e:
+        log_nir(f"ERROR,{e}")
+        print(f"NIR calibration error: {e}")
+        return 0.0, 0.0
+
+def set_nir_offset(offset):
+    """NIR 보정값 설정"""
+    global NIR_OFFSET
+    NIR_OFFSET = offset
+    log_nir(f"OFFSET_SET,{offset}")
+
 def terminate_nir(i2c):
     try:
         i2c.deinit()
@@ -57,8 +86,8 @@ if __name__ == "__main__":
     i2c, ads, chan0, chan1 = init_nir()
     try:
         while True:
-            voltage = read_nir(chan0, chan1)
-            print(f"NIR Voltage: {voltage:.5f} V")
+            voltage, temp = read_nir_with_calibration(chan0, chan1)
+            print(f"NIR Voltage: {voltage:.5f}V, Temperature: {temp:.2f}°C")
             time.sleep(1.0)
     except KeyboardInterrupt:
         terminate_nir(i2c)

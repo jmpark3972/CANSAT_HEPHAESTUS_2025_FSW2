@@ -16,22 +16,13 @@ import time
 from nir import nir  # G-TPCO-035+INA333+ADS1115 기반 모듈
 
 NIRAPP_RUNSTATUS = True
-OFFSET_MUTEX = threading.Lock()
-
-# NIR 센서 보정 상수
-V_IN = 3.300      # 분압 전원
-R_REF = 1000.0    # 직렬 기준저항
-ALPHA_NI = 0.006178  # 6178 ppm/K
-SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
-
-NIR_OFFSET = 40.0  # 보정값 (V) - 손/책상 온도 보정
 NIR_VOLTAGE = 0.0
 NIR_TEMP = 0.0
 
 # SB 메시지 핸들러
 
 def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
-    global NIRAPP_RUNSTATUS, NIR_OFFSET
+    global NIRAPP_RUNSTATUS
 
     if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
@@ -47,11 +38,10 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
             events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
                             "CAL cmd parse error")
             return
-        with OFFSET_MUTEX:
-            NIR_OFFSET = offset
-        prevstate.update_nircal(NIR_OFFSET)
+        nir.set_nir_offset(offset)
+        prevstate.update_nircal(offset)
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
-                        f"NIR offset set to {NIR_OFFSET}")
+                        f"NIR offset set to {offset}")
         return
 
     events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
@@ -72,26 +62,13 @@ def send_hk(main_q: Queue):
 # 센서 데이터 읽기 스레드
 
 def read_nir_data(chan0, chan1):
-    global NIR_VOLTAGE, NIR_TEMP, NIRAPP_RUNSTATUS, NIR_OFFSET
+    global NIR_VOLTAGE, NIR_TEMP, NIRAPP_RUNSTATUS
     while NIRAPP_RUNSTATUS:
         try:
-            with OFFSET_MUTEX:
-                # 센서에서 전압 읽기
-                v_tp = nir.read_nir(chan0, chan1)  # 열전소자 전압 (이미 Vout-1.65V)
-                v_rtd = chan1.voltage  # RTD 노드 전압
-                
-                NIR_VOLTAGE = v_tp
-                #NIR_VOLTAGE = (v_rtd-1.65)
-
-
-                # RTD 온도 계산
-                #r_rtd = R_REF * v_rtd / (V_IN - v_rtd)
-                #t_rtd = (r_rtd / 1000.0 - 1.0) / ALPHA_NI  # 1차 근사
-                
-                # 열전소자(NIR) 대상 온도 계산 (정확한 보정식)
-                #t_obj = (v_tp / SENS_IR) + t_rtd + NIR_OFFSET
-                t_obj = (v_tp-1.623)*600 + 25.6
-                NIR_TEMP = t_obj  # 최종 온도값
+            # nir.py에서 보정된 값 받기
+            voltage, temp = nir.read_nir_with_calibration(chan0, chan1)
+            NIR_VOLTAGE = voltage
+            NIR_TEMP = temp
         except Exception as e:
             NIR_VOLTAGE = 0.0
             NIR_TEMP = 0.0
@@ -124,13 +101,20 @@ def send_nir_data(main_q: Queue):
 # 초기화/종료
 
 def nirapp_init():
-    global NIR_OFFSET
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
                         "Initializing nirapp")
         i2c, ads, chan0, chan1 = nir.init_nir()
-        NIR_OFFSET = float(getattr(prevstate, "PREV_NIR_OFFSET", 0.0))
+        
+        # prevstate에서 NIR_OFFSET 로드
+        try:
+            prevstate.init_prevstate()
+            nir.set_nir_offset(prevstate.PREV_NIR_OFFSET)
+        except Exception as e:
+            events.LogEvent(appargs.NirAppArg.AppName, events.EventType.warning,
+                            f"Failed to load prevstate, using default: {e}")
+        
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.info,
                         "Nirapp initialization complete")
         return i2c, ads, chan0, chan1
