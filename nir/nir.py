@@ -18,6 +18,11 @@ def log_nir(text):
 def init_nir():
     i2c = busio.I2C(board.SCL, board.SDA)
     ads = ADS.ADS1115(i2c)
+    
+    # ADS1115 설정 최적화
+    ads.gain = 1  # ±4.096V 범위로 설정 (더 안정적)
+    ads.data_rate = 128  # 128 SPS로 설정 (노이즈 감소)
+    
     chan0 = AnalogIn(ads, ADS.P0)  # G-TPCO-035 신호가 연결된 채널
     chan1 = AnalogIn(ads, ADS.P1)  # G-TPCO-035의 저항 그라운드 채널
     return i2c, ads, chan0, chan1
@@ -26,9 +31,15 @@ def read_nir(chan0, chan1, offset=0.0):
     try:
         # G-TPCO-035 (P0) - NIR 센서만 처리
         voltage = chan0.voltage
+        
+        # 음수 전압 처리 (노이즈나 바이어스 문제일 수 있음)
+        if voltage < 0:
+            voltage = 0.0  # 음수 전압은 0으로 처리
+        
         # Simple linear conversion: voltage to temperature
         # Assuming 0V = 0°C and 3.3V = 330°C (adjust as needed)
         temp = (voltage - offset) * 100.0  # Simple linear conversion
+        
         log_nir(f"{voltage:.5f},{temp:.2f}")
         return voltage, temp
     except Exception as e:
