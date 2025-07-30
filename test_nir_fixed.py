@@ -18,6 +18,7 @@ def init_nir():
 
 def read_nir(chan0, chan1, offset=0.0):
     try:
+        # G-TPCO-035 (P0) - NIR 센서만 처리
         voltage = chan0.voltage
         # Simple linear conversion: voltage to temperature
         # Assuming 0V = 0°C and 3.3V = 330°C (adjust as needed)
@@ -28,7 +29,7 @@ def read_nir(chan0, chan1, offset=0.0):
         return 0.0, 0.0
 
 def main():
-    print("NIR Sensor Test (Simplified Implementation)")
+    print("NIR Sensor Test (G-TPCO-035 on P0)")
     print("=" * 50)
     
     try:
@@ -37,7 +38,7 @@ def main():
         
         while True:
             voltage, temp = read_nir(chan0, chan1)
-            print(f"Voltage: {voltage:.5f} V, Temperature: {temp:.2f} °C")
+            print(f"NIR Voltage: {voltage:.5f} V, Temperature: {temp:.2f} °C")
             time.sleep(1.0)
             
     except KeyboardInterrupt:

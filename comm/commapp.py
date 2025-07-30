@@ -522,8 +522,16 @@ def read_cmd(Main_Queue:Queue, serial_instance):
             if not rcv_cmd or rcv_cmd == None:
                 continue
             
-            # Filter out GPS NMEA sentences (they start with $) before logging
-            if rcv_cmd.startswith('$'):
+            # Filter out GPS NMEA sentences and related fragments
+            if (rcv_cmd.startswith('$') or 
+                rcv_cmd.startswith('GPGGA') or 
+                rcv_cmd.startswith('GPGSA') or 
+                rcv_cmd.startswith('GPRMC') or 
+                rcv_cmd.startswith('GPVTG') or
+                rcv_cmd.startswith('GPGSV') or
+                rcv_cmd.startswith('RMC') or
+                rcv_cmd.startswith('PVTG') or
+                ',' in rcv_cmd and ('GPGGA' in rcv_cmd or 'GPGSA' in rcv_cmd or 'GPRMC' in rcv_cmd or 'GPVTG' in rcv_cmd)):
                 continue
             
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
