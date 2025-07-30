@@ -148,15 +148,20 @@ def nirapp_main(main_q: Queue, main_pipe: connection.Connection):
             t.start()
     try:
         while NIRAPP_RUNSTATUS:
-            raw = main_pipe.recv()
-            m = msgstructure.MsgStructure()
-            if not msgstructure.unpack_msg(m, raw):
-                continue
-            if m.receiver_app in (appargs.NirAppArg.AppID, appargs.MainAppArg.AppID):
-                command_handler(main_q, m)
-            else:
+            try:
+                raw = main_pipe.recv()
+                m = msgstructure.MsgStructure()
+                if not msgstructure.unpack_msg(m, raw):
+                    continue
+                if m.receiver_app in (appargs.NirAppArg.AppID, appargs.MainAppArg.AppID):
+                    command_handler(main_q, m)
+                else:
+                    events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
+                                    "Receiver MID mismatch")
+            except (EOFError, ConnectionResetError, BrokenPipeError) as e:
                 events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
-                                "Receiver MID mismatch")
+                                f"Connection error: {e}")
+                break  # 연결이 끊어졌으면 루프 종료
     except Exception as e:
         events.LogEvent(appargs.NirAppArg.AppName, events.EventType.error,
                         f"nirapp error: {e}")

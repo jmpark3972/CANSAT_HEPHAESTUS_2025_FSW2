@@ -161,8 +161,13 @@ def pitotapp_main(Main_Queue: Queue, recv: Connection):
     while PITOTAPP_RUNSTATUS:
         try:
             if recv.poll(0.1):  # 100ms 타임아웃
-                msg = recv.recv()
-                command_handler(Main_Queue, msg)
+                try:
+                    msg = recv.recv()
+                    command_handler(Main_Queue, msg)
+                except (EOFError, ConnectionResetError, BrokenPipeError) as e:
+                    events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
+                                    f"Connection error: {e}")
+                    break  # 연결이 끊어졌으면 루프 종료
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
                             f"Main loop error: {e}")
