@@ -24,7 +24,7 @@ R_REF = 1000.0    # 직렬 기준저항
 ALPHA_NI = 0.006178  # 6178 ppm/K
 SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
 
-NIR_OFFSET = 0.0  # 보정값 (V)
+NIR_OFFSET = 40.0  # 보정값 (V) - 손/책상 온도 보정
 NIR_VOLTAGE = 0.0
 NIR_TEMP = 0.0
 
