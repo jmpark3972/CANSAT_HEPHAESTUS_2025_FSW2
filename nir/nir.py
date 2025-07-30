@@ -30,7 +30,7 @@ def init_nir():
     chan1 = AnalogIn(ads, ADS.P1)  # G-TPCO-035의 저항 그라운드 채널
     return i2c, ads, chan0, chan1
 
-def read_nir(chan0, chan1, offset=1.6):
+def read_nir(chan0, chan1, offset=1.5935):
     try:
         # G-TPCO-035 (P0) - NIR 센서만 처리
         voltage = chan0.voltage
@@ -41,7 +41,7 @@ def read_nir(chan0, chan1, offset=1.6):
         
         # Simple linear conversion: voltage to temperature
         # Assuming 0V = 0°C and 3.3V = 330°C (adjust as needed)
-        temp = (voltage - offset) * 200.0  # Simple linear conversion
+        temp = (voltage - offset) * 1000.0  # Simple linear conversion
         
         log_nir(f"{voltage:.5f},{temp:.2f}")
         return voltage, temp
