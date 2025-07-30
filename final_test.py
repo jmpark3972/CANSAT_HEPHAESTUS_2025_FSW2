@@ -77,6 +77,7 @@ def init_nir():
     from adafruit_ads1x15.analog_in import AnalogIn
     i2c = busio.I2C(board.SCL, board.SDA)
     ads = ADS.ADS1115(i2c)
+    ads.gain = 16
     chan = AnalogIn(ads, ADS.P0)   # 센서 출력 핀 연결 채널
     return i2c, chan
 
