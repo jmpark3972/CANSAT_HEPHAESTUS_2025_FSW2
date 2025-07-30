@@ -39,7 +39,7 @@ def init_nir():
     
     # 채널 객체
     ch_ir  = AnalogIn(ads, ADS.P0, ADS.P1)   # **차동** (Vout-1.65)
-    ch_rtd = AnalogIn(ads, ADS.P2, ADS.GND)           # RTD 노드 (싱글)
+    ch_rtd = AnalogIn(ads, ADS.P2)           # RTD 노드 (싱글)
     
     return i2c, ads, ch_ir, ch_rtd
 
