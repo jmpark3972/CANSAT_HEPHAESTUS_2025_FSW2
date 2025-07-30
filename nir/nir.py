@@ -61,7 +61,7 @@ def read_nir_with_calibration(chan0, chan1):
         v_rtd = chan1.voltage  # RTD 노드 전압
         
         # 새로운 보정식 사용
-        t_obj = (v_tp-V_IN) + NIR_OFFSET
+        t_obj = (v_tp-V_IN)*10 + NIR_OFFSET
         
         return v_tp, t_obj
     except Exception as e:
