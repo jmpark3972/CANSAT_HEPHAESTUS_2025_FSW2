@@ -83,11 +83,12 @@ def read_nir_with_calibration(chan0, chan1):
         # Stefan-Boltzmann 근사
         k_ir  = 0.00045                 # 실측으로 교정!
         t_obj = ((v_tp / k_ir) + (t_rtd + 273.15)**4)**0.25 - 273.15 + T_OFFSET
+
         return v_tp, t_obj, r_rtd, t_rtd, v_rtd
     except Exception as e:
         log_nir(f"ERROR,{e}")
         print(f"NIR calibration error: {e}")
-        return 0.0, 0.0
+        return 0.0, 0.0, 0.0, 0.0, 0.0
 
 def set_nir_offset(offset):
     """NIR 보정값 설정"""
