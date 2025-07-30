@@ -522,11 +522,11 @@ def read_cmd(Main_Queue:Queue, serial_instance):
             if not rcv_cmd or rcv_cmd == None:
                 continue
             
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
-            
-            # Filter out GPS NMEA sentences (they start with $)
+            # Filter out GPS NMEA sentences (they start with $) before logging
             if rcv_cmd.startswith('$'):
                 continue
+            
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
             
             # Validate commmand using regex
 
