@@ -56,6 +56,7 @@ def read_nir(chan0, chan1):
 def read_nir_with_calibration(chan0, chan1):
     """보정이 적용된 NIR 온도 읽기"""
     try:
+        """
         # ── (1) RTD 온도 ────────────────────────────
         v_rtd  = ain_rtd.voltage               # RTD 노드 전압
         r_rtd  = R_REF * v_rtd / (V_IN - v_rtd)
@@ -67,7 +68,18 @@ def read_nir_with_calibration(chan0, chan1):
         t_obj  = (v_tp / SENS_IR) + t_rtd + T_OFFSET
         # 정밀식(예시): k ≈ 0.00045 V/K⁴  → 실측 보정 필요
         # t_obj  = ( (v_tp/0.00045) + (t_rtd+273.15)**4 )**0.25 - 273.15
-        
+        """
+        # 1) RTD 먼저 읽기 (gain=1)
+        ads.gain = 1          # ±4.096 V 범위
+        v_rtd  = ain_rtd.voltage
+        r_rtd  = R_REF * v_rtd / (V_IN - v_rtd)
+        t_rtd  = (r_rtd/1000 - 1) / ALPHA_NI
+
+        # 2) 열전소자 읽기 (gain=16)
+        ads.gain = 16         # ±0.256 V, 해상도↑
+        v_tp   = ain_ir.voltage        # 이미 (VOUT - 1.65 V)
+        t_obj  = (v_tp / SENS_IR) + t_rtd + T_OFFSET
+
         return v_tp, t_obj
     except Exception as e:
         log_nir(f"ERROR,{e}")
