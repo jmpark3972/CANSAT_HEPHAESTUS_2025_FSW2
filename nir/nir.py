@@ -28,12 +28,12 @@ def init_nir():
     ads = ADS.ADS1115(i2c)
     
     # ADS1115 설정 최적화
-    ads.gain = 16  # ±4.096V 범위로 설정 (더 안정적)
+    ads.gain = 1  # ±4.096V 범위로 설정   16
     ads.data_rate = 128  # 128 SPS로 설정 (노이즈 감소)
     
     # 차동 입력과 싱글 입력 설정
     ain_ir = AnalogIn(ads, ADS.P0, ADS.P1)  # 차동 (Vout‒1.65 V)
-    ain_rtd = AnalogIn(ads, ADS.P2, ADS.GND)  # 싱글 (RTD 노드)
+    ain_rtd = AnalogIn(ads, ADS.P2)  # 싱글 (RTD 노드)
     
     return i2c, ads, ain_ir, ain_rtd
 
