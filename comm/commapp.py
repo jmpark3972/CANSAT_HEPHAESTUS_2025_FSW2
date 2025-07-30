@@ -526,7 +526,6 @@ def read_cmd(Main_Queue:Queue, serial_instance):
             
             # Filter out GPS NMEA sentences (they start with $)
             if rcv_cmd.startswith('$'):
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, f"Filtered GPS NMEA sentence: {rcv_cmd}")
                 continue
             
             # Validate commmand using regex
