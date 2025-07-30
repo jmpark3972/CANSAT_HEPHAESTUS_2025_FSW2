@@ -44,6 +44,7 @@ def read_nir(chan0, chan1, offset=0.0):
         return voltage, temp
     except Exception as e:
         log_nir(f"ERROR,{e}")
+        print(f"NIR read error: {e}")  # 콘솔에도 출력
         return 0.0, 0.0
 
 def terminate_nir(i2c):

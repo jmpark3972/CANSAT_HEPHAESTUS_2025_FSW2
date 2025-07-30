@@ -168,6 +168,10 @@ def pitotapp_main(Main_Queue: Queue, recv: Connection):
                     events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
                                     f"Connection error: {e}")
                     break  # 연결이 끊어졌으면 루프 종료
+        except KeyboardInterrupt:
+            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
+                            "KeyboardInterrupt detected in pitotapp")
+            break
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
                             f"Main loop error: {e}")

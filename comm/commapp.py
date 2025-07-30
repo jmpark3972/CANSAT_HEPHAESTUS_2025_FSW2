@@ -531,7 +531,8 @@ def read_cmd(Main_Queue:Queue, serial_instance):
                 rcv_cmd.startswith('GPGSV') or
                 rcv_cmd.startswith('RMC') or
                 rcv_cmd.startswith('PVTG') or
-                ',' in rcv_cmd and ('GPGGA' in rcv_cmd or 'GPGSA' in rcv_cmd or 'GPRMC' in rcv_cmd or 'GPVTG' in rcv_cmd)):
+                rcv_cmd.startswith('8,31,28') or  # GPS 데이터 패턴
+                ',' in rcv_cmd and ('GPGGA' in rcv_cmd or 'GPGSA' in rcv_cmd or 'GPRMC' in rcv_cmd or 'GPVTG' in rcv_cmd or '5.03,4.93' in rcv_cmd)):
                 continue
             
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
