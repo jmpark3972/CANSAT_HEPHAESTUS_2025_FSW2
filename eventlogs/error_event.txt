@@ -3793,3 +3793,150 @@
 [2025-07-30 15:22:54.265] ERROR | Communication : Invalid command $GPRMC,142254.086,V,,,,,0.00,0.00,300725,,,N*44
 [2025-07-30 15:22:54.276] ERROR | Barometer : MID 100 not handled
 [2025-07-30 15:22:54.286] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:27:29.935] Log file generated
+[2025-07-30 15:27:29.935] Log file generated
+[2025-07-30 15:27:31.162] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:27:32.171] ERROR | Communication : Invalid command ,300725,,,N*42
+[2025-07-30 15:27:37.033] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:27:37.041] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:29:16.841] Log file generated
+[2025-07-30 15:29:16.841] Log file generated
+[2025-07-30 15:29:19.219] ERROR | Communication : Invalid command GPGSA,A,1,,,,,,,,,,,,,,,*1E
+[2025-07-30 15:29:21.321] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:22.323] ERROR | Communication : Invalid command 0,,,M,,M,,*4B
+[2025-07-30 15:29:23.186] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:24.187] ERROR | Communication : Invalid command ,,*4D
+[2025-07-30 15:29:25.295] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:26.296] ERROR | Communication : Invalid command ,,*4F
+[2025-07-30 15:29:31.288] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:32.289] ERROR | Communication : Invalid command 1,,,,,,,,,,,,,,,*1E
+[2025-07-30 15:29:33.253] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:34.255] ERROR | Communication : Invalid command ,,,,,,,,*1E
+[2025-07-30 15:29:41.330] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:42.334] ERROR | Communication : Invalid command RMC,142942.085,V,,,,,0.00,0.00,300725,,,N*4B
+[2025-07-30 15:29:43.295] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:44.298] ERROR | Communication : Invalid command RMC,142944.085,V,,,,,0.00,0.00,300725,,,N*4D
+[2025-07-30 15:29:46.196] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:47.198] ERROR | Communication : Invalid command 01,27,,,23*7C
+[2025-07-30 15:29:47.278] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:48.281] ERROR | Communication : Invalid command ,,,,,0.00,0.00,300725,,,N*41
+[2025-07-30 15:29:50.212] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:51.214] ERROR | Communication : Invalid command 0,0.00,300725,,,N*48
+[2025-07-30 15:29:56.163] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:57.164] ERROR | Communication : Invalid command ,,*48
+[2025-07-30 15:29:58.145] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:29:59.146] ERROR | Communication : Invalid command ,,*46
+[2025-07-30 15:30:01.213] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:02.215] ERROR | Communication : Invalid command 1,,,,,,,,,,,,,,,*1E
+[2025-07-30 15:30:02.856] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:30:02.865] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:30:02.938] ERROR | NIR : NIR read error: I/O operation on closed file.
+[2025-07-30 15:30:14.099] Log file generated
+[2025-07-30 15:30:14.099] Log file generated
+[2025-07-30 15:30:22.288] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:23.296] ERROR | Communication : Invalid command 0,0.00,300725,,,N*44
+[2025-07-30 15:30:25.263] ERROR | Communication : Invalid command RMC,143025.085,V,,,,,0.00,0.00,300725,,,N*42
+[2025-07-30 15:30:26.279] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:27.281] ERROR | Communication : Invalid command 0,0.00,300725,,,N*40
+[2025-07-30 15:30:29.212] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:30.213] ERROR | Communication : Invalid command 00725,,,N*4E
+[2025-07-30 15:30:33.162] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:34.165] ERROR | Communication : Invalid command PVTG,0.00,T,,M,0.00,N,0.00,K,N*32
+[2025-07-30 15:30:34.302] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:30:35.304] ERROR | Communication : Invalid command PVTG,0.00,T,,M,0.00,N,0.00,K,N*32
+[2025-07-30 15:30:38.086] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:30:38.094] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:31:58.864] Log file generated
+[2025-07-30 15:31:58.864] Log file generated
+[2025-07-30 15:32:08.196] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:09.204] ERROR | Communication : Invalid command 00,K,N*32
+[2025-07-30 15:32:10.271] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:11.273] ERROR | Communication : Invalid command 00,K,N*32
+[2025-07-30 15:32:18.272] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:20.246] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:22.288] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:24.180] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:26.198] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:27.199] ERROR | Communication : Invalid command *32
+[2025-07-30 15:32:30.197] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:44.222] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:46.306] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:47.308] ERROR | Communication : Invalid command 0.00,K,N*32
+[2025-07-30 15:32:48.171] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:52.238] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:32:54.182] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:01.323] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:02.324] ERROR | Communication : Invalid command ,,,,,,,,*1E
+[2025-07-30 15:33:04.264] ERROR | Communication : Invalid command GPSA,,,,,,,,,*$GMC,143304.085,V,,,,,0.00,0.00,300725,,,N*42
+[2025-07-30 15:33:05.222] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:06.240] ERROR | Communication : Invalid command GSV,1,1,01,27,,,23*7C
+[2025-07-30 15:33:08.197] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:09.201] ERROR | Communication : Invalid command 08.085,V,,,,,0.00,0.00,300725,,,N*4E
+[2025-07-30 15:33:13.255] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:15.197] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:27.147] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:28.149] ERROR | Communication : Invalid command 2
+[2025-07-30 15:33:36.206] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:33:37.214] ERROR | Communication : Invalid command *1E
+[2025-07-30 15:33:37.333] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:33:37.340] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:36:31.103] Log file generated
+[2025-07-30 15:36:31.104] Log file generated
+[2025-07-30 15:36:34.165] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:36:35.173] ERROR | Communication : Invalid command 1,,,,,,,,,,,,,,,*1E
+[2025-07-30 15:36:36.166] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:36:37.168] ERROR | Communication : Invalid command 1,,,,,,,,,,,,,,,*1E
+[2025-07-30 15:36:40.206] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:36:41.207] ERROR | Communication : Invalid command 1E
+[2025-07-30 15:36:41.325] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:36:42.327] ERROR | Communication : Invalid command *1E
+[2025-07-30 15:36:46.192] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:36:47.193] ERROR | Communication : Invalid command GSV,1,1,01,27,,,28*77
+[2025-07-30 15:36:52.700] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:36:52.708] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:37:05.005] Log file generated
+[2025-07-30 15:37:05.005] Log file generated
+[2025-07-30 15:37:10.173] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:37:15.272] ERROR | Communication : Invalid command RMC,143715.083,V,,,,,0.00,0.00,300725,,,N*40
+[2025-07-30 15:37:15.305] ERROR | Communication : Invalid command PVTG,0.00,T,,M,0.00,N,0.00,K,N*32
+[2025-07-30 15:37:18.191] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:37:19.192] ERROR | Communication : Invalid command ,,,,,,,,*1E
+[2025-07-30 15:37:19.232] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:37:20.233] ERROR | Communication : Invalid command *1E
+[2025-07-30 15:37:21.581] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:37:21.588] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:37:21.681] ERROR | NIR : NIR read error: I/O operation on closed file.
+[2025-07-30 15:38:28.278] Log file generated
+[2025-07-30 15:38:28.278] Log file generated
+[2025-07-30 15:38:29.241] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:29.591] ERROR | IMU : Error during initialization
+[2025-07-30 15:38:31.275] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:37.216] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:39.266] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:40.278] ERROR | Communication : Invalid command 43840.083,,,,,0,0,,,M,,M,,*49
+[2025-07-30 15:38:45.232] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:46.235] ERROR | Communication : Invalid command 3,,,,,0,0,,,M,,M,,*4F
+[2025-07-30 15:38:51.250] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:52.252] ERROR | Communication : Invalid command 0,,,M,,M,,*4A
+[2025-07-30 15:38:53.191] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:54.193] ERROR | Communication : Invalid command ,,*4C
+[2025-07-30 15:38:55.291] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:38:56.292] ERROR | Communication : Invalid command ,,*4E
+[2025-07-30 15:39:02.274] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:39:03.275] ERROR | Communication : Invalid command ,,*4F
+[2025-07-30 15:39:12.208] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:39:13.216] ERROR | Communication : Invalid command ,,,,,,,,*1E
+[2025-07-30 15:39:16.235] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:39:17.236] ERROR | Communication : Invalid command *1E
+[2025-07-30 15:39:18.791] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:39:18.793] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:43:23.580] Log file generated
+[2025-07-30 15:43:23.580] Log file generated
+[2025-07-30 15:43:24.311] ERROR | Communication : Invalid command 00,K,N*32
+[2025-07-30 15:43:28.272] ERROR | Communication : Error receiving command, Sleeping 1 second :  device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+[2025-07-30 15:43:36.282] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:43:36.292] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
+[2025-07-30 15:45:42.166] Log file generated
+[2025-07-30 15:45:42.167] Log file generated
+[2025-07-30 15:45:49.013] ERROR | Barometer : MID 100 not handled
+[2025-07-30 15:45:49.015] ERROR | Communication : Error receiving command, Sleeping 1 second :  'NoneType' object cannot be interpreted as an integer
