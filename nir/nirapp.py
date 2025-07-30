@@ -90,7 +90,7 @@ def read_nir_data(chan0, chan1):
                 
                 # 열전소자(NIR) 대상 온도 계산 (정확한 보정식)
                 #t_obj = (v_tp / SENS_IR) + t_rtd + NIR_OFFSET
-                t_obj = (v_tp-1.623)*100 + 25.6
+                t_obj = (v_tp-1.623)*600 + 25.6
                 NIR_TEMP = t_obj  # 최종 온도값
         except Exception as e:
             NIR_VOLTAGE = 0.0
