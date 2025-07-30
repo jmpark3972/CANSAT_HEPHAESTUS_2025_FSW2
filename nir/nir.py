@@ -73,7 +73,7 @@ def read_nir_with_calibration(chan0, chan1):
         _      = ain_rtd.voltage        # 설정 적용용 더미 읽기
         v_rtd  = ain_rtd.voltage
         r_rtd  = R_REF * v_rtd / (V_IN - v_rtd)
-        t_rtd  = (r_rtd / R_REF - 1) / ALPHA_NI + RTD_OFFSET   # ↔ 분리
+        t_rtd  = (r_rtd / R_REF - 1) / ALPHA_NI + T_OFFSET   # ↔ 분리
 
         # 2) Thermopile
         ads.gain = 16
@@ -85,10 +85,6 @@ def read_nir_with_calibration(chan0, chan1):
         t_obj = ((v_tp / k_ir) + (t_rtd + 273.15)**4)**0.25 - 273.15 + T_OFFSET
 
         return v_tp, t_obj, r_rtd, t_rtd, v_rtd
-    except Exception as e:
-        log_nir(f"ERROR,{e}")
-        print(f"NIR calibration error: {e}")
-        return 0.0, 0.0, 0.0, 0.0, 0.0
 
 def set_nir_offset(offset):
     """NIR 보정값 설정"""
