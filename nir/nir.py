@@ -80,7 +80,7 @@ def read_nir_with_calibration(chan0, chan1):
         v_tp   = ain_ir.voltage        # 이미 (VOUT - 1.65 V)
         t_obj  = (v_tp / SENS_IR) + t_rtd + T_OFFSET
 
-        return v_tp, t_obj
+        return v_tp, t_obj, r_rtd, t_rtd
     except Exception as e:
         log_nir(f"ERROR,{e}")
         print(f"NIR calibration error: {e}")
@@ -103,8 +103,8 @@ if __name__ == "__main__":
     i2c, ads, ain_ir, ain_rtd = init_nir()
     try:
         while True:
-            voltage, temp = read_nir_with_calibration(ain_ir, ain_rtd)
-            print(f"NIR Voltage: {voltage:.5f}V, Temperature: {temp:.2f}°C")
+            voltage, temp, r_rtd, t_rtd = read_nir_with_calibration(ain_ir, ain_rtd)
+            print(f"NIR Voltage: {voltage:.5f}V, Temperature: {temp:.2f}°C, RTD_R: {r_rtd:.1f}Ω, RTD_T: {t_rtd:.1f}°C")
             time.sleep(1.0)
     except KeyboardInterrupt:
         terminate_nir(i2c)
