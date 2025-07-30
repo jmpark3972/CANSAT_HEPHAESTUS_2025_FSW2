@@ -7,8 +7,8 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
 # NIR 센서 보정 상수
-V_IN   = 3.3    # 분압 전원
-R_REF  = 1000.0     # 직렬 기준저항 (실제로 납땜한 값!)
+V_IN   = 1.65    # 분압 전원
+R_REF  = 1086.0     # 직렬 기준저항 (실제로 납땜한 값!)
 ALPHA_NI = 0.006178 # 6178 ppm/K
 SENS_IR  = 0.034    # [V/°C]  ← 실측해 맞추기
 T_OFFSET = 0.0      # 캘리브레이션 상수
