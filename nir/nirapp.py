@@ -81,14 +81,16 @@ def read_nir_data(chan0, chan1):
                 v_rtd = chan1.voltage  # RTD 노드 전압
                 
                 NIR_VOLTAGE = v_tp
-                
+                #NIR_VOLTAGE = (v_rtd-1.65)
+
+
                 # RTD 온도 계산
-                r_rtd = R_REF * v_rtd / (V_IN - v_rtd)
-                t_rtd = (r_rtd / 1000.0 - 1.0) / ALPHA_NI  # 1차 근사
+                #r_rtd = R_REF * v_rtd / (V_IN - v_rtd)
+                #t_rtd = (r_rtd / 1000.0 - 1.0) / ALPHA_NI  # 1차 근사
                 
                 # 열전소자(NIR) 대상 온도 계산 (정확한 보정식)
-                t_obj = (v_tp / SENS_IR) + t_rtd + NIR_OFFSET
-                
+                #t_obj = (v_tp / SENS_IR) + t_rtd + NIR_OFFSET
+                t_obj = (v_tp-1.623)*100 + 25.6
                 NIR_TEMP = t_obj  # 최종 온도값
         except Exception as e:
             NIR_VOLTAGE = 0.0
