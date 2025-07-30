@@ -7,7 +7,7 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
 # NIR 센서 보정 상수
-V_IN = 1.622 # 1.625    # 분압 전원
+V_IN = 1.621 # 1.625    # 분압 전원
 R_REF = 1000.0    # 직렬 기준저항
 ALPHA_NI = 0.006178  # 6178 ppm/K
 SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
@@ -16,7 +16,7 @@ SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
 NIR_OFFSET = 25.0  # 보정값 (V) - 손/책상 온도 보정
 NIR_SENSITIVITY = 1  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
 
-LOG_DIR = "sensorlogs"
+LOG_DIR = "sensorlogs"  
 os.makedirs(LOG_DIR, exist_ok=True)
 nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
 
