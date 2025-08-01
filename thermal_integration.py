@@ -83,9 +83,15 @@ class ThermalIntegration:
             import adafruit_mlx90614
             import adafruit_tca9548a
             
-            # TCA9548A 멀티플렉서 확인
+            # TCA9548A 멀티플렉서 확인 (더 안전한 방법)
             try:
                 self.tca = adafruit_tca9548a.TCA9548A(self.i2c)
+                
+                # TCA9548A가 실제로 작동하는지 테스트
+                test_channel = self.tca[0]
+                test_channel.try_lock()
+                test_channel.unlock()
+                
                 print("TCA9548A 멀티플렉서 발견 - 채널 분할 모드")
                 
                 # FIR1 초기화 (채널 0)
@@ -105,7 +111,7 @@ class ThermalIntegration:
                     self.fir2 = None
                     
             except Exception as e:
-                print("TCA9548A 멀티플렉서 없음 - 직접 연결 모드")
+                print(f"TCA9548A 멀티플렉서 없음 - 직접 연결 모드: {e}")
                 
                 # 직접 연결된 MLX90614 초기화
                 try:
