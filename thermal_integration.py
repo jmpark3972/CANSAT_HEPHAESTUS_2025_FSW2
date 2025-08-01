@@ -78,56 +78,25 @@ class ThermalIntegration:
             return False
 
     def _init_fir_sensors(self):
-        """FIR 센서들 초기화 (TCA9548A 멀티플렉서 지원)"""
+        """FIR 센서들 초기화"""
         try:
             import adafruit_mlx90614
-            import adafruit_tca9548a
             
-            # TCA9548A 멀티플렉서 확인 (더 안전한 방법)
+            # 직접 연결된 MLX90614 초기화
             try:
-                self.tca = adafruit_tca9548a.TCA9548A(self.i2c)
-                
-                # TCA9548A가 실제로 작동하는지 테스트
-                test_channel = self.tca[0]
-                test_channel.try_lock()
-                test_channel.unlock()
-                
-                print("TCA9548A 멀티플렉서 발견 - 채널 분할 모드")
-                
-                # FIR1 초기화 (채널 0)
-                try:
-                    self.fir1 = adafruit_mlx90614.MLX90614(self.tca[0])
-                    print("FIR1 (MLX90614) 초기화 성공 - TCA9548A 채널 0")
-                except Exception as e:
-                    print(f"FIR1 초기화 실패: {e}")
-                    self.fir1 = None
-                
-                # FIR2 초기화 (채널 1)
-                try:
-                    self.fir2 = adafruit_mlx90614.MLX90614(self.tca[1])
-                    print("FIR2 (MLX90614) 초기화 성공 - TCA9548A 채널 1")
-                except Exception as e:
-                    print(f"FIR2 초기화 실패: {e}")
-                    self.fir2 = None
-                    
+                self.fir1 = adafruit_mlx90614.MLX90614(self.i2c, address=0x5A)
+                print("FIR1 (MLX90614) 초기화 성공 - 주소: 0x5A")
             except Exception as e:
-                print(f"TCA9548A 멀티플렉서 없음 - 직접 연결 모드: {e}")
-                
-                # 직접 연결된 MLX90614 초기화
-                try:
-                    self.fir1 = adafruit_mlx90614.MLX90614(self.i2c, address=self.FIR1_ADDRESS)
-                    print(f"FIR1 (MLX90614) 초기화 성공 - 주소: 0x{self.FIR1_ADDRESS:02X}")
-                except Exception as e:
-                    print(f"FIR1 초기화 실패: {e}")
-                    self.fir1 = None
-                
-                # FIR2는 연결되지 않음
-                print("FIR2 (MLX90614) 연결되지 않음")
-                self.fir2 = None
+                print(f"FIR1 초기화 실패: {e}")
+                self.fir1 = None
+            
+            # FIR2는 연결되지 않음
+            print("FIR2 (MLX90614) 연결되지 않음")
+            self.fir2 = None
                 
         except ImportError as e:
             print(f"라이브러리 import 오류: {e}")
-            print("설치: pip install adafruit-circuitpython-mlx90614 adafruit-circuitpython-tca9548a")
+            print("설치: pip install adafruit-circuitpython-mlx90614")
             self.fir1 = None
             self.fir2 = None
 
