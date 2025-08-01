@@ -63,7 +63,7 @@ def read_nir_with_calibration(chan0, chan1):
         # 새로운 보정식 사용
         t_obj = NIR_SENSITIVITY * (v_tp-V_IN)*R_REF + NIR_OFFSET
         
-        return v_tp, t_obj
+        return v_rtd, t_obj
     except Exception as e:
         log_nir(f"ERROR,{e}")
         print(f"NIR calibration error: {e}")
