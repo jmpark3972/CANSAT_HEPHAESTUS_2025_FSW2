@@ -78,49 +78,24 @@ class ThermalIntegration:
             return False
 
     def _init_fir_sensors(self):
-        """FIR 센서들 초기화 (TCA9548A 멀티플렉서 사용)"""
+        """FIR 센서 초기화 (FIR1만 사용)"""
         try:
             import adafruit_mlx90614
-            import adafruit_tca9548a
             
-            # TCA9548A 멀티플렉서 초기화
+            # FIR1 초기화 (직접 연결)
             try:
-                self.tca = adafruit_tca9548a.TCA9548A(self.i2c)
-                print("TCA9548A 멀티플렉서 초기화 성공")
-                
-                # FIR1 초기화 (채널 0)
-                try:
-                    self.fir1 = adafruit_mlx90614.MLX90614(self.tca[0])
-                    print("FIR1 (MLX90614) 초기화 성공 - TCA9548A 채널 0")
-                except Exception as e:
-                    print(f"FIR1 초기화 실패: {e}")
-                    self.fir1 = None
-                
-                # FIR2 초기화 (채널 1) - 같은 주소 사용
-                try:
-                    self.fir2 = adafruit_mlx90614.MLX90614(self.tca[1])
-                    print("FIR2 (MLX90614) 초기화 성공 - TCA9548A 채널 1")
-                except Exception as e:
-                    print(f"FIR2 초기화 실패: {e}")
-                    self.fir2 = None
-                    
+                self.fir1 = adafruit_mlx90614.MLX90614(self.i2c, address=0x5A)
+                print("FIR1 (MLX90614) 초기화 성공 - 주소: 0x5A")
             except Exception as e:
-                print(f"TCA9548A 멀티플렉서 초기화 실패: {e}")
-                print("TCA9548A가 연결되지 않았습니다.")
-                
-                # 직접 연결된 FIR1만 초기화
-                try:
-                    self.fir1 = adafruit_mlx90614.MLX90614(self.i2c, address=0x5A)
-                    print("FIR1 (MLX90614) 초기화 성공 - 직접 연결")
-                except Exception as e:
-                    print(f"FIR1 초기화 실패: {e}")
-                    self.fir1 = None
-                
-                self.fir2 = None
+                print(f"FIR1 초기화 실패: {e}")
+                self.fir1 = None
+            
+            # FIR2는 사용하지 않음
+            self.fir2 = None
                 
         except ImportError as e:
             print(f"라이브러리 import 오류: {e}")
-            print("설치: pip install adafruit-circuitpython-mlx90614 adafruit-circuitpython-tca9548a")
+            print("설치: pip install adafruit-circuitpython-mlx90614")
             self.fir1 = None
             self.fir2 = None
 
@@ -220,20 +195,15 @@ class ThermalIntegration:
             # FIR1
             fir1_ambient, fir1_object = self.read_fir1()
             
-            # FIR2
-            fir2_ambient, fir2_object = self.read_fir2()
-            
             # 로그 기록
-            log_thermal(f"DATA,{thermistor_temp:.2f},{dht11_temp:.2f},{dht11_humidity:.1f},{fir1_ambient:.2f},{fir1_object:.2f},{fir2_ambient:.2f},{fir2_object:.2f}")
+            log_thermal(f"DATA,{thermistor_temp:.2f},{dht11_temp:.2f},{dht11_humidity:.1f},{fir1_ambient:.2f},{fir1_object:.2f}")
             
             return {
                 'thermistor': thermistor_temp,
                 'dht11_temp': dht11_temp,
                 'dht11_humidity': dht11_humidity,
                 'fir1_ambient': fir1_ambient,
-                'fir1_object': fir1_object,
-                'fir2_ambient': fir2_ambient,
-                'fir2_object': fir2_object
+                'fir1_object': fir1_object
             }
             
         except Exception as e:
@@ -244,9 +214,7 @@ class ThermalIntegration:
                 'dht11_temp': 0.0,
                 'dht11_humidity': 0.0,
                 'fir1_ambient': 0.0,
-                'fir1_object': 0.0,
-                'fir2_ambient': 0.0,
-                'fir2_object': 0.0
+                'fir1_object': 0.0
             }
 
     def set_fir_addresses(self, fir1_addr, fir2_addr):
@@ -319,7 +287,6 @@ def main():
             print(f"Thermistor: {data['thermistor']:.2f}°C")
             print(f"DHT11:      {data['dht11_temp']:.2f}°C, {data['dht11_humidity']:.1f}%")
             print(f"FIR1:       Ambient={data['fir1_ambient']:.2f}°C, Object={data['fir1_object']:.2f}°C")
-            print(f"FIR2:       Ambient={data['fir2_ambient']:.2f}°C, Object={data['fir2_object']:.2f}°C")
             print("-" * 60)
             
             time.sleep(2.0)
