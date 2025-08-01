@@ -7,16 +7,16 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
 # NIR 센서 보정 상수
-V_IN = 1.621 # 1.625    # 분압 전원
+V_IN = 1.623     # 분압 전원
 R_REF = 1000.0    # 직렬 기준저항
 ALPHA_NI = 0.006178  # 6178 ppm/K
 SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
 
 # NIR 센서 설정
-NIR_OFFSET = 835.0  # 보정값 (V) - 손/책상 온도 보정
+NIR_OFFSET = 25.0  # 보정값 (V) - 손/책상 온도 보정
 NIR_SENSITIVITY = 1  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
 
-LOG_DIR = "sensorlogs"  
+LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
 nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
 
@@ -43,8 +43,8 @@ def read_nir(chan0, chan1):
         voltage = chan0.voltage
         
         # 음수 전압 처리 (노이즈나 바이어스 문제일 수 있음)
-        #if voltage < 0:
-        #    voltage = 0.0  # 음수 전압은 0으로 처리
+        if voltage < 0:
+            voltage = 0.0  # 음수 전압은 0으로 처리
         
         log_nir(f"{voltage:.5f}")
         return voltage
@@ -61,8 +61,7 @@ def read_nir_with_calibration(chan0, chan1):
         v_rtd = chan1.voltage  # RTD 노드 전압
         
         # 새로운 보정식 사용
-        t_obj = (v_tp-V_IN)*500 + NIR_OFFSET
-        
+        t_obj = NIR_SENSITIVITY * (v_tp-V_IN)*R_REF + NIR_OFFSET
         
         return v_tp, t_obj
     except Exception as e:
