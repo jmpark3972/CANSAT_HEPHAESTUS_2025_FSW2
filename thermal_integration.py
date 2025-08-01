@@ -3,7 +3,7 @@
 통합 온도 센서 모듈
 - Thermistor (ADS1115)
 - DHT11 (온도/습도)
-- FIR1, FIR2 (MLX90614 - 주소 변경 고려)
+- FIR1 (MLX90614)
 """
 
 import time
@@ -19,13 +19,22 @@ from math import log
 # 로그 디렉토리 설정
 LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
-thermal_log = open(os.path.join(LOG_DIR, "thermal_integration.txt"), "a")
 
-def log_thermal(text):
-    """온도 센서 로그 기록"""
+# 실행 시간으로 로그 파일명 생성
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_filename = f"thermal_integration_{timestamp}.log"
+log_file_path = os.path.join(LOG_DIR, log_filename)
+
+# 로그 파일 열기
+log_file = open(log_file_path, "w")
+
+def log_data(text):
+    """로그 기록"""
     t = datetime.now().isoformat(sep=" ", timespec="milliseconds")
-    thermal_log.write(f"{t},{text}\n")
-    thermal_log.flush()
+    log_entry = f"[{t}] {text}\n"
+    log_file.write(log_entry)
+    log_file.flush()
+    print(text)
 
 class ThermalIntegration:
     def __init__(self):
@@ -34,7 +43,6 @@ class ThermalIntegration:
         self.thermistor_channel = None
         self.dht11 = None
         self.fir1 = None
-        self.fir2 = None
         
         # Thermistor 보정 상수 (thermis.py와 동일하게)
         self.VCC = 3.3
@@ -43,38 +51,37 @@ class ThermalIntegration:
         self.T0 = 298.15      # 기준 온도 (25°C)
         self.B = 3435.0       # B-parameter
         
-        # FIR 센서 주소 (기본값, 필요시 변경)
-        self.FIR1_ADDRESS = 0x5A  # 기본 주소
-        self.FIR2_ADDRESS = 0x5B  # 변경된 주소
-        
         self.initialized = False
 
     def init_sensors(self):
         """모든 온도 센서 초기화"""
         try:
+            log_data("=== 통합 온도 센서 초기화 시작 ===")
+            
             # I2C 초기화
             self.i2c = busio.I2C(board.SCL, board.SDA)
+            log_data("I2C 버스 초기화 완료")
             
             # ADS1115 초기화 (Thermistor용) - thermis.py와 동일하게 P1 사용
             self.ads = ADS.ADS1115(self.i2c)
             self.ads.gain = 1  # ±4.096V
             self.thermistor_channel = AnalogIn(self.ads, ADS.P1)  # A1 채널 사용
+            log_data("ADS1115 초기화 완료 (채널 P1)")
             
             # DHT11 초기화
             self.dht11 = adafruit_dht.DHT11(board.D4)  # GPIO4 사용
+            log_data("DHT11 초기화 완료 (GPIO4)")
             
-            # FIR 센서들 초기화 (MLX90614)
+            # FIR 센서 초기화
             self._init_fir_sensors()
             
             self.initialized = True
-            log_thermal("All thermal sensors initialized successfully")
-            print("모든 온도 센서 초기화 완료")
+            log_data("=== 모든 센서 초기화 완료 ===")
             
             return True
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
-            print(f"센서 초기화 오류: {e}")
+            log_data(f"센서 초기화 오류: {e}")
             return False
 
     def _init_fir_sensors(self):
@@ -85,17 +92,17 @@ class ThermalIntegration:
             # FIR1 초기화 (직접 연결)
             try:
                 self.fir1 = adafruit_mlx90614.MLX90614(self.i2c, address=0x5A)
-                print("FIR1 (MLX90614) 초기화 성공 - 주소: 0x5A")
+                log_data("FIR1 (MLX90614) 초기화 성공 - 주소: 0x5A")
             except Exception as e:
-                print(f"FIR1 초기화 실패: {e}")
+                log_data(f"FIR1 초기화 실패: {e}")
                 self.fir1 = None
             
             # FIR2는 사용하지 않음
             self.fir2 = None
                 
         except ImportError as e:
-            print(f"라이브러리 import 오류: {e}")
-            print("설치: pip install adafruit-circuitpython-mlx90614")
+            log_data(f"라이브러리 import 오류: {e}")
+            log_data("설치: pip install adafruit-circuitpython-mlx90614")
             self.fir1 = None
             self.fir2 = None
 
@@ -109,7 +116,7 @@ class ThermalIntegration:
             
             # 전압 범위 검증
             if voltage <= 0.0 or voltage >= self.VCC:
-                log_thermal(f"THERMISTOR_ERROR,Invalid voltage: {voltage:.4f} V")
+                log_data(f"THERMISTOR_ERROR,Invalid voltage: {voltage:.4f} V")
                 return 0.0
             
             # 저항 계산
@@ -118,7 +125,7 @@ class ThermalIntegration:
             # 저항 비율 계산
             ratio = R_th / self.R0
             if ratio <= 0.0:
-                log_thermal(f"THERMISTOR_ERROR,Invalid resistance ratio: R_th={R_th:.1f} Ω")
+                log_data(f"THERMISTOR_ERROR,Invalid resistance ratio: R_th={R_th:.1f} Ω")
                 return 0.0
             
             # 온도 계산 (Steinhart-Hart 방정식)
@@ -131,8 +138,7 @@ class ThermalIntegration:
             return round(T_celsius, 2)
             
         except Exception as e:
-            log_thermal(f"THERMISTOR_ERROR,{e}")
-            print(f"Thermistor 읽기 오류: {e}")
+            log_data(f"THERMISTOR_ERROR,{e}")
             return 0.0
 
     def read_dht11(self):
@@ -147,8 +153,7 @@ class ThermalIntegration:
             return temperature, humidity
             
         except Exception as e:
-            log_thermal(f"DHT11_ERROR,{e}")
-            print(f"DHT11 읽기 오류: {e}")
+            log_data(f"DHT11_ERROR,{e}")
             return 0.0, 0.0
 
     def read_fir1(self):
@@ -163,24 +168,7 @@ class ThermalIntegration:
             return ambient_temp, object_temp
             
         except Exception as e:
-            log_thermal(f"FIR1_ERROR,{e}")
-            print(f"FIR1 읽기 오류: {e}")
-            return 0.0, 0.0
-
-    def read_fir2(self):
-        """FIR2 (MLX90614) 온도 읽기"""
-        try:
-            if not self.fir2:
-                return 0.0, 0.0
-                
-            ambient_temp = self.fir2.ambient_temperature
-            object_temp = self.fir2.object_temperature
-            
-            return ambient_temp, object_temp
-            
-        except Exception as e:
-            log_thermal(f"FIR2_ERROR,{e}")
-            print(f"FIR2 읽기 오류: {e}")
+            log_data(f"FIR1_ERROR,{e}")
             return 0.0, 0.0
 
     def read_all_sensors(self):
@@ -196,7 +184,7 @@ class ThermalIntegration:
             fir1_ambient, fir1_object = self.read_fir1()
             
             # 로그 기록
-            log_thermal(f"DATA,{thermistor_temp:.2f},{dht11_temp:.2f},{dht11_humidity:.1f},{fir1_ambient:.2f},{fir1_object:.2f}")
+            log_data(f"SENSOR_DATA: Thermistor={thermistor_temp:.2f}°C, DHT11={dht11_temp:.2f}°C/{dht11_humidity:.1f}%, FIR1_Ambient={fir1_ambient:.2f}°C, FIR1_Object={fir1_object:.2f}°C")
             
             return {
                 'thermistor': thermistor_temp,
@@ -207,8 +195,7 @@ class ThermalIntegration:
             }
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
-            print(f"전체 센서 읽기 오류: {e}")
+            log_data(f"전체 센서 읽기 오류: {e}")
             return {
                 'thermistor': 0.0,
                 'dht11_temp': 0.0,
@@ -216,13 +203,6 @@ class ThermalIntegration:
                 'fir1_ambient': 0.0,
                 'fir1_object': 0.0
             }
-
-    def set_fir_addresses(self, fir1_addr, fir2_addr):
-        """FIR 센서 주소 설정"""
-        self.FIR1_ADDRESS = fir1_addr
-        self.FIR2_ADDRESS = fir2_addr
-        log_thermal(f"FIR_ADDR_SET,{fir1_addr},{fir2_addr}")
-        print(f"FIR 센서 주소 설정: FIR1=0x{fir1_addr:02X}, FIR2=0x{fir2_addr:02X}")
 
     def scan_i2c_devices(self):
         """I2C 디바이스 스캔"""
@@ -234,20 +214,19 @@ class ThermalIntegration:
             devices = self.i2c.scan()
             self.i2c.unlock()
             
-            print("I2C 디바이스 스캔 결과:")
+            log_data("I2C 디바이스 스캔 결과:")
             for device in devices:
-                print(f"  주소: 0x{device:02X} ({device})")
+                device_info = f"  주소: 0x{device:02X} ({device})"
                 if device == 0x48:
-                    print("    → ADS1115")
+                    device_info += " → ADS1115"
                 elif device == 0x5A:
-                    print("    → MLX90614 (기본 주소)")
-                elif device == 0x5B:
-                    print("    → MLX90614 (변경된 주소)")
+                    device_info += " → MLX90614"
+                log_data(device_info)
                     
             return devices
             
         except Exception as e:
-            print(f"I2C 스캔 오류: {e}")
+            log_data(f"I2C 스캔 오류: {e}")
             return []
 
     def terminate(self):
@@ -255,19 +234,18 @@ class ThermalIntegration:
         try:
             if self.i2c:
                 self.i2c.deinit()
+            log_data("센서 종료 완료")
         except AttributeError:
             pass
-        thermal_log.close()
+        log_file.close()
 
 def main():
-    print("통합 온도 센서 테스트")
-    print("=" * 60)
-    print("센서 목록:")
-    print("  - Thermistor (ADS1115)")
-    print("  - DHT11 (온도/습도)")
-    print("  - FIR1 (MLX90614)")
-    print("  - FIR2 (MLX90614)")
-    print("=" * 60)
+    log_data("=== 통합 온도 센서 테스트 시작 ===")
+    log_data("센서 목록:")
+    log_data("  - Thermistor (ADS1115)")
+    log_data("  - DHT11 (온도/습도)")
+    log_data("  - FIR1 (MLX90614)")
+    log_data("=" * 60)
     
     # 센서 초기화
     thermal = ThermalIntegration()
@@ -276,13 +254,16 @@ def main():
     devices = thermal.scan_i2c_devices()
     
     if not thermal.init_sensors():
-        print("센서 초기화 실패")
+        log_data("센서 초기화 실패")
         return
+    
+    log_data("=== 센서 데이터 읽기 시작 ===")
     
     try:
         while True:
             data = thermal.read_all_sensors()
             
+            # 콘솔 출력
             print(f"\n=== 온도 센서 데이터 ===")
             print(f"Thermistor: {data['thermistor']:.2f}°C")
             print(f"DHT11:      {data['dht11_temp']:.2f}°C, {data['dht11_humidity']:.1f}%")
@@ -292,9 +273,10 @@ def main():
             time.sleep(2.0)
             
     except KeyboardInterrupt:
-        print("\n테스트 중단")
+        log_data("테스트 중단됨 (Ctrl+C)")
     finally:
         thermal.terminate()
+        log_data("=== 테스트 종료 ===")
 
 if __name__ == "__main__":
     main() 
