@@ -22,19 +22,25 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 # 실행 시간으로 로그 파일명 생성
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-log_filename = f"thermal_integration_{timestamp}.log"
+log_filename = f"thermal_integration_{timestamp}.csv"
 log_file_path = os.path.join(LOG_DIR, log_filename)
 
-# 로그 파일 열기
-log_file = open(log_file_path, "w")
+# CSV 파일 열기
+csv_file = open(log_file_path, "w")
 
 def log_data(text):
     """로그 기록"""
     t = datetime.now().isoformat(sep=" ", timespec="milliseconds")
     log_entry = f"[{t}] {text}\n"
-    log_file.write(log_entry)
-    log_file.flush()
+    csv_file.write(log_entry)
+    csv_file.flush()
     print(text)
+
+def log_csv_data(timestamp, thermistor, dht11_temp, dht11_humidity, fir1_ambient, fir1_object):
+    """CSV 형식으로 센서 데이터 기록"""
+    csv_line = f"{timestamp},{thermistor:.2f},{dht11_temp:.2f},{dht11_humidity:.1f},{fir1_ambient:.2f},{fir1_object:.2f}\n"
+    csv_file.write(csv_line)
+    csv_file.flush()
 
 class ThermalIntegration:
     def __init__(self):
@@ -183,9 +189,6 @@ class ThermalIntegration:
             # FIR1
             fir1_ambient, fir1_object = self.read_fir1()
             
-            # 로그 기록
-            log_data(f"SENSOR_DATA: Thermistor={thermistor_temp:.2f}°C, DHT11={dht11_temp:.2f}°C/{dht11_humidity:.1f}%, FIR1_Ambient={fir1_ambient:.2f}°C, FIR1_Object={fir1_object:.2f}°C")
-            
             return {
                 'thermistor': thermistor_temp,
                 'dht11_temp': dht11_temp,
@@ -237,7 +240,7 @@ class ThermalIntegration:
             log_data("센서 종료 완료")
         except AttributeError:
             pass
-        log_file.close()
+        csv_file.close()
 
 def main():
     log_data("=== 통합 온도 센서 테스트 시작 ===")
@@ -246,6 +249,11 @@ def main():
     log_data("  - DHT11 (온도/습도)")
     log_data("  - FIR1 (MLX90614)")
     log_data("=" * 60)
+    
+    # CSV 헤더 작성
+    csv_header = "Timestamp,Thermistor(°C),DHT11_Temp(°C),DHT11_Humidity(%),FIR1_Ambient(°C),FIR1_Object(°C)\n"
+    csv_file.write(csv_header)
+    csv_file.flush()
     
     # 센서 초기화
     thermal = ThermalIntegration()
@@ -262,6 +270,11 @@ def main():
     try:
         while True:
             data = thermal.read_all_sensors()
+            timestamp = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+            
+            # CSV에 데이터 기록
+            log_csv_data(timestamp, data['thermistor'], data['dht11_temp'], 
+                        data['dht11_humidity'], data['fir1_ambient'], data['fir1_object'])
             
             # 콘솔 출력 (한 줄로 간단하게)
             print(f"Thermistor: {data['thermistor']:.2f}°C | DHT11: {data['dht11_temp']:.2f}°C/{data['dht11_humidity']:.1f}% | FIR1: {data['fir1_ambient']:.2f}°C/{data['fir1_object']:.2f}°C")
