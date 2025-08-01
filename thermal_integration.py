@@ -14,6 +14,7 @@ import adafruit_dht
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from datetime import datetime
+from math import log
 
 # 로그 디렉토리 설정
 LOG_DIR = "sensorlogs"
@@ -35,11 +36,12 @@ class ThermalIntegration:
         self.fir1 = None
         self.fir2 = None
         
-        # Thermistor 보정 상수
-        self.THERMISTOR_NOMINAL = 10000  # 10k ohm
-        self.TEMPERATURE_NOMINAL = 25.0  # 25°C
-        self.BETA_COEFFICIENT = 3950     # B-parameter
-        self.SERIES_RESISTOR = 10000     # 10k ohm
+        # Thermistor 보정 상수 (thermis.py와 동일하게)
+        self.VCC = 3.3
+        self.R_fix = 10000.0  # 고정 저항
+        self.R0 = 10000.0     # 기준 저항
+        self.T0 = 298.15      # 기준 온도 (25°C)
+        self.B = 3435.0       # B-parameter
         
         # FIR 센서 주소 (기본값, 필요시 변경)
         self.FIR1_ADDRESS = 0x5A  # 기본 주소
@@ -53,10 +55,10 @@ class ThermalIntegration:
             # I2C 초기화
             self.i2c = busio.I2C(board.SCL, board.SDA)
             
-            # ADS1115 초기화 (Thermistor용)
+            # ADS1115 초기화 (Thermistor용) - thermis.py와 동일하게 P1 사용
             self.ads = ADS.ADS1115(self.i2c)
             self.ads.gain = 1  # ±4.096V
-            self.thermistor_channel = AnalogIn(self.ads, ADS.P0)
+            self.thermistor_channel = AnalogIn(self.ads, ADS.P1)  # A1 채널 사용
             
             # DHT11 초기화
             self.dht11 = adafruit_dht.DHT11(board.D4)  # GPIO4 사용
@@ -104,29 +106,35 @@ class ThermalIntegration:
             self.fir2 = None
 
     def read_thermistor(self):
-        """Thermistor 온도 읽기"""
+        """Thermistor 온도 읽기 (thermis.py와 동일한 방식)"""
         try:
             if not self.thermistor_channel:
                 return 0.0
                 
-            # 전압 읽기
             voltage = self.thermistor_channel.voltage
             
+            # 전압 범위 검증
+            if voltage <= 0.0 or voltage >= self.VCC:
+                log_thermal(f"THERMISTOR_ERROR,Invalid voltage: {voltage:.4f} V")
+                return 0.0
+            
             # 저항 계산
-            resistance = self.SERIES_RESISTOR * (3.3 / voltage - 1)
+            R_th = self.R_fix * (self.VCC - voltage) / voltage
             
-            # Steinhart-Hart 방정식으로 온도 계산
-            steinhart = resistance / self.THERMISTOR_NOMINAL
-            steinhart = log(steinhart)
-            steinhart /= self.BETA_COEFFICIENT
-            steinhart += 1.0 / (self.TEMPERATURE_NOMINAL + 273.15)
-            steinhart = 1.0 / steinhart
-            steinhart -= 273.15
+            # 저항 비율 계산
+            ratio = R_th / self.R0
+            if ratio <= 0.0:
+                log_thermal(f"THERMISTOR_ERROR,Invalid resistance ratio: R_th={R_th:.1f} Ω")
+                return 0.0
             
-            return steinhart
+            # 온도 계산 (Steinhart-Hart 방정식)
+            T_kelvin = 1.0 / (1.0/self.T0 + (1.0/self.B) * log(ratio))
+            T_celsius = T_kelvin - 273.15
+            
+            return round(T_celsius, 2)
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
+            log_thermal(f"THERMISTOR_ERROR,{e}")
             print(f"Thermistor 읽기 오류: {e}")
             return 0.0
 
@@ -142,7 +150,7 @@ class ThermalIntegration:
             return temperature, humidity
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
+            log_thermal(f"DHT11_ERROR,{e}")
             print(f"DHT11 읽기 오류: {e}")
             return 0.0, 0.0
 
@@ -158,7 +166,7 @@ class ThermalIntegration:
             return ambient_temp, object_temp
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
+            log_thermal(f"FIR1_ERROR,{e}")
             print(f"FIR1 읽기 오류: {e}")
             return 0.0, 0.0
 
@@ -174,7 +182,7 @@ class ThermalIntegration:
             return ambient_temp, object_temp
             
         except Exception as e:
-            log_thermal(f"ERROR,{e}")
+            log_thermal(f"FIR2_ERROR,{e}")
             print(f"FIR2 읽기 오류: {e}")
             return 0.0, 0.0
 
@@ -300,5 +308,4 @@ def main():
         thermal.terminate()
 
 if __name__ == "__main__":
-    from math import log
     main() 
