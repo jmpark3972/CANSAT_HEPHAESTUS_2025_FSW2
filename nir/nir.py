@@ -13,7 +13,7 @@ ALPHA_NI = 0.006178  # 6178 ppm/K
 SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
 
 # NIR 센서 설정
-NIR_OFFSET = 45.0  # 보정값 (V) - 손/책상 온도 보정
+NIR_OFFSET = 29.0  # 보정값 (V) - 손/책상 온도 보정
 NIR_SENSITIVITY = 0.25  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
 
 LOG_DIR = "sensorlogs"
