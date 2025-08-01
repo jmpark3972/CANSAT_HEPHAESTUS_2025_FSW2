@@ -1,93 +1,101 @@
-import time
-import os
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+G-TPCO-036(thermopile) + 10 kΩ NTC(ambient)  ─ ADS1115 드라이버
+2025-08-02 rev-A  (단극 측정 + NTC 보정)
+"""
+
+import os, time, math
 from datetime import datetime
 
 import board, busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
-# NIR 센서 보정 상수
-V_IN = 0 #1.623     # 분압 전원
-R_REF = 1000.0    # 직렬 기준저항
-ALPHA_NI = 0.006178  # 6178 ppm/K
-SENS_IR = 0.0034   # [V/°C] - 실측해 맞춘 감도
+# ────────────── 하드웨어 상수 (필요 시 수정) ──────────────
+V_SUPPLY      = 3.300        # ADS1115·센서 공급 전압 [V]
+ADS_GAIN      = 16           # ±0.256 V  (thermopile 해상도 ↑)
 
-# NIR 센서 설정
-NIR_OFFSET = 25  # 보정값 (V) - 손/책상 온도 보정
-NIR_SENSITIVITY = 1  # 감도: 전압 → 온도 변환 계수 (100.0 = 1V당 100°C)
+# ── Thermopile 보정
+TP_SENS_UV_PER_K = 40.0      # 40 µV/K  (데이터시트 값; 교정 시 조정)
+TP_CAL_OFFSET  = 0.0         # °C      (0점 보정용 편차)
 
+# ── 10 k NTC 파라미터 (Datasheet 없으면 Beta=3950 기준)
+NTC_R_25   = 10_000.0        # Ω @25 °C
+NTC_BETA   = 3950.0          # [K]
+NTC_PULLUP = 10_000.0        # Ω  (분압용 고정저항)
+
+# ── 로깅
 LOG_DIR = "sensorlogs"
 os.makedirs(LOG_DIR, exist_ok=True)
-nir_log = open(os.path.join(LOG_DIR, "nir.txt"), "a")
+log_file = open(os.path.join(LOG_DIR, "nir.txt"), "a", buffering=1)
 
-def log_nir(text):
-    t = datetime.now().isoformat(sep=" ", timespec="milliseconds")
-    nir_log.write(f"{t},{text}\n")
-    nir_log.flush()
-
-def init_nir():
+# ────────────── ADS1115 초기화 ──────────────
+def init_ads():
     i2c = busio.I2C(board.SCL, board.SDA)
-    ads = ADS.ADS1115(i2c)
-    
-    # ADS1115 설정 최적화
-    ads.gain = 1  # ±4.096V 범위로 설정 (더 안정적)
-    ads.data_rate = 128  # 128 SPS로 설정 (노이즈 감소)
-    
-    chan0 = AnalogIn(ads, ADS.P0)  # G-TPCO-035 신호가 연결된 채널
-    chan1 = AnalogIn(ads, ADS.P1)  # G-TPCO-035의 저항 그라운드 채널
-    return i2c, ads, chan0, chan1
+    ads = ADS.ADS1115(i2c, gain=ADS_GAIN, data_rate=64)
+    ch_tp  = AnalogIn(ads, ADS.P0)   # thermopile (AIN0-GND)
+    ch_ntc = AnalogIn(ads, ADS.P1)   # NTC 분압  (AIN1-GND)
+    return i2c, ads, ch_tp, ch_ntc
 
-def read_nir(chan0, chan1):
-    try:
-        # G-TPCO-035 (P0) - NIR 센서만 처리
-        voltage = chan0.voltage
-        
-        # 음수 전압 처리 (노이즈나 바이어스 문제일 수 있음)
-        if voltage < 0:
-            voltage = 0.0  # 음수 전압은 0으로 처리
-        
-        log_nir(f"{voltage:.5f}")
-        return voltage
-    except Exception as e:
-        log_nir(f"ERROR,{e}")
-        print(f"NIR read error: {e}")  # 콘솔에도 출력
-        return 0.0
+# ────────────── 보정/계산 함수 ──────────────
+def read_thermopile(ch_tp, n=8):
+    """thermopile 전압(V) n회 평균"""
+    return sum(ch_tp.voltage for _ in range(n)) / n
 
-def read_nir_with_calibration(chan0, chan1):
-    """보정이 적용된 NIR 온도 읽기"""
-    try:
-        # 센서에서 전압 읽기
-        v_tp = read_nir(chan0, chan1)  # 열전소자 전압
-        v_rtd = chan1.voltage  # RTD 노드 전압
-        
-        # 새로운 보정식 사용asd
-        t_obj = NIR_SENSITIVITY * (v_tp-V_IN)*R_REF + NIR_OFFSET
-        
-        return v_tp, t_obj
-    except Exception as e:
-        log_nir(f"ERROR,{e}")
-        print(f"NIR calibration error: {e}")
-        return 0.0, 0.0
+def calc_ntc_temp(ch, v_supply=V_SUPPLY):
+    """NTC 분압 → 주변온도(°C) : 단순 Beta 방정식"""
+    v_ntc = ch.voltage
+    if v_ntc <= 0 or v_ntc >= v_supply:  # 오픈/단락 보호
+        return float("nan")
+    r_ntc = NTC_PULLUP * v_ntc / (v_supply - v_ntc)
+    ln = math.log(r_ntc / NTC_R_25)
+    t_k = 1 / (1/298.15 + ln / NTC_BETA)      # Kelvin
+    return t_k - 273.15                       # °C
 
-def set_nir_offset(offset):
-    """NIR 보정값 설정"""
-    global NIR_OFFSET
-    NIR_OFFSET = offset
-    log_nir(f"OFFSET_SET,{offset}")
+def calc_object_temp(tp_v, t_amb):
+    """thermopile ΔV + 주변온도로 대상온도(°C) 추정"""
+    delta_t = (tp_v * 1e6) / TP_SENS_UV_PER_K      # µV → K
+    return t_amb + delta_t + TP_CAL_OFFSET
 
-def terminate_nir(i2c):
-    try:
-        i2c.deinit()
-    except AttributeError:
-        pass
-    nir_log.close()
+# ────────────── 로깅 ──────────────
+def log(msg):
+    now = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+    print(msg)
+    log_file.write(f"{now},{msg}\n")
 
-if __name__ == "__main__":
-    i2c, ads, chan0, chan1 = init_nir()
-    try:
-        while True:
-            voltage, temp = read_nir_with_calibration(chan0, chan1)
-            print(f"NIR Voltage: {voltage:.5f}V, Temperature: {temp:.2f}°C")
+# ────────────── 메인 루프 ──────────────
+def main():
+    i2c, ads, ch_tp, ch_ntc = init_ads()
+    retry = 0
+    while True:
+        try:
+            v_tp  = read_thermopile(ch_tp)
+            t_amb = calc_ntc_temp(ch_ntc)
+            t_obj = calc_object_temp(v_tp, t_amb)
+
+            log(f"TP={v_tp:.6f} V, NTC={t_amb:.2f} °C, OBJ={t_obj:.2f} °C")
             time.sleep(1.0)
-    except KeyboardInterrupt:
-        terminate_nir(i2c)
+            retry = 0
+
+        except OSError as e:                      # I²C Errno 5 대응
+            if getattr(e, "errno", None) == 5 and retry < 5:
+                log(f"I2C_ERR_RETRY_{retry}: {e}")
+                try: i2c.deinit()
+                except Exception: pass
+                time.sleep(0.1)
+                i2c, ads, ch_tp, ch_ntc = init_ads()
+                retry += 1
+                continue
+            else:
+                raise
+        except KeyboardInterrupt:
+            break
+
+    try: i2c.deinit()
+    except Exception: pass
+    log_file.close()
+
+# ────────────── 실행 ──────────────
+if __name__ == "__main__":
+    main()
