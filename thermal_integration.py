@@ -263,12 +263,8 @@ def main():
         while True:
             data = thermal.read_all_sensors()
             
-            # 콘솔 출력
-            print(f"\n=== 온도 센서 데이터 ===")
-            print(f"Thermistor: {data['thermistor']:.2f}°C")
-            print(f"DHT11:      {data['dht11_temp']:.2f}°C, {data['dht11_humidity']:.1f}%")
-            print(f"FIR1:       Ambient={data['fir1_ambient']:.2f}°C, Object={data['fir1_object']:.2f}°C")
-            print("-" * 60)
+            # 콘솔 출력 (한 줄로 간단하게)
+            print(f"Thermistor: {data['thermistor']:.2f}°C | DHT11: {data['dht11_temp']:.2f}°C/{data['dht11_humidity']:.1f}% | FIR1: {data['fir1_ambient']:.2f}°C/{data['fir1_object']:.2f}°C")
             
             time.sleep(2.0)
             
