@@ -131,6 +131,9 @@ class ThermalIntegration:
             T_kelvin = 1.0 / (1.0/self.T0 + (1.0/self.B) * log(ratio))
             T_celsius = T_kelvin - 273.15
             
+            # 보정값 +50 추가
+            T_celsius += 50.0
+            
             return round(T_celsius, 2)
             
         except Exception as e:
