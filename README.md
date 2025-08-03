@@ -89,9 +89,181 @@ on /etc/modules, add
 
     dwc2
 
-# 이중 로깅 시스템 (Dual Logging System)
+# 강화된 이중 로깅 시스템 (Robust Dual Logging System)
 
-CANSAT 미션 중 낙하 시 라즈베리파이 파손으로 인한 데이터 손실을 방지하기 위해 추가 SD카드를 통한 이중 로깅 시스템을 구현했습니다.
+CANSAT 미션 중 낙하 시 라즈베리파이 파손으로 인한 데이터 손실을 방지하기 위해 추가 SD카드를 통한 이중 로깅 시스템을 구현했습니다. **플라이트 로직과 완전히 분리되어 있어 로직 오류나 앱 고장과 관계없이 항상 로그가 기록됩니다.**
+
+## 주요 특징
+
+### 🔒 **플라이트 로직 독립성**
+- 로직 오류나 앱 고장과 관계없이 로그 기록 보장
+- 각 센서 앱의 상태와 무관하게 독립적 로깅
+- 시스템 크래시 시에도 최소한의 로그 저장
+
+### 🛡️ **견고한 오류 처리**
+- 파일 손상 시 자동 복구 메커니즘
+- SD카드 연결 문제 시 자동 재시도
+- 메모리 버퍼링으로 성능 최적화
+
+### ⚡ **실시간 이중 저장**
+- 주 SD카드와 보조 SD카드에 동시 기록
+- 30초마다 자동 백업
+- 1분마다 SD카드 상태 모니터링 및 복구
+
+### 🚨 **시그널 처리**
+- 강제 종료 시에도 로그 저장
+- SIGTERM, SIGINT 시그널 처리
+- 프로그램 종료 시 자동 정리
+
+## 사용법
+
+### 기본 사용
+```python
+from lib import logging
+
+# 로깅 시스템 초기화
+logging.init_dual_logging_system()
+
+# 로그 기록
+logging.log("시스템 시작", printlogs=True)
+logging.log("센서 데이터: GPS=37.123,45.678", printlogs=False)
+
+# 시스템 종료 시
+logging.close_dual_logging_system()
+```
+
+### 플라이트 로직에서 사용
+```python
+# 센서 데이터 로깅
+log_sensor_data("GPS", {"lat": 37.123, "lon": 45.678, "alt": 1000})
+log_sensor_data("IMU", {"roll": 1.5, "pitch": -0.8, "yaw": 90.2})
+
+# 시스템 이벤트 로깅
+log_system_event("STATE_CHANGE", "STANDBY -> ASCENT")
+log_system_event("ERROR", "센서 연결 실패")
+```
+
+## 테스트
+
+강화된 로깅 시스템을 테스트하려면:
+
+```bash
+python3 test_robust_logging.py
+```
+
+이 테스트는 다음을 확인합니다:
+- 기본 로깅 기능
+- 오류 처리 능력
+- 동시 로깅 처리
+- 시그널 처리
+- 플라이트 로직 독립성
+- 이중 SD카드 로깅
+
+# Qwiic Mux 기반 FIR 센서 시스템
+
+AS7263 센서를 제거하고 Qwiic Mux를 사용하여 두 개의 MLX90614 FIR 센서를 분리하여 사용하는 시스템으로 업그레이드했습니다.
+
+## 하드웨어 구성
+
+### Qwiic Mux 연결
+- **I2C 주소**: 0x70 (기본값)
+- **채널 0**: FIR1 (MLX90614)
+- **채널 1**: FIR2 (MLX90614)
+- **채널 2-7**: 향후 확장용
+
+### 센서 연결
+```
+Qwiic Mux (0x70)
+├── 채널 0 → FIR1 (MLX90614)
+├── 채널 1 → FIR2 (MLX90614)
+└── 채널 2-7 → 미사용
+```
+
+## 소프트웨어 구조
+
+### 새로운 모듈
+```
+lib/qwiic_mux.py          # Qwiic Mux 제어 라이브러리
+fir/fir1.py               # FIR1 센서 헬퍼 (채널 0)
+fir/fir2.py               # FIR2 센서 헬퍼 (채널 1)
+fir/firapp1.py            # FIR1 앱 (채널 0)
+fir/firapp2.py            # FIR2 앱 (채널 1)
+test_qwiic_mux.py         # 통합 테스트 스크립트
+```
+
+### 앱 구조 변경
+- **기존**: `FirApp` (단일 FIR 센서)
+- **변경**: `FirApp1` (채널 0) + `FirApp2` (채널 1)
+
+## 사용법
+
+### 1. 하드웨어 연결 확인
+```bash
+# Qwiic Mux 및 FIR 센서 테스트
+python3 test_qwiic_mux.py
+```
+
+### 2. 개별 센서 테스트
+```bash
+# FIR1 센서 테스트 (채널 0)
+python3 fir/fir1.py
+
+# FIR2 센서 테스트 (채널 1)
+python3 fir/fir2.py
+```
+
+### 3. 센서 로거 테스트
+```bash
+# 통합 센서 로거 테스트
+python3 sensor_logger.py
+```
+
+### 4. 메인 시스템 실행
+```bash
+# 전체 시스템 실행 (이중 로깅 포함)
+python3 main.py
+```
+
+## 데이터 형식
+
+### FIR1 데이터 (채널 0)
+- **앱 ID**: 20
+- **메시지 ID**: 2002
+- **데이터 형식**: `"ambient_temp,object_temp"`
+
+### FIR2 데이터 (채널 1)
+- **앱 ID**: 21
+- **메시지 ID**: 2102
+- **데이터 형식**: `"ambient_temp,object_temp"`
+
+## 캘리브레이션
+
+각 FIR 센서는 독립적으로 캘리브레이션할 수 있습니다:
+
+```python
+# FIR1 캘리브레이션
+prevstate.update_fir1cal(ambient_offset, object_offset)
+
+# FIR2 캘리브레이션
+prevstate.update_fir2cal(ambient_offset, object_offset)
+```
+
+## 문제 해결
+
+### Qwiic Mux가 인식되지 않는 경우
+1. I2C 연결 확인: `i2cdetect -y 1`
+2. Mux 주소 확인 (기본값: 0x70)
+3. 전원 공급 확인
+
+### FIR 센서가 인식되지 않는 경우
+1. Mux 채널 선택 확인
+2. 센서 I2C 주소 확인 (MLX90614: 0x5A)
+3. 배선 연결 확인
+
+### 센서 데이터 오류
+1. 센서 초기화 대기 시간 확인
+2. 채널 전환 시 안정화 시간 확인
+3. I2C 클럭 속도 조정 (필요시)
 
 ## 이중 로깅 시스템 설정
 
@@ -140,7 +312,7 @@ python3 test_dual_logging.py
 
 ### 시스템 구조
 ```
-lib/dual_logging.py          # 이중 로깅 시스템 핵심 모듈
+lib/logging.py               # 통합 로깅 시스템 (이중 로깅 포함)
 lib/logging.py               # 기존 로깅 시스템 (이중 로깅 지원)
 sensor_logger.py             # 센서 로거 (이중 저장 지원)
 main.py                      # 메인 애플리케이션 (이중 로깅 초기화)
@@ -163,16 +335,16 @@ logging.logdata(log_file, "테스트 메시지", printlogs=True)
 
 ### 직접 이중 로깅 사용
 ```python
-from lib import dual_logging
+from lib import logging
 
 # 이중 로깅 시스템 초기화
-logger = dual_logging.init_dual_logging()
+logging.init_dual_logging_system()
 
 # 로그 기록
-logger.log("중요한 데이터", print_logs=True)
+logging.log("중요한 데이터", printlogs=True)
 
 # 시스템 종료
-dual_logging.close_dual_logging()
+logging.close_dual_logging_system()
 ```
 
 ## 문제 해결
@@ -189,4 +361,4 @@ dual_logging.close_dual_logging()
 
 ### 성능 최적화
 - 보조 SD카드 속도가 느린 경우 `spi-max-frequency`를 4000000으로 낮춤
-- 백업 주기를 조정하려면 `dual_logging.py`의 `_backup_worker` 함수 수정
+- 백업 주기를 조정하려면 `lib/logging.py`의 `_backup_worker` 함수 수정

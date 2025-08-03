@@ -177,20 +177,36 @@ motorapp_elements.pipe = parent_pipe
 app_dict[appargs.MotorAppArg.AppID] = motorapp_elements
 
 #########################################################
-# FIRApp                                                #
+# FIR1App (MLX90614 Channel 0)                          #
 #########################################################
 
-from fir import firapp
+from fir1 import firapp1
 
 parent_pipe, child_pipe = Pipe()
 
 # Add Process, pipe to elements dictionary
-firapp_elements = app_elements()
-firapp_elements.process = Process(target = firapp.firapp_main, args = (main_queue, child_pipe, ))
-firapp_elements.pipe = parent_pipe
+firapp1_elements = app_elements()
+firapp1_elements.process = Process(target = firapp1.firapp1_main, args = (main_queue, child_pipe, ))
+firapp1_elements.pipe = parent_pipe
 
 # Add the process to dictionary
-app_dict[appargs.FirAppArg.AppID] = firapp_elements
+app_dict[appargs.FirApp1Arg.AppID] = firapp1_elements
+
+#########################################################
+# FIR2App (MLX90614 Channel 1)                          #
+#########################################################
+
+from fir2 import firapp2
+
+parent_pipe, child_pipe = Pipe()
+
+# Add Process, pipe to elements dictionary
+firapp2_elements = app_elements()
+firapp2_elements.process = Process(target = firapp2.firapp2_main, args = (main_queue, child_pipe, ))
+firapp2_elements.pipe = parent_pipe
+
+# Add the process to dictionary
+app_dict[appargs.FirApp2Arg.AppID] = firapp2_elements
 
 #########################################################
 # THERMISApp                                            #
@@ -212,21 +228,7 @@ thermisapp_elements.pipe = parent_pipe
 # Add the process to dictionary
 app_dict[appargs.ThermisAppArg.AppID] = thermisapp_elements
 
-#########################################################
-# NIRApp                                                #
-#########################################################
 
-from nir import nirapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-nirapp_elements = app_elements()
-nirapp_elements.process = Process(target = nirapp.nirapp_main, args = (main_queue, child_pipe, ))
-nirapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.NirAppArg.AppID] = nirapp_elements
 
 #########################################################
 # CameraApp                                             #

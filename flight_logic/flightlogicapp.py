@@ -29,27 +29,24 @@ MOTOR_TARGET_PULSE: int = -1  # mg996r: 500=open, 2500=close
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# 로그 파일 경로
-GPS_LOG_PATH = os.path.join(LOG_DIR, "gps_log.csv")
-IMU_LOG_PATH = os.path.join(LOG_DIR, "imu_log.csv")
-BAROMETER_LOG_PATH = os.path.join(LOG_DIR, "barometer_log.csv")
-DHT11_LOG_PATH = os.path.join(LOG_DIR, "dht11_log.csv")
-FIR_LOG_PATH = os.path.join(LOG_DIR, "fir_log.csv")
-THERMIS_LOG_PATH = os.path.join(LOG_DIR, "thermis_log.csv")
-PITOT_LOG_PATH = os.path.join(LOG_DIR, "pitot_log.csv")
-NIR_LOG_PATH = os.path.join(LOG_DIR, "nir_log.csv")
-THERMAL_LOG_PATH = os.path.join(LOG_DIR, "thermal_log.csv")
-HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
-ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
+# 통합 로깅 시스템 사용 - 플라이트 로직과 독립적
+def log_sensor_data(sensor_type: str, data: dict):
+    """센서 데이터를 통합 로깅 시스템에 기록"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{sensor_type}] {timestamp} | {data}"
+        logging.log(log_entry, printlogs=False)
+    except Exception as e:
+        print(f"센서 로깅 오류 ({sensor_type}): {e}")
 
-# 공통 로그 함수
-def log_csv(path, header, row):
-    file_exists = os.path.exists(path)
-    with open(path, "a", newline="") as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(header)
-        writer.writerow(row)
+def log_system_event(event_type: str, message: str):
+    """시스템 이벤트를 통합 로깅 시스템에 기록"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{event_type}] {timestamp} | {message}"
+        logging.log(log_entry, printlogs=True)
+    except Exception as e:
+        print(f"시스템 이벤트 로깅 오류: {e}")
 
 def now_epoch():
     return time.time()
@@ -70,7 +67,7 @@ def safe(val):
 # Handles received message
 def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
     global SIMULATION_ACTIVATE, MAX_ALT, recent_alt, FLIGHTLOGICAPP_RUNSTATUS
-    global SIMULATION_ENABLE, CURRENT_TEMP, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_THERMIS, LAST_NIR, LAST_THERMAL
+    global SIMULATION_ENABLE, CURRENT_TEMP, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR1, LAST_FIR2, LAST_THERMIS, LAST_THERMAL
     try:
         if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
             # Change Runstatus to false to start termination process
@@ -133,18 +130,34 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
             update_motor_logic(Main_Queue)
             return
 
-        elif recv_msg.MsgID == appargs.FirAppArg.MID_SendFirFlightLogicData:
+        elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
             try:
                 # 예: "amb,obj,rawdata..." 형태로 온다고 가정
                 parts = recv_msg.data.split(",")
                 amb, obj = map(float, parts[:2])
-                raw_fir = ",".join(parts[2:]) if len(parts) > 2 else None
-                LAST_FIR = (amb, obj)
-                if raw_fir:
-                    log_fir_data(raw_fir)
+                raw_fir1 = ",".join(parts[2:]) if len(parts) > 2 else None
+                LAST_FIR1 = (amb, obj)
+                if raw_fir1:
+                    log_fir1_data(raw_fir1)
             except Exception as e:
                 events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"FIR data parse error: {type(e).__name__}: {e}")
+                                f"FIR1 data parse error: {type(e).__name__}: {e}")
+                return
+            update_motor_logic(Main_Queue)
+            return
+
+        elif recv_msg.MsgID == appargs.FirApp2Arg.MID_SendFIR2Data:
+            try:
+                # 예: "amb,obj,rawdata..." 형태로 온다고 가정
+                parts = recv_msg.data.split(",")
+                amb, obj = map(float, parts[:2])
+                raw_fir2 = ",".join(parts[2:]) if len(parts) > 2 else None
+                LAST_FIR2 = (amb, obj)
+                if raw_fir2:
+                    log_fir2_data(raw_fir2)
+            except Exception as e:
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
+                                f"FIR2 data parse error: {type(e).__name__}: {e}")
                 return
             update_motor_logic(Main_Queue)
             return
@@ -180,21 +193,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
                 return
             update_motor_logic(Main_Queue)
             return
-        elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirFlightLogicData:
-            try:
-                # 예: "voltage,temp,rawdata..." 형태로 온다고 가정
-                parts = recv_msg.data.split(",")
-                voltage, temp = map(float, parts[:2])
-                raw_nir = ",".join(parts[2:]) if len(parts) > 2 else None
-                LAST_NIR = (voltage, temp)
-                if raw_nir:
-                    log_nir_data(raw_nir)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"NIR data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
+
         elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData:
             try:
                 # 예: "avg,min,max,p0,p1,...,p767" 형태로 온다고 가정
@@ -280,18 +279,18 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
 
 def send_hk(Main_Queue : Queue):
     global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, CURRENT_TEMP, recent_alt
-    global LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR, LAST_THERMIS, LAST_NIR, MOTOR_TARGET_PULSE
+    global LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR1, LAST_FIR2, LAST_THERMIS, MOTOR_TARGET_PULSE
     while FLIGHTLOGICAPP_RUNSTATUS:
         flightlogicHK = msgstructure.MsgStructure()
         hk_payload = (
             f"run={FLIGHTLOGICAPP_RUNSTATUS},state={CURRENT_STATE},temp={CURRENT_TEMP},alt={recent_alt[-1] if recent_alt else 'NA'},"
-            f"imu_roll={LAST_IMU_ROLL},imu_pitch={LAST_IMU_PITCH},gps={LAST_GPS},fir={LAST_FIR},thermis={LAST_THERMIS},nir={LAST_NIR},motor={MOTOR_TARGET_PULSE}"
+            f"imu_roll={LAST_IMU_ROLL},imu_pitch={LAST_IMU_PITCH},gps={LAST_GPS},fir1={LAST_FIR1},fir2={LAST_FIR2},thermis={LAST_THERMIS},motor={MOTOR_TARGET_PULSE}"
         )
         msgstructure.send_msg(Main_Queue, flightlogicHK, appargs.FlightlogicAppArg.AppID, appargs.HkAppArg.AppID, appargs.FlightlogicAppArg.MID_SendHK, hk_payload)
         hk_row = [now_epoch(), now_iso(), FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, safe(CURRENT_TEMP),
                   safe(recent_alt[-1] if recent_alt else None), safe(LAST_IMU_ROLL), safe(LAST_IMU_PITCH),
-                  safe(LAST_GPS), safe(LAST_FIR), safe(LAST_THERMIS), safe(LAST_PITOT_PRESSURE), safe(LAST_PITOT_TEMP), safe(LAST_NIR), safe(MOTOR_TARGET_PULSE)]
-        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir","thermis","pitot_pressure","pitot_temp","nir","motor"], hk_row)
+                  safe(LAST_GPS), safe(LAST_FIR1), safe(LAST_FIR2), safe(LAST_THERMIS), safe(LAST_PITOT_PRESSURE), safe(LAST_PITOT_TEMP), safe(MOTOR_TARGET_PULSE)]
+        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir1","fir2","thermis","pitot_pressure","pitot_temp","motor"], hk_row)
         time.sleep(1)
     return
 
@@ -323,20 +322,28 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
             IMU_PITCH_THRESHOLD = get_current_imu_pitch()  # 함수 구현 필요
             LAST_GPS = get_current_gps()  # 함수 구현 필요
             LAST_BAROMETER = recent_alt[-1] if recent_alt else None
-            log_msg = (
-                f"[CLOSE_EVENT] time={time.time()}, "
-                f"GPS={LAST_GPS}, IMU_roll={IMU_ROLL_THRESHOLD}, IMU_pitch={IMU_PITCH_THRESHOLD}, "
-                f"Barometer={LAST_BAROMETER}, TEMP={CURRENT_TEMP}, "
-                f"FIR={LAST_FIR}, NIR={LAST_NIR}, THERMAL={LAST_THERMAL}"
-            )
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, log_msg)
+            close_data = {
+                "time": time.time(),
+                "gps": LAST_GPS,
+                "imu_roll": IMU_ROLL_THRESHOLD,
+                "imu_pitch": IMU_PITCH_THRESHOLD,
+                "barometer": LAST_BAROMETER,
+                "temp": CURRENT_TEMP,
+                "fir1": LAST_FIR1,
+                "fir2": LAST_FIR2,
+                "thermal": LAST_THERMAL
+            }
+            log_system_event("CLOSE_EVENT", f"Motor closed with data: {close_data}")
+            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"CLOSE_EVENT: {close_data}")
             CLOSE_EVENT_LOGGED = True
     else:
         state = None
     if state:
+        log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
                         f"Motor pulse cmd → {pulse} ({state})")
     else:
+        log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse}")
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
                         f"Motor pulse cmd → {pulse}")
 
@@ -586,6 +593,8 @@ def barometer_logic(Main_Queue:Queue, altitude:float):
 def log_and_update_state(state: int, log_msg: str):
     global CURRENT_STATE
     CURRENT_STATE = state
+    # 통합 로깅 시스템과 이벤트 시스템 모두 사용
+    log_system_event("STATE_CHANGE", f"State {state}: {log_msg}")
     events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, log_msg)
     prevstate.update_prevstate(CURRENT_STATE)
 
@@ -613,14 +622,20 @@ def descent_state_transition(Main_Queue:Queue):
     log_and_update_state(3, "CHANGED STATE TO DESCENT")
     if not DESCENT_EVENT_LOGGED:
         LAST_BAROMETER = recent_alt[-1] if recent_alt else None
-        log_msg = (
-            f"[DESCENT_EVENT] epoch={now_epoch()}, iso={now_iso()}, "
-            f"GPS={safe(LAST_GPS)}, IMU_roll={safe(LAST_IMU_ROLL)}, IMU_pitch={safe(LAST_IMU_PITCH)}, "
-            f"Barometer={safe(LAST_BAROMETER)}, TEMP={safe(CURRENT_TEMP)}, "
-            f"FIR={safe(LAST_FIR)}, NIR={safe(LAST_NIR)}, THERMAL={safe(LAST_THERMAL)}"
-        )
-        log_error(log_msg)
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, log_msg)
+        descent_data = {
+            "epoch": now_epoch(),
+            "iso": now_iso(),
+            "gps": safe(LAST_GPS),
+            "imu_roll": safe(LAST_IMU_ROLL),
+            "imu_pitch": safe(LAST_IMU_PITCH),
+            "barometer": safe(LAST_BAROMETER),
+            "temp": safe(CURRENT_TEMP),
+            "fir1": safe(LAST_FIR1),
+            "fir2": safe(LAST_FIR2),
+            "thermal": safe(LAST_THERMAL)
+        }
+        log_system_event("DESCENT_EVENT", f"Descent initiated with data: {descent_data}")
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"DESCENT_EVENT: {descent_data}")
         DESCENT_EVENT_LOGGED = True
     return
 
@@ -708,11 +723,12 @@ def flightlogicapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 LAST_IMU_ROLL = None
 LAST_IMU_PITCH = None
 LAST_GPS = None
-LAST_FIR = None
+LAST_FIR1 = None
+LAST_FIR2 = None
 LAST_THERMIS = None
 LAST_PITOT_PRESSURE = None
 LAST_PITOT_TEMP = None
-LAST_NIR = None
+
 LAST_THERMAL = None
 LAST_BAROMETER = None
 
@@ -729,34 +745,39 @@ def get_current_gps():
 THERMAL_FRAME_SIZE = 24*32
 
 def log_thermal_frame(frame, avg, min_t, max_t):
-    header = ["epoch","iso","avg","min","max"] + [f"pix_{i}" for i in range(THERMAL_FRAME_SIZE)]
-    row = [now_epoch(), now_iso(), safe(avg), safe(min_t), safe(max_t)] + [safe(p) for p in frame]
-    log_csv(THERMAL_LOG_PATH, header, row)
+    data = {
+        "avg": safe(avg),
+        "min": safe(min_t), 
+        "max": safe(max_t),
+        "frame_size": len(frame),
+        "frame_avg": sum(frame)/len(frame) if frame else 0
+    }
+    log_sensor_data("THERMAL", data)
 
-def log_fir_data(raw_data):
-    log_csv(FIR_LOG_PATH, ["epoch","iso","raw_fir"], [now_epoch(), now_iso(), safe(raw_data)])
+def log_fir1_data(raw_data):
+    log_sensor_data("FIR1", {"raw_data": safe(raw_data)})
+
+def log_fir2_data(raw_data):
+    log_sensor_data("FIR2", {"raw_data": safe(raw_data)})
 
 def log_thermis_data(raw_data):
-    log_csv(THERMIS_LOG_PATH, ["epoch","iso","raw_thermis"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("THERMIS", {"raw_data": safe(raw_data)})
 
 def log_pitot_data(raw_data):
-    log_csv(PITOT_LOG_PATH, ["epoch","iso","raw_pitot"], [now_epoch(), now_iso(), safe(raw_data)])
-
-def log_nir_data(raw_data):
-    log_csv(NIR_LOG_PATH, ["epoch","iso","raw_nir"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("PITOT", {"raw_data": safe(raw_data)})
 
 def log_gps_data(raw_data):
-    log_csv(GPS_LOG_PATH, ["epoch","iso","raw_gps"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("GPS", {"raw_data": safe(raw_data)})
 
 def log_imu_data(raw_data):
-    log_csv(IMU_LOG_PATH, ["epoch","iso","raw_imu"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("IMU", {"raw_data": safe(raw_data)})
 
 def log_barometer_data(raw_data):
-    log_csv(BAROMETER_LOG_PATH, ["epoch","iso","raw_barometer"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("BAROMETER", {"raw_data": safe(raw_data)})
 
 def log_dht11_data(raw_data):
-    log_csv(DHT11_LOG_PATH, ["epoch","iso","raw_dht11"], [now_epoch(), now_iso(), safe(raw_data)])
+    log_sensor_data("DHT11", {"raw_data": safe(raw_data)})
 
 def log_error(msg):
-    log_csv(ERROR_LOG_PATH, ["epoch","iso","error_msg"], [now_epoch(), now_iso(), msg])
+    log_system_event("ERROR", msg)
 

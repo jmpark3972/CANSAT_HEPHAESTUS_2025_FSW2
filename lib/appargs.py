@@ -71,14 +71,21 @@ class MotorAppArg:
     # Flightlogic → MotorApp 각도 지시를 Motor 쪽에서 받을 때 사용할 MID
     MID_SetServoAngle:   types.MID = 1402
 
-# ────────── FIR (MLX90614) ──────────
-class FirAppArg:
+# ────────── FIR1 (MLX90614 Channel 0) ──────────
+class FirApp1Arg:
     AppID: types.AppID = 20          # **고유해야 함**
-    AppName = "FIR"
+    AppName = "FIR1"
     MID_SendHK:            types.MID = 2001
-    MID_SendFirTlmData:    types.MID = 2002  # 1 Hz 텔레메트리 (amb,obj)
-    MID_SendFirFlightLogicData: types.MID = 2003  # 10 Hz 객체온도
-    MID_FirCalibration:    types.MID = 2004  # CAL 처리용(옵션)
+    MID_SendFIR1Data:      types.MID = 2002  # 1 Hz 텔레메트리 (amb,obj)
+    MID_Fir1Calibration:   types.MID = 2004  # CAL 처리용(옵션)
+
+# ────────── FIR2 (MLX90614 Channel 1) ──────────
+class FirApp2Arg:
+    AppID: types.AppID = 21          # **고유해야 함**
+    AppName = "FIR2"
+    MID_SendHK:            types.MID = 2101
+    MID_SendFIR2Data:      types.MID = 2102  # 1 Hz 텔레메트리 (amb,obj)
+    MID_Fir2Calibration:   types.MID = 2104  # CAL 처리용(옵션)
 
 # ────────── THERMIS (ADS1115) ──────────
 class ThermisAppArg:
@@ -99,13 +106,7 @@ class PitotAppArg:
     MID_PitotCalibration:    types.MID = 2504  # CAL 처리용(옵션)
 
 
-# ────────── NIR, 열화상 등 ──────────
-class NirAppArg:
-    AppID: types.AppID = 21
-    AppName = "NIR"
-    MID_SendHK: types.MID = 2101
-    MID_SendNirTlmData: types.MID = 2102
-    MID_SendNirFlightLogicData: types.MID = 2103
+
 
 class ThermalcameraAppArg:
     AppID: types.AppID = 22          # ← 20과 중복되던 부분 수정

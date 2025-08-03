@@ -8,8 +8,10 @@ PREV_STATE  = 0
 PREV_MAX_ALT = 0
 PREV_THERMO_TOFF = 0.0
 PREV_THERMO_HOFF = 0.0
-PREV_FIR_AOFF = 0.0
-PREV_FIR_OOFF = 0.0
+PREV_FIR1_AOFF = 0.0
+PREV_FIR1_OOFF = 0.0
+PREV_FIR2_AOFF = 0.0
+PREV_FIR2_OOFF = 0.0
 PREV_THERMIS_OFF = 0.0
 PREV_NIR_OFFSET = 0.0
 PREV_PITOT_POFF = 0.0  # 압력 오프셋
@@ -32,8 +34,10 @@ ALTCAL={PREV_ALT_CAL}
 MAXALT={PREV_MAX_ALT}
 THERMO_TOFF={PREV_THERMO_TOFF}
 THERMO_HOFF={PREV_THERMO_HOFF}
-FIR_AOFF={PREV_FIR_AOFF}
-FIR_OOFF={PREV_FIR_OOFF}
+FIR1_AOFF={PREV_FIR1_AOFF}
+FIR1_OOFF={PREV_FIR1_OOFF}
+FIR2_AOFF={PREV_FIR2_AOFF}
+FIR2_OOFF={PREV_FIR2_OOFF}
 THERMIS_OFF={PREV_THERMIS_OFF}
 NIR_OFFSET={PREV_NIR_OFFSET}
 PITOT_POFF={PREV_PITOT_POFF}
@@ -77,10 +81,17 @@ def update_thermocal(temp_off: float, humi_off: float):
     write_prevstate_file()
     return
 
-def update_fircal(amb_off: float, obj_off: float):
-    global PREV_FIR_AOFF, PREV_FIR_OOFF
-    PREV_FIR_AOFF = amb_off
-    PREV_FIR_OOFF = obj_off
+def update_fir1cal(amb_off: float, obj_off: float):
+    global PREV_FIR1_AOFF, PREV_FIR1_OOFF
+    PREV_FIR1_AOFF = amb_off
+    PREV_FIR1_OOFF = obj_off
+    write_prevstate_file()
+    return
+
+def update_fir2cal(amb_off: float, obj_off: float):
+    global PREV_FIR2_AOFF, PREV_FIR2_OOFF
+    PREV_FIR2_AOFF = amb_off
+    PREV_FIR2_OOFF = obj_off
     write_prevstate_file()
     return
 
@@ -110,8 +121,10 @@ def init_prevstate():
     global PREV_MAX_ALT
     global PREV_THERMO_TOFF
     global PREV_THERMO_HOFF
-    global PREV_FIR_AOFF
-    global PREV_FIR_OOFF
+    global PREV_FIR1_AOFF
+    global PREV_FIR1_OOFF
+    global PREV_FIR2_AOFF
+    global PREV_FIR2_OOFF
     global PREV_THERMIS_OFF
     global PREV_NIR_OFFSET
     global PREV_PITOT_POFF
@@ -167,16 +180,26 @@ def init_prevstate():
                     PREV_THERMO_HOFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
                     PREV_THERMO_HOFF = 0.0
-            elif "FIR_AOFF=" in prevstate_line:
+            elif "FIR1_AOFF=" in prevstate_line:
                 try:
-                    PREV_FIR_AOFF = float(prevstate_line.split("=")[1].strip())
+                    PREV_FIR1_AOFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
-                    PREV_FIR_AOFF = 0.0
-            elif "FIR_OOFF=" in prevstate_line:
+                    PREV_FIR1_AOFF = 0.0
+            elif "FIR1_OOFF=" in prevstate_line:
                 try:
-                    PREV_FIR_OOFF = float(prevstate_line.split("=")[1].strip())
+                    PREV_FIR1_OOFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
-                    PREV_FIR_OOFF = 0.0
+                    PREV_FIR1_OOFF = 0.0
+            elif "FIR2_AOFF=" in prevstate_line:
+                try:
+                    PREV_FIR2_AOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_FIR2_AOFF = 0.0
+            elif "FIR2_OOFF=" in prevstate_line:
+                try:
+                    PREV_FIR2_OOFF = float(prevstate_line.split("=")[1].strip())
+                except Exception:
+                    PREV_FIR2_OOFF = 0.0
             elif "THERMIS_OFF=" in prevstate_line:
                 try:
                     PREV_THERMIS_OFF = float(prevstate_line.split("=")[1].strip())
@@ -198,3 +221,28 @@ def init_prevstate():
                 except Exception:
                     PREV_PITOT_TOFF = 0.0
     return
+
+# Get functions for calibration values
+def get_fir1cal():
+    """Get FIR1 calibration values (ambient_offset, object_offset)"""
+    return PREV_FIR1_AOFF, PREV_FIR1_OOFF
+
+def get_fir2cal():
+    """Get FIR2 calibration values (ambient_offset, object_offset)"""
+    return PREV_FIR2_AOFF, PREV_FIR2_OOFF
+
+def get_thermocal():
+    """Get THERMO calibration values (temp_offset, humidity_offset)"""
+    return PREV_THERMO_TOFF, PREV_THERMO_HOFF
+
+def get_thermiscal():
+    """Get THERMIS calibration value (temp_offset)"""
+    return PREV_THERMIS_OFF
+
+def get_nircal():
+    """Get NIR calibration value (offset)"""
+    return PREV_NIR_OFFSET
+
+def get_pitotcal():
+    """Get PITOT calibration values (pressure_offset, temp_offset)"""
+    return PREV_PITOT_POFF, PREV_PITOT_TOFF

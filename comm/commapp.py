@@ -132,17 +132,19 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.thermo_temp = float(sep_data[0])
             tlm_data.thermo_humi = float(sep_data[1])
 
-    elif recv_msg.MsgID == appargs.FirAppArg.MID_SendFirTlmData:
+    elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
         sep_data = recv_msg.data.split(",")
         if len(sep_data) == 2:
-            tlm_data.fir_amb = float(sep_data[0])
-            tlm_data.fir_obj = float(sep_data[1])
+            tlm_data.fir1_amb = float(sep_data[0])
+            tlm_data.fir1_obj = float(sep_data[1])
 
-    elif recv_msg.MsgID == appargs.NirAppArg.MID_SendNirTlmData:
+    elif recv_msg.MsgID == appargs.FirApp2Arg.MID_SendFIR2Data:
         sep_data = recv_msg.data.split(",")
         if len(sep_data) == 2:
-            tlm_data.nir_voltage = float(sep_data[0])
-            tlm_data.nir_obj = float(sep_data[1])
+            tlm_data.fir2_amb = float(sep_data[0])
+            tlm_data.fir2_obj = float(sep_data[1])
+
+
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
@@ -282,10 +284,11 @@ class _tlm_data_format:
     cmd_echo : str = "None"
     thermo_temp: float = 0.0
     thermo_humi: float = 0.0
-    fir_amb: float = 0.0
-    fir_obj: float = 0.0
-    nir_voltage: float = 0.0
-    nir_obj: float = 0.0
+    fir1_amb: float = 0.0
+    fir1_obj: float = 0.0
+    fir2_amb: float = 0.0
+    fir2_obj: float = 0.0
+
     thermal_camera_avg: float = 0.0
     thermal_camera_min: float = 0.0
     thermal_camera_max: float = 0.0
@@ -349,8 +352,8 @@ def send_tlm(serial_instance):
                  f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
                  f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
                  f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
-                 f"Fir : Ambient({tlm_data.fir_amb}), Object({tlm_data.fir_obj})\n" \
-                 f"Nir : Voltage({tlm_data.nir_voltage}), Object({tlm_data.nir_obj})\n" \
+                 f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
+                 f"FIR2 : Ambient({tlm_data.fir2_amb}), Object({tlm_data.fir2_obj})\n" \
                  f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
                  f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                  f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \

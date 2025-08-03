@@ -7,7 +7,7 @@ Dual Logging System Test
 import time
 import os
 from datetime import datetime
-from lib import dual_logging
+from lib import logging
 
 def test_dual_logging():
     """이중 로깅 시스템 테스트"""
@@ -16,7 +16,7 @@ def test_dual_logging():
     # 1. 이중 로깅 시스템 초기화
     print("\n1. 이중 로깅 시스템 초기화...")
     try:
-        logger = dual_logging.init_dual_logging()
+        logger = logging.init_dual_logging_system()
         print("✓ 이중 로깅 시스템 초기화 성공")
     except Exception as e:
         print(f"✗ 이중 로깅 시스템 초기화 실패: {e}")
@@ -129,7 +129,7 @@ def test_dual_logging():
     # 7. 시스템 종료
     print("\n7. 이중 로깅 시스템 종료...")
     try:
-        dual_logging.close_dual_logging()
+        logging.close_dual_logging_system()
         print("✓ 이중 로깅 시스템 종료 완료")
     except Exception as e:
         print(f"✗ 이중 로깅 시스템 종료 오류: {e}")

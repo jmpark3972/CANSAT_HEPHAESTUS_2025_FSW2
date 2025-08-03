@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Multi-Sensor Logger with Dual Logging
-DHT11, AS7263, FIR 센서를 동시에 읽고 CSV로 저장 (이중 로깅 지원)
+DHT11, FIR 센서를 동시에 읽고 CSV로 저장 (이중 로깅 지원)
+Qwiic Mux를 통해 FIR 센서 두 개 사용
 """
 
 import time
@@ -11,10 +12,9 @@ from datetime import datetime
 import board
 import busio
 import adafruit_dht
-import adafruit_as7263
-import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import AnalogIn
+import adafruit_mlx90614
 import shutil
+from lib.qwiic_mux import QwiicMux
 
 class MultiSensorLogger:
     def __init__(self, primary_log_dir="sensorlogs", secondary_log_dir="/mnt/log_sd/sensorlogs"):
@@ -50,17 +50,18 @@ class MultiSensorLogger:
             # DHT11 센서 (GPIO 핀 사용)
             self.dht = adafruit_dht.DHT11(board.D4)  # GPIO4 사용
             
-            # AS7263 스펙트럼 센서
-            self.as7263 = adafruit_as7263.AS7263(self.i2c)
+            # Qwiic Mux 초기화
+            self.mux = QwiicMux(i2c_bus=self.i2c, mux_address=0x70)
             
-            # ADS1115 (FIR 센서용)
-            self.ads = ADS.ADS1115(self.i2c)
-            self.ads.gain = 1  # ±4.096V 범위
-            self.ads.data_rate = 128  # 128 SPS
+            # FIR1 센서 (채널 0)
+            self.mux.select_channel(0)
+            time.sleep(0.1)  # 안정화 대기
+            self.fir1 = adafruit_mlx90614.MLX90614(self.i2c)
             
-            # FIR 센서 채널
-            self.fir_chan0 = AnalogIn(self.ads, ADS.P0)  # FIR 센서
-            self.fir_chan1 = AnalogIn(self.ads, ADS.P1)  # 보조 채널
+            # FIR2 센서 (채널 1)
+            self.mux.select_channel(1)
+            time.sleep(0.1)  # 안정화 대기
+            self.fir2 = adafruit_mlx90614.MLX90614(self.i2c)
             
             print("모든 센서 초기화 완료!")
             
@@ -73,8 +74,8 @@ class MultiSensorLogger:
         headers = [
             'timestamp',
             'dht11_temp', 'dht11_humidity',
-            'as7263_violet', 'as7263_blue', 'as7263_green', 'as7263_yellow', 'as7263_orange', 'as7263_red',
-            'fir_voltage', 'fir_temp'
+            'fir1_ambient', 'fir1_object',
+            'fir2_ambient', 'fir2_object'
         ]
         
         # 메인 CSV 파일 생성
@@ -105,37 +106,34 @@ class MultiSensorLogger:
             print(f"DHT11 읽기 오류: {e}")
             return None, None
     
-    def read_as7263(self):
-        """AS7263 스펙트럼 센서 읽기"""
+    def read_fir1(self):
+        """FIR1 센서 읽기 (채널 0)"""
         try:
-            # 모든 색상 채널 읽기
-            violet = self.as7263.violet
-            blue = self.as7263.blue
-            green = self.as7263.green
-            yellow = self.as7263.yellow
-            orange = self.as7263.orange
-            red = self.as7263.red
+            # 채널 0 선택
+            self.mux.select_channel(0)
+            time.sleep(0.01)  # 안정화 대기
             
-            return violet, blue, green, yellow, orange, red
+            ambient = round(float(self.fir1.ambient_temperature), 2)
+            object_temp = round(float(self.fir1.object_temperature), 2)
+            
+            return ambient, object_temp
         except Exception as e:
-            print(f"AS7263 읽기 오류: {e}")
-            return None, None, None, None, None, None
+            print(f"FIR1 센서 읽기 오류: {e}")
+            return None, None
     
-    def read_fir(self):
-        """FIR 센서 읽기"""
+    def read_fir2(self):
+        """FIR2 센서 읽기 (채널 1)"""
         try:
-            voltage = self.fir_chan0.voltage
+            # 채널 1 선택
+            self.mux.select_channel(1)
+            time.sleep(0.01)  # 안정화 대기
             
-            # 음수 전압 처리
-            if voltage < 0:
-                voltage = 0.0
+            ambient = round(float(self.fir2.ambient_temperature), 2)
+            object_temp = round(float(self.fir2.object_temperature), 2)
             
-            # 간단한 선형 변환 (전압 → 온도)
-            temp = voltage * 100.0  # 0V = 0°C, 3.3V = 330°C
-            
-            return voltage, temp
+            return ambient, object_temp
         except Exception as e:
-            print(f"FIR 센서 읽기 오류: {e}")
+            print(f"FIR2 센서 읽기 오류: {e}")
             return None, None
     
     def log_data(self):
@@ -144,22 +142,18 @@ class MultiSensorLogger:
         
         # 센서 데이터 읽기
         dht_temp, dht_humidity = self.read_dht11()
-        as7263_data = self.read_as7263()
-        fir_voltage, fir_temp = self.read_fir()
+        fir1_amb, fir1_obj = self.read_fir1()
+        fir2_amb, fir2_obj = self.read_fir2()
         
         # CSV에 데이터 저장
         row = [
             timestamp,
             dht_temp if dht_temp is not None else "ERROR",
             dht_humidity if dht_humidity is not None else "ERROR",
-            as7263_data[0] if as7263_data[0] is not None else "ERROR",
-            as7263_data[1] if as7263_data[1] is not None else "ERROR",
-            as7263_data[2] if as7263_data[2] is not None else "ERROR",
-            as7263_data[3] if as7263_data[3] is not None else "ERROR",
-            as7263_data[4] if as7263_data[4] is not None else "ERROR",
-            as7263_data[5] if as7263_data[5] is not None else "ERROR",
-            fir_voltage if fir_voltage is not None else "ERROR",
-            fir_temp if fir_temp is not None else "ERROR"
+            fir1_amb if fir1_amb is not None else "ERROR",
+            fir1_obj if fir1_obj is not None else "ERROR",
+            fir2_amb if fir2_amb is not None else "ERROR",
+            fir2_obj if fir2_obj is not None else "ERROR"
         ]
         
         # 메인 CSV 파일에 저장
@@ -183,8 +177,8 @@ class MultiSensorLogger:
         # 콘솔 출력
         print(f"[{timestamp}]")
         print(f"DHT11: {dht_temp}°C, {dht_humidity}%")
-        print(f"AS7263: V{as7263_data[0]:.1f} B{as7263_data[1]:.1f} G{as7263_data[2]:.1f} Y{as7263_data[3]:.1f} O{as7263_data[4]:.1f} R{as7263_data[5]:.1f}")
-        print(f"FIR: {fir_voltage:.5f}V → {fir_temp:.2f}°C")
+        print(f"FIR1: {fir1_amb}°C (amb), {fir1_obj}°C (obj)")
+        print(f"FIR2: {fir2_amb}°C (amb), {fir2_obj}°C (obj)")
         print("-" * 50)
     
     def run(self, interval=1.0):
@@ -207,8 +201,11 @@ class MultiSensorLogger:
     def cleanup(self):
         """리소스 정리"""
         try:
-            self.i2c.deinit()
-            print("I2C 연결 해제 완료")
+            if hasattr(self, 'mux'):
+                self.mux.close()
+            if hasattr(self, 'i2c') and hasattr(self.i2c, 'deinit'):
+                self.i2c.deinit()
+            print("센서 연결 해제 완료")
         except:
             pass
 
