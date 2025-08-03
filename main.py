@@ -320,6 +320,14 @@ def terminate_FSW():
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
     
+    # 이중 로깅 시스템 종료
+    try:
+        from lib import logging
+        logging.close_dual_logging_system()
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 오류: {e}")
+    
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
     sys.exit()
     return
@@ -353,6 +361,14 @@ def runloop(Main_Queue : Queue):
 
 # Operation starts HERE
 if __name__ == '__main__':
+
+    # 이중 로깅 시스템 초기화
+    try:
+        from lib import logging
+        logging.init_dual_logging_system()
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 초기화 완료")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 초기화 실패: {e}")
 
     # Start each app's process
     for appID in app_dict:

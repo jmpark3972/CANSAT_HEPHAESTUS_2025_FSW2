@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Multi-Sensor Logger
-DHT11, AS7263, FIR 센서를 동시에 읽고 CSV로 저장
+Multi-Sensor Logger with Dual Logging
+DHT11, AS7263, FIR 센서를 동시에 읽고 CSV로 저장 (이중 로깅 지원)
 """
 
 import time
@@ -14,15 +14,26 @@ import adafruit_dht
 import adafruit_as7263
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
+import shutil
 
 class MultiSensorLogger:
-    def __init__(self):
-        self.log_dir = "sensorlogs"
-        os.makedirs(self.log_dir, exist_ok=True)
+    def __init__(self, primary_log_dir="sensorlogs", secondary_log_dir="/mnt/log_sd/sensorlogs"):
+        self.primary_log_dir = primary_log_dir
+        self.secondary_log_dir = secondary_log_dir
+        
+        # 로그 디렉토리 생성
+        os.makedirs(self.primary_log_dir, exist_ok=True)
+        try:
+            os.makedirs(self.secondary_log_dir, exist_ok=True)
+            self.secondary_sd_available = True
+        except Exception as e:
+            print(f"보조 SD카드 로그 디렉토리 생성 실패: {e}")
+            self.secondary_sd_available = False
         
         # CSV 파일명 생성 (날짜_시간)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.csv_filename = os.path.join(self.log_dir, f"multi_sensor_{timestamp}.csv")
+        self.primary_csv_filename = os.path.join(self.primary_log_dir, f"multi_sensor_{timestamp}.csv")
+        self.secondary_csv_filename = os.path.join(self.secondary_log_dir, f"multi_sensor_{timestamp}.csv")
         
         # 센서 초기화
         self.init_sensors()
@@ -58,7 +69,7 @@ class MultiSensorLogger:
             raise
     
     def write_csv_header(self):
-        """CSV 파일 헤더 작성"""
+        """CSV 파일 헤더 작성 (이중 저장)"""
         headers = [
             'timestamp',
             'dht11_temp', 'dht11_humidity',
@@ -66,11 +77,23 @@ class MultiSensorLogger:
             'fir_voltage', 'fir_temp'
         ]
         
-        with open(self.csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+        # 메인 CSV 파일 생성
+        with open(self.primary_csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
         
-        print(f"CSV 파일 생성: {self.csv_filename}")
+        print(f"메인 CSV 파일 생성: {self.primary_csv_filename}")
+        
+        # 보조 CSV 파일 생성 (SD카드 사용 가능한 경우만)
+        if self.secondary_sd_available:
+            try:
+                with open(self.secondary_csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(headers)
+                print(f"보조 CSV 파일 생성: {self.secondary_csv_filename}")
+            except Exception as e:
+                print(f"보조 CSV 파일 생성 실패: {e}")
+                self.secondary_sd_available = False
     
     def read_dht11(self):
         """DHT11 센서 읽기"""
@@ -116,7 +139,7 @@ class MultiSensorLogger:
             return None, None
     
     def log_data(self):
-        """모든 센서 데이터 읽기 및 CSV 저장"""
+        """모든 센서 데이터 읽기 및 CSV 저장 (이중 저장)"""
         timestamp = datetime.now().isoformat(sep=" ", timespec="milliseconds")
         
         # 센서 데이터 읽기
@@ -139,14 +162,28 @@ class MultiSensorLogger:
             fir_temp if fir_temp is not None else "ERROR"
         ]
         
-        with open(self.csv_filename, 'a', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(row)
+        # 메인 CSV 파일에 저장
+        try:
+            with open(self.primary_csv_filename, 'a', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(row)
+        except Exception as e:
+            print(f"메인 CSV 파일 쓰기 오류: {e}")
+        
+        # 보조 CSV 파일에 저장 (SD카드 사용 가능한 경우만)
+        if self.secondary_sd_available:
+            try:
+                with open(self.secondary_csv_filename, 'a', newline='', encoding='utf-8') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(row)
+            except Exception as e:
+                print(f"보조 CSV 파일 쓰기 오류: {e}")
+                self.secondary_sd_available = False
         
         # 콘솔 출력
         print(f"[{timestamp}]")
         print(f"DHT11: {dht_temp}°C, {dht_humidity}%")
-        print(f"AS7263: V{violet:.1f} B{blue:.1f} G{green:.1f} Y{yellow:.1f} O{orange:.1f} R{red:.1f}")
+        print(f"AS7263: V{as7263_data[0]:.1f} B{as7263_data[1]:.1f} G{as7263_data[2]:.1f} Y{as7263_data[3]:.1f} O{as7263_data[4]:.1f} R{as7263_data[5]:.1f}")
         print(f"FIR: {fir_voltage:.5f}V → {fir_temp:.2f}°C")
         print("-" * 50)
     
