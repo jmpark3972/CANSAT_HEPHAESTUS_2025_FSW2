@@ -20,7 +20,7 @@ from typing import Union
 # ────────────────────────────────────────────────
 # User‑tunable constants
 # ────────────────────────────────────────────────
-PAYLOAD_MOTOR_PIN: int = 12            # BCM numbering
+PAYLOAD_MOTOR_PIN: int = 18          # BCM numbering
 PAYLOAD_MOTOR_MIN_PULSE: int = 500     # µs → 0 °
 PAYLOAD_MOTOR_MAX_PULSE: int = 2500    # µs → 180 °
 
