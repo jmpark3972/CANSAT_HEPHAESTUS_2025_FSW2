@@ -23,15 +23,37 @@ def init_barometer():
     import adafruit_bmp3xx
     import board
     import busio
+    from lib.qwiic_mux import QwiicMux
+    
     # I2C setup
-    # i2c = board.I2C()
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
-    bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-
+    
+    # Qwiic Mux 초기화 및 채널 4 선택 (Barometer 위치)
+    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    mux.select_channel(4)  # Barometer는 채널 4에 연결
+    time.sleep(0.1)  # 안정화 대기
+    
+    # 여러 I2C 주소 시도 (BMP280/BMP388 일반적인 주소들)
+    bmp_addresses = [0x76, 0x77]
+    bmp = None
+    
+    for addr in bmp_addresses:
+        try:
+            print(f"Barometer I2C 주소 0x{addr:02X} 시도 중...")
+            bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c, address=addr)
+            print(f"Barometer 초기화 성공 (주소: 0x{addr:02X})")
+            break
+        except Exception as e:
+            print(f"주소 0x{addr:02X} 실패: {e}")
+            continue
+    
+    if bmp is None:
+        raise Exception("Barometer를 찾을 수 없습니다. I2C 연결을 확인하세요.")
+    
     bmp.pressure_oversampling = 8
     bmp.temperature_oversampling = 2
 
-    return i2c, bmp
+    return i2c, bmp, mux
 
 # Read Barometer data and returns tuple (pressure, temperature, altitude)
 def read_barometer(bmp, offset:float):

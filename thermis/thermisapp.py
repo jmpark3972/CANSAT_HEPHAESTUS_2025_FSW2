@@ -126,7 +126,7 @@ def thermisapp_init():
         events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
                         "Initializing thermisapp")
 
-        i2c, ads, chan = thermis.init_thermis()
+        i2c, ads, chan, mux = thermis.init_thermis()
 
         # previous calibration (if any)
         TEMP_OFFSET = float(getattr(prevstate, "PREV_THERMIS_OFF", 0.0))

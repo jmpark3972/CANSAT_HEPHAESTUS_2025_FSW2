@@ -92,7 +92,7 @@ def barometerapp_init():
         ## User Defined Initialization goes HERE
 
         # Init barometer sensor
-        i2c_instance, barometer_instance = barometer.init_barometer()
+        i2c_instance, barometer_instance, mux_instance = barometer.init_barometer()
         
         # Calibrate barometer if prev calibration value exists
         BAROMETER_OFFSET = (float(prevstate.PREV_ALT_CAL))

@@ -28,11 +28,34 @@ def init_thermis():
     import board, busio
     import adafruit_ads1x15.ads1115 as ADS
     from adafruit_ads1x15.analog_in import AnalogIn
+    from lib.qwiic_mux import QwiicMux
     
     i2c = busio.I2C(board.SCL, board.SDA)
-    ads = ADS.ADS1115(i2c)
+    
+    # Qwiic Mux 초기화 및 채널 4 선택 (Thermis 위치)
+    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    mux.select_channel(4)  # Thermis는 채널 4에 연결
+    time.sleep(0.1)  # 안정화 대기
+    
+    # ADS1115 일반적인 I2C 주소들 시도
+    ads_addresses = [0x48, 0x49, 0x4A, 0x4B]
+    ads = None
+    
+    for addr in ads_addresses:
+        try:
+            print(f"Thermis ADS1115 I2C 주소 0x{addr:02X} 시도 중...")
+            ads = ADS.ADS1115(i2c, address=addr)
+            print(f"Thermis ADS1115 초기화 성공 (주소: 0x{addr:02X})")
+            break
+        except Exception as e:
+            print(f"주소 0x{addr:02X} 실패: {e}")
+            continue
+    
+    if ads is None:
+        raise Exception("Thermis ADS1115를 찾을 수 없습니다. I2C 연결을 확인하세요.")
+    
     chan = AnalogIn(ads, ADS.P1)  # A1
-    return i2c, ads, chan
+    return i2c, ads, chan, mux
 
 def terminate_thermis(i2c):
     try:

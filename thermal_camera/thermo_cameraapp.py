@@ -59,7 +59,7 @@ def thermocamapp_init():
                         "Initializing thermocamapp")
 
         # MLX90640 start (기본 2 Hz)
-        i2c, cam = tcam.init_cam(refresh_hz=2)
+        i2c, cam, mux = tcam.init_cam(refresh_hz=2)
 
         events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                         events.EventType.info,

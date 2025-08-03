@@ -40,8 +40,34 @@ def init_cam(refresh_hz: int | float = 2):
 
     # I2C: 800 kHz 권장 (MLX90640 데이터시트)
     i2c = busio.I2C(board.SCL, board.SDA, frequency=800_000)
-    mlx = mlxlib.MLX90640(i2c)
+    
+    # Qwiic Mux 초기화 및 채널 4 선택 (Thermal Camera 위치)
+    from lib.qwiic_mux import QwiicMux
+    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    mux.select_channel(4)  # Thermal Camera는 채널 4에 연결
+    time.sleep(0.1)  # 안정화 대기
+    
+    # MLX90640 일반적인 I2C 주소들 시도
+    mlx_addresses = [0x33, 0x32, 0x34]
+    mlx = None
+    
+    for addr in mlx_addresses:
+        try:
+            print(f"Thermal Camera I2C 주소 0x{addr:02X} 시도 중...")
+            mlx = mlxlib.MLX90640(i2c, address=addr)
+            mlx.refresh_rate = hz_map[refresh_hz]
+            print(f"Thermal Camera 초기화 성공 (주소: 0x{addr:02X})")
+            break
+        except Exception as e:
+            print(f"주소 0x{addr:02X} 실패: {e}")
+            continue
+    
+    if mlx is None:
+        raise Exception("Thermal Camera를 찾을 수 없습니다. I2C 연결을 확인하세요.")
+    
     mlx.refresh_rate = hz_map[refresh_hz]
+    
+    return i2c, mlx, mux
 
     print("MLX90640 serial:", [hex(x) for x in mlx.serial_number])
     return i2c, mlx

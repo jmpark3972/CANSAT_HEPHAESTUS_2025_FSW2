@@ -33,14 +33,24 @@ MEAS_DELAY_MS = 35   # 변환 대기 ≥30 ms
 # 3) Pitot 초기화 / 측정 / 종료
 # ──────────────────────────────────────────────────────────
 def init_pitot():
-    """Pitot 센서 초기화"""
+    """Pitot 센서 초기화 - Qwiic MUX 채널 2 사용"""
     try:
+        # Qwiic Mux 초기화 및 채널 2 선택 (Pitot 위치)
+        import board
+        import busio
+        from lib.qwiic_mux import QwiicMux
+        
+        i2c = busio.I2C(board.SCL, board.SDA)
+        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+        mux.select_channel(2)  # Pitot는 채널 2에 연결
+        time.sleep(0.1)  # 안정화 대기
+        
         bus = SMBus(1)
-        _log("Pitot sensor initialized successfully")
-        return bus
+        _log("Pitot sensor initialized successfully (MUX channel 2)")
+        return bus, mux
     except Exception as e:
         _log(f"INIT_ERROR,{e}")
-        return None
+        return None, None
 
 def read_pitot(bus):
     """Pitot 센서 데이터 읽기"""

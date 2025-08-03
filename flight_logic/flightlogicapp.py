@@ -57,6 +57,29 @@ def now_iso():
 def safe(val):
     return "NA" if val is None else val
 
+def log_csv(filepath: str, headers: list, data: list):
+    """CSV 파일에 데이터 로깅"""
+    try:
+        import csv
+        import os
+        
+        # 디렉토리가 없으면 생성
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        # 파일이 없으면 헤더 작성
+        if not os.path.exists(filepath):
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+        
+        # 데이터 추가
+        with open(filepath, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data)
+            
+    except Exception as e:
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"CSV 로깅 오류: {e}")
+
 ######################################################
 ## FUNDEMENTAL METHODS                              ##
 ######################################################

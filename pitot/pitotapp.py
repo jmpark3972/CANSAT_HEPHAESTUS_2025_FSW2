@@ -110,7 +110,7 @@ def pitotapp_init():
     TEMP_OFFSET = getattr(prevstate, "PREV_PITOT_TOFF", 0.0)
     
     # Pitot 센서 초기화
-    PITOT_BUS = pitot.init_pitot()
+    PITOT_BUS, PITOT_MUX = pitot.init_pitot()
     if not PITOT_BUS:
         events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
                         "Pitot sensor initialization failed")

@@ -17,7 +17,8 @@ def test_qwiic_mux():
     print("현재 설정:")
     print("  - 채널 0: FIR1")
     print("  - 채널 1: FIR2")
-    print("  - 채널 2: 기타 센서들")
+    print("  - 채널 2: Pitot")
+    print("  - 채널 4: 기타 센서들 (Barometer, Thermal Camera, Thermis 등)")
     print()
     
     try:
@@ -86,12 +87,19 @@ def test_qwiic_mux():
         else:
             print("   ⚠️  채널 1에 FIR 센서가 연결되지 않음")
         
-        # 채널 2 테스트 (기타 센서들)
-        print("\n   채널 2 (기타 센서들) 테스트:")
+        # 채널 2 테스트 (Pitot)
+        print("\n   채널 2 (Pitot) 테스트:")
         if 2 in devices:
             print(f"   ✓ 채널 2에 {len(devices[2])}개 디바이스 발견: {devices[2]}")
         else:
-            print("   ⚠️  채널 2에 연결된 디바이스 없음")
+            print("   ⚠️  채널 2에 Pitot 센서가 연결되지 않음")
+        
+        # 채널 4 테스트 (기타 센서들)
+        print("\n   채널 4 (기타 센서들) 테스트:")
+        if 4 in devices:
+            print(f"   ✓ 채널 4에 {len(devices[4])}개 디바이스 발견: {devices[4]}")
+        else:
+            print("   ⚠️  채널 4에 연결된 디바이스 없음")
         
         # 채널 전환 테스트
         print("\n3. 채널 전환 테스트...")

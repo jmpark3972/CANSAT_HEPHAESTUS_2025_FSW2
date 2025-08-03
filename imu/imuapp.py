@@ -67,8 +67,9 @@ def imuapp_init():
         return i2c_instance, imu_instance
     
     except Exception as e:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error during initialization")
+        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
         IMUAPP_RUNSTATUS = False
+        return None, None
 
 # Termination
 def imuapp_terminate(i2c_instance):
@@ -227,6 +228,11 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     # Initialization Process
     i2c_instance, imu_instance = imuapp_init()
+    
+    # 초기화 실패 시 종료
+    if i2c_instance is None or imu_instance is None:
+        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "IMU 초기화 실패로 인한 종료")
+        return
 
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
