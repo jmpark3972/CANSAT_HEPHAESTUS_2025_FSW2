@@ -1,12 +1,12 @@
 import threading
 import time
+import serial
 
 SERIAL_PORT = "/dev/serial0"
 SERIAL_BAUD = 9600
 SERIAL_TIMEOUT = 1
 
 def init_serial():
-    import serial
 
     # Open serial port (adjust the port and baudrate as needed)
     ser = serial.Serial(SERIAL_PORT, SERIAL_BAUD, timeout=SERIAL_TIMEOUT)
