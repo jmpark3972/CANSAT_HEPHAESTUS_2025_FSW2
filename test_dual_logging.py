@@ -17,6 +17,9 @@ def test_dual_logging():
     print("\n1. 이중 로깅 시스템 초기화...")
     try:
         logger = logging.init_dual_logging_system()
+        if logger is None:
+            print("✗ 이중 로깅 시스템 초기화 실패: 로거가 None입니다")
+            return False
         print("✓ 이중 로깅 시스템 초기화 성공")
     except Exception as e:
         print(f"✗ 이중 로깅 시스템 초기화 실패: {e}")

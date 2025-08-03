@@ -17,7 +17,7 @@ _dual_logger = None
 class DualLogger:
     """이중 로깅 시스템을 관리하는 클래스 - 플라이트 로직과 완전히 분리"""
     
-    def __init__(self, primary_log_dir="/home/pi/logs", secondary_log_dir="/mnt/log_sd/logs"):
+    def __init__(self, primary_log_dir="logs", secondary_log_dir="/mnt/log_sd/logs"):
         self.primary_log_dir = primary_log_dir
         self.secondary_log_dir = secondary_log_dir
         self.primary_log_file = None
@@ -81,14 +81,24 @@ class DualLogger:
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                os.makedirs(self.primary_log_dir, exist_ok=True)
+                # 현재 작업 디렉토리 기준으로 상대 경로 사용
+                primary_path = os.path.abspath(self.primary_log_dir)
+                os.makedirs(primary_path, exist_ok=True)
+                print(f"주 로그 디렉토리 생성/확인: {primary_path}")
+                
                 if self.secondary_log_dir:
-                    os.makedirs(self.secondary_log_dir, exist_ok=True)
+                    try:
+                        os.makedirs(self.secondary_log_dir, exist_ok=True)
+                        print(f"보조 로그 디렉토리 생성/확인: {self.secondary_log_dir}")
+                    except Exception as e:
+                        print(f"보조 로그 디렉토리 생성 실패: {e}")
+                        self.secondary_log_dir = None
                 break
             except Exception as e:
                 print(f"로그 디렉토리 생성 시도 {attempt + 1} 실패: {e}")
                 if attempt == max_retries - 1:
                     print("로그 디렉토리 생성 최종 실패")
+                    raise e
                 time.sleep(1)
     
     def _check_secondary_sd(self):
@@ -344,15 +354,17 @@ def log(text: str, printlogs: bool = False):
         if printlogs:
             print(text)
 
-def init_dual_logging_system(primary_log_dir="/home/pi/logs", secondary_log_dir="/mnt/log_sd/logs"):
+def init_dual_logging_system(primary_log_dir="logs", secondary_log_dir="/mnt/log_sd/logs"):
     """이중 로깅 시스템 초기화 - 강화된 오류 처리"""
     global _dual_logger
     try:
         _dual_logger = DualLogger(primary_log_dir, secondary_log_dir)
         print("이중 로깅 시스템 초기화 완료")
+        return _dual_logger
     except Exception as e:
         print(f"이중 로깅 시스템 초기화 오류: {e}")
         # 초기화 실패 시에도 기본 로깅은 가능하도록
+        return None
 
 def close_dual_logging_system():
     """이중 로깅 시스템 종료"""

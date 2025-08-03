@@ -42,7 +42,7 @@ class MultiSensorLogger:
         self.write_csv_header()
         
     def init_sensors(self):
-        """모든 센서 초기화"""
+        """모든 센서 초기화 - Qwiic MUX 설정에 맞춤"""
         try:
             # I2C 버스 초기화
             self.i2c = busio.I2C(board.SCL, board.SDA)
@@ -54,16 +54,28 @@ class MultiSensorLogger:
             self.mux = QwiicMux(i2c_bus=self.i2c, mux_address=0x70)
             
             # FIR1 센서 (채널 0)
+            print("FIR1 센서 초기화 (채널 0)...")
             self.mux.select_channel(0)
             time.sleep(0.1)  # 안정화 대기
             self.fir1 = adafruit_mlx90614.MLX90614(self.i2c)
             
             # FIR2 센서 (채널 1)
+            print("FIR2 센서 초기화 (채널 1)...")
             self.mux.select_channel(1)
             time.sleep(0.1)  # 안정화 대기
             self.fir2 = adafruit_mlx90614.MLX90614(self.i2c)
             
+            # 나머지 센서들 (채널 2) - 향후 확장용
+            print("채널 2 센서들 초기화...")
+            self.mux.select_channel(2)
+            time.sleep(0.1)
+            # 여기에 채널 2에 연결된 다른 센서들 추가 가능
+            
             print("모든 센서 초기화 완료!")
+            print("Qwiic MUX 설정:")
+            print("  - 채널 0: FIR1")
+            print("  - 채널 1: FIR2")
+            print("  - 채널 2: 기타 센서들")
             
         except Exception as e:
             print(f"센서 초기화 오류: {e}")
