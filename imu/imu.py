@@ -58,10 +58,10 @@ def read_sensor_data(sensor):
     try:
         # 센서에서 데이터 읽기
         q = sensor.quaternion
-        gyro = sensor.gyro
-        accel = sensor.accelerometer
-        mag = sensor.magnetic
-        temp = sensor.temperature
+        gyro = sensor.gyro  # 공식 속성명
+        accel = sensor.acceleration  # 공식 속성명 (기존 accelerometer → acceleration)
+        mag = sensor.magnetic  # 공식 속성명
+        temp = sensor.temperature  # 공식 속성명
         
         # 디버그 로그 추가
         print(f"IMU Raw Data - Quaternion: {q}, Gyro: {gyro}, Accel: {accel}, Mag: {mag}, Temp: {temp}")
@@ -70,7 +70,7 @@ def read_sensor_data(sensor):
         if q is None or gyro is None or accel is None or mag is None:
             read_sensor_data.none_count += 1
             if read_sensor_data.none_count >= 5:
-                print("[경고] IMU 데이터 5회 연속 None 발생")
+                print("[경고] IMU 데이터 5회 연속 None 발생 (하드웨어/배선 점검 필요)")
                 read_sensor_data.none_count = 0
             return None, None, None, None, None
         else:
