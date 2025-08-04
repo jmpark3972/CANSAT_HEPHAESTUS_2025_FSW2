@@ -33,43 +33,30 @@ MEAS_DELAY_MS = 35   # 변환 대기 ≥30 ms
 # 3) Pitot 초기화 / 측정 / 종료
 # ──────────────────────────────────────────────────────────
 def init_pitot():
-    """Pitot 센서 초기화 - Qwiic MUX 채널 2 사용"""
+    """Pitot 센서 초기화 - 직접 I2C 연결"""
     try:
-        # Qwiic Mux 초기화 및 채널 2 선택 (Pitot 위치)
+        # 직접 I2C 연결
         import board
         import busio
-        from lib.qwiic_mux import QwiicMux
         
-        i2c = busio.I2C(board.SCL, board.SDA)
+        i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         time.sleep(0.1)  # 안정화 대기
         
-        from lib.qwiic_mux import create_mux_instance
-        mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
-        mux.select_channel(0)  # Pitot는 채널 0에 연결 (실제 연결 확인됨)
-        time.sleep(0.2)  # 안정화 대기 시간 증가
-        print("Qwiic Mux 채널 0 선택 완료 (Pitot)")
-        
-        # SMBus를 통해 I2C 버스 1에 접근 (Qwiic Mux가 연결된 버스)
+        # SMBus를 통해 I2C 버스 1에 접근
         bus = SMBus(1)
         time.sleep(0.1)  # 안정화 대기
         
-        _log("Pitot sensor initialized successfully (MUX channel 2)")
-        return bus, mux
+        print("Pitot 센서 초기화 완료 (직접 I2C 연결)")
+        _log("Pitot sensor initialized successfully (direct I2C)")
+        return bus, None  # mux는 None으로 반환
     except Exception as e:
+        print(f"Pitot 초기화 실패: {e}")
         _log(f"INIT_ERROR,{e}")
         return None, None
 
 def read_pitot(bus, mux=None):
     """Pitot 센서 데이터 읽기"""
     try:
-        # Mux가 제공된 경우 채널 2 선택 확인
-        if mux is not None:
-            current_channel = mux.get_current_channel()
-            if current_channel != 2:
-                _log(f"Channel switch: {current_channel} -> 2")
-                mux.select_channel(0)
-                time.sleep(0.05)  # 안정화 대기
-        
         # 측정 트리거
         trigger_measure(bus)
         time.sleep(MEAS_DELAY_MS / 1000.0)

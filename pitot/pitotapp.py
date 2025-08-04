@@ -229,14 +229,6 @@ def pitotapp_terminate():
         pitot.terminate_pitot(PITOT_BUS)
         PITOT_BUS = None
     
-    # Close MUX connection
-    if PITOT_MUX:
-        try:
-            PITOT_MUX.close()
-            PITOT_MUX = None
-        except Exception as e:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
-    
     events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
                     "PITOTAPP terminated")
 
