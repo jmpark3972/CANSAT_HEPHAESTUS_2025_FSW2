@@ -37,14 +37,35 @@ def init_imu():
     import adafruit_bno055
     # Initializa I2C interface
     i2c = board.I2C()  # board.SCL과 board.SDA 사용
-    sensor = adafruit_bno055.BNO055_I2C(i2c)
+    
+    # I2C 버스 안정화를 위한 지연
+    time.sleep(0.5)
+    
+    # 여러 주소에서 IMU 찾기 시도
+    imu_addresses = [0x28, 0x29]  # BNO055 일반적인 주소들
+    sensor = None
+    
+    for addr in imu_addresses:
+        try:
+            print(f"IMU I2C 주소 0x{addr:02X} 시도 중...")
+            sensor = adafruit_bno055.BNO055_I2C(i2c, address=addr)
+            print(f"IMU 초기화 성공 (주소: 0x{addr:02X})")
+            break
+        except Exception as e:
+            print(f"주소 0x{addr:02X} 실패: {e}")
+            time.sleep(0.2)  # 각 시도 사이 지연
+            continue
+    
+    if sensor is None:
+        raise Exception("IMU를 찾을 수 없습니다. I2C 연결을 확인하세요.")
 
     # Calibration results go HERE
-    
     sensor.offsets_magnetometer = magneto_offset
     sensor.offsets_gyroscope = gyro_offset
     sensor.offsets_accelerometer = accel_offset
-    #print(type(accel_offset[0]))
+    
+    # 센서 안정화를 위한 추가 지연
+    time.sleep(1.0)
     
     return i2c, sensor
 

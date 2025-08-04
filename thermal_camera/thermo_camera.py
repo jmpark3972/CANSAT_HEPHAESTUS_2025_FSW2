@@ -38,17 +38,20 @@ def init_cam(refresh_hz: int | float = 2):
     if refresh_hz not in hz_map:
         raise ValueError("refresh_hz must be one of " + ", ".join(map(str, hz_map)))
 
-    # I2C: 800 kHz 권장 (MLX90640 데이터시트)
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=800_000)
+    # I2C: 더 낮은 주파수로 시작 (안정성 우선)
+    i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
+    
+    # I2C 버스 안정화를 위한 지연
+    time.sleep(0.5)
     
     # Qwiic Mux 초기화 및 채널 4 선택 (Thermal Camera 위치)
     from lib.qwiic_mux import QwiicMux
     mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
     mux.select_channel(4)  # Thermal Camera는 채널 4에 연결
-    time.sleep(0.1)  # 안정화 대기
+    time.sleep(0.5)  # 더 긴 안정화 대기
     
-    # MLX90640 일반적인 I2C 주소들 시도
-    mlx_addresses = [0x33, 0x32, 0x34]
+    # MLX90640 일반적인 I2C 주소들 시도 (더 많은 주소 추가)
+    mlx_addresses = [0x33, 0x32, 0x34, 0x35, 0x36, 0x37]
     mlx = None
     
     for addr in mlx_addresses:
@@ -60,12 +63,20 @@ def init_cam(refresh_hz: int | float = 2):
             break
         except Exception as e:
             print(f"주소 0x{addr:02X} 실패: {e}")
+            time.sleep(0.2)  # 각 시도 사이 지연
             continue
     
     if mlx is None:
         raise Exception("Thermal Camera를 찾을 수 없습니다. I2C 연결을 확인하세요.")
     
     mlx.refresh_rate = hz_map[refresh_hz]
+    
+    # 성공 후 주파수를 높여서 성능 향상
+    try:
+        i2c.frequency = 800_000
+        print("I2C 주파수를 800kHz로 증가")
+    except:
+        print("I2C 주파수 변경 실패, 기본 주파수 유지")
     
     return i2c, mlx, mux
 
