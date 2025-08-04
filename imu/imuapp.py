@@ -12,6 +12,7 @@ from multiprocessing import Queue, connection
 import threading
 import time
 import csv
+import os
 from datetime import datetime
 
 # Import IMU sensor library
