@@ -41,20 +41,33 @@ def init_pitot():
         from lib.qwiic_mux import QwiicMux
         
         i2c = busio.I2C(board.SCL, board.SDA)
+        time.sleep(0.1)  # 안정화 대기
+        
         mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
         mux.select_channel(2)  # Pitot는 채널 2에 연결
         time.sleep(0.1)  # 안정화 대기
         
+        # SMBus를 통해 I2C 버스 1에 접근 (Qwiic Mux가 연결된 버스)
         bus = SMBus(1)
+        time.sleep(0.1)  # 안정화 대기
+        
         _log("Pitot sensor initialized successfully (MUX channel 2)")
         return bus, mux
     except Exception as e:
         _log(f"INIT_ERROR,{e}")
         return None, None
 
-def read_pitot(bus):
+def read_pitot(bus, mux=None):
     """Pitot 센서 데이터 읽기"""
     try:
+        # Mux가 제공된 경우 채널 2 선택 확인
+        if mux is not None:
+            current_channel = mux.get_current_channel()
+            if current_channel != 2:
+                _log(f"Channel switch: {current_channel} -> 2")
+                mux.select_channel(2)
+                time.sleep(0.05)  # 안정화 대기
+        
         # 측정 트리거
         trigger_measure(bus)
         time.sleep(MEAS_DELAY_MS / 1000.0)

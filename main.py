@@ -6,6 +6,7 @@ import sys
 import os
 import signal
 import atexit
+import time
 
 MAINAPP_RUNSTATUS = True
 _termination_in_progress = False
@@ -88,8 +89,7 @@ def terminate_FSW():
     for appID in app_dict:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
         try:
-            # 먼저 정상 종료 시도
-            app_dict[appID].process.join(timeout=2)  # 2초로 단축
+            # 더 빠른 강제 종료를 위해 즉시 terminate 시도
             if app_dict[appID].process.is_alive():
                 events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
                 app_dict[appID].process.terminate()
@@ -483,6 +483,18 @@ def cleanup_on_exit():
         except:
             pass
 
+# Watchdog function to ensure termination
+def watchdog_termination():
+    """워치독 함수 - 일정 시간 후 강제 종료"""
+    global MAINAPP_RUNSTATUS
+    time.sleep(30)  # 30초 후 체크
+    if MAINAPP_RUNSTATUS:
+        print("\n워치독: 30초 경과, 강제 종료 실행...")
+        try:
+            terminate_FSW()
+        except:
+            os._exit(0)
+
 # Operation starts HERE
 if __name__ == '__main__':
 
@@ -496,6 +508,11 @@ if __name__ == '__main__':
 
     # Register cleanup function
     atexit.register(cleanup_on_exit)
+
+    # Start watchdog thread
+    import threading
+    watchdog_thread = threading.Thread(target=watchdog_termination, daemon=True)
+    watchdog_thread.start()
 
     # Start each app's process
     for appID in app_dict:

@@ -18,6 +18,7 @@ import pitot
 # ──────────────────────────────────────────────────────────
 PITOTAPP_RUNSTATUS = True
 PITOT_BUS = None
+PITOT_MUX = None
 PRESSURE_OFFSET = 0.0
 TEMP_OFFSET = 0.0
 OFFSET_MUTEX = threading.Lock()
@@ -68,11 +69,11 @@ def send_hk(Main_Queue: Queue):
 # 4) Pitot 데이터 읽기 스레드
 # ──────────────────────────────────────────────────────────
 def read_pitot_data(Main_Queue: Queue):
-    global PITOT_BUS
+    global PITOT_BUS, PITOT_MUX
     while PITOTAPP_RUNSTATUS:
         try:
             if PITOT_BUS:
-                dp, temp = pitot.read_pitot(PITOT_BUS)
+                dp, temp = pitot.read_pitot(PITOT_BUS, PITOT_MUX)
                 if dp is not None and temp is not None:
                     # 오프셋 적용
                     with OFFSET_MUTEX:
@@ -103,7 +104,7 @@ def read_pitot_data(Main_Queue: Queue):
 # ──────────────────────────────────────────────────────────
 def pitotapp_init():
     """Pitot 앱 초기화"""
-    global PITOT_BUS, PRESSURE_OFFSET, TEMP_OFFSET
+    global PITOT_BUS, PITOT_MUX, PRESSURE_OFFSET, TEMP_OFFSET
     
     # 캘리브레이션 오프셋 로드
     PRESSURE_OFFSET = getattr(prevstate, "PREV_PITOT_POFF", 0.0)
@@ -131,6 +132,7 @@ def pitotapp_terminate():
     if PITOT_MUX:
         try:
             PITOT_MUX.close()
+            PITOT_MUX = None
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
     

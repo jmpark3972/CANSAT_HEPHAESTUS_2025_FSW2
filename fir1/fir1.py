@@ -31,6 +31,7 @@ def init_fir1():
     
     # I2C 버스 초기화
     i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
+    time.sleep(0.1)  # 안정화 대기
     
     # Qwiic Mux 초기화
     mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
@@ -38,9 +39,11 @@ def init_fir1():
     # 채널 0 선택
     if not mux.select_channel(0):
         raise RuntimeError("Qwiic Mux 채널 0 선택 실패")
+    time.sleep(0.1)  # 안정화 대기
     
     # MLX90614 센서 초기화
     sensor = adafruit_mlx90614.MLX90614(i2c)
+    time.sleep(0.1)  # 안정화 대기
     
     _log("FIR1 초기화 완료 (채널 0)")
     return mux, sensor
@@ -63,10 +66,21 @@ def read_fir1(mux, sensor):
     오류 발생 시 (None, None) + 로그 기록.
     """
     try:
-        # 채널 0 선택 확인
-        if mux.get_current_channel() != 0:
+        # 채널 0 선택 확인 및 강제 선택
+        current_channel = mux.get_current_channel()
+        if current_channel != 0:
+            _log(f"Channel switch: {current_channel} -> 0")
             mux.select_channel(0)
-            time.sleep(0.01)  # 안정화 대기
+            time.sleep(0.1)  # 안정화 대기 증가
+        
+        # 센서 재초기화 시도 (채널 변경 후)
+        if current_channel != 0:
+            try:
+                import adafruit_mlx90614
+                sensor = adafruit_mlx90614.MLX90614(mux.i2c)
+                time.sleep(0.05)
+            except Exception as e:
+                _log(f"Sensor reinit error: {e}")
         
         amb = round(float(sensor.ambient_temperature), 2)
         obj = round(float(sensor.object_temperature),  2)
