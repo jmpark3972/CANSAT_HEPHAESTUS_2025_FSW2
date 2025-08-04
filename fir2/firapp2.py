@@ -196,10 +196,13 @@ def firapp2_main(main_q: Queue, main_pipe: connection.Connection):
     try:
         while FIRAPP2_RUNSTATUS:
             try:
-                recv_msg = main_pipe.recv()
+                recv_msg = main_pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
                 unpacked_msg = msgstructure.MsgStructure()
                 msgstructure.unpack_msg(unpacked_msg, recv_msg)
                 command_handler(main_q, unpacked_msg)
+            except:
+                # 타임아웃 시 루프 계속
+                continue
             except Exception as e:
                 events.LogEvent(appargs.FirApp2Arg.AppName, events.EventType.error,
                                 f"Message handling error: {e}")
