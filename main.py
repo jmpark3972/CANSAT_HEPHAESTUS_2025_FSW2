@@ -35,15 +35,19 @@ def system_safety_check():
     """시스템 안전성 검사"""
     try:
         # 메모리 사용량 확인
-        import psutil
-        memory = psutil.virtual_memory()
-        if memory.percent > 90:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High memory usage: {memory.percent}%")
-        
-        # 디스크 공간 확인
-        disk = psutil.disk_usage('/')
-        if disk.percent > 95:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Low disk space: {disk.percent}% used")
+        try:
+            import psutil
+            memory = psutil.virtual_memory()
+            if memory.percent > 90:
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High memory usage: {memory.percent}%")
+            
+            # 디스크 공간 확인
+            disk = psutil.disk_usage('/')
+            if disk.percent > 95:
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Low disk space: {disk.percent}% used")
+        except ImportError:
+            # psutil이 없는 경우 기본 검사만
+            pass
         
         # 프로세스 수 확인
         try:
@@ -54,9 +58,6 @@ def system_safety_check():
         except:
             pass
             
-    except ImportError:
-        # psutil이 없는 경우 기본 검사만
-        pass
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Safety check error: {e}")
 
@@ -65,26 +66,32 @@ def check_system_limits():
     try:
         import resource
         import threading
-        import psutil
         
         # 현재 스레드 수 확인
         current_threads = threading.active_count()
         
         # 시스템 한계 확인
         soft, hard = resource.getrlimit(resource.RLIMIT_NPROC)
-        current_processes = len(psutil.pids())
         
         print(f"시스템 리소스 상태:")
         print(f"  - 현재 스레드 수: {current_threads}")
-        print(f"  - 현재 프로세스 수: {current_processes}")
         print(f"  - 프로세스 한계: {soft}/{hard}")
+        
+        # psutil이 있는 경우 프로세스 수도 확인
+        try:
+            import psutil
+            current_processes = len(psutil.pids())
+            print(f"  - 현재 프로세스 수: {current_processes}")
+            
+            if current_processes > soft * 0.8:
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High process count detected: {current_processes}")
+                return False
+        except ImportError:
+            # psutil이 없는 경우 프로세스 수 확인 건너뛰기
+            pass
         
         if current_threads > 30:
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High thread count detected: {current_threads}")
-            return False
-            
-        if current_processes > soft * 0.8:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High process count detected: {current_processes}")
             return False
             
         return True
