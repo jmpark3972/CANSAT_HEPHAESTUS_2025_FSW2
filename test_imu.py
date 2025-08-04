@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-IMU 센서 직접 테스트 스크립트
+IMU 센서 (BNO055) 직접 테스트 스크립트
 """
 
 import time
@@ -9,8 +9,8 @@ import busio
 from lib.qwiic_mux import QwiicMux
 
 def test_imu():
-    """IMU 센서 직접 테스트"""
-    print("IMU 센서 테스트 시작...")
+    """IMU 센서 (BNO055) 직접 테스트"""
+    print("IMU 센서 (BNO055) 테스트 시작...")
     
     try:
         # I2C 버스 초기화
@@ -26,65 +26,77 @@ def test_imu():
         print("✓ 채널 4 선택 완료")
         time.sleep(0.1)
         
-        # IMU 센서 초기화 (여러 주소 시도)
-        imu_addresses = [0x28, 0x29, 0x68, 0x69]  # 일반적인 IMU 주소들
-        imu = None
-        
-        for addr in imu_addresses:
-            try:
-                print(f"IMU I2C 주소 0x{addr:02X} 시도 중...")
-                
-                # MPU6050/MPU9250 시도
-                try:
-                    import adafruit_mpu6050
-                    imu = adafruit_mpu6050.MPU6050(i2c, address=addr)
-                    print(f"✓ MPU6050/MPU9250 초기화 성공 (주소: 0x{addr:02X})")
-                    break
-                except:
-                    pass
-                
-                # ICM20948 시도
-                try:
-                    import adafruit_icm20x
-                    imu = adafruit_icm20x.ICM20948(i2c, address=addr)
-                    print(f"✓ ICM20948 초기화 성공 (주소: 0x{addr:02X})")
-                    break
-                except:
-                    pass
-                    
-            except Exception as e:
-                print(f"주소 0x{addr:02X} 실패: {e}")
-                continue
-        
-        if imu is None:
-            print("✗ IMU 센서를 찾을 수 없습니다.")
+        # BNO055 센서 초기화 (0x28 주소)
+        try:
+            import adafruit_bno055
+            imu = adafruit_bno055.BNO055_I2C(i2c, address=0x28)
+            print("✓ BNO055 초기화 성공 (주소: 0x28)")
+        except ImportError:
+            print("✗ adafruit_bno055 모듈이 설치되지 않았습니다.")
+            print("설치 명령: pip install adafruit-circuitpython-bno055")
             return False
+        except Exception as e:
+            print(f"✗ BNO055 초기화 실패: {e}")
+            return False
+        
+        # 센서 안정화 대기
+        time.sleep(1.0)
         
         # 센서 읽기 테스트
         print("\n센서 읽기 테스트 (10회):")
         for i in range(10):
             try:
+                # 쿼터니언
+                quaternion = imu.quaternion
+                if quaternion[0] is not None:
+                    w, x, y, z = quaternion
+                    print(f"  {i+1:2d}: 쿼터니언=({w:.3f}, {x:.3f}, {y:.3f}, {z:.3f})")
+                else:
+                    print(f"  {i+1:2d}: 쿼터니언=사용 불가")
+                
+                # 오일러 각도
+                euler = imu.euler
+                if euler[0] is not None:
+                    roll, pitch, yaw = euler
+                    print(f"      오일러=({roll:.2f}°, {pitch:.2f}°, {yaw:.2f}°)")
+                else:
+                    print(f"      오일러=사용 불가")
+                
                 # 가속도계
                 accel = imu.acceleration
+                if accel[0] is not None:
+                    print(f"      가속도=({accel[0]:.2f}, {accel[1]:.2f}, {accel[2]:.2f})m/s²")
+                else:
+                    print(f"      가속도=사용 불가")
+                
                 # 자이로스코프
                 gyro = imu.gyro
+                if gyro[0] is not None:
+                    print(f"      자이로=({gyro[0]:.2f}, {gyro[1]:.2f}, {gyro[2]:.2f})°/s")
+                else:
+                    print(f"      자이로=사용 불가")
                 
-                print(f"  {i+1:2d}: 가속도=({accel[0]:.2f}, {accel[1]:.2f}, {accel[2]:.2f})m/s²")
-                print(f"      자이로=({gyro[0]:.2f}, {gyro[1]:.2f}, {gyro[2]:.2f})°/s")
-                
-                # 자력계가 있는 경우
-                try:
-                    mag = imu.magnetic
+                # 자력계
+                mag = imu.magnetic
+                if mag[0] is not None:
                     print(f"      자력계=({mag[0]:.2f}, {mag[1]:.2f}, {mag[2]:.2f})μT")
-                except:
+                else:
                     print(f"      자력계=사용 불가")
                 
+                # 온도
+                temp = imu.temperature
+                if temp is not None:
+                    print(f"      온도={temp:.1f}°C")
+                else:
+                    print(f"      온도=사용 불가")
+                
+                print()
                 time.sleep(0.5)
             except Exception as e:
                 print(f"  {i+1:2d}: 오류 = {e}")
                 time.sleep(0.5)
         
-        print("\n✓ IMU 센서 테스트 완료!")
+        print("\n✓ IMU 센서 (BNO055) 테스트 완료!")
         return True
         
     except Exception as e:
