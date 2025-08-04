@@ -1,85 +1,117 @@
 #!/bin/bash
+
 # Camera App Installation Script
-# Author : Hyeon Lee  (HEPHAESTUS)
+# HEPHAESTUS CANSAT Team
 
 echo "=== Camera App Installation Script ==="
 echo "Installing dependencies for Raspberry Pi Camera Module v3 Wide..."
 
-# 시스템 업데이트
-echo "Updating system packages..."
+# Update package list
+echo "Updating package list..."
 sudo apt update
 
-# 필수 패키지 설치
-echo "Installing required packages..."
-sudo apt install -y ffmpeg v4l2-utils python3-pip
+# Install required packages
+echo "Installing ffmpeg and v4l2-utils..."
+sudo apt install -y ffmpeg v4l2-utils
 
-# 카메라 활성화 확인
-echo "Checking camera hardware..."
+# Create necessary directories
+echo "Creating directories..."
+sudo mkdir -p /home/pi/cansat_videos
+sudo mkdir -p /home/pi/cansat_logs
+sudo mkdir -p /tmp/camera_temp
+
+# Set permissions
+echo "Setting permissions..."
+sudo chown -R pi:pi /home/pi/cansat_videos
+sudo chown -R pi:pi /home/pi/cansat_logs
+sudo chmod 755 /home/pi/cansat_videos
+sudo chmod 755 /home/pi/cansat_logs
+sudo chmod 777 /tmp/camera_temp
+
+# Enable camera interface (if not already enabled)
+echo "Enabling camera interface..."
+if ! grep -q "camera_auto_detect=1" /boot/config.txt; then
+    echo "camera_auto_detect=1" | sudo tee -a /boot/config.txt
+    echo "Camera interface enabled. Reboot required."
+fi
+
+# Test camera hardware
+echo "Testing camera hardware..."
 if vcgencmd get_camera | grep -q "detected=1"; then
     echo "✓ Camera hardware detected"
 else
-    echo "⚠️  Camera hardware not detected"
-    echo "Please check camera connection and enable in raspi-config"
+    echo "⚠ Camera hardware not detected. Please check CSI connection."
 fi
 
-# 카메라 드라이버 확인
-echo "Checking camera driver..."
+# Test camera driver
+echo "Testing camera driver..."
 if [ -e /dev/video0 ]; then
     echo "✓ Camera driver available (/dev/video0)"
 else
-    echo "⚠️  Camera driver not found"
-    echo "Please enable camera in raspi-config:"
-    echo "sudo raspi-config -> Interface Options -> Camera -> Enable"
+    echo "⚠ Camera driver not found. Please enable camera in raspi-config."
 fi
 
-# 디렉토리 생성
-echo "Creating directories..."
-mkdir -p /home/pi/cansat_videos
-mkdir -p /tmp/camera_temp
-
-# 권한 설정
-echo "Setting permissions..."
-sudo chmod 666 /dev/video0 2>/dev/null || echo "Warning: Could not set video0 permissions"
-chmod 755 /home/pi/cansat_videos
-chmod 755 /tmp/camera_temp
-
-# ffmpeg 테스트
-echo "Testing ffmpeg..."
-if ffmpeg -version >/dev/null 2>&1; then
-    echo "✓ ffmpeg is working"
+# Test ffmpeg
+echo "Testing ffmpeg installation..."
+if command -v ffmpeg &> /dev/null; then
+    echo "✓ FFmpeg installed successfully"
+    ffmpeg -version | head -n 1
 else
-    echo "✗ ffmpeg test failed"
+    echo "✗ FFmpeg installation failed"
     exit 1
 fi
 
-# 카메라 테스트 (선택적)
-echo ""
-echo "Do you want to test the camera? (y/n): "
-read -r test_camera
+# Test v4l2-utils
+echo "Testing v4l2-utils installation..."
+if command -v v4l2-ctl &> /dev/null; then
+    echo "✓ v4l2-utils installed successfully"
+else
+    echo "✗ v4l2-utils installation failed"
+    exit 1
+fi
 
-if [ "$test_camera" = "y" ] || [ "$test_camera" = "Y" ]; then
-    echo "Testing camera with ffmpeg..."
-    echo "This will record a 5-second test video..."
-    
-    # 5초 테스트 녹화
-    ffmpeg -f v4l2 -video_size 1920x1080 -framerate 30 -i /dev/video0 -t 5 -y /tmp/camera_test.h264 2>/dev/null
-    
-    if [ -f /tmp/camera_test.h264 ]; then
-        echo "✓ Camera test successful - test video created"
-        echo "Test video location: /tmp/camera_test.h264"
-        echo "To play: ffplay /tmp/camera_test.h264"
-    else
-        echo "✗ Camera test failed"
-        echo "Please check camera connection and permissions"
-    fi
+# Create log rotation configuration
+echo "Setting up log rotation..."
+sudo tee /etc/logrotate.d/camera-app > /dev/null << EOF
+/home/pi/cansat_logs/*.log {
+    daily
+    missingok
+    rotate 7
+    compress
+    delaycompress
+    notifempty
+    create 644 pi pi
+    postrotate
+        echo "Camera app logs rotated" >> /home/pi/cansat_logs/rotation.log
+    endscript
+}
+EOF
+
+# Test log directory permissions
+echo "Testing log directory permissions..."
+if [ -w /home/pi/cansat_logs ]; then
+    echo "✓ Log directory is writable"
+    echo "$(date): Installation completed successfully" >> /home/pi/cansat_logs/install.log
+else
+    echo "✗ Log directory is not writable"
+    exit 1
 fi
 
 echo ""
-echo "=== Installation Complete ==="
-echo "Camera app is ready to use!"
+echo "=== Installation Summary ==="
+echo "✓ FFmpeg: $(ffmpeg -version | head -n 1 | cut -d' ' -f3)"
+echo "✓ v4l2-utils: $(v4l2-ctl --version | head -n 1)"
+echo "✓ Video directory: /home/pi/cansat_videos"
+echo "✓ Log directory: /home/pi/cansat_logs"
+echo "✓ Temp directory: /tmp/camera_temp"
+echo "✓ Log rotation: Configured (7 days retention)"
+
 echo ""
-echo "Next steps:"
-echo "1. Run the camera test: python3 test_camera.py"
-echo "2. Start the main FSW: python3 main.py"
+echo "=== Next Steps ==="
+echo "1. If camera hardware was not detected, check CSI connection"
+echo "2. If camera driver was not found, run: sudo raspi-config"
+echo "3. Reboot if camera interface was enabled"
+echo "4. Test camera functionality: python3 test/test_camera.py"
+
 echo ""
-echo "Camera settings can be modified in camera/camera.py" 
+echo "Installation completed successfully!" 
