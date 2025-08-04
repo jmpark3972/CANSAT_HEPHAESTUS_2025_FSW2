@@ -170,33 +170,26 @@ def send_hk(Main_Queue : Queue):
 
 # Initialization
 def barometerapp_init():
-    global BAROMETERAPP_RUNSTATUS
-    global BAROMETER_OFFSET
-
+    """센서 초기화·시리얼 확인."""
     try:
-        # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, "Initializating barometerapp")
-        ## User Defined Initialization goes HERE
+        events.LogEvent(appargs.BarometerAppArg.AppName,
+                        events.EventType.info,
+                        "Initializing barometerapp")
 
-        # Init barometer sensor
-        i2c_instance, barometer_instance, mux_instance = barometer.init_barometer()
+        # Barometer 센서 초기화 (직접 I2C 연결)
+        i2c, bmp = barometer.init_barometer()
         
-        # Store MUX instance globally for proper channel management
-        global BAROMETER_MUX
-        BAROMETER_MUX = mux_instance
-        
-        # Calibrate barometer if prev calibration value exists
-        BAROMETER_OFFSET = (float(prevstate.PREV_ALT_CAL))
+        events.LogEvent(appargs.BarometerAppArg.AppName,
+                        events.EventType.info,
+                        "Barometerapp initialization complete")
+        return i2c, bmp
 
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, "Barometerapp Initialization Complete")
-
-        return i2c_instance, barometer_instance
-    
     except Exception as e:
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
-        BAROMETERAPP_RUNSTATUS = False
+        events.LogEvent(appargs.BarometerAppArg.AppName,
+                        events.EventType.error,
+                        f"Init error: {e}")
         return None, None
 
 # Termination
@@ -239,22 +232,20 @@ ALTITUDE = 0
 # Set the offset of baromter
 BAROMETER_OFFSET = 0
 
-def read_barometer_data(barometer_instance, BAROMETER_OFFSET):
-    global PRESSURE, TEMPERATURE, ALTITUDE, BAROMETERAPP_RUNSTATUS, BAROMETER_MUX
+def read_barometer_data(bmp):
+    """Barometer 데이터 읽기 스레드."""
+    global BAROMETERAPP_RUNSTATUS, BAROMETER_ALTITUDE, BAROMETER_TEMPERATURE, BAROMETER_PRESSURE
     while BAROMETERAPP_RUNSTATUS:
         try:
-            pressure, temperature, altitude = barometer.read_barometer(barometer_instance, BAROMETER_MUX, BAROMETER_OFFSET)
-            PRESSURE = pressure
-            TEMPERATURE = temperature
-            ALTITUDE = altitude
-            
-            # 고주파수 로깅 (50Hz)
-            log_high_freq_barometer_data(pressure, temperature, altitude)
-            
-        except Exception:
-            # 에러 메시지 출력하지 않고, 이전 값 유지
-            pass
-        time.sleep(0.02)  # 50Hz (20ms 간격)
+            pressure, temperature, altitude = barometer.read_barometer(bmp, 0)
+            BAROMETER_PRESSURE = pressure
+            BAROMETER_TEMPERATURE = temperature
+            BAROMETER_ALTITUDE = altitude
+        except Exception as e:
+            events.LogEvent(appargs.BarometerAppArg.AppName,
+                            events.EventType.error,
+                            f"Barometer read error: {e}")
+        time.sleep(0.1)  # 10 Hz
 
 def send_barometer_data(Main_Queue : Queue):
     global PRESSURE
@@ -338,7 +329,7 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
     thread_dict["SendBarometerData_Thread"] = threading.Thread(target=send_barometer_data, args=(Main_Queue, ), name="SendBarometerData_Thread")
-    thread_dict["READ"] = resilient_thread(read_barometer_data, args=(barometer_instance, BAROMETER_OFFSET), name="READ")
+    thread_dict["READ"] = resilient_thread(read_barometer_data, args=(barometer_instance, ), name="READ")
 
     # Spawn Each Threads
     for t in thread_dict.values():

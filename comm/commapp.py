@@ -275,17 +275,17 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.thermo_temp = float(sep_data[0])
             tlm_data.thermo_humi = float(sep_data[1])
 
+    # FIR1 데이터 수신
     elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 2:
-            tlm_data.fir1_amb = float(sep_data[0])
-            tlm_data.fir1_obj = float(sep_data[1])
-
-    elif recv_msg.MsgID == appargs.FirApp2Arg.MID_SendFIR2Data:
-        sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 2:
-            tlm_data.fir2_amb = float(sep_data[0])
-            tlm_data.fir2_obj = float(sep_data[1])
+        tlm_data.fir1_amb = float(sep_data[0])
+        tlm_data.fir1_obj = float(sep_data[1])
+    
+    # FIR2 데이터 수신 - 비활성화
+    # elif recv_msg.MsgID == appargs.FirApp2Arg.MID_SendFIR2Data:
+    #     sep_data = recv_msg.data.split(",")
+    #     tlm_data.fir2_amb = float(sep_data[0])
+    #     tlm_data.fir2_obj = float(sep_data[1])
 
     # Receive TMP007 Data
     elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007TlmData:
@@ -448,8 +448,8 @@ class _tlm_data_format:
     thermo_humi: float = 0.0
     fir1_amb: float = 0.0
     fir1_obj: float = 0.0
-    fir2_amb: float = 0.0
-    fir2_obj: float = 0.0
+    # fir2_amb: float = 0.0  # 비활성화
+    # fir2_obj: float = 0.0  # 비활성화
 
     thermal_camera_avg: float = 0.0
     thermal_camera_min: float = 0.0
@@ -515,8 +515,6 @@ def send_tlm(serial_instance):
                         f"{tlm_data.thermo_humi:.2f}",
                         f"{tlm_data.fir1_amb:.2f}",
                         f"{tlm_data.fir1_obj:.2f}",
-                        f"{tlm_data.fir2_amb:.2f}",
-                        f"{tlm_data.fir2_obj:.2f}",
                         f"{tlm_data.thermal_camera_avg:.2f}",
                         f"{tlm_data.thermal_camera_min:.2f}",
                         f"{tlm_data.thermal_camera_max:.2f}",
@@ -535,7 +533,6 @@ def send_tlm(serial_instance):
                      f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
                      f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
                      f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                     f"FIR2 : Ambient({tlm_data.fir2_amb}), Object({tlm_data.fir2_obj})\n" \
                      f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
                      f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                      f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \

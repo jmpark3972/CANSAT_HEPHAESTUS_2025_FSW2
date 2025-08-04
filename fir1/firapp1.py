@@ -7,213 +7,110 @@
 * Publishes ambient & object temperature to Flightlogic (10 Hz) and COMM (1 Hz)
 * Supports CAL command: "<ambient_offset>,<object_offset>"
 """
-import board, busio
-from lib import appargs, msgstructure, events, prevstate
-import signal, threading, time
-from multiprocessing import Queue, connection
+import signal
+import time
+from queue import Queue
+import events
+import appargs
+import msgstructure
+from fir1 import fir1
 
-from fir1 import fir1  # helper module for channel 0
+# ──────────────────────────────
+# 0. 글로벌 플래그
+# ──────────────────────────────
+FIR1APP_RUNSTATUS = True
 
+# FIR1 데이터
+FIR1_AMB = 0.0
+FIR1_OBJ = 0.0
 
-# ──────────────────────────────────────────────
-# Globals & Locks
-# ──────────────────────────────────────────────
-FIRAPP1_RUNSTATUS = True
+# ──────────────────────────────
+# 1. 초기화
+# ──────────────────────────────
+def firapp1_init():
+    """센서 초기화·시리얼 확인."""
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-OFFSET_MUTEX = threading.Lock()  # protect offset update & sensor access
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.info,
+                        "Initializing firapp1")
 
-AMB_OFFSET = 0.0  # °C
-OBJ_OFFSET = 0.0  # °C
+        # FIR1 센서 초기화 (직접 I2C 연결)
+        i2c, sensor = fir1.init_fir1()
+        
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.info,
+                        "Firapp1 initialization complete")
+        return i2c, sensor
 
-AMB_TEMP = 0.0
-OBJ_TEMP = 0.0
+    except Exception as e:
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.error,
+                        f"Init error: {e}")
+        return None, None
 
-# ──────────────────────────────────────────────
-# Command handler
-# ──────────────────────────────────────────────
-
-def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
-    """Handle SB messages addressed to FirApp1."""
-    global FIRAPP1_RUNSTATUS, AMB_OFFSET, OBJ_OFFSET
-
-    # Terminate process
-    if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        "FIRAPP1 termination detected")
-        FIRAPP1_RUNSTATUS = False
-        return
-
-    # Calibration: data == "<amb_off>,<obj_off>"
-    if recv.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
+# ──────────────────────────────
+# 2. 데이터 읽기
+# ──────────────────────────────
+def read_fir1_data(sensor):
+    """FIR1 데이터 읽기 스레드."""
+    global FIR1APP_RUNSTATUS, FIR1_AMB, FIR1_OBJ
+    while FIR1APP_RUNSTATUS:
         try:
-            amb_off, obj_off = map(float, recv.data.split(","))
-        except Exception:
-            events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                            "CAL cmd parse error")
-            return
-
-        with OFFSET_MUTEX:
-            AMB_OFFSET, OBJ_OFFSET = amb_off, obj_off
-        prevstate.update_fir1cal(AMB_OFFSET, OBJ_OFFSET)  # must exist in prevstate
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        f"FIR1 offsets set to amb={AMB_OFFSET}, obj={OBJ_OFFSET}")
-        return
-
-    events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                    f"Unhandled MID {recv.MsgID}")
-
-# ──────────────────────────────────────────────
-# HK thread
-# ──────────────────────────────────────────────
-
-def send_hk(main_q: Queue):
-    while FIRAPP1_RUNSTATUS:
-        hk = msgstructure.MsgStructure()
-        msgstructure.send_msg(main_q, hk,
-                              appargs.FirApp1Arg.AppID,
-                              appargs.HkAppArg.AppID,
-                              appargs.FirApp1Arg.MID_SendHK,
-                              str(FIRAPP1_RUNSTATUS))
-        time.sleep(1)
-
-# ──────────────────────────────────────────────
-# Sensor threads
-# ──────────────────────────────────────────────
-
-def read_fir1_data(mux, sensor):
-    """Read FIR1 sensor data continuously."""
-    global FIRAPP1_RUNSTATUS, FIR1_AMB, FIR1_OBJ
-    while FIRAPP1_RUNSTATUS:
-        try:
-            amb, obj = fir1.read_fir1(mux, sensor)
-            FIR1_AMB = amb
-            FIR1_OBJ = obj
+            amb, obj = fir1.read_fir1(sensor)
+            if amb is not None and obj is not None:
+                FIR1_AMB = amb
+                FIR1_OBJ = obj
         except Exception as e:
-            events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
+            events.LogEvent(appargs.Fir1AppArg.AppName,
+                            events.EventType.error,
                             f"FIR1 read error: {e}")
-        time.sleep(0.1)  # 10 Hz
+        time.sleep(0.5)  # 2 Hz
 
-
-def send_fir1_data(main_q: Queue):
+# ──────────────────────────────
+# 3. 데이터 전송
+# ──────────────────────────────
+def send_fir1_data(Main_Queue: Queue):
+    """FIR1 데이터 전송 스레드."""
+    global FIR1_AMB, FIR1_OBJ
     cnt = 0
     fl_msg = msgstructure.MsgStructure()
     tlm_msg = msgstructure.MsgStructure()
 
-    while FIRAPP1_RUNSTATUS:
+    while FIR1APP_RUNSTATUS:
         # Flightlogic 10 Hz
-        msgstructure.fill_msg(fl_msg,
-                              appargs.FirApp1Arg.AppID,
+        msgstructure.send_msg(Main_Queue, fl_msg,
+                              appargs.Fir1AppArg.AppID,
                               appargs.FlightlogicAppArg.AppID,
-                              appargs.FirApp1Arg.MID_SendFIR1Data,
-                              f"{AMB_TEMP:.2f},{OBJ_TEMP:.2f}")
-        main_q.put(msgstructure.pack_msg(fl_msg))
+                              appargs.Fir1AppArg.MID_SendFir1FlightLogicData,
+                              f"{FIR1_AMB:.2f},{FIR1_OBJ:.2f}")
 
-        # COMM 1 Hz
-        if cnt % 10 == 0:
-            msgstructure.fill_msg(tlm_msg,
-                                  appargs.FirApp1Arg.AppID,
+        if cnt > 10:  # 1 Hz telemetry
+            msgstructure.send_msg(Main_Queue, tlm_msg,
+                                  appargs.Fir1AppArg.AppID,
                                   appargs.CommAppArg.AppID,
-                                  appargs.FirApp1Arg.MID_SendFIR1Data,
-                                  f"{AMB_TEMP:.2f},{OBJ_TEMP:.2f}")
-            main_q.put(msgstructure.pack_msg(tlm_msg))
+                                  appargs.Fir1AppArg.MID_SendFir1TlmData,
+                                  f"{FIR1_AMB:.2f},{FIR1_OBJ:.2f}")
+            cnt = 0
 
         cnt += 1
         time.sleep(0.1)  # 10 Hz
 
-# ──────────────────────────────────────────────
-# Main functions
-# ──────────────────────────────────────────────
-
-def firapp1_init():
-    """Initialize FIR1 sensor and start threads."""
-    global FIRAPP1_RUNSTATUS
-    FIRAPP1_RUNSTATUS = True
-
+# ──────────────────────────────
+# 4. 종료
+# ──────────────────────────────
+def firapp1_terminate(i2c):
+    """FIR1 앱 종료."""
+    global FIR1APP_RUNSTATUS
+    FIR1APP_RUNSTATUS = False
+    
     try:
-        mux, sensor = fir1.init_fir1()
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        "FIR1 sensor initialized successfully")
-
-        # Start threads
-        threads = [
-            threading.Thread(target=resilient_thread, args=(send_hk, (main_queue,), "HK"), daemon=True),
-            threading.Thread(target=resilient_thread, args=(read_fir1_data, (mux, sensor), "READ"), daemon=True),
-            threading.Thread(target=resilient_thread, args=(send_fir1_data, (main_queue,), "SEND"), daemon=True)
-        ]
-
-        for t in threads:
-            t.start()
-
-        return mux
-
+        fir1.terminate_fir1(i2c)
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.info,
+                        "Firapp1 terminated")
     except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                        f"FIR1 initialization failed: {e}")
-        raise
-
-def firapp1_terminate(mux):
-    """Terminate FIR1 sensor and cleanup."""
-    global FIRAPP1_RUNSTATUS
-    FIRAPP1_RUNSTATUS = False
-
-    try:
-        fir1.terminate_fir1(mux)
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        "FIR1 sensor terminated")
-    except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                        f"FIR1 termination error: {e}")
-
-def resilient_thread(target, args=(), name=None):
-    """Thread wrapper with error handling."""
-    try:
-        target(*args)
-    except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                        f"Thread {name} error: {e}")
-
-def firapp1_main(main_q: Queue, main_pipe: connection.Connection):
-    """Main FIR1 application loop."""
-    global main_queue
-    main_queue = main_q
-
-    # Load previous calibration
-    try:
-        amb_off, obj_off = prevstate.get_fir1cal()
-        global AMB_OFFSET, OBJ_OFFSET
-        AMB_OFFSET, OBJ_OFFSET = amb_off, obj_off
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        f"Loaded FIR1 calibration: amb={AMB_OFFSET}, obj={OBJ_OFFSET}")
-    except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.warning,
-                        f"Could not load FIR1 calibration: {e}")
-
-    # Initialize sensor
-    mux = firapp1_init()
-
-    # Main message loop
-    try:
-        while FIRAPP1_RUNSTATUS:
-            # Non-blocking receive with timeout
-            if main_pipe.poll(1.0):  # 1초 타임아웃
-                try:
-                    recv_msg = main_pipe.recv()
-                    unpacked_msg = msgstructure.MsgStructure()
-                    msgstructure.unpack_msg(unpacked_msg, recv_msg)
-                    command_handler(main_q, unpacked_msg)
-                except Exception as e:
-                    events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                                    f"Message handling error: {e}")
-                    time.sleep(0.1)
-            else:
-                # 타임아웃 시 루프 계속
-                continue
-
-    except KeyboardInterrupt:
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        "FIRAPP1 interrupted by user")
-
-    finally:
-        firapp1_terminate(mux)
-        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.info,
-                        "FIRAPP1 terminated") 
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.error,
+                        f"Terminate error: {e}") 

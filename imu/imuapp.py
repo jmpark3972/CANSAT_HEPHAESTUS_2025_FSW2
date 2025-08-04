@@ -155,27 +155,27 @@ def send_hk(Main_Queue : Queue):
 
 # Initialization
 def imuapp_init():
-    global IMUAPP_RUNSTATUS, IMU_MUX
+    """센서 초기화·시리얼 확인."""
     try:
-        # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Initializating imuapp")
-        ## User Defined Initialization goes HERE
+        events.LogEvent(appargs.ImuAppArg.AppName,
+                        events.EventType.info,
+                        "Initializing imuapp")
+
+        # IMU 센서 초기화 (직접 I2C 연결)
+        i2c, sensor = imu.init_imu()
         
-        #Initialize IMU Sensor
-        i2c_instance, imu_instance, mux_instance = imu.init_imu()
-        
-        # Store MUX instance globally for proper channel management
-        IMU_MUX = mux_instance
-        
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Imuapp Initialization Complete")
-        return i2c_instance, imu_instance, mux_instance
-    
+        events.LogEvent(appargs.ImuAppArg.AppName,
+                        events.EventType.info,
+                        "Imuapp initialization complete")
+        return i2c, sensor
+
     except Exception as e:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
-        IMUAPP_RUNSTATUS = False
-        return None, None, None
+        events.LogEvent(appargs.ImuAppArg.AppName,
+                        events.EventType.error,
+                        f"Init error: {e}")
+        return None, None
 
 # Termination
 def imuapp_terminate(i2c_instance):
@@ -222,86 +222,23 @@ IMU_GYRY: float = 0.0
 IMU_GYRZ: float = 0.0
 IMU_TEMP: float = 0.0
 
-def read_imu_data(imu_instance):
-
-    global IMU_ROLL
-    global IMU_PITCH
-    global IMU_YAW
-    global IMU_ACCX
-    global IMU_ACCY
-    global IMU_ACCZ
-    global IMU_MAGX
-    global IMU_MAGY
-    global IMU_MAGZ
-    global IMU_GYRX
-    global IMU_GYRY
-    global IMU_GYRZ
-    global IMU_TEMP
-    
-    global IMUAPP_RUNSTATUS, IMU_MUX
-    
-    # 연속 실패 횟수 추적
-    consecutive_failures = 0
-    max_failures = 10
-    
+def read_imu_data(sensor):
+    """IMU 데이터 읽기 스레드."""
+    global IMUAPP_RUNSTATUS, IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
     while IMUAPP_RUNSTATUS:
         try:
-            # Read data from IMU with channel guard
-            rcv_data = imu.read_sensor_data(imu_instance, IMU_MUX)
-
-            # Continue if Quaternion data is empty
-            if rcv_data == False:
-                consecutive_failures += 1
-                if consecutive_failures > max_failures:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU data read failed {consecutive_failures} times")
-                continue
-            else:
-                consecutive_failures = 0  # 성공 시 실패 횟수 리셋
-                #새로운 자세 정보 저장
-                IMU_ROLL        = rcv_data[0]
-                IMU_PITCH       = rcv_data[1]
-                IMU_YAW         = rcv_data[2]
-                
-                IMU_ACCX        = rcv_data[3]
-                IMU_ACCY        = rcv_data[4]
-                IMU_ACCZ        = rcv_data[5]
-
-                IMU_MAGX        = rcv_data[6]
-                IMU_MAGY        = rcv_data[7]
-                IMU_MAGZ        = rcv_data[8]
-
-                IMU_GYRX        = rcv_data[9]
-                IMU_GYRY        = rcv_data[10]
-                IMU_GYRZ        = rcv_data[11]
-                IMU_TEMP        = rcv_data[12]
-                
-                # 고주파수 로깅 (200Hz)
-                log_high_freq_imu_data(IMU_ROLL, IMU_PITCH, IMU_YAW, 
-                                      IMU_ACCX, IMU_ACCY, IMU_ACCZ,
-                                      IMU_MAGX, IMU_MAGY, IMU_MAGZ,
-                                      IMU_GYRX, IMU_GYRY, IMU_GYRZ, IMU_TEMP)
+            gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
+            if gyro is not None:
+                IMU_GYRO = gyro
+                IMU_ACCEL = accel
+                IMU_MAG = mag
+                IMU_EULER = euler
+                IMU_TEMP = temp
         except Exception as e:
-            consecutive_failures += 1
-            if consecutive_failures <= max_failures:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
-            elif consecutive_failures == max_failures + 1:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU read errors suppressed after {max_failures} failures")
-            
-            # 기본값 설정
-            IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
-            IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
-            IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
-            IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
-            IMU_TEMP = 0.0
-            
-            # 오류 시 더 긴 대기
-            time.sleep(0.1)
-            continue
-            
-        # The imu runs on 200Hz (5ms interval) for maximum data collection
-        time.sleep(0.005)
-
-    return
+            events.LogEvent(appargs.ImuAppArg.AppName,
+                            events.EventType.error,
+                            f"IMU read error: {e}")
+        time.sleep(0.1)  # 10 Hz
 
 def send_imu_data(Main_Queue : Queue):
     global IMU_ROLL
@@ -387,10 +324,10 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     IMUAPP_RUNSTATUS = True
 
     # Initialization Process
-    i2c_instance, imu_instance, mux_instance = imuapp_init()
+    i2c_instance, imu_instance = imuapp_init()
     
     # 초기화 실패 시 종료
-    if i2c_instance is None or imu_instance is None or mux_instance is None:
+    if i2c_instance is None or imu_instance is None:
         events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "IMU 초기화 실패로 인한 종료")
         return
 

@@ -6,109 +6,66 @@ fir1.py – MLX90614 far-infrared temperature sensor helper (Channel 0)
 Qwiic Mux를 통해 채널 0에 연결된 MLX90614 센서 제어
 """
 
-import os, time
+import time
+import os
 from datetime import datetime
 
-# ─────────────────────────────
-# 1) 로그 파일 준비
-# ─────────────────────────────
-LOG_DIR = "./sensorlogs"
-os.makedirs(LOG_DIR, exist_ok=True)
-fir1_log = open(os.path.join(LOG_DIR, "fir1.txt"), "a")
+log_dir = './sensorlogs'
+if not os.path.exists(log_dir): 
+    os.makedirs(log_dir)
 
-def _log(line: str) -> None:
-    t = datetime.now().isoformat(sep=" ", timespec="milliseconds")
-    fir1_log.write(f"{t},{line}\n")
-    fir1_log.flush()
+## Create sensor log file
+fir1logfile = open(os.path.join(log_dir, 'fir1.txt'), 'a')
 
-# ─────────────────────────────
-# 2) 초기화 / 종료
-# ─────────────────────────────
+def _log(text):
+    t = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+    string_to_write = f'{t},{text}\n'
+    fir1logfile.write(string_to_write)
+    fir1logfile.flush()
+
 def init_fir1():
-    """MLX90614 객체를 초기화해 (mux, sensor) 튜플 반환."""
-    import board, busio, adafruit_mlx90614
-    from lib.qwiic_mux import QwiicMux
+    """FIR1 센서 초기화 (직접 I2C 연결)"""
+    import board
+    import busio
+    import adafruit_mlx90614
     
-    # I2C 버스 초기화
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
-    time.sleep(0.1)  # 안정화 대기
+    # I2C setup
+    i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
     
-    # Qwiic Mux 초기화
-    from lib.qwiic_mux import create_mux_instance
-    mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
-    
-    # channel_guard를 사용하여 안전하게 채널 선택 및 센서 초기화
-    with mux.channel_guard(1):  # 🔒 채널 1 점유
-        print("Qwiic Mux 채널 1 선택 완료 (FIR1)")
-        
-        # MLX90614 센서 초기화
-        sensor = adafruit_mlx90614.MLX90614(i2c)
-        time.sleep(0.1)  # 안정화 대기
-    
-    _log("FIR1 초기화 완료 (채널 1)")
-    return mux, sensor
-
-def terminate_fir1(mux):
     try:
-        if mux:
-            mux.close()
+        # FIR1 센서 직접 연결 (주소 0x5a)
+        sensor = adafruit_mlx90614.MLX90614(i2c, address=0x5a)
+        time.sleep(0.1)
+        _log("FIR1 초기화 완료 (직접 I2C 연결)")
+        return i2c, sensor
     except Exception as e:
-        print(f"FIR1 종료 오류: {e}")
-    finally:
-        fir1_log.close()
+        _log(f"FIR1 초기화 실패: {e}")
+        raise Exception(f"FIR1 초기화 실패: {e}")
 
-# ─────────────────────────────
-# 3) 데이터 읽기
-# ─────────────────────────────
-def read_fir1(mux, sensor):
-    """
-    (ambient, object) 튜플 반환.
-    오류 발생 시 (0.0, 0.0) + 로그 기록.
-    """
+def read_fir1(sensor):
+    """FIR1 센서 데이터 읽기"""
     try:
-        # 채널 1 선택 확인 및 강제 선택
-        current_channel = mux.get_current_channel()
-        if current_channel != 1:
-            _log(f"Channel switch: {current_channel} -> 1")
-            mux.select_channel(1)
-            time.sleep(0.1)  # 안정화 대기 증가
+        # 센서에서 온도 읽기
+        ambient_temp = sensor.ambient_temperature
+        object_temp = sensor.object_temperature
         
-        # 센서 재초기화 시도 (채널 변경 후)
-        if current_channel != 1:
-            try:
-                import adafruit_mlx90614
-                sensor = adafruit_mlx90614.MLX90614(mux.i2c)
-                time.sleep(0.05)
-            except Exception as e:
-                _log(f"Sensor reinit error: {e}")
+        # 소수점 2자리로 반올림
+        ambient_temp = round(ambient_temp, 2)
+        object_temp = round(object_temp, 2)
         
-        amb = round(float(sensor.ambient_temperature), 2)
-        obj = round(float(sensor.object_temperature),  2)
+        _log(f"{ambient_temp:.2f}, {object_temp:.2f}")
+        return ambient_temp, object_temp
         
-        # 유효한 값인지 확인
-        if amb < -40 or amb > 125 or obj < -40 or obj > 125:
-            _log(f"Invalid temperature values: amb={amb}, obj={obj}")
-            return 0.0, 0.0
-            
     except Exception as e:
         _log(f"READ_ERROR,{e}")
-        return 0.0, 0.0
+        return None, None
 
-    _log(f"{amb:.2f},{obj:.2f}")
-    return amb, obj
-
-# ─────────────────────────────
-# 4) 데모 루프
-# ─────────────────────────────
-if __name__ == "__main__":
-    mux, s = init_fir1()
+def terminate_fir1(i2c):
+    """FIR1 센서 종료"""
     try:
-        while True:
-            a, o = read_fir1(mux, s)
-            if a is not None:
-                print(f"FIR1 (Ch0) - Ambient: {a:.2f} °C  Object: {o:.2f} °C")
-            time.sleep(1.0)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        terminate_fir1(mux) 
+        if hasattr(i2c, "deinit"):
+            i2c.deinit()
+        elif hasattr(i2c, "close"):
+            i2c.close()
+    except Exception as e:
+        _log(f"TERMINATE_ERROR,{e}") 
