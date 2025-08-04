@@ -54,7 +54,7 @@ def init_imu():
 def read_sensor_data(sensor):
     """IMU 센서 데이터 읽기"""
     global angle_window
-    
+    if not hasattr(read_sensor_data, "none_count"): read_sensor_data.none_count = 0
     try:
         # 센서에서 데이터 읽기
         q = sensor.quaternion
@@ -68,8 +68,13 @@ def read_sensor_data(sensor):
         
         # 유효성 검사
         if q is None or gyro is None or accel is None or mag is None:
-            print("IMU: None 값 감지됨")
+            read_sensor_data.none_count += 1
+            if read_sensor_data.none_count >= 5:
+                print("[경고] IMU 데이터 5회 연속 None 발생")
+                read_sensor_data.none_count = 0
             return None, None, None, None, None
+        else:
+            read_sensor_data.none_count = 0
         
         # 오일러 각도 계산
         import math

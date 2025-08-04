@@ -418,7 +418,6 @@ def runloop(Main_Queue : Queue):
                         
                         non_critical_apps = [
                             appargs.FirApp1Arg.AppID,
-                            appargs.FirApp2Arg.AppID,
                             appargs.ThermalcameraAppArg.AppID,
                             appargs.Tmp007AppArg.AppID
                         ]
@@ -592,7 +591,6 @@ if __name__ == '__main__':
             appargs.ImuAppArg.AppID,
             appargs.ThermisAppArg.AppID,
             appargs.FirApp1Arg.AppID,
-            appargs.FirApp2Arg.AppID,
             appargs.ThermoAppArg.AppID,
             appargs.Tmp007AppArg.AppID,  # TMP007 센서 앱
             appargs.PitotAppArg.AppID,
@@ -611,7 +609,6 @@ if __name__ == '__main__':
         
         non_critical_apps = [
             appargs.FirApp1Arg.AppID,
-            appargs.FirApp2Arg.AppID,
             appargs.ThermalcameraAppArg.AppID,
             appargs.Tmp007AppArg.AppID
         ]

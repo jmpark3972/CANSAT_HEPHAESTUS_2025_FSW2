@@ -643,7 +643,7 @@ def cmd_mec(option:str, Main_Queue:Queue):
     RouteMecCmdMsg = msgstructure.MsgStructure()
 
     # Route the mechanism activation command to motor app
-    msgstructure.send_msg(Main_Queue, RouteMecCmdMsg, appargs.CommAppArg.AppID, appargs.GimbalmotorAppArg.AppID, appargs.CommAppArg.MID_RouteCmd_MEC, option)
+    msgstructure.send_msg(Main_Queue, RouteMecCmdMsg, appargs.CommAppArg.AppID, appargs.MotorAppArg.AppID, appargs.CommAppArg.MID_RouteCmd_MEC, option)
 
     return
 
