@@ -14,6 +14,11 @@ THERMOCAMAPP_RUNSTATUS = True
 # MLX90640 는 별도 오프셋 필요 없음 → 락도 생략
 THERMOCAM_MUX = None  # MUX instance for channel 4
 
+# Thermal camera data
+THERMAL_AVG = 0.0
+THERMAL_MIN = 0.0
+THERMAL_MAX = 0.0
+
 # ──────────────────────────────
 # 1. 메시지 핸들러
 # ──────────────────────────────
@@ -60,7 +65,7 @@ def thermocamapp_init():
                         "Initializing thermocamapp")
 
         # MLX90640 start (기본 2 Hz)
-        i2c, cam, mux = tcam.init_cam(refresh_hz=2)
+        i2c, cam, mux = tcam.init_thermal_camera()
         
         # Store MUX instance globally for proper channel management
         global THERMOCAM_MUX
@@ -109,15 +114,14 @@ MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
     """MLX90640 데이터 읽기 스레드."""
-    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX
+    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
     while THERMOCAMAPP_RUNSTATUS:
         try:
             # channel_guard를 사용하여 안전하게 센서 읽기
             with THERMOCAM_MUX.channel_guard(5):  # 🔒 채널 5 점유
-                data = tcam.read_cam(cam)
+                data = tcam.read_cam(cam, THERMOCAM_MUX)
                 if data:
-                    global THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
-                    THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data
+                    THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data[3], data[1], data[2]  # avg, min, max
         except Exception as e:
             events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                             events.EventType.error,
@@ -125,31 +129,29 @@ def read_cam_data(cam):
         time.sleep(0.5)  # 2 Hz
 
 def send_cam_data(Main_Queue: Queue):
-    global MIN_T, MAX_T, AVG_T
-
+    global THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+    cnt = 0
     fl_msg = msgstructure.MsgStructure()
     tlm_msg = msgstructure.MsgStructure()
-    cnt = 0
+
     while THERMOCAMAPP_RUNSTATUS:
-        # ① FlightLogic (10 Hz): "avg,min,max"
-        # msgstructure.send_msg(Main_Queue, fl_msg,
-        #                       appargs.ThermalcameraAppArg.AppID,
-        #                       appargs.FlightlogicAppArg.AppID,
-        #                       appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
-        #                       f"{AVG_T},{MIN_T},{MAX_T}")
+        # Flightlogic 10 Hz
+        msgstructure.send_msg(Main_Queue, fl_msg,
+                              appargs.ThermalcameraAppArg.AppID,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.ThermalcameraAppArg.MID_SendThermalCameraFlightLogicData,
+                              f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
 
-        # ② COMM (1 Hz)
-        status = msgstructure.send_msg(Main_Queue, tlm_msg,
-                                           appargs.ThermalcameraAppArg.AppID,
-                                           appargs.CommAppArg.AppID,
-                                           appargs.ThermalcameraAppArg.MID_SendCamTlmData,
-                                           f"{AVG_T},{MIN_T},{MAX_T}")
-        if not status:
-            events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                            events.EventType.error,
-                            "Error sending ThermoCam TLM")
+        if cnt > 10:  # 1 Hz telemetry
+            msgstructure.send_msg(Main_Queue, tlm_msg,
+                                  appargs.ThermalcameraAppArg.AppID,
+                                  appargs.CommAppArg.AppID,
+                                  appargs.ThermalcameraAppArg.MID_SendThermalCameraTlmData,
+                                  f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
+            cnt = 0
 
-        time.sleep(0.1)
+        cnt += 1
+        time.sleep(0.1)  # 10 Hz
 
 # ──────────────────────────────
 # 5. 메인 엔트리
