@@ -4,7 +4,17 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[HK] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[HK] 로깅 실패: {e}")
+        print(f"[HK] 원본 메시지: {message}")
+
 from lib import types
 
 import os
@@ -33,7 +43,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, f"HKAPP TERMINATION DETECTED")
+        safe_log(f"HKAPP TERMINATION DETECTED", "info".upper(), True)
         HKAPP_RUNSTATUS = False
 
     else:
@@ -54,34 +64,34 @@ def hkapp_init():
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, "Initializating hkapp")
+        safe_log("Initializating hkapp", "info".upper(), True)
         ## User Defined Initialization goes HERE
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, "hkapp Initialization Complete")
+        safe_log("hkapp Initialization Complete", "info".upper(), True)
 
     except:
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.error, "Error during initialization")
+        safe_log("Error during initialization", "error".upper(), True)
 
 # Termination
 def hkapp_terminate():
     global HKAPP_RUNSTATUS
 
     HKAPP_RUNSTATUS = False
-    events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, "Terminating hkapp")
+    safe_log("Terminating hkapp", "info".upper(), True)
     # Termination Process Comes Here
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.HkAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.HkAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.HkAppArg.AppName, events.EventType.info, "Terminating hkapp complete")
+    safe_log("Terminating hkapp complete", "info".upper(), True)
     return
 
 ######################################################
@@ -168,11 +178,11 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 # Handle Command According to Message ID
                 command_handler(recv_msg)
             else:
-                events.LogEvent(appargs.HkAppArg.AppName, events.EventType.error, "Receiver MID does not match with hkapp MID")
+                safe_log("Receiver MID does not match with hkapp MID", "error".upper(), True)
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.HkAppArg.AppName, events.EventType.error, f"hkapp error : {e}")
+        safe_log(f"hkapp error : {e}", "error".upper(), True)
         HKAPP_RUNSTATUS = False
 
     # Termination Process after runloop

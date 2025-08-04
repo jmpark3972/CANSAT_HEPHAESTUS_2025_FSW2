@@ -4,7 +4,17 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Comm] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Comm] 로깅 실패: {e}")
+        print(f"[Comm] 원본 메시지: {message}")
+
 from lib import types
 from lib import config
 
@@ -178,7 +188,7 @@ def safe_float(value, default=0.0):
     try:
         return float(value)
     except (ValueError, TypeError):
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Invalid float value: {value}, using default: {default}")
+        safe_log(f"Invalid float value: {value}, using default: {default}", "warning".upper(), True)
         return default
 
 def command_handler (recv_msg : msgstructure.MsgStructure):
@@ -187,7 +197,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"COMMAPP TERMINATION DETECTED")
+        safe_log(f"COMMAPP TERMINATION DETECTED", "info".upper(), True)
         COMMAPP_RUNSTATUS = False
 
     # Receive Telemetry Data from Apps
@@ -198,7 +208,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         
         # Check the length of separated data
         if (len(sep_data) != 3):
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving barometer, expected 3 fields")
+            safe_log(f"ERROR receiving barometer, expected 3 fields", "error".upper(), True)
             return
         
         # If simulation mode, ignore the pressure and altitude data
@@ -214,7 +224,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
         # Check the length of separated data
         if (len(sep_data) != 13):
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}")
+            safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data, "error".upper(), True)}")
             return
         
         tlm_data.filtered_roll = safe_float(sep_data[0])
@@ -241,7 +251,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
         # Check the length of separated data
         if (len(sep_data) != 5):
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving GPS, expected 5 fields")
+            safe_log(f"ERROR receiving GPS, expected 5 fields", "error".upper(), True)
             return
 
         tlm_data.gps_time = str(sep_data[0])
@@ -251,7 +261,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         try:
             tlm_data.gps_sats = int(sep_data[4])
         except (ValueError, TypeError):
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Invalid GPS satellites value: {sep_data[4]}, using default: 0")
+            safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
             tlm_data.gps_sats = 0
 
     # Receive Voltage Sensor Data
@@ -289,7 +299,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.tmp007_die_temp = safe_float(sep_data[1])
             tlm_data.tmp007_voltage = safe_float(sep_data[2])
         else:
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data)}")
+            safe_log(f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data, "error".upper(), True)}")
 
 
 
@@ -312,7 +322,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.pitot_temp = float(sep_data[1])
 
     else:
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
+        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
     return
 
 def send_hk(Main_Queue : Queue):
@@ -340,7 +350,7 @@ def commapp_init():
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Initializating commapp")
+        safe_log("Initializating commapp", "info".upper(), True)
         ## User Defined Initialization goes HERE
 
         serial_instance = uartserial.init_serial()
@@ -361,21 +371,21 @@ def commapp_init():
             TEAMID = _TEAMID_ROCKET
 
         else :
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Wrong Configuration initializing commapp")
+            safe_log("Wrong Configuration initializing commapp", "error".upper(), True)
 
         tlm_data.team_id = TEAMID
 
         # Reset the XBee
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Sending XBEE reset pulse...")
+        safe_log("Sending XBEE reset pulse...", "info".upper(), True)
         xbeereset.send_reset_pulse()
 
         # Initialize 
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Commapp Initialization Complete")
+        safe_log("Commapp Initialization Complete", "info".upper(), True)
 
         return serial_instance
     
     except Exception as e:
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Error during initialization : {e}")
+        safe_log(f"Error during initialization : {e}", "error".upper(), True)
         COMMAPP_RUNSTATUS = False
 
 # Termination
@@ -383,24 +393,24 @@ def commapp_terminate(serial_instance):
     global COMMAPP_RUNSTATUS
 
     COMMAPP_RUNSTATUS = False
-    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Terminating commapp")
+    safe_log("Terminating commapp", "info".upper(), True)
     # Termination Process Comes Here
 
     uartserial.terminate_serial(serial_instance)
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Terminating commapp complete")
+    safe_log("Terminating commapp complete", "info".upper(), True)
     return
 
 ######################################################
@@ -535,7 +545,7 @@ def send_tlm(serial_instance):
                      f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
                      #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, tlm_debug_text)
+            safe_log(tlm_debug_text, "debug".upper(), True)
 
             # Only send telemetry when telemetry is enabled
             if TELEMETRY_ENABLE:
@@ -550,17 +560,17 @@ def send_tlm(serial_instance):
                     log_error(f"Telemetry transmission failed: {e}", "send_tlm")
                     
                     if consecutive_failures <= max_failures_before_log:
-                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Telemetry transmission failed: {e}")
+                        safe_log(f"Telemetry transmission failed: {e}", "error".upper(), True)
                     elif consecutive_failures == max_failures_before_log + 1:
-                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Telemetry transmission errors suppressed after {max_failures_before_log} failures")
+                        safe_log(f"Telemetry transmission errors suppressed after {max_failures_before_log} failures", "warning".upper(), True)
 
         except Exception as e:
             consecutive_failures += 1
             log_error(f"Telemetry generation failed: {e}", "send_tlm")
             if consecutive_failures <= max_failures_before_log:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Telemetry generation failed: {e}")
+                safe_log(f"Telemetry generation failed: {e}", "error".upper(), True)
             elif consecutive_failures == max_failures_before_log + 1:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Telemetry generation errors suppressed after {max_failures_before_log} failures")
+                safe_log(f"Telemetry generation errors suppressed after {max_failures_before_log} failures", "warning".upper(), True)
 
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -577,11 +587,11 @@ def cmd_cx(option:str, Main_Queue:Queue):
     global tlm_data
 
     if option == "ON":
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Enabling Telemetry")
+        safe_log("Enabling Telemetry", "info".upper(), True)
         TELEMETRY_ENABLE = True
     
     if option == "OFF":
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Disabling Telemetry")
+        safe_log("Disabling Telemetry", "info".upper(), True)
         TELEMETRY_ENABLE = False
         tlm_data.packet_count = 0
 
@@ -589,7 +599,7 @@ def cmd_cx(option:str, Main_Queue:Queue):
 
 def cmd_st(option:str, Main_Queue:Queue):
 
-    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "Setting Time")
+    safe_log("Setting Time", "info".upper(), True)
     set_timedelta(option)
 
     return
@@ -656,13 +666,12 @@ def cmd_ss(option:str, Main_Queue:Queue):
 """
 def cmd_rbt(option:str, Main_Queue:Queue):
     
-    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, "RBT command received. Restarting...")
+    safe_log("RBT command received. Restarting...", "info".upper(), True)
     os.system('systemctl reboot -i')
     return
 """
 def cmd_rbt(Main_Queue: Queue):
-    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info,
-                    "RBT command received. Restarting…")
+    safe_log("RBT command received. Restarting…", "info".upper(), True)
     os.system("systemctl reboot -i")
         
 def cmd_cam(option:str, Main_Queue:Queue):
@@ -737,7 +746,7 @@ def read_cmd(Main_Queue:Queue, serial_instance):
             
             # 강화된 명령 로깅
             log_command_received(rcv_cmd, "serial")
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
+            safe_log(f"Received Command : {rcv_cmd}", "info".upper(), True)
             
             # Validate commmand using regex
 
@@ -828,10 +837,10 @@ def read_cmd(Main_Queue:Queue, serial_instance):
                 cmd_cam(option, Main_Queue)
 
             else:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Invalid command {rcv_cmd}")
+                safe_log(f"Invalid command {rcv_cmd}", "error".upper(), True)
 
         except Exception as e:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Error receiving command, Sleeping 1 second :  {e}")
+                safe_log(f"Error receiving command, Sleeping 1 second :  {e}", "error".upper(), True)
                 time.sleep(1)
 
     return
@@ -905,11 +914,11 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     try:
                         message = Main_Pipe.recv()
                     except (EOFError, BrokenPipeError, ConnectionResetError):
-                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        safe_log("Pipe connection lost", "error".upper(), True)
                         log_error("Pipe connection lost", "commapp_main")
                         break
                     except Exception as e:
-                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
                         log_error(f"Pipe receive error: {e}", "commapp_main")
                         continue
                 else:
@@ -928,16 +937,16 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     # Handle Command According to Message ID
                     command_handler(recv_msg)
                 else:
-                    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Receiver MID does not match with commapp MID")
+                    safe_log("Receiver MID does not match with commapp MID", "error".upper(), True)
                     
             except Exception as e:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                safe_log(f"Main loop error: {e}", "error".upper(), True)
                 log_error(f"Main loop error: {e}", "commapp_main")
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"commapp error : {e}")
+        safe_log(f"commapp error : {e}", "error".upper(), True)
         log_error(f"Critical commapp error: {e}", "commapp_main")
         COMMAPP_RUNSTATUS = False
 

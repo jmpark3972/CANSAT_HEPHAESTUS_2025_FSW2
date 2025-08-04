@@ -1,6 +1,18 @@
 # Python FSW V2 Thermo-Camera App
 # Author : Hyeon Lee  (HEPHAESTUS)
 
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[ThermalCamera] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[ThermalCamera] 로깅 실패: {e}")
+        print(f"[ThermalCamera] 원본 메시지: {message}")
+
 from lib import appargs, msgstructure, logging, events, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
@@ -26,16 +38,12 @@ def command_handler(Main_Queue: Queue,
 
     # (1) 프로세스 종료
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.info,
-                        "THERMOCAMAPP TERMINATION DETECTED")
+        safe_log("THERMOCAMAPP TERMINATION DETECTED", "info".upper(), True)
         THERMOCAMAPP_RUNSTATUS = False
         return
 
     # (2) 기타 커맨드는 필요 시 확장
-    events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                    events.EventType.error,
-                    f"MID {recv_msg.MsgID} not handled")
+    safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
 
 # ──────────────────────────────
 # 2. HK 송신 스레드
@@ -58,22 +66,16 @@ def thermocamapp_init():
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.info,
-                        "Initializing thermocamapp")
+        safe_log("Initializing thermocamapp", "info".upper(), True)
 
         # MLX90640 start (기본 2 Hz)
         i2c, cam = tcam.init_thermal_camera()
         
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.info,
-                        "Thermocamapp initialization complete")
+        safe_log("Thermocamapp initialization complete", "info".upper(), True)
         return i2c, cam
 
     except Exception as e:
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None, None
 
 def thermocamapp_terminate(i2c):
@@ -81,18 +83,14 @@ def thermocamapp_terminate(i2c):
     global THERMOCAMAPP_RUNSTATUS
     THERMOCAMAPP_RUNSTATUS = False
 
-    events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                    events.EventType.info,
-                    "Terminating thermocamapp")
+    safe_log("Terminating thermocamapp", "info".upper(), True)
 
     tcam.terminate_cam(i2c)
 
     for t in thread_dict.values():
         t.join()
 
-    events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                    events.EventType.info,
-                    "Thermocamapp termination complete")
+    safe_log("Thermocamapp termination complete", "info".upper(), True)
 
 # ──────────────────────────────
 # 4. 센서 읽기 / 데이터 송신
@@ -109,9 +107,7 @@ def read_cam_data(cam):
             if data:
                 THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data  # min, max, avg 순서
         except Exception as e:
-            events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                            events.EventType.error,
-                            f"Thermal camera read error: {e}")
+            safe_log(f"Thermal camera read error: {e}", "error".upper(), True)
         time.sleep(0.5)  # 2 Hz
 
 def send_cam_data(Main_Queue: Queue):
@@ -151,9 +147,7 @@ def resilient_thread(target, args=(), name=None):
     try:
         target(*args)
     except Exception as e:
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.error,
-                        f"Thread {name} error: {e}")
+        safe_log(f"Thread {name} error: {e}", "error".upper(), True)
     return None
 
 def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
@@ -195,14 +189,10 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             if m.receiver_app in target_apps:
                 command_handler(Main_Queue, m)
             else:
-                events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                                events.EventType.error,
-                                "Receiver MID mismatch")
+                safe_log("Receiver MID mismatch", "error".upper(), True)
 
     except Exception as e:
-        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
-                        events.EventType.error,
-                        f"thermocamapp error: {e}")
+        safe_log(f"thermocamapp error: {e}", "error".upper(), True)
         THERMOCAMAPP_RUNSTATUS = False
 
     thermocamapp_terminate(i2c)

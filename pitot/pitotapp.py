@@ -7,6 +7,18 @@ import time
 import threading
 from multiprocessing import Queue
 from multiprocessing.connection import Connection
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Pitot] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Pitot] 로깅 실패: {e}")
+        print(f"[Pitot] 원본 메시지: {message}")
+
 from lib import appargs, events, msgstructure, prevstate
 import sys
 import os
@@ -100,26 +112,22 @@ OFFSET_MUTEX = threading.Lock()
 def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
     global PITOTAPP_RUNSTATUS, PRESSURE_OFFSET, TEMP_OFFSET
     if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
-                        "PITOTAPP termination detected")
+        safe_log("PITOTAPP termination detected", "info".upper(), True)
         PITOTAPP_RUNSTATUS = False
         return
     if recv.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
         try:
             pressure_off, temp_off = map(float, recv.data.split(','))
         except Exception:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                            "CAL cmd parse error")
+            safe_log("CAL cmd parse error", "error".upper(), True)
             return
         with OFFSET_MUTEX:
             PRESSURE_OFFSET = pressure_off
             TEMP_OFFSET = temp_off
         prevstate.update_pitotcal(PRESSURE_OFFSET, TEMP_OFFSET)
-        events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
-                        f"Pitot offset set to pressure={PRESSURE_OFFSET}, temp={TEMP_OFFSET}")
+        safe_log(f"Pitot offset set to pressure={PRESSURE_OFFSET}, temp={TEMP_OFFSET}", "info".upper(), True)
         return
-    events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                    f"Unhandled MID {recv.MsgID}")
+    safe_log(f"Unhandled MID {recv.MsgID}", "error".upper(), True)
 
 # ──────────────────────────────────────────────────────────
 # 3) HK 전송 스레드
@@ -141,8 +149,7 @@ def send_hk(Main_Queue: Queue):
                 
             time.sleep(5.0)  # 5초마다 HK 전송
         except Exception as e:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                            f"HK send error: {e}")
+            safe_log(f"HK send error: {e}", "error".upper(), True)
             time.sleep(1.0)
 
 # ──────────────────────────────────────────────────────────
@@ -193,8 +200,7 @@ def read_pitot_data(Main_Queue: Queue):
             time.sleep(0.05)  # 20Hz (50ms 간격)
             
         except Exception as e:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                            f"Pitot read error: {e}")
+            safe_log(f"Pitot read error: {e}", "error".upper(), True)
             # 오류 발생 시에도 기본값 설정
             PITOT_PRESSURE = 0.0
             PITOT_TEMP = 0.0
@@ -214,12 +220,10 @@ def pitotapp_init():
     # Pitot 센서 초기화
     PITOT_BUS, PITOT_MUX = pitot.init_pitot()
     if not PITOT_BUS:
-        events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                        "Pitot sensor initialization failed")
+        safe_log("Pitot sensor initialization failed", "error".upper(), True)
         return False
     
-    events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
-                    "PITOTAPP initialized successfully")
+    safe_log("PITOTAPP initialized successfully", "info".upper(), True)
     return True
 
 def pitotapp_terminate():
@@ -229,8 +233,7 @@ def pitotapp_terminate():
         pitot.terminate_pitot(PITOT_BUS)
         PITOT_BUS = None
     
-    events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
-                    "PITOTAPP terminated")
+    safe_log("PITOTAPP terminated", "info".upper(), True)
 
 def resilient_thread(target_func, *args):
     """안정적인 스레드 실행"""
@@ -238,8 +241,7 @@ def resilient_thread(target_func, *args):
         try:
             target_func(*args)
         except Exception as e:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                            f"Thread error: {e}")
+            safe_log(f"Thread error: {e}", "error".upper(), True)
             time.sleep(1.0)
 
 def pitotapp_main(Main_Queue: Queue, recv: Connection):
@@ -268,16 +270,13 @@ def pitotapp_main(Main_Queue: Queue, recv: Connection):
                     msg = recv.recv()
                     command_handler(Main_Queue, msg)
                 except (EOFError, ConnectionResetError, BrokenPipeError) as e:
-                    events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                                    f"Connection error: {e}")
+                    safe_log(f"Connection error: {e}", "error".upper(), True)
                     break  # 연결이 끊어졌으면 루프 종료
         except KeyboardInterrupt:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.info,
-                            "KeyboardInterrupt detected in pitotapp")
+            safe_log("KeyboardInterrupt detected in pitotapp", "info".upper(), True)
             break
         except Exception as e:
-            events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
-                            f"Main loop error: {e}")
+            safe_log(f"Main loop error: {e}", "error".upper(), True)
             time.sleep(0.1)
     
     # 종료

@@ -9,6 +9,18 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 import signal
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Camera] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Camera] 로깅 실패: {e}")
+        print(f"[Camera] 원본 메시지: {message}")
+
 from lib import events, appargs
 
 # ──────────────────────────────
@@ -53,51 +65,37 @@ def log_camera_event(event_type: str, message: str):
             
     except Exception as e:
         # 로그 기록 실패 시 기본 이벤트 로그 사용
-        events.LogEvent(appargs.CameraAppArg.AppName,
-                       events.EventType.error,
-                       f"Log write failed: {e}")
+        safe_log(f"Log write failed: {e}", "error".upper(), True)
 
 def log_recording_start():
     """녹화 시작 로그."""
     log_camera_event("RECORDING_START", "Video recording started")
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.info,
-                   "Camera recording started")
+    safe_log("Camera recording started", "info".upper(), True)
 
 def log_recording_stop():
     """녹화 종료 로그."""
     log_camera_event("RECORDING_STOP", "Video recording stopped")
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.info,
-                   "Camera recording stopped")
+    safe_log("Camera recording stopped", "info".upper(), True)
 
 def log_file_created(filename: str, filesize: int):
     """파일 생성 로그."""
     log_camera_event("FILE_CREATED", f"Video file created: {filename} ({filesize} bytes)")
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.info,
-                   f"Video file created: {filename}")
+    safe_log(f"Video file created: {filename}", "info".upper(), True)
 
 def log_error(error_msg: str):
     """오류 로그."""
     log_camera_event("ERROR", error_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.error,
-                   error_msg)
+    safe_log(error_msg, "error".upper(), True)
 
 def log_warning(warning_msg: str):
     """경고 로그."""
     log_camera_event("WARNING", warning_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.warning,
-                   warning_msg)
+    safe_log(warning_msg, "warning".upper(), True)
 
 def log_info(info_msg: str):
     """정보 로그."""
     log_camera_event("INFO", info_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.info,
-                   info_msg)
+    safe_log(info_msg, "info".upper(), True)
 
 # ──────────────────────────────
 # 2. 초기화 및 종료

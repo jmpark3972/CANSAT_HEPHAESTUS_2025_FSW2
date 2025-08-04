@@ -8,6 +8,18 @@
 * Supports CAL command: "<temperature_offset>"
 """
 import board, busio
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Thermis] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Thermis] 로깅 실패: {e}")
+        print(f"[Thermis] 원본 메시지: {message}")
+
 from lib import appargs, msgstructure, events, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
@@ -36,8 +48,7 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
 
     # Terminate process
     if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                        "THERMISAPP termination detected")
+        safe_log("THERMISAPP termination detected", "info".upper(), True)
         THERMISAPP_RUNSTATUS = False
         return
 
@@ -46,19 +57,16 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
         try:
             temp_off = float(recv.data)
         except Exception:
-            events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                            "CAL cmd parse error")
+            safe_log("CAL cmd parse error", "error".upper(), True)
             return
 
         with OFFSET_MUTEX:
             TEMP_OFFSET = temp_off
         prevstate.update_thermiscal(TEMP_OFFSET)  # must exist in prevstate
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                        f"THERMIS offset set to temp={TEMP_OFFSET}")
+        safe_log(f"THERMIS offset set to temp={TEMP_OFFSET}", "info".upper(), True)
         return
 
-    events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                    f"Unhandled MID {recv.MsgID}")
+    safe_log(f"Unhandled MID {recv.MsgID}", "error".upper(), True)
 
 # ──────────────────────────────────────────────
 # HK thread
@@ -109,8 +117,7 @@ def send_thermis_data(main_q: Queue):
                                            appargs.ThermisAppArg.MID_SendThermisTlmData,
                                            f"{TEMP}")
             if not status:
-                events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                                "Error sending Thermis TLM")
+                safe_log("Error sending Thermis TLM", "error".upper(), True)
             cnt = 0
         cnt += 1
         time.sleep(0.1)
@@ -123,35 +130,30 @@ def thermisapp_init():
     global TEMP_OFFSET
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                        "Initializing thermisapp")
+        safe_log("Initializing thermisapp", "info".upper(), True)
 
         i2c, chan = thermis.init_thermis()
 
         # previous calibration (if any)
         TEMP_OFFSET = float(getattr(prevstate, "PREV_THERMIS_OFF", 0.0))
 
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                        "Thermisapp initialization complete")
+        safe_log("Thermisapp initialization complete", "info".upper(), True)
         return i2c, chan
 
     except Exception as e:
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None, None
 
 
 def thermisapp_terminate(i2c):
     global THERMISAPP_RUNSTATUS
     THERMISAPP_RUNSTATUS = False
-    events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                    "Terminating thermisapp")
+    safe_log("Terminating thermisapp", "info".upper(), True)
     
     thermis.terminate_thermis(i2c)
     for t in thread_dict.values():
         t.join()
-    events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
-                    "Thermisapp termination complete")
+    safe_log("Thermisapp termination complete", "info".upper(), True)
 
 # ──────────────────────────────────────────────
 # Main entry
@@ -206,11 +208,9 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
             if m.receiver_app in (appargs.ThermisAppArg.AppID, appargs.MainAppArg.AppID):
                 command_handler(main_q, m)
             else:
-                events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                                "Receiver MID mismatch")
+                safe_log("Receiver MID mismatch", "error".upper(), True)
     except Exception as e:
-        events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
-                        f"thermisapp error: {e}")
+        safe_log(f"thermisapp error: {e}", "error".upper(), True)
         THERMISAPP_RUNSTATUS = False
 
     thermisapp_terminate(i2c) 

@@ -33,6 +33,18 @@ from multiprocessing import Queue, connection
 import pigpio
 
 
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Motor] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Motor] 로깅 실패: {e}")
+        print(f"[Motor] 원본 메시지: {message}")
+
 from lib import appargs, events, msgstructure, logging, config  # type: ignore
 from motor import motor  # local helper that provides angle_to_pulse()
 
@@ -70,38 +82,34 @@ def motorapp_init() -> None:
     global pi, PAYLOAD_MOTOR_ENABLE
     signal.signal(signal.SIGINT, signal.SIG_IGN)  # parent handles SIGINT
 
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Initialising motorapp (pigpio)")
+    safe_log("Initialising motorapp (pigpio, "info".upper(), True)")
 
     pi = pigpio.pi()
     if not pi.connected:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                        "pigpio daemon not running – aborting")
+        safe_log("pigpio daemon not running – aborting", "error".upper(), True)
         raise SystemExit(1)
 
     # 설정에 따른 초기화
     if config.FSW_CONF == config.CONF_PAYLOAD:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Payload motor standby")
+        safe_log("Payload motor standby", "info".upper(), True)
         # 페이로드 모터 초기 위치 설정
         set_servo_pulse(1500)  # 90도 (중립 위치)
     elif config.FSW_CONF == config.CONF_CONTAINER:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Container motor standby")
+        safe_log("Container motor standby", "info".upper(), True)
     elif config.FSW_CONF == config.CONF_ROCKET:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Rocket motor standby")
+        safe_log("Rocket motor standby", "info".upper(), True)
     else:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "No Valid configuration!")
+        safe_log("No Valid configuration!", "info".upper(), True)
         PAYLOAD_MOTOR_ENABLE = False
 
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Motorapp initialised")
+    safe_log("Motorapp initialised", "info".upper(), True)
 
 
 def motorapp_terminate() -> None:
     global MOTORAPP_RUNSTATUS, pi
     MOTORAPP_RUNSTATUS = False
 
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Terminating motorapp - rotating to 180°")
+    safe_log("Terminating motorapp - rotating to 180°", "info".upper(), True)
 
     if pi and pi.connected:
         # 종료 시 모터를 180도로 회전
@@ -112,18 +120,18 @@ def motorapp_terminate() -> None:
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             if not hasattr(thread_dict[thread_name], '_is_resilient') or not thread_dict[thread_name]._is_resilient:
                 thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
                 if thread_dict[thread_name].is_alive():
-                    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                    safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
             else:
                 # resilient thread는 자동으로 종료됨
                 pass
         except Exception as e:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
 # ────────────────────────────────────────────
 # HK sender thread
@@ -155,8 +163,7 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
     # Termination from Main
     if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         MOTORAPP_RUNSTATUS = False
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                        "Termination command received")
+        safe_log("Termination command received", "info".upper(), True)
         return
 	
     # On receiving yaw data
@@ -177,8 +184,7 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
         if config.FSW_CONF == config.CONF_ROCKET:
             activaterocketmotor()
         else:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"Not Performing Rocket Motor Activation, current conf : {config.FSW_CONF}")
+            safe_log(f"Not Performing Rocket Motor Activation, current conf : {config.FSW_CONF}", "info".upper(), True)
 
     # On rocket motor standby command
     elif recv.MsgID == appargs.FlightlogicAppArg.MID_RocketMotorStandby:
@@ -186,62 +192,52 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
         if config.FSW_CONF == config.CONF_ROCKET:
             standbyrocketmotor()
         else:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"Not Performing Rocket Motor Standby, current conf : {config.FSW_CONF}")
+            safe_log(f"Not Performing Rocket Motor Standby, current conf : {config.FSW_CONF}", "info".upper(), True)
 
     # On Payload Release motor activation command
     elif recv.MsgID == appargs.FlightlogicAppArg.MID_PayloadReleaseMotorActivate:
         if config.FSW_CONF == config.CONF_CONTAINER:
             activatepayloadreleasemotor()
         else:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"Not Performing Payload Release Motor Activation, current conf : {config.FSW_CONF}")
+            safe_log(f"Not Performing Payload Release Motor Activation, current conf : {config.FSW_CONF}", "info".upper(), True)
 
     # On Payload Release motor standby command
     elif recv.MsgID == appargs.FlightlogicAppArg.MID_PayloadReleaseMotorStandby:
         if config.FSW_CONF == config.CONF_CONTAINER:
             standbypayloadreleasemotor()
         else:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"Not Performing Payload Release Motor Standby, current conf : {config.FSW_CONF}")
+            safe_log(f"Not Performing Payload Release Motor Standby, current conf : {config.FSW_CONF}", "info".upper(), True)
 
     # MEC command from Comm app
     elif recv.MsgID == appargs.CommAppArg.MID_RouteCmd_MEC:
         if config.FSW_CONF == config.CONF_ROCKET:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"MEC : Current conf : rocket, activating rocket motor...")
+            safe_log(f"MEC : Current conf : rocket, activating rocket motor...", "info".upper(), True)
             activaterocketmotor()
         elif config.FSW_CONF == config.CONF_CONTAINER:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"MEC : Current conf : container, Current Option : {recv.data}...")
+            safe_log(f"MEC : Current conf : container, Current Option : {recv.data}...", "info".upper(), True)
             if recv.data == "ON":
                 activatepayloadreleasemotor()
             elif recv.data == "OFF":
                 freepayloadreleasemotor()
             else:
-                events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, 
-                              f"Error Activating container motor, invalid option : {recv.data}")
+                safe_log(f"Error Activating container motor, invalid option : {recv.data}", "error".upper(), True)
         elif config.FSW_CONF == config.CONF_PAYLOAD:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, 
-                          f"MEC : Current conf : payload, Current Option : {recv.data}...")
+            safe_log(f"MEC : Current conf : payload, Current Option : {recv.data}...", "info".upper(), True)
             if recv.data == "ON":
                 PAYLOAD_MOTOR_ENABLE = True
             elif recv.data == "OFF":
                 PAYLOAD_MOTOR_ENABLE = False
             else:
-                events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, 
-                              f"Error Activating payload motor, invalid option : {recv.data}")
+                safe_log(f"Error Activating payload motor, invalid option : {recv.data}", "error".upper(), True)
 
     # Angle command from Flightlogic
     elif recv.MsgID == appargs.FlightlogicAppArg.MID_SetServoAngle:
         try:
             pulse = int(float(recv.data))
             set_servo_pulse(pulse)
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                            f"Servo pulse set to {pulse}µs (from flightlogic)")
+            safe_log(f"Servo pulse set to {pulse}µs (from flightlogic, "info".upper(), True)")
         except Exception as e:
-            events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                            f"Bad pulse cmd: {recv.data} – {e}")
+            safe_log(f"Bad pulse cmd: {recv.data} – {e}", "error".upper(), True)
         return
 
     elif recv.MsgID == appargs.MotorAppArg.MID_SetServoAngle:
@@ -249,8 +245,7 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
         set_servo_pulse(pulse)
 
     else:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                        f"MID {recv.MsgID} not handled")
+        safe_log(f"MID {recv.MsgID} not handled", "error".upper(), True)
 
 # ────────────────────────────────────────────
 # Motor control functions
@@ -258,27 +253,27 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
 
 def activaterocketmotor():
     """로켓 모터 활성화"""
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Activating Rocket Motor")
+    safe_log("Activating Rocket Motor", "info".upper(), True)
     # 로켓 모터 제어 로직 구현
 
 def standbyrocketmotor():
     """로켓 모터 대기"""
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Standby Rocket Motor")
+    safe_log("Standby Rocket Motor", "info".upper(), True)
     # 로켓 모터 대기 로직 구현
 
 def activatepayloadreleasemotor():
     """페이로드 해제 모터 활성화"""
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Activating Payload Release Motor")
+    safe_log("Activating Payload Release Motor", "info".upper(), True)
     # 페이로드 해제 모터 제어 로직 구현
 
 def standbypayloadreleasemotor():
     """페이로드 해제 모터 대기"""
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Standby Payload Release Motor")
+    safe_log("Standby Payload Release Motor", "info".upper(), True)
     # 페이로드 해제 모터 대기 로직 구현
 
 def freepayloadreleasemotor():
     """페이로드 해제 모터 해제"""
-    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, "Free Payload Release Motor")
+    safe_log("Free Payload Release Motor", "info".upper(), True)
     # 페이로드 해제 모터 해제 로직 구현
 
 def controlgimbalmotor(yaw):
@@ -288,7 +283,7 @@ def controlgimbalmotor(yaw):
         angle = max(0, min(180, 90 + yaw))  # 90도를 중심으로 ±90도
         pulse = motor.angle_to_pulse(angle)
         set_servo_pulse(pulse)
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info, f"Gimbal motor controlled by yaw: {yaw}° -> angle: {angle}°")
+        safe_log(f"Gimbal motor controlled by yaw: {yaw}° -> angle: {angle}°", "info".upper(), True)
 
 # ────────────────────────────────────────────
 # Main loop
@@ -356,10 +351,10 @@ def motorapp_main(main_q: Queue, main_pipe: connection.Connection):
                     try:
                         raw = main_pipe.recv()
                     except (EOFError, BrokenPipeError, ConnectionResetError):
-                        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        safe_log("Pipe connection lost", "error".upper(), True)
                         break
                     except Exception as e:
-                        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
                         continue
                 else:
                     # 타임아웃 시 루프 계속
@@ -372,16 +367,14 @@ def motorapp_main(main_q: Queue, main_pipe: connection.Connection):
                 if m.receiver_app in (appargs.MotorAppArg.AppID, appargs.MainAppArg.AppID):
                     command_handler(main_q, m)
                 else:
-                    events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                                    "Receiver AppID mismatch for motorapp")
+                    safe_log("Receiver AppID mismatch for motorapp", "error".upper(), True)
                                     
             except Exception as e:
-                events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                safe_log(f"Main loop error: {e}", "error".upper(), True)
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
     except Exception as e:
-        events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.error,
-                        f"motorapp runtime error: {e}")
+        safe_log(f"motorapp runtime error: {e}", "error".upper(), True)
         MOTORAPP_RUNSTATUS = False
 
     motorapp_terminate()

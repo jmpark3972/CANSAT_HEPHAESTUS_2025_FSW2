@@ -15,7 +15,7 @@ _termination_in_progress = False
 # Custom libraries
 from lib import appargs
 from lib import msgstructure
-from lib import events
+from lib import logging
 from lib import types
 
 # Multiprocessing Library is used on Python FSW V2
@@ -26,11 +26,20 @@ from multiprocessing import Process, Queue, Pipe, connection
 
 # Load configuration files
 from lib import config
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[{appargs.MainAppArg.AppName}] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[MAIN] 로깅 실패: {e}")
+        print(f"[MAIN] 원본 메시지: {message}")
+
 if config.FSW_CONF == config.CONF_NONE:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, "CONFIG IS SELECTED AS NONE, TERMINATING FSW")
+    safe_log("CONFIG IS SELECTED AS NONE, TERMINATING FSW", "ERROR", True)
     sys.exit(0)
-
-
 
 from lib import prevstate
 
@@ -52,7 +61,7 @@ def terminate_FSW():
     MAINAPP_RUNSTATUS = False
 
     try:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "로깅 시스템 정리 완료")
+        safe_log("로깅 시스템 정리 완료", "INFO", True)
     except Exception as e:
         print(f"로깅 시스템 정리 실패: {e}")
 
@@ -63,43 +72,43 @@ def terminate_FSW():
     # 종료 메시지 전송
     for appID in app_dict:
         if app_dict[appID].process and app_dict[appID].process.is_alive():
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID}")
+            safe_log(f"Terminating AppID {appID}", "INFO", True)
             try:
                 app_dict[appID].pipe.send(termination_message_to_send)
             except Exception as e:
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send termination to {appID}: {e}")
+                safe_log(f"Failed to send termination to {appID}: {e}", "ERROR", True)
     
     time.sleep(0.5)
 
     # 프로세스 종료
     for appID in app_dict:
         if app_dict[appID].process and app_dict[appID].process.is_alive():
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
+            safe_log(f"Joining AppID {appID}", "INFO", True)
             try:
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
+                safe_log(f"Force terminating AppID {appID}", "WARNING", True)
                 app_dict[appID].process.terminate()
                 app_dict[appID].process.join(timeout=1)
                 if app_dict[appID].process.is_alive():
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force killing AppID {appID}")
+                    safe_log(f"Force killing AppID {appID}", "WARNING", True)
                     app_dict[appID].process.kill()
                     app_dict[appID].process.join(timeout=0.5)
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
+                safe_log(f"Terminating AppID {appID} complete", "INFO", True)
             except Exception as e:
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
+                safe_log(f"Error joining {appID}: {e}", "ERROR", True)
                 try:
                     app_dict[appID].process.kill()
                 except Exception as kill_error:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"프로세스 강제 종료 중 오류: {kill_error}")
+                    safe_log(f"프로세스 강제 종료 중 오류: {kill_error}", "ERROR", True)
 
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
+    safe_log(f"Manual termination! Resetting prev state file", "INFO", True)
     prevstate.reset_prevstate()
     
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
+    safe_log(f"All Termination Process complete, terminating FSW", "INFO", True)
     
     try:
         pass
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Child process cleanup error: {e}")
+        safe_log(f"Child process cleanup error: {e}", "ERROR", True)
     
     print("FSW 종료 완료. 프로그램을 종료합니다.")
     os._exit(0)
@@ -129,13 +138,13 @@ def signal_handler(signum, frame):
                         app_dict[appID].process.kill()
                         app_dict[appID].process.join(timeout=0.5)
                 except Exception as e:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 프로세스 종료 오류: {e}")
+                    safe_log(f"시그널 핸들러에서 프로세스 종료 오류: {e}", "ERROR", True)
                     try:
                         app_dict[appID].process.kill()
                     except Exception as kill_error:
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 강제 종료 오류: {kill_error}")
+                        safe_log(f"시그널 핸들러에서 강제 종료 오류: {kill_error}", "ERROR", True)
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 전체 프로세스 정리 오류: {e}")
+        safe_log(f"시그널 핸들러에서 전체 프로세스 정리 오류: {e}", "ERROR", True)
     
     try:
         pass
@@ -162,9 +171,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.HkAppArg.AppID] = hkapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "HK 앱 로드 완료")
+    safe_log("HK 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"HK 앱 로드 실패: {e}")
+    safe_log(f"HK 앱 로드 실패: {e}", "ERROR", True)
 
 # BarometerApp
 try:
@@ -179,9 +188,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.BarometerAppArg.AppID] = barometerapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Barometer 앱 로드 완료")
+    safe_log("Barometer 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Barometer 앱 로드 실패: {e}")
+    safe_log(f"Barometer 앱 로드 실패: {e}", "ERROR", True)
 
 # GpsApp
 try:
@@ -196,9 +205,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.GpsAppArg.AppID] = gpsapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "GPS 앱 로드 완료")
+    safe_log("GPS 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"GPS 앱 로드 실패: {e}")
+    safe_log(f"GPS 앱 로드 실패: {e}", "ERROR", True)
 
 # ImuApp
 try:
@@ -213,9 +222,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.ImuAppArg.AppID] = imuapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "IMU 앱 로드 완료")
+    safe_log("IMU 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"IMU 앱 로드 실패: {e}")
+    safe_log(f"IMU 앱 로드 실패: {e}", "ERROR", True)
 
 # FlightlogicApp
 try:
@@ -230,9 +239,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.FlightlogicAppArg.AppID] = flightlogicapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "FlightLogic 앱 로드 완료")
+    safe_log("FlightLogic 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"FlightLogic 앱 로드 실패: {e}")
+    safe_log(f"FlightLogic 앱 로드 실패: {e}", "ERROR", True)
 
 # CommApp
 try:
@@ -247,9 +256,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.CommAppArg.AppID] = commapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Comm 앱 로드 완료")
+    safe_log("Comm 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Comm 앱 로드 실패: {e}")
+    safe_log(f"Comm 앱 로드 실패: {e}", "ERROR", True)
 
 # Motorapp
 try:
@@ -264,9 +273,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.MotorAppArg.AppID] = motorapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Motor 앱 로드 완료")
+    safe_log("Motor 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Motor 앱 로드 실패: {e}")
+    safe_log(f"Motor 앱 로드 실패: {e}", "ERROR", True)
 
 # FIR1App (MLX90614 Channel 0)
 try:
@@ -281,9 +290,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.FirApp1Arg.AppID] = firapp1_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "FIR1 앱 로드 완료")
+    safe_log("FIR1 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"FIR1 앱 로드 실패: {e}")
+    safe_log(f"FIR1 앱 로드 실패: {e}", "ERROR", True)
 
 # THERMISApp
 try:
@@ -302,9 +311,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.ThermisAppArg.AppID] = thermisapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermis 앱 로드 완료")
+    safe_log("Thermis 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermis 앱 로드 실패: {e}")
+    safe_log(f"Thermis 앱 로드 실패: {e}", "ERROR", True)
 
 # TMP007App
 try:
@@ -319,9 +328,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.Tmp007AppArg.AppID] = tmp007app_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "TMP007 앱 로드 완료")
+    safe_log("TMP007 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"TMP007 앱 로드 실패: {e}")
+    safe_log(f"TMP007 앱 로드 실패: {e}", "ERROR", True)
 
 # CameraApp
 try:
@@ -336,9 +345,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.ThermalcameraAppArg.AppID] = thermo_cameraapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermal Camera 앱 로드 완료")
+    safe_log("Thermal Camera 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermal Camera 앱 로드 실패: {e}")
+    safe_log(f"Thermal Camera 앱 로드 실패: {e}", "ERROR", True)
 
 # THERMOApp
 try:
@@ -353,9 +362,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.ThermoAppArg.AppID] = thermoapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermo 앱 로드 완료")
+    safe_log("Thermo 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermo 앱 로드 실패: {e}")
+    safe_log(f"Thermo 앱 로드 실패: {e}", "ERROR", True)
 
 # PitotApp
 try:
@@ -368,9 +377,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Pitot 앱 로드 완료")
+    safe_log("Pitot 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pitot 앱 로드 실패: {e}")
+    safe_log(f"Pitot 앱 로드 실패: {e}", "ERROR", True)
 
 # CameraApp (Raspberry Pi Camera Module v3 Wide)
 try:
@@ -385,9 +394,9 @@ try:
     
     # Add the process to dictionary
     app_dict[appargs.CameraAppArg.AppID] = cameraapp_elements
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Camera 앱 로드 완료")
+    safe_log("Camera 앱 로드 완료", "INFO", True)
 except Exception as e:
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Camera 앱 로드 실패: {e}")
+    safe_log(f"Camera 앱 로드 실패: {e}", "ERROR", True)
 
 
 
@@ -407,7 +416,7 @@ def runloop(Main_Queue : Queue):
     try:
         while MAINAPP_RUNSTATUS:
             if time.time() - start_time > max_runtime:
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, "Maximum runtime reached, terminating FSW")
+                safe_log("Maximum runtime reached, terminating FSW", "WARNING", True)
                 break
             
             # 주기적 프로세스 상태 체크 (10초마다)
@@ -420,11 +429,11 @@ def runloop(Main_Queue : Queue):
                 
                 for appID in app_dict:
                     if app_dict[appID].process and not app_dict[appID].process.is_alive():
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, attempting restart")
+                        safe_log(f"Process {appID} is dead, attempting restart", "WARNING", True)
                         try:
                             app_dict[appID].pipe.close()
                         except Exception as e:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pipe close error for dead process {appID}: {e}")
+                            safe_log(f"Pipe close error for dead process {appID}: {e}", "ERROR", True)
                         
                         # 중요도별 앱 분류
                         critical_apps = [
@@ -440,52 +449,52 @@ def runloop(Main_Queue : Queue):
                         ]
                         
                         if appID in non_critical_apps:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Non-critical process {appID} is dead, continuing without restart")
+                            safe_log(f"Non-critical process {appID} is dead, continuing without restart", "INFO", True)
                         elif appID in critical_apps:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical process {appID} is dead, system may be unstable but continuing")
+                            safe_log(f"Critical process {appID} is dead, system may be unstable but continuing", "ERROR", True)
                         else:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, continuing")
+                            safe_log(f"Process {appID} is dead, continuing", "WARNING", True)
                 
             try:
                 recv_msg = Main_Queue.get(timeout=0.5)
 
                 if not isinstance(recv_msg, str):
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Invalid message type: {type(recv_msg)}")
+                    safe_log(f"Invalid message type: {type(recv_msg)}", "ERROR", True)
                     continue
 
                 unpacked_msg = msgstructure.MsgStructure()
                 if not msgstructure.unpack_msg(unpacked_msg, recv_msg):
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to unpack message: {recv_msg}")
+                    safe_log(f"Failed to unpack message: {recv_msg}", "ERROR", True)
                     continue
                 
                 if unpacked_msg.receiver_app in app_dict:
                     try:
                         if app_dict[unpacked_msg.receiver_app].pipe is None:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pipe is None for {unpacked_msg.receiver_app}")
+                            safe_log(f"Pipe is None for {unpacked_msg.receiver_app}", "ERROR", True)
                             continue
                         
                         if not app_dict[unpacked_msg.receiver_app].process.is_alive():
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {unpacked_msg.receiver_app} is dead, skipping message")
+                            safe_log(f"Process {unpacked_msg.receiver_app} is dead, skipping message", "WARNING", True)
                             continue
                             
                         app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
                     except BrokenPipeError:
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Broken pipe for {unpacked_msg.receiver_app}, but continuing")
+                        safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, but continuing", "WARNING", True)
                         try:
                             app_dict[unpacked_msg.receiver_app].pipe.close()
                         except:
                             pass
                     except Exception as e:
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send message to {unpacked_msg.receiver_app}: {e}")
+                        safe_log(f"Failed to send message to {unpacked_msg.receiver_app}: {e}", "ERROR", True)
                 else:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Unknown receiver app: {unpacked_msg.receiver_app}")
+                    safe_log(f"Unknown receiver app: {unpacked_msg.receiver_app}", "WARNING", True)
                     continue
             except Exception as e:
                 if "Empty" not in str(e):
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                    safe_log(f"Main loop error: {e}", "ERROR", True)
 
     except KeyboardInterrupt:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
+        safe_log("KeyboardInterrupt Detected, Terminating FSW", "INFO", True)
         MAINAPP_RUNSTATUS = False
         print("KeyboardInterrupt 감지됨. 강제 종료합니다.")
         
@@ -495,11 +504,11 @@ def runloop(Main_Queue : Queue):
                     print(f"강제 종료: {appID}")
                     app_dict[appID].process.kill()
         except Exception as e:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"KeyboardInterrupt에서 프로세스 강제 종료 오류: {e}")
+            safe_log(f"KeyboardInterrupt에서 프로세스 강제 종료 오류: {e}", "ERROR", True)
         
         os._exit(0)
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
+        safe_log(f"Critical error in main loop: {e}", "ERROR", True)
         MAINAPP_RUNSTATUS = False
         print("치명적 오류 발생. 강제 종료합니다.")
         os._exit(0)
@@ -513,7 +522,7 @@ def cleanup_on_exit():
     try:
         terminate_FSW()
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Cleanup on exit 오류: {e}")
+        safe_log(f"Cleanup on exit 오류: {e}", "ERROR", True)
 
 
 def generate_system_status_report():
@@ -576,22 +585,22 @@ def generate_system_status_report():
         alive_count = sum(1 for p in report['processes'].values() if p['alive'])
         total_count = len(report['processes'])
         
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, 
+        safe_log(
                        f"System Status: {alive_count}/{total_count} processes alive, "
                        f"Memory: {report['memory_usage']['rss_mb']:.1f}MB, "
-                       f"Disk: {report['disk_usage'].get('percent', 0):.1f}% used")
+                       f"Disk: {report['disk_usage'].get('percent', 0):.1f}% used", "INFO", True)
         
         return report
         
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"System status report generation failed: {e}")
+        safe_log(f"System status report generation failed: {e}", "ERROR", True)
         return None
 
 
 if __name__ == '__main__':
 
     try:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "로깅 시스템 초기화 완료")
+        safe_log("로깅 시스템 초기화 완료", "INFO", True)
     except Exception as e:
         print(f"로깅 시스템 초기화 실패: {e}")
 
@@ -637,14 +646,14 @@ if __name__ == '__main__':
             if appID in app_dict and app_dict[appID].process is not None:
                 try:
                     app_dict[appID].process.start()
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started core process for {appID}")
+                    safe_log(f"Started core process for {appID}", "INFO", True)
                     time.sleep(0.3)  # 더 긴 대기로 안정성 향상
                 except Exception as e:
                     if appID in critical_apps:
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical app {appID} failed to start: {e}")
+                        safe_log(f"Critical app {appID} failed to start: {e}", "ERROR", True)
                         # 중요 앱 실패 시에도 계속 진행 (시스템 안정성 우선)
                     else:
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Non-critical app {appID} failed to start: {e}")
+                        safe_log(f"Non-critical app {appID} failed to start: {e}", "WARNING", True)
                     continue
         
         # 나머지 앱들 시작
@@ -652,14 +661,14 @@ if __name__ == '__main__':
             if appID not in core_apps and app_dict[appID].process is not None:
                 try:
                     app_dict[appID].process.start()
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started process for {appID}")
+                    safe_log(f"Started process for {appID}", "INFO", True)
                     time.sleep(0.2)
                 except Exception as e:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Failed to start {appID}: {e}")
+                    safe_log(f"Failed to start {appID}: {e}", "WARNING", True)
                     continue
                     
     except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error starting processes: {e}")
+        safe_log(f"Error starting processes: {e}", "ERROR", True)
         # 프로세스 시작 실패 시에도 메인 루프는 계속 실행
         pass
 

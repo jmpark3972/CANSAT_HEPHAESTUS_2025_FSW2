@@ -2,6 +2,18 @@
 # Author : Hyeon Lee  (HEPHAESTUS)
 # Raspberry Pi Camera Module v3 Wide 지원
 
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Camera] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Camera] 로깅 실패: {e}")
+        print(f"[Camera] 원본 메시지: {message}")
+
 from lib import appargs, msgstructure, logging, events, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
@@ -45,30 +57,22 @@ def log_cameraapp_event(event_type: str, message: str):
             
     except Exception as e:
         # 로그 기록 실패 시 기본 이벤트 로그 사용
-        events.LogEvent(appargs.CameraAppArg.AppName,
-                       events.EventType.error,
-                       f"Log write failed: {e}")
+        safe_log(f"Log write failed: {e}", "error".upper(), True)
 
 def log_app_info(info_msg: str):
     """앱 정보 로그."""
     log_cameraapp_event("INFO", info_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.info,
-                   info_msg)
+    safe_log(info_msg, "info".upper(), True)
 
 def log_app_error(error_msg: str):
     """앱 오류 로그."""
     log_cameraapp_event("ERROR", error_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.error,
-                   error_msg)
+    safe_log(error_msg, "error".upper(), True)
 
 def log_app_warning(warning_msg: str):
     """앱 경고 로그."""
     log_cameraapp_event("WARNING", warning_msg)
-    events.LogEvent(appargs.CameraAppArg.AppName,
-                   events.EventType.warning,
-                   warning_msg)
+    safe_log(warning_msg, "warning".upper(), True)
 
 def log_message_received(msg_id: int, sender: str = "Unknown"):
     """메시지 수신 로그."""

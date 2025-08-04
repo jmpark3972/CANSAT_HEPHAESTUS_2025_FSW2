@@ -4,7 +4,17 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[IMU] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[IMU] 로깅 실패: {e}")
+        print(f"[IMU] 원본 메시지: {message}")
+
 from lib import types
 
 import signal
@@ -122,11 +132,11 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, f"IMUAPP TERMINATION DETECTED")
+        safe_log(f"IMUAPP TERMINATION DETECTED", "info".upper(), True)
         IMUAPP_RUNSTATUS = False
 
     else:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
+        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
     return
 
 def send_hk(Main_Queue : Queue):
@@ -142,9 +152,9 @@ def send_hk(Main_Queue : Queue):
             if status == False:
                 consecutive_hk_failures += 1
                 if consecutive_hk_failures <= max_hk_failures:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error sending HK message")
+                    safe_log("Error sending HK message", "error".upper(), True)
                 elif consecutive_hk_failures == max_hk_failures + 1:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"HK send errors suppressed after {max_hk_failures} failures")
+                    safe_log(f"HK send errors suppressed after {max_hk_failures} failures", "warning".upper(), True)
             else:
                 consecutive_hk_failures = 0
                 
@@ -156,9 +166,9 @@ def send_hk(Main_Queue : Queue):
         except Exception as e:
             consecutive_hk_failures += 1
             if consecutive_hk_failures <= max_hk_failures:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Exception sending HK: {e}")
+                safe_log(f"Exception sending HK: {e}", "error".upper(), True)
             elif consecutive_hk_failures == max_hk_failures + 1:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"HK send exceptions suppressed after {max_hk_failures} failures")
+                safe_log(f"HK send exceptions suppressed after {max_hk_failures} failures", "warning".upper(), True)
         
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -177,22 +187,16 @@ def imuapp_init():
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.ImuAppArg.AppName,
-                        events.EventType.info,
-                        "Initializing imuapp")
+        safe_log("Initializing imuapp", "info".upper(), True)
 
         # IMU 센서 초기화 (직접 I2C 연결)
         i2c, sensor = imu.init_imu()
         
-        events.LogEvent(appargs.ImuAppArg.AppName,
-                        events.EventType.info,
-                        "Imuapp initialization complete")
+        safe_log("Imuapp initialization complete", "info".upper(), True)
         return i2c, sensor
 
     except Exception as e:
-        events.LogEvent(appargs.ImuAppArg.AppName,
-                        events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None, None
 
 # Termination
@@ -200,26 +204,26 @@ def imuapp_terminate(i2c_instance):
     global IMUAPP_RUNSTATUS
 
     IMUAPP_RUNSTATUS = False
-    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Terminating imuapp")
+    safe_log("Terminating imuapp", "info".upper(), True)
     
     try:
         imu.imu_terminate(i2c_instance)
     except Exception as e:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error terminating IMU: {e}")
+        safe_log(f"Error terminating IMU: {e}", "error".upper(), True)
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Terminating imuapp complete")
+    safe_log("Terminating imuapp complete", "info".upper(), True)
     return
 
 ######################################################
@@ -263,9 +267,7 @@ def read_imu_data(sensor):
                     IMU_GYRZ = gyro[2]
                     
         except Exception as e:
-            events.LogEvent(appargs.ImuAppArg.AppName,
-                            events.EventType.error,
-                            f"IMU read error: {e}")
+            safe_log(f"IMU read error: {e}", "error".upper(), True)
         time.sleep(0.1)  # 10 Hz
 
 def send_imu_data(Main_Queue : Queue):
@@ -318,17 +320,17 @@ def send_imu_data(Main_Queue : Queue):
                 if status == False:
                     consecutive_send_failures += 1
                     if consecutive_send_failures <= max_send_failures:
-                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error When sending Imu Tlm Message")
+                        safe_log("Error When sending Imu Tlm Message", "error".upper(), True)
                     elif consecutive_send_failures == max_send_failures + 1:
-                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU send errors suppressed after {max_send_failures} failures")
+                        safe_log(f"IMU send errors suppressed after {max_send_failures} failures", "warning".upper(), True)
                 else:
                     consecutive_send_failures = 0  # 성공 시 실패 횟수 리셋
             except Exception as e:
                 consecutive_send_failures += 1
                 if consecutive_send_failures <= max_send_failures:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Exception when sending IMU data: {e}")
+                    safe_log(f"Exception when sending IMU data: {e}", "error".upper(), True)
                 elif consecutive_send_failures == max_send_failures + 1:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU send exceptions suppressed after {max_send_failures} failures")
+                    safe_log(f"IMU send exceptions suppressed after {max_send_failures} failures", "warning".upper(), True)
             
             send_counter = 0
             
@@ -356,7 +358,7 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     
     # 초기화 실패 시 종료
     if i2c_instance is None or imu_instance is None:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "IMU 초기화 실패로 인한 종료")
+        safe_log("IMU 초기화 실패로 인한 종료", "error".upper(), True)
         return
 
     # Spawn SB Message Listner Thread
@@ -379,10 +381,10 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     try:
                         message = Main_Pipe.recv()
                     except (EOFError, BrokenPipeError, ConnectionResetError):
-                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        safe_log("Pipe connection lost", "error".upper(), True)
                         break
                     except Exception as e:
-                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
                         continue
                 else:
                     # 타임아웃 시 루프 계속
@@ -400,15 +402,15 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     # Handle Command According to Message ID
                     command_handler(recv_msg)
                 else:
-                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Receiver MID does not match with imuapp MID")
+                    safe_log("Receiver MID does not match with imuapp MID", "error".upper(), True)
                     
             except Exception as e:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                safe_log(f"Main loop error: {e}", "error".upper(), True)
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"imuapp error : {e}")
+        safe_log(f"imuapp error : {e}", "error".upper(), True)
         IMUAPP_RUNSTATUS = False
 
     # Termination Process after runloop

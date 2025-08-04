@@ -11,8 +11,31 @@ import signal
 import time
 from queue import Queue
 from multiprocessing import connection
-from lib import events
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[FIR1] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[FIR1] 로깅 실패: {e}")
+        print(f"[FIR1] 원본 메시지: {message}")
+
 from lib import appargs
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[FIR1] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[FIR1] 로깅 실패: {e}")
+        print(f"[FIR1] 원본 메시지: {message}")
+
 from lib import msgstructure
 from fir1 import fir1
 

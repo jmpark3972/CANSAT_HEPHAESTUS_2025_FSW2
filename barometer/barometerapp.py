@@ -5,8 +5,31 @@ import signal
 import time
 from queue import Queue
 from multiprocessing import connection
-from lib import events
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Barometer] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Barometer] 로깅 실패: {e}")
+        print(f"[Barometer] 원본 메시지: {message}")
+
 from lib import appargs
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Barometer] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Barometer] 로깅 실패: {e}")
+        print(f"[Barometer] 원본 메시지: {message}")
+
 from lib import msgstructure
 from barometer import barometer
 
@@ -106,7 +129,7 @@ def command_handler (Main_Queue:Queue, recv_msg : msgstructure.MsgStructure, bar
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"BAROMETERAPP TERMINATION DETECTED")
+        safe_log(f"BAROMETERAPP TERMINATION DETECTED", "info".upper(), True)
         BAROMETERAPP_RUNSTATUS = False
 
     # Calibrate Barometer when calibrate command is input
@@ -126,12 +149,12 @@ def command_handler (Main_Queue:Queue, recv_msg : msgstructure.MsgStructure, bar
             # sleep for 0.5 seconds to ensure the max alt reset. Since the mutex is holding, no barometer data can be sent to flightlogic
             time.sleep(0.5)
 
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"Barometer offset changed to {BAROMETER_OFFSET}")
+        safe_log(f"Barometer offset changed to {BAROMETER_OFFSET}", "info".upper(), True)
 
         prevstate.update_altcal(BAROMETER_OFFSET)
 
     else:
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
+        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
     return
 
 def send_hk(Main_Queue : Queue):
@@ -149,7 +172,7 @@ def send_hk(Main_Queue : Queue):
                 log_csv(HK_LOG_PATH, ["timestamp", "run", "pressure", "temperature", "altitude"], hk_row)
                 
         except Exception as e:
-            events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"HK send error: {e}")
+            safe_log(f"HK send error: {e}", "error".upper(), True)
             
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -168,22 +191,16 @@ def barometerapp_init():
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.BarometerAppArg.AppName,
-                        events.EventType.info,
-                        "Initializing barometerapp")
+        safe_log("Initializing barometerapp", "info".upper(), True)
 
         # Barometer 센서 초기화 (직접 I2C 연결)
         i2c, bmp = barometer.init_barometer()
         
-        events.LogEvent(appargs.BarometerAppArg.AppName,
-                        events.EventType.info,
-                        "Barometerapp initialization complete")
+        safe_log("Barometerapp initialization complete", "info".upper(), True)
         return i2c, bmp
 
     except Exception as e:
-        events.LogEvent(appargs.BarometerAppArg.AppName,
-                        events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None, None
 
 # Termination
@@ -191,23 +208,23 @@ def barometerapp_terminate(i2c_instance):
     global BAROMETERAPP_RUNSTATUS
 
     BAROMETERAPP_RUNSTATUS = False
-    events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, "Terminating barometerapp")
+    safe_log("Terminating barometerapp", "info".upper(), True)
     # Termination Process Comes Here
 
     barometer.terminate_barometer(i2c_instance)
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, "Terminating barometerapp complete")
+    safe_log("Terminating barometerapp complete", "info".upper(), True)
     return
 
 ######################################################
@@ -229,9 +246,7 @@ def read_barometer_data(bmp):
             TEMPERATURE = temperature
             ALTITUDE = altitude
         except Exception as e:
-            events.LogEvent(appargs.BarometerAppArg.AppName,
-                            events.EventType.error,
-                            f"Barometer read error: {e}")
+            safe_log(f"Barometer read error: {e}", "error".upper(), True)
         time.sleep(0.1)  # 10 Hz
 
 def send_barometer_data(Main_Queue : Queue):
@@ -260,7 +275,7 @@ def send_barometer_data(Main_Queue : Queue):
                                             appargs.BarometerAppArg.MID_SendBarometerFlightLogicData,
                                             f"{ALTITUDE}")
             if status == False:
-                events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, "Error When sending Barometer Flight Logic Message")
+                safe_log("Error When sending Barometer Flight Logic Message", "error".upper(), True)
 
         if msg_send_count > 10 : 
             # Send telemetry message to COMM app in 1Hz
@@ -271,7 +286,7 @@ def send_barometer_data(Main_Queue : Queue):
                                         appargs.BarometerAppArg.MID_SendBarometerTlmData,
                                         f"{PRESSURE},{TEMPERATURE},{ALTITUDE}")
             if status == False:
-                events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, "Error When sending Barometer Tlm Message")
+                safe_log("Error When sending Barometer Tlm Message", "error".upper(), True)
 
             msg_send_count = 0
         
@@ -348,11 +363,11 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 # Handle Command According to Message ID
                 command_handler(Main_Queue, recv_msg, barometer_instance)
             else:
-                events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, "Receiver MID does not match with barometerapp MID")
+                safe_log("Receiver MID does not match with barometerapp MID", "error".upper(), True)
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"barometerapp error : {e}")
+        safe_log(f"barometerapp error : {e}", "error".upper(), True)
         BAROMETERAPP_RUNSTATUS = False
 
     # Termination Process after runloop

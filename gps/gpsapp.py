@@ -4,7 +4,17 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[GPS] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[GPS] 로깅 실패: {e}")
+        print(f"[GPS] 원본 메시지: {message}")
+
 from lib import types
 
 import signal
@@ -30,11 +40,11 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, f"GPSAPP TERMINATION DETECTED")
+        safe_log(f"GPSAPP TERMINATION DETECTED", "info".upper(), True)
         GPSAPP_RUNSTATUS = False
 
     else:
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
+        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
     return
 
 def send_hk(Main_Queue : Queue):
@@ -60,13 +70,13 @@ def gpsapp_init():
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, "Initializating gpsapp")
+        safe_log("Initializating gpsapp", "info".upper(), True)
         ## User Defined Initialization goes HERE
         gps_instance = gps.init_gps()
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, "Gpsapp Initialization Complete")
+        safe_log("Gpsapp Initialization Complete", "info".upper(), True)
         return gps_instance
     except Exception as e:
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, "Error during initialization")
+        safe_log("Error during initialization", "error".upper(), True)
         GPSAPP_RUNSTATUS = False
 
 # Termination
@@ -74,27 +84,27 @@ def gpsapp_terminate():
     global GPSAPP_RUNSTATUS
     global gps_instance
     GPSAPP_RUNSTATUS = False
-    events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, "Terminating gpsapp")
+    safe_log("Terminating gpsapp", "info".upper(), True)
     # Termination Process Comes Here
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
 
     if gps_instance is not None:
         gps.terminate_gps(gps_instance)
         gps_instance = None
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, "GPS connection terminated")
+        safe_log("GPS connection terminated", "info".upper(), True)
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, "Terminating gpsapp complete")
+    safe_log("Terminating gpsapp complete", "info".upper(), True)
     return
 
 ######################################################
@@ -190,11 +200,11 @@ def gpsapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 # Handle Command According to Message ID
                 command_handler(recv_msg)
             else:
-                events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, "Receiver MID does not match with gpsapp MID")
+                safe_log("Receiver MID does not match with gpsapp MID", "error".upper(), True)
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, f"gpsapp error : {e}")
+        safe_log(f"gpsapp error : {e}", "error".upper(), True)
         GPSAPP_RUNSTATUS = False
 
     # Termination Process after runloop

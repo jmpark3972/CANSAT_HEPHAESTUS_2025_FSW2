@@ -4,7 +4,6 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
 from lib import types
 from lib import prevstate
 from lib import config
@@ -113,8 +112,18 @@ data_transmission_stats = {
 }
 
 # ──────────────────────────────
-# 7. 로깅 함수들
+# 7. 로깅 함수들 (lib/logging.py 사용)
 # ──────────────────────────────
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[{appargs.FlightlogicAppArg.AppName}] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[FLIGHT_LOGIC] 로깅 실패: {e}")
+        print(f"[FLIGHT_LOGIC] 원본 메시지: {message}")
+
 def emergency_log_to_file(log_type: str, message: str):
     """강제 종료 시에도 파일에 로그를 저장하는 함수"""
     global _emergency_logging_enabled
@@ -156,9 +165,8 @@ def log_state_change(old_state: str, new_state: str, reason: str = ""):
             writer = csv.writer(csvfile)
             writer.writerow([timestamp, old_state, new_state, reason])
             
-        # 이벤트 로그에도 기록
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                       f"State change: {old_state} → {new_state} ({reason})")
+        # lib/logging.py 사용
+        safe_log(f"State change: {old_state} → {new_state} ({reason})", "INFO", True)
         
     except Exception as e:
         emergency_log_to_file("ERROR", f"State change logging failed: {e}")
@@ -220,9 +228,8 @@ def log_error(error_msg: str, context: str = ""):
             writer = csv.writer(csvfile)
             writer.writerow([timestamp, error_msg, context])
             
-        # 이벤트 로그에도 기록
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                       f"Error: {error_msg} (Context: {context})")
+        # lib/logging.py 사용
+        safe_log(f"Error: {error_msg} (Context: {context})", "ERROR", True)
         
     except Exception as e:
         emergency_log_to_file("ERROR", f"Error logging failed: {e}")
@@ -234,9 +241,7 @@ def get_transmission_stats():
 def log_system_event(event_type: str, message: str):
     """시스템 이벤트를 로깅"""
     try:
-        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                       f"[{event_type}] {message}")
+        safe_log(f"[{event_type}] {message}", "INFO", True)
     except Exception as e:
         emergency_log_to_file("ERROR", f"System event logging failed: {e}")
 
@@ -319,7 +324,7 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
             else:
                 log_motor_command(pulse, success=False, context=f"set_motor_pulse_final_failure: {e}")
                 log_error(f"Motor command failed after {max_retries} attempts: {e}", "set_motor_pulse")
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Motor command failed after {max_retries} attempts: {e}")
+                safe_log(f"Motor command failed after {max_retries} attempts: {e}", "ERROR", True)
                 return
     
     # 모터 상태 로깅
@@ -343,7 +348,7 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
                     "thermal": LAST_THERMAL
                 }
                 log_system_event("CLOSE_EVENT", f"Motor closed with data: {close_data}")
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"CLOSE_EVENT: {close_data}")
+                safe_log(f"CLOSE_EVENT: {close_data}", "INFO", True)
                 CLOSE_EVENT_LOGGED = True
             except Exception as e:
                 log_error(f"Close event logging failed: {e}", "set_motor_pulse")
@@ -351,8 +356,7 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
         state = f"중간 위치 ({int((pulse - 500) * 180 / 2000)}도)"
     
     log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                    f"Motor pulse cmd → {pulse} ({state})")
+    safe_log(f"Motor pulse cmd → {pulse} ({state})", "INFO", True)
 
 def update_motor_logic(Main_Queue: Queue):
     """온도/고도 조건에 따라 모터 제어"""
@@ -381,9 +385,7 @@ def activate_camera(Main_Queue: Queue) -> bool:
     
     try:
         if CAMERA_ACTIVE:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.warning,
-                           "Camera already active")
+            safe_log("Camera already active", "WARNING", True)
             return True
         
         # 카메라 앱에 활성화 명령 전송
@@ -413,9 +415,7 @@ def deactivate_camera(Main_Queue: Queue) -> bool:
     
     try:
         if not CAMERA_ACTIVE:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.warning,
-                           "Camera already inactive")
+            safe_log("Camera already inactive", "WARNING", True)
             return True
         
         # 카메라 앱에 비활성화 명령 전송
@@ -450,7 +450,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
     try:
         # 프로세스 종료 명령
         if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "TERMINATION DETECTED")
+            safe_log("TERMINATION DETECTED", "INFO", True)
             global FLIGHTLOGICAPP_RUNSTATUS
             FLIGHTLOGICAPP_RUNSTATUS = False
             return
@@ -695,7 +695,7 @@ def log_and_update_state(state: int, log_msg: str):
     try:
         log_state_change(STATE_LIST[old_state], STATE_LIST[state], log_msg)
         log_system_event("STATE_CHANGE", f"State {old_state} -> {state}: {log_msg}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, log_msg)
+        safe_log(log_msg, "INFO", True)
         prevstate.update_prevstate(CURRENT_STATE)
     except Exception as e:
         log_error(f"State change logging failed: {e}", "log_and_update_state")
@@ -713,13 +713,9 @@ def ascent_state_transition(Main_Queue: Queue):
     
     # 상승 시 카메라 활성화
     if activate_camera(Main_Queue):
-        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                       events.EventType.info,
-                       "Camera activated for ascent phase")
+        safe_log("Camera activated for ascent phase", "INFO", True)
     else:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                       events.EventType.error,
-                       "Failed to activate camera for ascent phase")
+        safe_log("Failed to activate camera for ascent phase", "ERROR", True)
 
 def apogee_state_transition(Main_Queue: Queue):
     """최고점 상태로 전환"""
@@ -745,7 +741,7 @@ def descent_state_transition(Main_Queue: Queue):
             "thermal": safe(LAST_THERMAL)
         }
         log_system_event("DESCENT_EVENT", f"Descent initiated with data: {descent_data}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"DESCENT_EVENT: {descent_data}")
+        safe_log(f"DESCENT_EVENT: {descent_data}", "INFO", True)
         DESCENT_EVENT_LOGGED = True
 
 def motor_close_state_transition(Main_Queue: Queue):
@@ -760,13 +756,9 @@ def landed_state_transition(Main_Queue: Queue):
     def delayed_camera_deactivation():
         time.sleep(30)  # 30초 대기
         if deactivate_camera(Main_Queue):
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.info,
-                           "Camera deactivated after 30 seconds from landing")
+            safe_log("Camera deactivated after 30 seconds from landing", "INFO", True)
         else:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.error,
-                           "Failed to deactivate camera after landing")
+            safe_log("Failed to deactivate camera after landing", "ERROR", True)
     
     # 별도 스레드에서 카메라 비활성화 실행
     deactivation_thread = threading.Thread(target=delayed_camera_deactivation, daemon=True)
@@ -783,7 +775,7 @@ def flightlogicapp_init(Main_Queue: Queue):
         # 키보드 인터럽트 비활성화
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Initializing flightlogicapp")
+        safe_log("Initializing flightlogicapp", "INFO", True)
         
         # 이전 상태 복구
         CURRENT_STATE = int(prevstate.PREV_STATE)
@@ -804,12 +796,11 @@ def flightlogicapp_init(Main_Queue: Queue):
         elif CURRENT_STATE == 5:
             landed_state_transition(Main_Queue)
             
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Setting Current state to {CURRENT_STATE}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Flightlogicapp Initialization Complete")
+        safe_log(f"Setting Current state to {CURRENT_STATE}", "INFO", True)
+        safe_log("Flightlogicapp Initialization Complete", "INFO", True)
         
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                        f"Error during initialization: {type(e).__name__}: {e}")
+        safe_log(f"Error during initialization: {type(e).__name__}: {e}", "ERROR", True)
         FLIGHTLOGICAPP_RUNSTATUS = False
 
 def flightlogicapp_terminate():
@@ -819,20 +810,20 @@ def flightlogicapp_terminate():
     FLIGHTLOGICAPP_RUNSTATUS = False
     _emergency_logging_enabled = False
     
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp")
+    safe_log("Terminating flightlogicapp", "INFO", True)
     
     # 스레드 종료 대기
     for thread_name in thread_dict:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        safe_log(f"Terminating thread {thread_name}", "INFO", True)
         try:
             thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
             if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+                safe_log(f"Thread {thread_name} did not terminate gracefully", "WARNING", True)
         except Exception as e:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            safe_log(f"Error joining thread {thread_name}: {e}", "ERROR", True)
+        safe_log(f"Terminating thread {thread_name} Complete", "INFO", True)
 
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp complete")
+    safe_log("Terminating flightlogicapp complete", "INFO", True)
     return
 
 # ──────────────────────────────
@@ -854,7 +845,7 @@ def flightlogicapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
         
         for thread_name, thread in thread_dict.items():
             thread.start()
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Started {thread_name} thread")
+            safe_log(f"Started {thread_name} thread", "INFO", True)
         
         # 메인 루프
         while FLIGHTLOGICAPP_RUNSTATUS:

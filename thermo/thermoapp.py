@@ -1,6 +1,18 @@
 # Python FSW V2 Thermo App
 # Author : Hyeon Lee  (HEPHAESTUS)
 import board, busio
+from lib import logging
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[Thermo] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[Thermo] 로깅 실패: {e}")
+        print(f"[Thermo] 원본 메시지: {message}")
+
 from lib import appargs, msgstructure, logging, events, types, prevstate
 import signal
 from multiprocessing import Queue, connection
@@ -28,23 +40,20 @@ def command_handler(Main_Queue: Queue,
 
     # 1-A) 프로세스 종료
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                        "THERMOAPP TERMINATION DETECTED")
+        safe_log("THERMOAPP TERMINATION DETECTED", "info".upper(), True)
         THERMOAPP_RUNSTATUS = False
         return
 
     # 1-B) 센서 보정(CAL) : “tempOffset,humOffset” 두 실수
     if recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                        "CAL cmd ignored: DHT11 thermo does not use offset.")
+        safe_log("CAL cmd ignored: DHT11 thermo does not use offset.", "info".upper(), True)
         return
 
     if recv_msg.MsgID == appargs.ImuAppArg.MID_SendYawData:
         # 필요하다면 Yaw 데이터 활용, 아니면 pass
         pass
 
-    events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                    f"MID {recv_msg.MsgID} not handled")
+    safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
 
 # ────────────────────────────────────────────────
 # 2) HK 송신 스레드
@@ -66,34 +75,29 @@ def send_hk(Main_Queue: Queue):
 def thermoapp_init():
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                        "Initializing thermoapp")
+        safe_log("Initializing thermoapp", "info".upper(), True)
 
         # DHT11 초기화
         dht_device = thermo.init_dht()
 
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                        "Thermoapp initialization complete")
+        safe_log("Thermoapp initialization complete", "info".upper(), True)
         return dht_device
 
     except Exception as e:
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None
 
 def thermoapp_terminate(dht_device):
     global THERMOAPP_RUNSTATUS
     THERMOAPP_RUNSTATUS = False
-    events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                    "Terminating thermoapp")
+    safe_log("Terminating thermoapp", "info".upper(), True)
 
     thermo.terminate_dht(dht_device)
 
     for t in thread_dict.values():
         t.join()
 
-    events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.info,
-                    "Thermoapp termination complete")
+    safe_log("Thermoapp termination complete", "info".upper(), True)
 
 # ────────────────────────────────────────────────
 # 4) 센서 읽기 / 메시지 송신 스레드
@@ -135,8 +139,7 @@ def send_thermo_data(Main_Queue: Queue):
                                            appargs.ThermoAppArg.MID_SendThermoTlmData,
                                            f"{TEMP_C},{HUMI}")
             if not status:
-                events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                                "Error sending Thermo TLM")
+                safe_log("Error sending Thermo TLM", "error".upper(), True)
             cnt = 0
         cnt += 1
         time.sleep(0.1)
@@ -196,12 +199,10 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             if m.receiver_app in (appargs.ThermoAppArg.AppID, appargs.MainAppArg.AppID):
                 command_handler(Main_Queue, m, dht)
             else:
-                events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                                "Receiver MID mismatch")
+                safe_log("Receiver MID mismatch", "error".upper(), True)
 
     except Exception as e:
-        events.LogEvent(appargs.ThermoAppArg.AppName, events.EventType.error,
-                        f"thermoapp error: {e}")
+        safe_log(f"thermoapp error: {e}", "error".upper(), True)
         THERMOAPP_RUNSTATUS = False
 
     thermoapp_terminate(dht)

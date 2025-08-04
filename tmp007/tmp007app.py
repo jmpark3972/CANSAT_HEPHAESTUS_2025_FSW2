@@ -4,7 +4,17 @@
 from lib import appargs
 from lib import msgstructure
 from lib import logging
-from lib import events
+
+def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
+    """안전한 로깅 함수 - lib/logging.py 사용"""
+    try:
+        formatted_message = f"[TMP007] [{level}] {message}"
+        logging.log(formatted_message, printlogs)
+    except Exception as e:
+        # 로깅 실패 시에도 최소한 콘솔에 출력
+        print(f"[TMP007] 로깅 실패: {e}")
+        print(f"[TMP007] 원본 메시지: {message}")
+
 from lib import types
 
 import signal
@@ -168,11 +178,11 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         # Change Runstatus to false to start termination process
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, f"TMP007APP TERMINATION DETECTED")
+        safe_log(f"TMP007APP TERMINATION DETECTED", "info".upper(), True)
         TMP007APP_RUNSTATUS = False
 
     else:
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
+        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
     return
 
 def send_hk(Main_Queue : Queue):
@@ -188,9 +198,9 @@ def send_hk(Main_Queue : Queue):
             if status == False:
                 consecutive_hk_failures += 1
                 if consecutive_hk_failures <= max_hk_failures:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "Error sending HK message")
+                    safe_log("Error sending HK message", "error".upper(), True)
                 elif consecutive_hk_failures == max_hk_failures + 1:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"HK send errors suppressed after {max_hk_failures} failures")
+                    safe_log(f"HK send errors suppressed after {max_hk_failures} failures", "warning".upper(), True)
             else:
                 consecutive_hk_failures = 0
                 
@@ -201,9 +211,9 @@ def send_hk(Main_Queue : Queue):
         except Exception as e:
             consecutive_hk_failures += 1
             if consecutive_hk_failures <= max_hk_failures:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Exception sending HK: {e}")
+                safe_log(f"Exception sending HK: {e}", "error".upper(), True)
             elif consecutive_hk_failures == max_hk_failures + 1:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"HK send exceptions suppressed after {max_hk_failures} failures")
+                safe_log(f"HK send exceptions suppressed after {max_hk_failures} failures", "warning".upper(), True)
         
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -223,17 +233,17 @@ def tmp007app_init():
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Initializating tmp007app")
+        safe_log("Initializating tmp007app", "info".upper(), True)
         ## User Defined Initialization goes HERE
         
         #Initialize TMP007 Sensor
         i2c_instance, tmp007_instance = tmp007.init_tmp007()
         
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Tmp007app Initialization Complete")
+        safe_log("Tmp007app Initialization Complete", "info".upper(), True)
         return i2c_instance, tmp007_instance
     
     except Exception as e:
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
+        safe_log(f"Error during initialization: {e}", "error".upper(), True)
         TMP007APP_RUNSTATUS = False
         return None, None
 
@@ -241,7 +251,7 @@ def tmp007app_init():
 def tmp007app_terminate(i2c_instance):
     global TMP007APP_RUNSTATUS
     TMP007APP_RUNSTATUS = False
-    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Terminating tmp007app")
+    safe_log("Terminating tmp007app", "info".upper(), True)
     
     # Close MUX connection
     # MUX 관련 코드 제거됨
@@ -252,7 +262,7 @@ def tmp007app_terminate(i2c_instance):
     for t in thread_dict.values():
         t.join()
     
-    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Terminating tmp007app complete")
+    safe_log("Terminating tmp007app complete", "info".upper(), True)
 
 ######################################################
 ## USER METHOD                                      ##
@@ -287,9 +297,9 @@ def read_tmp007_data(tmp007_instance):
             else:
                 consecutive_failures += 1
                 if consecutive_failures <= max_failures:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "TMP007 data read failed")
+                    safe_log("TMP007 data read failed", "error".upper(), True)
                 elif consecutive_failures == max_failures + 1:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"TMP007 read errors suppressed after {max_failures} failures")
+                    safe_log(f"TMP007 read errors suppressed after {max_failures} failures", "warning".upper(), True)
                 
                 # 기본값 설정
                 TMP007_OBJECT_TEMP = TMP007_DIE_TEMP = TMP007_VOLTAGE = 0.0
@@ -302,9 +312,9 @@ def read_tmp007_data(tmp007_instance):
         except Exception as e:
             consecutive_failures += 1
             if consecutive_failures <= max_failures:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"TMP007 read error: {e}")
+                safe_log(f"TMP007 read error: {e}", "error".upper(), True)
             elif consecutive_failures == max_failures + 1:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"TMP007 read errors suppressed after {max_failures} failures")
+                safe_log(f"TMP007 read errors suppressed after {max_failures} failures", "warning".upper(), True)
             
             # 기본값 설정
             TMP007_OBJECT_TEMP = TMP007_DIE_TEMP = TMP007_VOLTAGE = 0.0
@@ -341,17 +351,17 @@ def send_tmp007_data(Main_Queue : Queue):
                 if status == False:
                     consecutive_send_failures += 1
                     if consecutive_send_failures <= max_send_failures:
-                        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "Error When sending TMP007 Tlm Message")
+                        safe_log("Error When sending TMP007 Tlm Message", "error".upper(), True)
                     elif consecutive_send_failures == max_send_failures + 1:
-                        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"TMP007 send errors suppressed after {max_send_failures} failures")
+                        safe_log(f"TMP007 send errors suppressed after {max_send_failures} failures", "warning".upper(), True)
                 else:
                     consecutive_send_failures = 0  # 성공 시 실패 횟수 리셋
             except Exception as e:
                 consecutive_send_failures += 1
                 if consecutive_send_failures <= max_send_failures:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Exception when sending TMP007 data: {e}")
+                    safe_log(f"Exception when sending TMP007 data: {e}", "error".upper(), True)
                 elif consecutive_send_failures == max_send_failures + 1:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"TMP007 send exceptions suppressed after {max_send_failures} failures")
+                    safe_log(f"TMP007 send exceptions suppressed after {max_send_failures} failures", "warning".upper(), True)
             
             # Send data to FlightLogic app (4Hz)
             try:
@@ -363,9 +373,9 @@ def send_tmp007_data(Main_Queue : Queue):
                                             appargs.Tmp007AppArg.MID_SendTmp007FlightLogicData,
                                             f"{TMP007_OBJECT_TEMP:.2f},{TMP007_DIE_TEMP:.2f},{TMP007_VOLTAGE:.2f}")
                 if status == False:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "Error When sending TMP007 FlightLogic Message")
+                    safe_log("Error When sending TMP007 FlightLogic Message", "error".upper(), True)
             except Exception as e:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Exception when sending TMP007 FlightLogic data: {e}")
+                safe_log(f"Exception when sending TMP007 FlightLogic data: {e}", "error".upper(), True)
             
             send_counter = 0
             
@@ -409,11 +419,11 @@ def tmp007app_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     try:
                         message = Main_Pipe.recv()
                     except (EOFError, BrokenPipeError, ConnectionResetError):
-                        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        safe_log("Pipe connection lost", "error".upper(), True)
                         log_error("Pipe connection lost", "tmp007app_main")
                         break
                     except Exception as e:
-                        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
                         log_error(f"Pipe receive error: {e}", "tmp007app_main")
                         continue
                 else:
@@ -432,16 +442,16 @@ def tmp007app_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     # Handle Command According to Message ID
                     command_handler(recv_msg)
                 else:
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, "Receiver MID does not match with tmp007app MID")
+                    safe_log("Receiver MID does not match with tmp007app MID", "error".upper(), True)
                     
             except Exception as e:
-                events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                safe_log(f"Main loop error: {e}", "error".upper(), True)
                 log_error(f"Main loop error: {e}", "tmp007app_main")
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
     # If error occurs, terminate app
     except Exception as e:
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"tmp007app error : {e}")
+        safe_log(f"tmp007app error : {e}", "error".upper(), True)
         log_error(f"Critical tmp007app error: {e}", "tmp007app_main")
         TMP007APP_RUNSTATUS = False
 
