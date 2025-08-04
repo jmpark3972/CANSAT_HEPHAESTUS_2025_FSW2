@@ -239,5 +239,5 @@ if __name__ == "__main__":
     finally:
         try:
             tmp007_direct_terminate(i2c)
-        except:
-            pass 
+        except Exception as e:
+            print(f"TMP007 종료 중 오류: {e}") 

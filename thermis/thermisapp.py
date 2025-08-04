@@ -20,7 +20,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Thermis] 로깅 실패: {e}")
         print(f"[Thermis] 원본 메시지: {message}")
 
-from lib import appargs, msgstructure, events, prevstate
+from lib import appargs, msgstructure, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
 
@@ -165,8 +165,8 @@ def resilient_thread(target, args=(), name=None):
         while THERMISAPP_RUNSTATUS:
             try:
                 target(*args)
-            except Exception:
-                pass
+            except Exception as e:
+                safe_log(f"스레드 실행 오류: {e}", "WARNING")
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
@@ -196,8 +196,9 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
             if main_pipe.poll(1.0):  # 1초 타임아웃
                 try:
                     raw = main_pipe.recv()
-                except:
+                except Exception as e:
                     # 에러 시 루프 계속
+                    safe_log(f"메시지 수신 오류: {e}", "WARNING")
                     continue
             else:
                 # 타임아웃 시 루프 계속

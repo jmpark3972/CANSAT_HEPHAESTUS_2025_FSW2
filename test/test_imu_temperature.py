@@ -8,7 +8,7 @@ import time
 import board
 import busio
 import adafruit_bno055
-from lib.qwiic_mux import QwiicMux
+# QwiicMux import 제거됨 - 직접 I2C 통신 사용
 
 def test_bno055_temperature():
     """BNO055 온도 센서 테스트"""
@@ -19,14 +19,8 @@ def test_bno055_temperature():
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         print("✓ I2C 버스 초기화 성공")
         
-        # Qwiic Mux 초기화
-        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-        print("✓ Qwiic Mux 초기화 성공")
-        
-        # 채널 4 선택 (IMU 위치)
-        mux.select_channel(4)
-        print("✓ 채널 4 선택 완료")
-        time.sleep(0.1)
+        # 직접 I2C 통신 사용 (Qwiic Mux 없음)
+        print("✓ 직접 I2C 통신으로 IMU 온도 테스트")
         
         # BNO055 센서 초기화
         try:
@@ -57,8 +51,8 @@ def test_bno055_temperature():
                 try:
                     temp_source = imu.temperature_source
                     print(f"      온도소스={temp_source}")
-                except:
-                    pass
+                except Exception as e:
+                    print(f"온도 소스 확인 오류: {e}")
                 
                 time.sleep(0.5)
             except Exception as e:

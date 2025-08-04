@@ -19,7 +19,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Pitot] 로깅 실패: {e}")
         print(f"[Pitot] 원본 메시지: {message}")
 
-from lib import appargs, events, msgstructure, prevstate
+from lib import appargs, msgstructure, prevstate
 import sys
 import os
 import csv

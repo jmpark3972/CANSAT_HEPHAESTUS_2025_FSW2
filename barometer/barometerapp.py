@@ -1,11 +1,34 @@
-# Python FSW V2 Barometer App
-# Author : Hyeon Lee
+#!/usr/bin/env python3
+"""
+Barometer App for CANSAT FSW
+BMP280 센서를 사용한 고도 측정
+"""
 
-import signal
+import os
+import sys
 import time
-from queue import Queue
-from multiprocessing import connection
-from lib import logging
+import threading
+import csv
+from datetime import datetime
+from multiprocessing import Queue, Process, connection
+from pathlib import Path
+
+# 프로젝트 루트 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from lib import appargs, msgstructure, logging, types, prevstate
+from barometer import barometer
+
+# 전역 변수
+BAROMETERAPP_RUNSTATUS = False
+PRESSURE = 0.0
+TEMPERATURE = 0.0
+ALTITUDE = 0.0
+MAXALT_RESET_MUTEX = threading.Lock()
+
+# 로그 파일 경로
+LOG_DIR = "logs"
+HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "barometer_high_freq.csv")
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -17,65 +40,23 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Barometer] 로깅 실패: {e}")
         print(f"[Barometer] 원본 메시지: {message}")
 
-from lib import appargs
-from lib import logging
-
-def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
-    """안전한 로깅 함수 - lib/logging.py 사용"""
-    try:
-        formatted_message = f"[Barometer] [{level}] {message}"
-        logging.log(formatted_message, printlogs)
-    except Exception as e:
-        # 로깅 실패 시에도 최소한 콘솔에 출력
-        print(f"[Barometer] 로깅 실패: {e}")
-        print(f"[Barometer] 원본 메시지: {message}")
-
-from lib import msgstructure
-from barometer import barometer
-
-import threading
-import csv
-import os
-from datetime import datetime
-
-# Runstatus of application. Application is terminated when false
-BAROMETERAPP_RUNSTATUS = True
-
-# 고주파수 로깅 시스템
-LOG_DIR = "logs/barometer"
-os.makedirs(LOG_DIR, exist_ok=True)
-
-# 로그 파일 경로들
-HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "high_freq_barometer_log.csv")
-HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
-ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
-
-# 강제 종료 시에도 로그를 저장하기 위한 플래그
-_emergency_logging_enabled = True
-
 def emergency_log_to_file(log_type: str, message: str):
-    """강제 종료 시에도 파일에 로그를 저장하는 함수"""
-    global _emergency_logging_enabled
-    if not _emergency_logging_enabled:
-        return
-        
+    """긴급 로그 파일에 기록"""
     try:
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-        log_entry = f"[{timestamp}] {log_type}: {message}\n"
+        log_entry = f"[{timestamp}] [{log_type}] {message}\n"
         
-        if log_type == "HIGH_FREQ":
-            with open(HIGH_FREQ_LOG_PATH, 'a', encoding='utf-8') as f:
-                f.write(log_entry)
-        elif log_type == "ERROR":
-            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
-                f.write(log_entry)
+        emergency_log_path = os.path.join(LOG_DIR, f"barometer_emergency_{log_type.lower()}.log")
+        with open(emergency_log_path, 'a', encoding='utf-8') as f:
+            f.write(log_entry)
+            f.flush()
     except Exception as e:
         print(f"Emergency logging failed: {e}")
 
 def log_csv(filepath: str, headers: list, data: list):
     """CSV 파일에 데이터를 로깅하는 함수"""
     try:
-        # CSV 헤더가 없으면 생성
+        # 파일이 없으면 헤더 생성
         if not os.path.exists(filepath):
             with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)

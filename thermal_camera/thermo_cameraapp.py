@@ -13,7 +13,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[ThermalCamera] 로깅 실패: {e}")
         print(f"[ThermalCamera] 원본 메시지: {message}")
 
-from lib import appargs, msgstructure, logging, events, prevstate
+from lib import appargs, msgstructure, logging, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
 
@@ -175,8 +175,9 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             if Main_Pipe.poll(1.0):  # 1초 타임아웃
                 try:
                     raw = Main_Pipe.recv()
-                except:
+                except Exception as e:
                     # 에러 시 루프 계속
+                    safe_log(f"메시지 수신 오류: {e}", "WARNING")
                     continue
             else:
                 # 타임아웃 시 루프 계속

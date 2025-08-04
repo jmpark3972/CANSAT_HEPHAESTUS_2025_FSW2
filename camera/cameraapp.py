@@ -14,7 +14,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Camera] 로깅 실패: {e}")
         print(f"[Camera] 원본 메시지: {message}")
 
-from lib import appargs, msgstructure, logging, events, prevstate
+from lib import appargs, msgstructure, logging, prevstate
 import signal, threading, time
 from multiprocessing import Queue, connection
 from datetime import datetime

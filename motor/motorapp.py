@@ -45,7 +45,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Motor] 로깅 실패: {e}")
         print(f"[Motor] 원본 메시지: {message}")
 
-from lib import appargs, events, msgstructure, logging, config  # type: ignore
+from lib import appargs, msgstructure, logging, config  # type: ignore
 from motor import motor  # local helper that provides angle_to_pulse()
 
 # ────────────────────────────────────────────

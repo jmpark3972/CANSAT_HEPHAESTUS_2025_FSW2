@@ -6,7 +6,7 @@ Barometer 센서 (BMP3XX) 직접 테스트 스크립트
 import time
 import board
 import busio
-from lib.qwiic_mux import QwiicMux
+# QwiicMux import 제거됨 - 직접 I2C 통신 사용
 
 def test_barometer():
     """Barometer 센서 (BMP3XX) 직접 테스트"""
@@ -17,14 +17,8 @@ def test_barometer():
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         print("✓ I2C 버스 초기화 성공")
         
-        # Qwiic Mux 초기화
-        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-        print("✓ Qwiic Mux 초기화 성공")
-        
-        # 채널 4 선택 (Barometer 위치)
-        mux.select_channel(4)
-        print("✓ 채널 4 선택 완료")
-        time.sleep(0.1)
+        # 직접 I2C 통신 사용 (Qwiic Mux 없음)
+        print("✓ 직접 I2C 통신으로 Barometer 테스트")
         
         # BMP3XX 센서 초기화 (0x77 주소)
         try:

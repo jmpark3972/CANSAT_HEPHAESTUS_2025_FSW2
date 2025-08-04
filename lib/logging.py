@@ -105,7 +105,8 @@ class DualLogger:
                         f.write("test")
                     os.remove(test_file)
                     return True
-                except:
+                except Exception as e:
+                    print(f"파일 쓰기 테스트 오류: {e}")
                     return False
             return False
         except Exception as e:

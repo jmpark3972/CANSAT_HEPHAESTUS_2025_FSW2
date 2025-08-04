@@ -13,7 +13,7 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Thermo] 로깅 실패: {e}")
         print(f"[Thermo] 원본 메시지: {message}")
 
-from lib import appargs, msgstructure, logging, events, types, prevstate
+from lib import appargs, msgstructure, logging, types, prevstate
 import signal
 from multiprocessing import Queue, connection
 import threading, time
@@ -114,9 +114,9 @@ def read_thermo_data(dht_device):
             t, h = thermo.read_dht(dht_device)
             if t is not None and h is not None:
                 TEMP_C, HUMI = t, h
-        except Exception:
+        except Exception as e:
             # 에러 메시지 출력하지 않고, 이전 값 유지
-            pass
+            safe_log(f"센서 읽기 오류: {e}", "WARNING")
         time.sleep(2)
 
 def send_thermo_data(Main_Queue: Queue):
@@ -157,8 +157,8 @@ def resilient_thread(target, args=(), name=None):
         while THERMOAPP_RUNSTATUS:
             try:
                 target(*args)
-            except Exception:
-                pass
+            except Exception as e:
+                safe_log(f"스레드 실행 오류: {e}", "WARNING")
             time.sleep(1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
@@ -185,8 +185,9 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             if Main_Pipe.poll(1.0):  # 1초 타임아웃
                 try:
                     raw = Main_Pipe.recv()
-                except:
+                except Exception as e:
                     # 에러 시 루프 계속
+                    safe_log(f"메시지 수신 오류: {e}", "WARNING")
                     continue
             else:
                 # 타임아웃 시 루프 계속

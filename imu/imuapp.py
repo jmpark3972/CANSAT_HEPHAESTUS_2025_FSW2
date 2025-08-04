@@ -269,6 +269,7 @@ def send_imu_data(Main_Queue : Queue):
     global IMUAPP_RUNSTATUS
 
     ImuDataToTlmMsg = msgstructure.MsgStructure()
+    ImuDataToFlightLogicMsg = msgstructure.MsgStructure()
     YawDataToMotorMsg = msgstructure.MsgStructure()
     
     send_counter = 0
@@ -278,6 +279,19 @@ def send_imu_data(Main_Queue : Queue):
     while IMUAPP_RUNSTATUS:
         
         send_counter += 1
+
+        # Send IMU data to FlightLogic (10Hz)
+        try:
+            status = msgstructure.send_msg(Main_Queue, 
+                                        ImuDataToFlightLogicMsg,
+                                        appargs.ImuAppArg.AppID,
+                                        appargs.FlightlogicAppArg.AppID,
+                                        appargs.ImuAppArg.MID_SendImuFlightLogicData,
+                                        f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f}")
+            if status == False:
+                safe_log("Error When sending IMU FlightLogic Message", "error".upper(), True)
+        except Exception as e:
+            safe_log(f"Exception when sending IMU FlightLogic data: {e}", "error".upper(), True)
 
         # Send Yaw data to motor
         # msgstructure.send_msg(Main_Queue, 

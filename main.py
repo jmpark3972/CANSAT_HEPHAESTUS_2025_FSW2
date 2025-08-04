@@ -26,6 +26,7 @@ from multiprocessing import Process, Queue, Pipe, connection
 
 # Load configuration files
 from lib import config
+from lib import resource_manager
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -37,7 +38,10 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[MAIN] 로깅 실패: {e}")
         print(f"[MAIN] 원본 메시지: {message}")
 
-if config.FSW_CONF == config.CONF_NONE:
+# 리소스 모니터링 시작
+resource_manager.start_resource_monitoring()
+
+if config.get_config("FSW_MODE") == "NONE":
     safe_log("CONFIG IS SELECTED AS NONE, TERMINATING FSW", "ERROR", True)
     sys.exit(0)
 
@@ -61,9 +65,15 @@ def terminate_FSW():
     MAINAPP_RUNSTATUS = False
 
     try:
+        # 리소스 모니터링 중지
+        resource_manager.stop_resource_monitoring()
+        safe_log("리소스 모니터링 중지 완료", "INFO", True)
+        
+        # 로깅 시스템 정리
+        logging.close_dual_logging_system()
         safe_log("로깅 시스템 정리 완료", "INFO", True)
     except Exception as e:
-        print(f"로깅 시스템 정리 실패: {e}")
+        print(f"시스템 정리 실패: {e}")
 
     termination_message = msgstructure.MsgStructure()
     msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
@@ -482,8 +492,8 @@ def runloop(Main_Queue : Queue):
                         safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, but continuing", "WARNING", True)
                         try:
                             app_dict[unpacked_msg.receiver_app].pipe.close()
-                        except:
-                            pass
+                        except Exception as e:
+                            safe_log(f"파이프 닫기 오류: {e}", "WARNING")
                     except Exception as e:
                         safe_log(f"Failed to send message to {unpacked_msg.receiver_app}: {e}", "ERROR", True)
                 else:

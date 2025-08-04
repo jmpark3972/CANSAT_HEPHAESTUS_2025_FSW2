@@ -456,7 +456,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
             return
         
         # DHT11 온도 데이터
-        elif recv_msg.MsgID == appargs.Dht11AppArg.MID_SendDht11Data:
+        elif recv_msg.MsgID == appargs.ThermoAppArg.MID_SendThermoFlightLogicData:
             try:
                 data = recv_msg.MsgData.split(',')
                 if len(data) >= 2:
@@ -466,7 +466,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"DHT11 data parsing error: {e}", "command_handler")
         
         # Thermis 온도 데이터
-        elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisData:
+        elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisFlightLogicData:
             try:
                 data = recv_msg.MsgData.split(',')
                 if len(data) >= 1:
@@ -476,7 +476,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"Thermis data parsing error: {e}", "command_handler")
         
         # IMU 데이터
-        elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuData:
+        elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuFlightLogicData:
             try:
                 data = recv_msg.MsgData.split(',')
                 if len(data) >= 3:
@@ -487,7 +487,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"IMU data parsing error: {e}", "command_handler")
         
         # GPS 데이터
-        elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsData:
+        elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
             try:
                 LAST_GPS = recv_msg.MsgData
                 log_sensor_data("GPS", {"data": LAST_GPS})
@@ -495,7 +495,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"GPS data parsing error: {e}", "command_handler")
         
         # Barometer 데이터
-        elif recv_msg.MsgID == appargs.BarometerAppArg.MID_SendBarometerData:
+        elif recv_msg.MsgID == appargs.BarometerAppArg.MID_SendBarometerFlightLogicData:
             try:
                 data = recv_msg.MsgData.split(',')
                 if len(data) >= 1:
@@ -507,7 +507,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"Barometer data parsing error: {e}", "command_handler")
         
         # FIR1 데이터
-        elif recv_msg.MsgID == appargs.Fir1AppArg.MID_SendFir1Data:
+        elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
             try:
                 LAST_FIR1 = recv_msg.MsgData
                 log_sensor_data("FIR1", {"data": LAST_FIR1})
@@ -515,7 +515,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                 log_error(f"FIR1 data parsing error: {e}", "command_handler")
         
         # Thermal Camera 데이터
-        elif recv_msg.MsgID == appargs.ThermalCameraAppArg.MID_SendThermalData:
+        elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData:
             try:
                 LAST_THERMAL = recv_msg.MsgData
                 log_sensor_data("Thermal", {"data": LAST_THERMAL})

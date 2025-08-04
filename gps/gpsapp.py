@@ -27,6 +27,18 @@ from gps import gps
 # Runstatus of application. Application is terminated when false
 GPSAPP_RUNSTATUS = True
 gps_instance = None
+
+# GPS 데이터 변수
+GPS_LAT = 0.0
+GPS_LON = 0.0
+GPS_ALT = 0.0
+GPS_TIME = "00:00:00"
+GPS_SATS = 0
+
+# 메시지 구조체 초기화
+GpsDataToTlmMsg = msgstructure.MsgStructure()
+GpsDataToFlightLogicMsg = msgstructure.MsgStructure()
+
 ######################################################
 ## FUNDEMENTAL METHODS                              ##
 ######################################################
@@ -57,6 +69,46 @@ def send_hk(Main_Queue : Queue):
             if not GPSAPP_RUNSTATUS:
                 break
             time.sleep(0.1)
+    return
+
+def send_gps_data(Main_Queue : Queue):
+    """GPS 데이터를 텔레메트리와 FlightLogic으로 전송"""
+    global GPSAPP_RUNSTATUS, GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS
+    
+    send_counter = 0
+    while GPSAPP_RUNSTATUS:
+        try:
+            # Send GPS data to Telemetry (1Hz)
+            send_counter += 1
+            status = msgstructure.send_msg(Main_Queue, 
+                                        GpsDataToTlmMsg,
+                                        appargs.GpsAppArg.AppID,
+                                        appargs.CommAppArg.AppID,
+                                        appargs.GpsAppArg.MID_SendGpsTlmData,
+                                        f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{GPS_TIME},{GPS_SATS}")
+            if status == False:
+                safe_log("Error When sending GPS Telemetry Message", "error".upper(), True)
+            
+            # Send GPS data to FlightLogic (5Hz)
+            if send_counter % 5 == 0:  # 5초마다 한 번씩
+                status = msgstructure.send_msg(Main_Queue, 
+                                            GpsDataToFlightLogicMsg,
+                                            appargs.GpsAppArg.AppID,
+                                            appargs.FlightlogicAppArg.AppID,
+                                            appargs.GpsAppArg.MID_SendGpsFlightLogicData,
+                                            f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{GPS_TIME},{GPS_SATS}")
+                if status == False:
+                    safe_log("Error When sending GPS FlightLogic Message", "error".upper(), True)
+            
+            # 1초 대기
+            for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+                if not GPSAPP_RUNSTATUS:
+                    break
+                time.sleep(0.1)
+                
+        except Exception as e:
+            safe_log(f"Exception when sending GPS data: {e}", "error".upper(), True)
+            time.sleep(1)
     return
 
 ######################################################
@@ -168,6 +220,7 @@ def gpsapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
     thread_dict["READ"] = resilient_thread(read_gps_data, args=(gps_instance,), name="READ")
+    thread_dict["SEND_GPS_DATA"] = resilient_thread(send_gps_data, args=(Main_Queue,), name="SEND_GPS_DATA")
 
     # Spawn Each Threads
     for t in thread_dict.values():
