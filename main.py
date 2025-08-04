@@ -151,115 +151,139 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 
 # HK APP
-from hk import hkapp
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-hkapp_elements = app_elements()
-hkapp_elements.process = Process(target = hkapp.hkapp_main, args = (main_queue, child_pipe, ))
-hkapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.HkAppArg.AppID] = hkapp_elements
+try:
+    from hk import hkapp
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    hkapp_elements = app_elements()
+    hkapp_elements.process = Process(target = hkapp.hkapp_main, args = (main_queue, child_pipe, ))
+    hkapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.HkAppArg.AppID] = hkapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "HK 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"HK 앱 로드 실패: {e}")
 
 # BarometerApp
-from barometer import barometerapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-barometerapp_elements = app_elements()
-barometerapp_elements.process = Process(target = barometerapp.barometerapp_main, args = (main_queue, child_pipe, ))
-barometerapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.BarometerAppArg.AppID] = barometerapp_elements
-
+try:
+    from barometer import barometerapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    barometerapp_elements = app_elements()
+    barometerapp_elements.process = Process(target = barometerapp.barometerapp_main, args = (main_queue, child_pipe, ))
+    barometerapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.BarometerAppArg.AppID] = barometerapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Barometer 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Barometer 앱 로드 실패: {e}")
 
 # GpsApp
-from gps import gpsapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-gpsapp_elements = app_elements()
-gpsapp_elements.process = Process(target = gpsapp.gpsapp_main, args = (main_queue, child_pipe, ))
-gpsapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.GpsAppArg.AppID] = gpsapp_elements
-
+try:
+    from gps import gpsapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    gpsapp_elements = app_elements()
+    gpsapp_elements.process = Process(target = gpsapp.gpsapp_main, args = (main_queue, child_pipe, ))
+    gpsapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.GpsAppArg.AppID] = gpsapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "GPS 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"GPS 앱 로드 실패: {e}")
 
 # ImuApp
-from imu import imuapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-imuapp_elements = app_elements()
-imuapp_elements.process = Process(target = imuapp.imuapp_main, args = (main_queue, child_pipe, ))
-imuapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.ImuAppArg.AppID] = imuapp_elements
-
+try:
+    from imu import imuapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    imuapp_elements = app_elements()
+    imuapp_elements.process = Process(target = imuapp.imuapp_main, args = (main_queue, child_pipe, ))
+    imuapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.ImuAppArg.AppID] = imuapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "IMU 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"IMU 앱 로드 실패: {e}")
 
 # FlightlogicApp
-from flight_logic import flightlogicapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-flightlogicapp_elements = app_elements()
-flightlogicapp_elements.process = Process(target = flightlogicapp.flightlogicapp_main, args = (main_queue, child_pipe, ))
-flightlogicapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.FlightlogicAppArg.AppID] = flightlogicapp_elements
-
+try:
+    from flight_logic import flightlogicapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    flightlogicapp_elements = app_elements()
+    flightlogicapp_elements.process = Process(target = flightlogicapp.flightlogicapp_main, args = (main_queue, child_pipe, ))
+    flightlogicapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.FlightlogicAppArg.AppID] = flightlogicapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "FlightLogic 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"FlightLogic 앱 로드 실패: {e}")
 
 # CommApp
-from comm import commapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-commapp_elements = app_elements()
-commapp_elements.process = Process(target = commapp.commapp_main, args = (main_queue, child_pipe, ))
-commapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.CommAppArg.AppID] = commapp_elements
-
-
+try:
+    from comm import commapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    commapp_elements = app_elements()
+    commapp_elements.process = Process(target = commapp.commapp_main, args = (main_queue, child_pipe, ))
+    commapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.CommAppArg.AppID] = commapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Comm 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Comm 앱 로드 실패: {e}")
 
 # Motorapp
-from motor import motorapp
-
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-motorapp_elements = app_elements()
-motorapp_elements.process = Process(target = motorapp.motorapp_main, args = (main_queue, child_pipe, ))
-motorapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.MotorAppArg.AppID] = motorapp_elements
+try:
+    from motor import motorapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    motorapp_elements = app_elements()
+    motorapp_elements.process = Process(target = motorapp.motorapp_main, args = (main_queue, child_pipe, ))
+    motorapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.MotorAppArg.AppID] = motorapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Motor 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Motor 앱 로드 실패: {e}")
 
 # FIR1App (MLX90614 Channel 0)
-
-from fir1 import firapp1
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-firapp1_elements = app_elements()
-firapp1_elements.process = Process(target = firapp1.firapp1_main, args = (main_queue, child_pipe, ))
-firapp1_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.FirApp1Arg.AppID] = firapp1_elements
+try:
+    from fir1 import firapp1
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    firapp1_elements = app_elements()
+    firapp1_elements.process = Process(target = firapp1.firapp1_main, args = (main_queue, child_pipe, ))
+    firapp1_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.FirApp1Arg.AppID] = firapp1_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "FIR1 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"FIR1 앱 로드 실패: {e}")
 
 # FIR2App (MLX90614 Channel 1) - 비활성화
 # from fir2 import firapp2
@@ -270,78 +294,91 @@ app_dict[appargs.FirApp1Arg.AppID] = firapp1_elements
 # app_dict[appargs.FirApp2Arg.AppID] = firapp2_elements
 
 # THERMISApp
-
-from thermis import thermisapp
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'pitot'))
-import pitotapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-thermisapp_elements = app_elements()
-thermisapp_elements.process = Process(target = thermisapp.thermisapp_main, args = (main_queue, child_pipe, ))
-thermisapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.ThermisAppArg.AppID] = thermisapp_elements
-
+try:
+    from thermis import thermisapp
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'pitot'))
+    import pitotapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    thermisapp_elements = app_elements()
+    thermisapp_elements.process = Process(target = thermisapp.thermisapp_main, args = (main_queue, child_pipe, ))
+    thermisapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.ThermisAppArg.AppID] = thermisapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermis 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermis 앱 로드 실패: {e}")
 
 # TMP007App
-
-from tmp007 import tmp007app
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-tmp007app_elements = app_elements()
-tmp007app_elements.process = Process(target = tmp007app.tmp007app_main, args = (main_queue, child_pipe, ))
-tmp007app_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.Tmp007AppArg.AppID] = tmp007app_elements
-
+try:
+    from tmp007 import tmp007app
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    tmp007app_elements = app_elements()
+    tmp007app_elements.process = Process(target = tmp007app.tmp007app_main, args = (main_queue, child_pipe, ))
+    tmp007app_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.Tmp007AppArg.AppID] = tmp007app_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "TMP007 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"TMP007 앱 로드 실패: {e}")
 
 # CameraApp
-
-from thermal_camera import thermo_cameraapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-thermo_cameraapp_elements = app_elements()
-thermo_cameraapp_elements.process = Process(target = thermo_cameraapp.thermocamapp_main, args = (main_queue, child_pipe, ))
-thermo_cameraapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.ThermalcameraAppArg.AppID] = thermo_cameraapp_elements
+try:
+    from thermal_camera import thermo_cameraapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    thermo_cameraapp_elements = app_elements()
+    thermo_cameraapp_elements.process = Process(target = thermo_cameraapp.thermocamapp_main, args = (main_queue, child_pipe, ))
+    thermo_cameraapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.ThermalcameraAppArg.AppID] = thermo_cameraapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermal Camera 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermal Camera 앱 로드 실패: {e}")
 
 # THERMOApp
-
-from thermo import thermoapp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-thermoapp_elements = app_elements()
-thermoapp_elements.process = Process(target = thermoapp.thermoapp_main, args = (main_queue, child_pipe, ))
-thermoapp_elements.pipe = parent_pipe
-
-# Add the process to dictionaryF
-app_dict[appargs.ThermoAppArg.AppID] = thermoapp_elements
+try:
+    from thermo import thermoapp
+    
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    thermoapp_elements = app_elements()
+    thermoapp_elements.process = Process(target = thermoapp.thermoapp_main, args = (main_queue, child_pipe, ))
+    thermoapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.ThermoAppArg.AppID] = thermoapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Thermo 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Thermo 앱 로드 실패: {e}")
 
 # PitotApp
-
-parent_pipe, child_pipe = Pipe()
-
-# Add Process, pipe to elements dictionary
-pitotapp_elements = app_elements()
-pitotapp_elements.process = Process(target = pitotapp.pitotapp_main, args = (main_queue, child_pipe, ))
-pitotapp_elements.pipe = parent_pipe
-
-# Add the process to dictionary
-app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
+try:
+    parent_pipe, child_pipe = Pipe()
+    
+    # Add Process, pipe to elements dictionary
+    pitotapp_elements = app_elements()
+    pitotapp_elements.process = Process(target = pitotapp.pitotapp_main, args = (main_queue, child_pipe, ))
+    pitotapp_elements.pipe = parent_pipe
+    
+    # Add the process to dictionary
+    app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "Pitot 앱 로드 완료")
+except Exception as e:
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pitot 앱 로드 실패: {e}")
 
 
 

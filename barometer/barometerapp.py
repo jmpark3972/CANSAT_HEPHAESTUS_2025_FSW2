@@ -4,6 +4,7 @@
 import signal
 import time
 from queue import Queue
+from multiprocessing import connection
 from lib import events
 from lib import appargs
 from lib import msgstructure
