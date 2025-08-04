@@ -27,7 +27,7 @@ def test_dual_logging():
         print(f"❌ 보조 로그 디렉토리가 존재하지 않음: {secondary_log_dir}")
         print("다음 명령을 실행하세요:")
         print("sudo mkdir -p /mnt/log_sd/logs")
-        print("sudo chown -R pi:pi /mnt/log_sd/logs")
+        print("sudo chown -R SpaceY:SpaceY /mnt/log_sd/logs")
         print("sudo chmod -R 755 /mnt/log_sd/logs")
         return False
     
@@ -41,7 +41,7 @@ def test_dual_logging():
     except Exception as e:
         print(f"❌ 보조 SD 카드 쓰기 권한 없음: {e}")
         print("다음 명령을 실행하세요:")
-        print("sudo chown -R pi:pi /mnt/log_sd/logs")
+        print("sudo chown -R SpaceY:SpaceY /mnt/log_sd/logs")
         print("sudo chmod -R 755 /mnt/log_sd/logs")
         return False
     

@@ -112,7 +112,7 @@ class DualLogger:
                     print(f"보조 로그 디렉토리 생성 성공: {self.secondary_log_dir}")
                 except PermissionError:
                     print(f"보조 로그 디렉토리 생성 권한 없음: {self.secondary_log_dir}")
-                    print("sudo mkdir -p /mnt/log_sd/logs && sudo chown -R pi:pi /mnt/log_sd/logs 명령을 실행하세요")
+                    print("sudo mkdir -p /mnt/log_sd/logs && sudo chown -R SpaceY:SpaceY /mnt/log_sd/logs 명령을 실행하세요")
                     self.secondary_log_dir = None
                     return
                 except Exception as e:
@@ -129,7 +129,7 @@ class DualLogger:
                 print(f"보조 SD 카드 쓰기 권한 확인 완료: {self.secondary_log_dir}")
             except PermissionError:
                 print(f"보조 SD 카드 쓰기 권한 없음: {self.secondary_log_dir}")
-                print("sudo chown -R pi:pi /mnt/log_sd/logs && sudo chmod -R 755 /mnt/log_sd/logs 명령을 실행하세요")
+                print("sudo chown -R SpaceY:SpaceY /mnt/log_sd/logs && sudo chmod -R 755 /mnt/log_sd/logs 명령을 실행하세요")
                 self.secondary_log_dir = None
             except Exception as e:
                 print(f"보조 SD 카드 쓰기 테스트 실패: {e}")
