@@ -8,6 +8,7 @@ import signal
 import atexit
 
 MAINAPP_RUNSTATUS = True
+_termination_in_progress = False
 
 # Custum libraries
 from lib import appargs
@@ -98,6 +99,14 @@ def terminate_FSW():
     prevstate.reset_prevstate()
     
     # 이중 로깅 시스템 종료
+    try:
+        logging.close_dual_logging_system()
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 실패: {e}")
+    
+    print("FSW 종료 완료")
+    os._exit(0)
     try:
         from lib import logging
         logging.close_dual_logging_system()

@@ -42,7 +42,11 @@ def send_hk(Main_Queue : Queue):
     while GPSAPP_RUNSTATUS:
         gpsHK = msgstructure.MsgStructure()
         msgstructure.send_msg(Main_Queue, gpsHK, appargs.GpsAppArg.AppID, appargs.HkAppArg.AppID, appargs.GpsAppArg.MID_SendHK, str(GPSAPP_RUNSTATUS))
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not GPSAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     return
 
 ######################################################
@@ -76,7 +80,12 @@ def gpsapp_terminate():
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
         events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        thread_dict[thread_name].join()
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
         events.LogEvent(appargs.GpsAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
 
     if gps_instance is not None:
@@ -103,7 +112,11 @@ def read_gps_data(gps_instance):
         except Exception:
             # 에러 메시지 출력하지 않고, 이전 값 유지
             pass
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not GPSAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
 
 # Put user-defined methods here!
 
@@ -123,7 +136,11 @@ def resilient_thread(target, args=(), name=None):
                 target(*args)
             except Exception:
                 pass
-            time.sleep(1)
+            # 더 빠른 종료를 위해 짧은 간격으로 체크
+            for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+                if not GPSAPP_RUNSTATUS:
+                    break
+                time.sleep(0.1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
     t._is_resilient = True

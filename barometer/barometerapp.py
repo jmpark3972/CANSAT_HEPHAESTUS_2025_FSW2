@@ -75,7 +75,11 @@ def send_hk(Main_Queue : Queue):
     while BAROMETERAPP_RUNSTATUS:
         barometerHK = msgstructure.MsgStructure()
         msgstructure.send_msg(Main_Queue, barometerHK, appargs.BarometerAppArg.AppID, appargs.HkAppArg.AppID, appargs.BarometerAppArg.MID_SendHK, str(BAROMETERAPP_RUNSTATUS))
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not BAROMETERAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     return
 
 ######################################################
@@ -132,7 +136,12 @@ def barometerapp_terminate(i2c_instance):
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
         events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        thread_dict[thread_name].join()
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
         events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED

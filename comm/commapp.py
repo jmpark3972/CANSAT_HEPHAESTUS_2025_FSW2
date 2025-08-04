@@ -173,7 +173,11 @@ def send_hk(Main_Queue : Queue):
     while COMMAPP_RUNSTATUS:
         commHK = msgstructure.MsgStructure()
         msgstructure.send_msg(Main_Queue, commHK, appargs.CommAppArg.AppID, appargs.HkAppArg.AppID, appargs.CommAppArg.MID_SendHK, str(COMMAPP_RUNSTATUS))
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not COMMAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     return
 
 ######################################################
@@ -240,7 +244,12 @@ def commapp_terminate(serial_instance):
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        thread_dict[thread_name].join()
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
@@ -369,7 +378,11 @@ def send_tlm(serial_instance):
         if TELEMETRY_ENABLE:
             uartserial.send_serial_data(serial_instance, tlm_to_send)
 
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not COMMAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     return
 
 # Import regular expression module

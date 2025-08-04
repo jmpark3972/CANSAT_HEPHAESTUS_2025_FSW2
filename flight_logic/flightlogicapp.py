@@ -317,7 +317,11 @@ def send_hk(Main_Queue : Queue):
                   safe(recent_alt[-1] if recent_alt else None), safe(LAST_IMU_ROLL), safe(LAST_IMU_PITCH),
                   safe(LAST_GPS), safe(LAST_FIR1), safe(LAST_FIR2), safe(LAST_THERMIS), safe(LAST_PITOT_PRESSURE), safe(LAST_PITOT_TEMP), safe(MOTOR_TARGET_PULSE)]
         log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir1","fir2","thermis","pitot_pressure","pitot_temp","motor"], hk_row)
-        time.sleep(1)
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not FLIGHTLOGICAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     return
 
 ######################################################
@@ -452,7 +456,12 @@ def flightlogicapp_terminate():
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        thread_dict[thread_name].join()
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED

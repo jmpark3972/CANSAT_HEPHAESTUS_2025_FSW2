@@ -167,7 +167,12 @@ def gimbalmotorapp_terminate(motor_instance):
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
         events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        thread_dict[thread_name].join()
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
         events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
 
     # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
