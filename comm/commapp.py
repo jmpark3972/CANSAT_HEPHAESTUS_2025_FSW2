@@ -36,6 +36,135 @@ ST_timedelta :timedelta = timedelta(seconds=0)
 
 SIMP_OFFSET = 0
 
+# 강화된 로깅 및 데이터 전송 시스템
+import os
+import csv
+from datetime import datetime
+
+# 로그 디렉토리 생성
+LOG_DIR = "logs/comm"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# 텔레메트리 로그 파일
+TLM_LOG_PATH = os.path.join(LOG_DIR, "telemetry_log.csv")
+CMD_LOG_PATH = os.path.join(LOG_DIR, "command_log.csv")
+ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
+
+# 데이터 전송 통계
+transmission_stats = {
+    'packets_sent': 0,
+    'packets_failed': 0,
+    'last_successful_transmission': None,
+    'consecutive_failures': 0,
+    'max_consecutive_failures': 0
+}
+
+# 강제 종료 시에도 로그를 저장하기 위한 플래그
+_emergency_logging_enabled = True
+
+######################################################
+## 강화된 로깅 시스템                                ##
+######################################################
+
+def emergency_log_to_file(log_type: str, message: str):
+    """강제 종료 시에도 파일에 로그를 저장하는 함수"""
+    global _emergency_logging_enabled
+    if not _emergency_logging_enabled:
+        return
+        
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{timestamp}] {log_type}: {message}\n"
+        
+        if log_type == "TELEMETRY":
+            with open(TLM_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "COMMAND":
+            with open(CMD_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "ERROR":
+            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+    except Exception as e:
+        print(f"Emergency logging failed: {e}")
+
+def log_telemetry_data(tlm_data_str: str, success: bool = True):
+    """텔레메트리 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(TLM_LOG_PATH):
+            with open(TLM_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'telemetry_data', 'transmission_success'])
+        
+        # 데이터 추가
+        with open(TLM_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, tlm_data_str.strip(), success])
+            
+        # 전송 통계 업데이트
+        global transmission_stats
+        if success:
+            transmission_stats['packets_sent'] += 1
+            transmission_stats['last_successful_transmission'] = timestamp
+            transmission_stats['consecutive_failures'] = 0
+        else:
+            transmission_stats['packets_failed'] += 1
+            transmission_stats['consecutive_failures'] += 1
+            transmission_stats['max_consecutive_failures'] = max(
+                transmission_stats['max_consecutive_failures'], 
+                transmission_stats['consecutive_failures']
+            )
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"Telemetry logging failed: {e}")
+
+def log_command_received(cmd: str, source: str = "unknown"):
+    """수신된 명령을 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(CMD_LOG_PATH):
+            with open(CMD_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'command', 'source'])
+        
+        # 데이터 추가
+        with open(CMD_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, cmd, source])
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"Command logging failed: {e}")
+
+def log_error(error_msg: str, context: str = ""):
+    """오류를 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        full_msg = f"{error_msg} | Context: {context}" if context else error_msg
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(ERROR_LOG_PATH):
+            with open(ERROR_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'error_message'])
+        
+        # 데이터 추가
+        with open(ERROR_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, full_msg])
+            
+    except Exception as e:
+        print(f"Error logging failed: {e}")
+
+def get_transmission_stats():
+    """전송 통계 반환"""
+    global transmission_stats
+    return transmission_stats.copy()
+
 ######################################################
 ## FUNDEMENTAL METHODS                              ##
 ######################################################
@@ -76,8 +205,8 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) != 12):
-            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving IMU, expected 9 fields")
+        if (len(sep_data) != 13):
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}")
             return
         
         tlm_data.filtered_roll = float(sep_data[0])
@@ -95,6 +224,8 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         tlm_data.gyro_roll = float(sep_data[9])
         tlm_data.gyro_pitch = float(sep_data[10])
         tlm_data.gyro_yaw = float(sep_data[11])
+        
+        tlm_data.imu_temperature = float(sep_data[12])
 
     # Receive GPS Data
     elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
@@ -143,6 +274,16 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         if len(sep_data) == 2:
             tlm_data.fir2_amb = float(sep_data[0])
             tlm_data.fir2_obj = float(sep_data[1])
+
+    # Receive TMP007 Data
+    elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007TlmData:
+        sep_data = recv_msg.data.split(",")
+        if len(sep_data) == 3:
+            tlm_data.tmp007_object_temp = float(sep_data[0])
+            tlm_data.tmp007_die_temp = float(sep_data[1])
+            tlm_data.tmp007_voltage = float(sep_data[2])
+        else:
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data)}")
 
 
 
@@ -267,7 +408,7 @@ class _tlm_data_format:
     mission_time : str = "00:00:00"
     packet_count : int = 0
     mode : str = "F"
-    state : str = "LAUNCH_PAD"
+    state : str = "발사대 대기"
     altitude : float = 0.0
     temperature : float = 0.0
     pressure : float = 0.0
@@ -304,6 +445,10 @@ class _tlm_data_format:
     thermis_temp: float = 0.0
     pitot_pressure: float = 0.0
     pitot_temp: float = 0.0
+    tmp007_object_temp: float = 0.0
+    tmp007_die_temp: float = 0.0
+    tmp007_voltage: float = 0.0
+    imu_temperature: float = 0.0
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -314,69 +459,97 @@ def send_tlm(serial_instance):
     global tlm_data
     global TELEMETRY_ENABLE
 
+    consecutive_failures = 0
+    max_failures_before_log = 5
+
     while COMMAPP_RUNSTATUS:
-        current_time = get_current_time()
-        tlm_data.mission_time = current_time.strftime("%H:%M:%S")
+        try:
+            current_time = get_current_time()
+            tlm_data.mission_time = current_time.strftime("%H:%M:%S")
 
-        if TELEMETRY_ENABLE:
-            tlm_data.packet_count += 1
+            if TELEMETRY_ENABLE:
+                tlm_data.packet_count += 1
 
-        tlm_to_send = ",".join([str(tlm_data.team_id),
-                    tlm_data.mission_time,
-                    str(tlm_data.packet_count),
-                    tlm_data.mode,
-                    tlm_data.state,
-                    f"{tlm_data.altitude:.2f}",
-                    f"{tlm_data.temperature:.2f}",
-                    f"{0.1 * tlm_data.pressure:.2f}", # from hPa to kPa
-                    f"{tlm_data.voltage:.2f}",
-                    f"{tlm_data.gyro_roll:.4f}",
-                    f"{tlm_data.gyro_pitch:.4f}",
-                    f"{tlm_data.gyro_yaw:.4f}",
-                    f"{tlm_data.acc_roll:.4f}",
-                    f"{tlm_data.acc_pitch:.4f}",
-                    f"{tlm_data.acc_yaw:.4f}",
-                    f"{0.01 * tlm_data.mag_roll:.4f}", # from microT to G
-                    f"{0.01 * tlm_data.mag_pitch:.4f}",
-                    f"{0.01 * tlm_data.mag_yaw:.4f}",
-                    f"{tlm_data.rot_rate:.2f}",
-                    str(tlm_data.gps_time),
-                    f"{tlm_data.gps_alt:.2f}",
-                    f"{tlm_data.gps_lat:.2f}",
-                    f"{tlm_data.gps_lon:.2f}",
-                    f"{tlm_data.gps_sats:.2f}",
-                    tlm_data.cmd_echo,
-                    #f','
-                    f"{tlm_data.filtered_roll:.4f}",
-                    f"{tlm_data.filtered_pitch:.4f}",
-                    f"{tlm_data.filtered_yaw:.4f}",
-                    f"{tlm_data.thermis_temp:.2f}",
-                    f"{tlm_data.pitot_pressure:.2f}",
-                    f"{tlm_data.pitot_temp:.2f}"])+"\n"
+            tlm_to_send = ",".join([str(tlm_data.team_id),
+                        tlm_data.mission_time,
+                        str(tlm_data.packet_count),
+                        tlm_data.mode,
+                        tlm_data.state,
+                        f"{tlm_data.altitude:.2f}",
+                        f"{tlm_data.temperature:.2f}",
+                        f"{0.1 * tlm_data.pressure:.2f}", # from hPa to kPa
+                        f"{tlm_data.voltage:.2f}",
+                        f"{tlm_data.gyro_roll:.4f}",
+                        f"{tlm_data.gyro_pitch:.4f}",
+                        f"{tlm_data.gyro_yaw:.4f}",
+                        f"{tlm_data.acc_roll:.4f}",
+                        f"{tlm_data.acc_pitch:.4f}",
+                        f"{tlm_data.acc_yaw:.4f}",
+                        f"{0.01 * tlm_data.mag_roll:.4f}", # from microT to G
+                        f"{0.01 * tlm_data.mag_pitch:.4f}",
+                        f"{0.01 * tlm_data.mag_yaw:.4f}",
+                        f"{tlm_data.rot_rate:.2f}",
+                        str(tlm_data.gps_time),
+                        f"{tlm_data.gps_alt:.2f}",
+                        f"{tlm_data.gps_lat:.2f}",
+                        f"{tlm_data.gps_lon:.2f}",
+                        f"{tlm_data.gps_sats:.2f}",
+                        tlm_data.cmd_echo,
+                        #f','
+                        f"{tlm_data.filtered_roll:.4f}",
+                        f"{tlm_data.filtered_pitch:.4f}",
+                        f"{tlm_data.filtered_yaw:.4f}",
+                        f"{tlm_data.thermis_temp:.2f}",
+                        f"{tlm_data.pitot_pressure:.2f}",
+                        f"{tlm_data.pitot_temp:.2f}",
+                        f"{tlm_data.imu_temperature:.2f}"])+"\n"
 
-        #events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info,tlm_to_send)
+            # 강화된 로깅 - 항상 텔레메트리 데이터를 로그에 저장
+            log_telemetry_data(tlm_to_send, success=True)
 
-        tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
-                f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
-                 f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
-                 f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
-                 f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
-                 f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                 f"FIR2 : Ambient({tlm_data.fir2_amb}), Object({tlm_data.fir2_obj})\n" \
-                 f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
-                 f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
-                 f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
-                 f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
-                 f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}) \n" \
-                 f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
-                 f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
-                 #f"Rotation Rate : {tlm_data.rot_rate}\n"
+            tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
+                    f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
+                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
+                     f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
+                     f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
+                     f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
+                     f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
+                     f"FIR2 : Ambient({tlm_data.fir2_amb}), Object({tlm_data.fir2_obj})\n" \
+                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
+                     f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
+                     f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
+                     f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
+                     f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
+                     f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
+                     f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
+                     f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
+                     #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
-        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, tlm_debug_text)
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.debug, tlm_debug_text)
 
-        # Only send telemetry when telemetry is enabled
-        if TELEMETRY_ENABLE:
-            uartserial.send_serial_data(serial_instance, tlm_to_send)
+            # Only send telemetry when telemetry is enabled
+            if TELEMETRY_ENABLE:
+                try:
+                    uartserial.send_serial_data(serial_instance, tlm_to_send)
+                    consecutive_failures = 0  # 성공 시 실패 횟수 리셋
+                    log_telemetry_data(tlm_to_send, success=True)
+                except Exception as e:
+                    consecutive_failures += 1
+                    log_telemetry_data(tlm_to_send, success=False)
+                    log_error(f"Telemetry transmission failed: {e}", "send_tlm")
+                    
+                    if consecutive_failures <= max_failures_before_log:
+                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Telemetry transmission failed: {e}")
+                    elif consecutive_failures == max_failures_before_log + 1:
+                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Telemetry transmission errors suppressed after {max_failures_before_log} failures")
+
+        except Exception as e:
+            consecutive_failures += 1
+            log_error(f"Telemetry generation failed: {e}", "send_tlm")
+            if consecutive_failures <= max_failures_before_log:
+                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Telemetry generation failed: {e}")
+            elif consecutive_failures == max_failures_before_log + 1:
+                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Telemetry generation errors suppressed after {max_failures_before_log} failures")
 
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -551,6 +724,8 @@ def read_cmd(Main_Queue:Queue, serial_instance):
                 ',' in rcv_cmd and ('GPGGA' in rcv_cmd or 'GPGSA' in rcv_cmd or 'GPRMC' in rcv_cmd or 'GPVTG' in rcv_cmd or '5.03,4.93' in rcv_cmd)):
                 continue
             
+            # 강화된 명령 로깅
+            log_command_received(rcv_cmd, "serial")
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.info, f"Received Command : {rcv_cmd}")
             
             # Validate commmand using regex
@@ -714,33 +889,45 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
         while COMMAPP_RUNSTATUS:
             # Receive Message From Pipe with timeout
             # Non-blocking receive with timeout
-            if Main_Pipe.poll(1.0):  # 1초 타임아웃
-                try:
-                    message = Main_Pipe.recv()
-                except:
-                    # 에러 시 루프 계속
+            try:
+                if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
+                    try:
+                        message = Main_Pipe.recv()
+                    except (EOFError, BrokenPipeError, ConnectionResetError):
+                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        log_error("Pipe connection lost", "commapp_main")
+                        break
+                    except Exception as e:
+                        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        log_error(f"Pipe receive error: {e}", "commapp_main")
+                        continue
+                else:
+                    # 타임아웃 시 루프 계속
                     continue
-            else:
-                # 타임아웃 시 루프 계속
-                continue
-                
-            recv_msg = msgstructure.MsgStructure()
+                    
+                recv_msg = msgstructure.MsgStructure()
 
-            # Unpack Message, Skip this message if unpacked message is not valid
-            if msgstructure.unpack_msg(recv_msg, message) == False:
-                continue
-            
-            # Validate Message, Skip this message if target AppID different from commapp's AppID
-            # Exception when the message is from main app
-            if recv_msg.receiver_app == appargs.CommAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
-                # Handle Command According to Message ID
-                command_handler(recv_msg)
-            else:
-                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Receiver MID does not match with commapp MID")
+                # Unpack Message, Skip this message if unpacked message is not valid
+                if msgstructure.unpack_msg(recv_msg, message) == False:
+                    continue
+                
+                # Validate Message, Skip this message if target AppID different from commapp's AppID
+                # Exception when the message is from main app
+                if recv_msg.receiver_app == appargs.CommAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
+                    # Handle Command According to Message ID
+                    command_handler(recv_msg)
+                else:
+                    events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, "Receiver MID does not match with commapp MID")
+                    
+            except Exception as e:
+                events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                log_error(f"Main loop error: {e}", "commapp_main")
+                time.sleep(0.1)  # 에러 시 짧은 대기
 
     # If error occurs, terminate app
     except Exception as e:
         events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"commapp error : {e}")
+        log_error(f"Critical commapp error: {e}", "commapp_main")
         COMMAPP_RUNSTATUS = False
 
     # Termination Process after runloop

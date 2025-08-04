@@ -126,6 +126,15 @@ class ThermoAppArg:
     # 선택: 1 Hz 텔레메트리
     MID_SendThermoTlmData:            types.MID = 2303
 
+# ────────── TMP007 (Temperature Sensor) ──────────
+class Tmp007AppArg:
+    AppID: types.AppID = 26          # **고유해야 함**
+    AppName = "TMP007"
+    MID_SendHK:            types.MID = 2601
+    MID_SendTmp007TlmData:    types.MID = 2602  # 1 Hz 텔레메트리 (object_temp, die_temp, voltage)
+    MID_SendTmp007FlightLogicData: types.MID = 2603  # 4 Hz 온도 데이터
+    MID_Tmp007Calibration:    types.MID = 2604  # CAL 처리용(옵션)
+
 
 # ────────── 샘플/테스트 앱 ──────────
 class SampleAppArg:

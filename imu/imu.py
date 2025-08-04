@@ -192,11 +192,18 @@ def read_sensor_data(sensor):
         gyrY = round(gyrY, 2)
         gyrZ = round(gyrZ, 2)
 
+    # Read temperature from BNO055
+    temp = sensor.temperature
+    if temp is None:
+        temp = 0
+    else:
+        temp = round(temp, 2)
+
     # Linear Acc and Gravity vector can be read, but not utilzed.
     #lin_accX, lin_accY, lin_accZ = sensor.linear_acceleration
     #graX, graY, graZ = sensor.gravity
-    log_imu(f"{avg_roll:.2f}, {avg_pitch:.2f}, {avg_yaw:.2f}, {accX:.2f}, {accY:.2f}, {accZ:.2f}, {magX:.2f}, {magY:.2f}, {magZ:.2f}, {gyrX:.2f}, {gyrY:.2f}, {gyrZ:.2f}")
-    return (avg_roll, avg_pitch, avg_yaw, accX, accY, accZ, magX, magY, magZ, gyrX, gyrY, gyrZ)
+    log_imu(f"{avg_roll:.2f}, {avg_pitch:.2f}, {avg_yaw:.2f}, {accX:.2f}, {accY:.2f}, {accZ:.2f}, {magX:.2f}, {magY:.2f}, {magZ:.2f}, {gyrX:.2f}, {gyrY:.2f}, {gyrZ:.2f}, {temp:.2f}")
+    return (avg_roll, avg_pitch, avg_yaw, accX, accY, accZ, magX, magY, magZ, gyrX, gyrY, gyrZ, temp)
 
 def imu_terminate(i2c):
     i2c.deinit()

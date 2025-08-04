@@ -40,9 +40,28 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
 def send_hk(Main_Queue : Queue):
     global IMUAPP_RUNSTATUS
+    consecutive_hk_failures = 0
+    max_hk_failures = 3
+    
     while IMUAPP_RUNSTATUS:
-        imuHK = msgstructure.MsgStructure()
-        msgstructure.send_msg(Main_Queue, imuHK, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.ImuAppArg.MID_SendHK, str(IMUAPP_RUNSTATUS))
+        try:
+            imuHK = msgstructure.MsgStructure()
+            status = msgstructure.send_msg(Main_Queue, imuHK, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.ImuAppArg.MID_SendHK, str(IMUAPP_RUNSTATUS))
+            if status == False:
+                consecutive_hk_failures += 1
+                if consecutive_hk_failures <= max_hk_failures:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error sending HK message")
+                elif consecutive_hk_failures == max_hk_failures + 1:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"HK send errors suppressed after {max_hk_failures} failures")
+            else:
+                consecutive_hk_failures = 0
+        except Exception as e:
+            consecutive_hk_failures += 1
+            if consecutive_hk_failures <= max_hk_failures:
+                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Exception sending HK: {e}")
+            elif consecutive_hk_failures == max_hk_failures + 1:
+                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"HK send exceptions suppressed after {max_hk_failures} failures")
+        
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
             if not IMUAPP_RUNSTATUS:
@@ -81,9 +100,11 @@ def imuapp_terminate(i2c_instance):
 
     IMUAPP_RUNSTATUS = False
     events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Terminating imuapp")
-    # Termination Process Comes Here
-
-    imu.imu_terminate(i2c_instance)
+    
+    try:
+        imu.imu_terminate(i2c_instance)
+    except Exception as e:
+        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error terminating IMU: {e}")
 
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:
@@ -116,6 +137,7 @@ IMU_MAGZ: float = 0.0
 IMU_GYRX: float = 0.0
 IMU_GYRY: float = 0.0
 IMU_GYRZ: float = 0.0
+IMU_TEMP: float = 0.0
 
 def read_imu_data(imu_instance):
 
@@ -131,8 +153,14 @@ def read_imu_data(imu_instance):
     global IMU_GYRX
     global IMU_GYRY
     global IMU_GYRZ
+    global IMU_TEMP
     
     global IMUAPP_RUNSTATUS
+    
+    # 연속 실패 횟수 추적
+    consecutive_failures = 0
+    max_failures = 10
+    
     while IMUAPP_RUNSTATUS:
         try:
             # Read data from IMU
@@ -140,8 +168,12 @@ def read_imu_data(imu_instance):
 
             # Continue if Quaternion data is empty
             if rcv_data == False:
+                consecutive_failures += 1
+                if consecutive_failures > max_failures:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU data read failed {consecutive_failures} times")
                 continue
-            else:         
+            else:
+                consecutive_failures = 0  # 성공 시 실패 횟수 리셋
                 #새로운 자세 정보 저장
                 IMU_ROLL        = rcv_data[0]
                 IMU_PITCH       = rcv_data[1]
@@ -158,12 +190,25 @@ def read_imu_data(imu_instance):
                 IMU_GYRX        = rcv_data[9]
                 IMU_GYRY        = rcv_data[10]
                 IMU_GYRZ        = rcv_data[11]
+                IMU_TEMP        = rcv_data[12]
         except Exception as e:
-            # events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
+            consecutive_failures += 1
+            if consecutive_failures <= max_failures:
+                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"IMU read error: {e}")
+            elif consecutive_failures == max_failures + 1:
+                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU read errors suppressed after {max_failures} failures")
+            
+            # 기본값 설정
             IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
             IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
             IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
             IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
+            IMU_TEMP = 0.0
+            
+            # 오류 시 더 긴 대기
+            time.sleep(0.1)
+            continue
+            
         # The imu runs on 100Hz
         time.sleep(0.01)
 
@@ -182,6 +227,7 @@ def send_imu_data(Main_Queue : Queue):
     global IMU_GYRX
     global IMU_GYRY
     global IMU_GYRZ
+    global IMU_TEMP
     
     global IMUAPP_RUNSTATUS
 
@@ -189,6 +235,8 @@ def send_imu_data(Main_Queue : Queue):
     YawDataToMotorMsg = msgstructure.MsgStructure()
     
     send_counter = 0
+    consecutive_send_failures = 0
+    max_send_failures = 5
 
     while IMUAPP_RUNSTATUS:
         
@@ -205,15 +253,29 @@ def send_imu_data(Main_Queue : Queue):
         # Sending data to COMMS app occurs once a second
 
         if send_counter >= 10 :
-            # Send telemetry message to COMM app
-            status = msgstructure.send_msg(Main_Queue, 
-                                        ImuDataToTlmMsg, 
-                                        appargs.ImuAppArg.AppID,
-                                        appargs.CommAppArg.AppID,
-                                        appargs.ImuAppArg.MID_SendImuTlmData,
-                                        f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f}")
-            if status == False:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error When sending Imu Tlm Message")
+            try:
+                # Send telemetry message to COMM app
+                status = msgstructure.send_msg(Main_Queue, 
+                                            ImuDataToTlmMsg, 
+                                            appargs.ImuAppArg.AppID,
+                                            appargs.CommAppArg.AppID,
+                                            appargs.ImuAppArg.MID_SendImuTlmData,
+                                            f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}")
+                if status == False:
+                    consecutive_send_failures += 1
+                    if consecutive_send_failures <= max_send_failures:
+                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Error When sending Imu Tlm Message")
+                    elif consecutive_send_failures == max_send_failures + 1:
+                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU send errors suppressed after {max_send_failures} failures")
+                else:
+                    consecutive_send_failures = 0  # 성공 시 실패 횟수 리셋
+            except Exception as e:
+                consecutive_send_failures += 1
+                if consecutive_send_failures <= max_send_failures:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Exception when sending IMU data: {e}")
+                elif consecutive_send_failures == max_send_failures + 1:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"IMU send exceptions suppressed after {max_send_failures} failures")
+            
             send_counter = 0
             
         # Sleep 1 second
@@ -258,29 +320,37 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
         while IMUAPP_RUNSTATUS:
             # Receive Message From Pipe with timeout
             # Non-blocking receive with timeout
-            if Main_Pipe.poll(1.0):  # 1초 타임아웃
-                try:
-                    message = Main_Pipe.recv()
-                except:
-                    # 에러 시 루프 계속
+            try:
+                if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
+                    try:
+                        message = Main_Pipe.recv()
+                    except (EOFError, BrokenPipeError, ConnectionResetError):
+                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Pipe connection lost")
+                        break
+                    except Exception as e:
+                        events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
+                        continue
+                else:
+                    # 타임아웃 시 루프 계속
                     continue
-            else:
-                # 타임아웃 시 루프 계속
-                continue
-                
-            recv_msg = msgstructure.MsgStructure()
+                    
+                recv_msg = msgstructure.MsgStructure()
 
-            # Unpack Message, Skip this message if unpacked message is not valid
-            if msgstructure.unpack_msg(recv_msg, message) == False:
-                continue
-            
-            # Validate Message, Skip this message if target AppID different from imuapp's AppID
-            # Exception when the message is from main app
-            if recv_msg.receiver_app == appargs.ImuAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
-                # Handle Command According to Message ID
-                command_handler(recv_msg)
-            else:
-                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Receiver MID does not match with imuapp MID")
+                # Unpack Message, Skip this message if unpacked message is not valid
+                if msgstructure.unpack_msg(recv_msg, message) == False:
+                    continue
+                
+                # Validate Message, Skip this message if target AppID different from imuapp's AppID
+                # Exception when the message is from main app
+                if recv_msg.receiver_app == appargs.ImuAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
+                    # Handle Command According to Message ID
+                    command_handler(recv_msg)
+                else:
+                    events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "Receiver MID does not match with imuapp MID")
+                    
+            except Exception as e:
+                events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
+                time.sleep(0.1)  # 에러 시 짧은 대기
 
     # If error occurs, terminate app
     except Exception as e:
