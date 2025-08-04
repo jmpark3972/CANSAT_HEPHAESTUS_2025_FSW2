@@ -22,7 +22,7 @@ THERMISAPP_RUNSTATUS = True
 
 OFFSET_MUTEX = threading.Lock()  # protect offset update & sensor access
 
-TEMP_OFFSET = 0.0  # °C
+TEMP_OFFSET = 50.0  # °C - Added +50 offset for THERMIS sensor
 
 TEMP = 0.0
 

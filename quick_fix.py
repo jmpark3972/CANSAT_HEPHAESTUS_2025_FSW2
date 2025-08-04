@@ -210,7 +210,7 @@ def main():
             results.append(False)
         time.sleep(1)
     
-    print("\\nTest Results:")
+    print("\nTest Results:")
     print(f"Passed: {sum(results)}/{len(results)}")
     
     if all(results):
@@ -247,15 +247,15 @@ def main():
     
     results = []
     for name, fix_func in fixes:
-        print(f"\\n--- {name} ---")
+        print(f"\n--- {name} ---")
         try:
             result = fix_func()
-            results.append(result)
+            results.append(result if result is not None else False)
         except Exception as e:
             print(f"Error in {name}: {e}")
             results.append(False)
     
-    print("\\n" + "=" * 40)
+    print("\n" + "=" * 40)
     print("Fix Summary:")
     print(f"Successful: {sum(results)}/{len(results)}")
     
@@ -264,7 +264,7 @@ def main():
     else:
         print("✗ Some fixes failed. Check the output above.")
     
-    print("\\nNext steps:")
+    print("\nNext steps:")
     print("1. Reboot the system if I2C was enabled")
     print("2. Logout and login if serial permissions were changed")
     print("3. Run: python3 sensor_test.py")

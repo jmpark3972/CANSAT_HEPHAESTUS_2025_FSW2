@@ -215,6 +215,15 @@ def signal_handler(signum, frame):
     _termination_in_progress = True
     MAINAPP_RUNSTATUS = False
     
+    # 모든 프로세스 강제 종료
+    try:
+        for appID in app_dict:
+            if app_dict[appID].process and app_dict[appID].process.is_alive():
+                print(f"강제 종료: {appID}")
+                app_dict[appID].process.kill()
+    except:
+        pass
+    
     # 즉시 강제 종료 실행
     print("강제 종료 실행 중...")
     os._exit(0)
@@ -522,6 +531,16 @@ def runloop(Main_Queue : Queue):
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
         MAINAPP_RUNSTATUS = False
         print("KeyboardInterrupt 감지됨. 강제 종료합니다.")
+        
+        # 모든 프로세스 강제 종료
+        try:
+            for appID in app_dict:
+                if app_dict[appID].process and app_dict[appID].process.is_alive():
+                    print(f"강제 종료: {appID}")
+                    app_dict[appID].process.kill()
+        except:
+            pass
+        
         os._exit(0)
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
