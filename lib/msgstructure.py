@@ -1,4 +1,4 @@
-from lib import events
+from lib import logging
 from multiprocessing import Queue
 from lib import types
 
@@ -12,20 +12,20 @@ def fill_msg(target: MsgStructure, _sender : int, _receiver : int, _MsgID : int,
     try:
         # 입력값 검증
         if not isinstance(_sender, int) or not isinstance(_receiver, int) or not isinstance(_MsgID, int):
-            events.LogEvent("MsgStructure", events.EventType.error, f"Invalid type: sender={type(_sender)}, receiver={type(_receiver)}, MsgID={type(_MsgID)}")
+            logging.log(f"[MsgStructure] Invalid type: sender={type(_sender)}, receiver={type(_receiver)}, MsgID={type(_MsgID)}", True)
             return False
         
         if not isinstance(_data, str):
-            events.LogEvent("MsgStructure", events.EventType.error, f"Data must be string, got {type(_data)}")
+            logging.log(f"[MsgStructure] Data must be string, got {type(_data)}", True)
             return False
             
         if '|' in _data:
-            events.LogEvent("MsgStructure", events.EventType.error, f"Data should not contain '|' since it is used to divide fields")
+            logging.log(f"[MsgStructure] Data should not contain '|' since it is used to divide fields", True)
             return False
             
         # 음수 값 검증
         if _sender < 0 or _receiver < 0 or _MsgID < 0:
-            events.LogEvent("MsgStructure", events.EventType.error, f"Negative values not allowed: sender={_sender}, receiver={_receiver}, MsgID={_MsgID}")
+            logging.log(f"[MsgStructure] Negative values not allowed: sender={_sender}, receiver={_receiver}, MsgID={_MsgID}", True)
             return False
             
         target.sender_app = _sender
@@ -34,40 +34,40 @@ def fill_msg(target: MsgStructure, _sender : int, _receiver : int, _MsgID : int,
         target.data = _data
         return True
     except Exception as e:
-        events.LogEvent("MsgStructure", events.EventType.error, f"error when filling message : {e}")
+        logging.log(f"[MsgStructure] Error when filling message: {e}", True)
         return False
 
 def pack_msg (target: MsgStructure) -> str:
     try:
         # None 체크 및 타입 검증
         if target.sender_app is None or target.receiver_app is None or target.MsgID is None or target.data is None:
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when packing message : message is not filled")
+            logging.log(f"[MsgStructure] Error when packing message: message is not filled", True)
             return "ERROR"
             
         # 타입 검증
         if not isinstance(target.sender_app, int) or not isinstance(target.receiver_app, int) or not isinstance(target.MsgID, int) or not isinstance(target.data, str):
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when packing message : invalid types")
+            logging.log(f"[MsgStructure] Error when packing message: invalid types", True)
             return "ERROR"
             
         return str(target.sender_app) + "|" + str(target.receiver_app) + "|" + str(target.MsgID) + "|" + target.data
     except Exception as e:
-        events.LogEvent("MsgStructure", events.EventType.error, f"error when packing message : {e}")
+        logging.log(f"[MsgStructure] Error when packing message: {e}", True)
         return "ERROR"
     
 def unpack_msg (target : MsgStructure, msg: str) -> bool:
     try:
         # 입력 검증
         if not isinstance(msg, str):
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : msg must be string, got {type(msg)}")
+            logging.log(f"[MsgStructure] Error when unpacking message: msg must be string, got {type(msg)}", True)
             return False
             
         if not msg or msg.strip() == "":
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : empty message")
+            logging.log(f"[MsgStructure] Error when unpacking message: empty message", True)
             return False
             
         msg_list = msg.split('|')
         if len(msg_list) != 4:
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : Expected length of msg_list of 4 but {len(msg_list)}")
+            logging.log(f"[MsgStructure] Error when unpacking message: Expected length of msg_list of 4 but {len(msg_list)}", True)
             return False
             
         # 숫자 변환 검증
@@ -76,12 +76,12 @@ def unpack_msg (target : MsgStructure, msg: str) -> bool:
             receiver_app = int(msg_list[1])
             msg_id = int(msg_list[2])
         except ValueError as e:
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : invalid numeric values: {e}")
+            logging.log(f"[MsgStructure] Error when unpacking message: invalid numeric values: {e}", True)
             return False
             
         # 음수 값 검증
         if sender_app < 0 or receiver_app < 0 or msg_id < 0:
-            events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : negative values not allowed")
+            logging.log(f"[MsgStructure] Error when unpacking message: negative values not allowed", True)
             return False
             
         target.sender_app = sender_app
@@ -90,7 +90,7 @@ def unpack_msg (target : MsgStructure, msg: str) -> bool:
         target.data = msg_list[3]
         return True
     except Exception as e:
-        events.LogEvent("MsgStructure", events.EventType.error, f"error when unpacking message : {e}")
+        logging.log(f"[MsgStructure] Error when unpacking message: {e}", True)
         return False
     
 # Send message for SB Methods to route
@@ -98,16 +98,17 @@ def send_msg (Main_Queue : Queue, target: MsgStructure, _sender : types.AppID, _
     try:
         # Fill Message
         fill_msg(target, _sender, _receiver, _MsgID, _data)
-        #print(f"{target.sender_app} -> {target.receiver_app} : {target.MsgID} / {target.data}")
+        
         # Pack Message
-        msg_to_send = pack_msg(target)
-        if msg_to_send == "ERROR":
+        packed_msg = pack_msg(target)
+        
+        # Send Message
+        if packed_msg == "ERROR":
+            logging.log(f"[MsgStructure] Error when sending message: packing failed", True)
             return False
-        #print(msg_to_send)
-        # Put message to main app queue 
-        Main_Queue.put(msg_to_send)
-
+            
+        Main_Queue.put(packed_msg)
+        return True
     except Exception as e:
-        events.LogEvent("MsgStructure", events.EventType.error, f"error when sending message : {e}")
+        logging.log(f"[MsgStructure] Error when sending message: {e}", True)
         return False
-    return True

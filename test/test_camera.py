@@ -1,238 +1,214 @@
 #!/usr/bin/env python3
-# Camera App Test Script
-# Author : Hyeon Lee  (HEPHAESTUS)
+"""
+Camera App Test Script
+Raspberry Pi Camera Module v3 Wide 테스트
+"""
 
 import sys
 import os
 import time
 import subprocess
+import threading
 from pathlib import Path
 
-# 프로젝트 루트를 Python 경로에 추가
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# 프로젝트 루트 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from camera import camera as cam
-from lib import events, appargs
+from lib import logging, appargs
 
 def test_camera_hardware():
-    """카메라 하드웨어 테스트."""
-    print("=== 카메라 하드웨어 테스트 ===")
+    """카메라 하드웨어 확인"""
+    print("1. 카메라 하드웨어 확인...")
     
-    # vcgencmd로 카메라 상태 확인
     try:
-        result = subprocess.run(['vcgencmd', 'get_camera'], 
-                              capture_output=True, text=True, timeout=5)
+        # vcgencmd로 카메라 상태 확인
+        result = subprocess.run(['vcgencmd', 'get_camera'], capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"카메라 상태: {result.stdout.strip()}")
-            if "detected=1" in result.stdout:
-                print("✓ 카메라 하드웨어 감지됨")
+            print(f"   카메라 상태: {result.stdout.strip()}")
+            if 'detected=1' in result.stdout:
+                print("   ✓ 카메라 하드웨어 감지됨")
                 return True
             else:
-                print("✗ 카메라 하드웨어 감지되지 않음")
+                print("   ✗ 카메라 하드웨어 감지되지 않음")
                 return False
         else:
-            print("✗ vcgencmd 실행 실패")
+            print("   ✗ vcgencmd 명령어 실패")
             return False
     except Exception as e:
-        print(f"✗ 하드웨어 테스트 오류: {e}")
+        print(f"   ✗ 카메라 하드웨어 확인 오류: {e}")
         return False
 
 def test_camera_driver():
-    """카메라 드라이버 테스트."""
-    print("\n=== 카메라 드라이버 테스트 ===")
+    """카메라 드라이버 확인"""
+    print("2. 카메라 드라이버 확인...")
     
-    # /dev/video0 존재 확인
-    if os.path.exists('/dev/video0'):
-        print("✓ /dev/video0 발견")
-        
-        # 권한 확인
-        try:
-            stat = os.stat('/dev/video0')
-            print(f"권한: {oct(stat.st_mode)[-3:]}")
+    try:
+        # /dev/video* 디바이스 확인
+        video_devices = list(Path('/dev').glob('video*'))
+        if video_devices:
+            print(f"   발견된 비디오 디바이스: {[str(d) for d in video_devices]}")
+            print("   ✓ 카메라 드라이버 로드됨")
             return True
-        except Exception as e:
-            print(f"✗ 권한 확인 오류: {e}")
+        else:
+            print("   ✗ 비디오 디바이스 없음")
             return False
-    else:
-        print("✗ /dev/video0 없음")
+    except Exception as e:
+        print(f"   ✗ 카메라 드라이버 확인 오류: {e}")
         return False
 
 def test_ffmpeg():
-    """ffmpeg 설치 테스트."""
-    print("\n=== ffmpeg 테스트 ===")
+    """FFmpeg 설치 확인"""
+    print("3. FFmpeg 설치 확인...")
     
     try:
-        result = subprocess.run(['ffmpeg', '-version'], 
-                              capture_output=True, text=True, timeout=5)
+        result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True)
         if result.returncode == 0:
-            print("✓ ffmpeg 설치됨")
-            # 버전 정보 출력
             version_line = result.stdout.split('\n')[0]
-            print(f"버전: {version_line}")
+            print(f"   {version_line}")
+            print("   ✓ FFmpeg 설치됨")
             return True
         else:
-            print("✗ ffmpeg 실행 실패")
+            print("   ✗ FFmpeg 설치되지 않음")
             return False
-    except FileNotFoundError:
-        print("✗ ffmpeg 설치되지 않음")
-        print("설치 명령: sudo apt install ffmpeg")
-        return False
     except Exception as e:
-        print(f"✗ ffmpeg 테스트 오류: {e}")
+        print(f"   ✗ FFmpeg 확인 오류: {e}")
         return False
 
 def test_camera_initialization():
-    """카메라 초기화 테스트."""
-    print("\n=== 카메라 초기화 테스트 ===")
+    """카메라 초기화 테스트"""
+    print("4. 카메라 초기화 테스트...")
     
     try:
-        success = cam.init_camera()
-        if success:
-            print("✓ 카메라 초기화 성공")
+        from camera import camera
+        
+        # 카메라 초기화
+        camera_process = camera.init_camera()
+        if camera_process:
+            print("   ✓ 카메라 초기화 성공")
+            
+            # 카메라 종료
+            camera.terminate_camera()
+            print("   ✓ 카메라 종료 성공")
             return True
         else:
-            print("✗ 카메라 초기화 실패")
+            print("   ✗ 카메라 초기화 실패")
             return False
     except Exception as e:
-        print(f"✗ 초기화 테스트 오류: {e}")
+        print(f"   ✗ 카메라 초기화 테스트 오류: {e}")
         return False
 
 def test_recording():
-    """녹화 기능 테스트."""
-    print("\n=== 녹화 기능 테스트 ===")
+    """녹화 테스트"""
+    print("5. 녹화 테스트...")
     
     try:
-        # 녹화 시작
-        print("녹화 시작...")
-        if cam.start_recording():
-            print("✓ 녹화 시작 성공")
-            
-            # 10초 대기 (2개 비디오 파일 생성)
-            print("10초간 녹화 중...")
-            time.sleep(10)
-            
-            # 녹화 중지
-            print("녹화 중지...")
-            if cam.stop_recording():
-                print("✓ 녹화 중지 성공")
-                
-                # 파일 생성 확인
-                time.sleep(2)  # 파일 처리 대기
-                video_count = cam.get_video_count()
-                print(f"생성된 비디오 파일 수: {video_count}")
-                
-                if video_count > 0:
-                    print("✓ 비디오 파일 생성 확인")
-                    return True
-                else:
-                    print("✗ 비디오 파일 생성되지 않음")
-                    return False
-            else:
-                print("✗ 녹화 중지 실패")
-                return False
-        else:
-            print("✗ 녹화 시작 실패")
+        from camera import camera
+        
+        # 카메라 초기화
+        camera_process = camera.init_camera()
+        if not camera_process:
+            print("   ✗ 카메라 초기화 실패로 녹화 테스트 건너뜀")
             return False
-            
+        
+        # 5초 녹화 테스트
+        print("   5초간 녹화 테스트 시작...")
+        success = camera.record_single_video(camera_process, 5)
+        
+        # 카메라 종료
+        camera.terminate_camera()
+        
+        if success:
+            print("   ✓ 녹화 테스트 성공")
+            return True
+        else:
+            print("   ✗ 녹화 테스트 실패")
+            return False
     except Exception as e:
-        print(f"✗ 녹화 테스트 오류: {e}")
+        print(f"   ✗ 녹화 테스트 오류: {e}")
         return False
 
 def test_status_monitoring():
-    """상태 모니터링 테스트."""
-    print("\n=== 상태 모니터링 테스트 ===")
+    """상태 모니터링 테스트"""
+    print("6. 상태 모니터링 테스트...")
     
     try:
-        # 카메라 상태 확인
-        status = cam.get_camera_status()
-        print(f"카메라 상태: {status}")
+        from camera import camera
+        
+        # 카메라 초기화
+        camera_process = camera.init_camera()
+        if not camera_process:
+            print("   ✗ 카메라 초기화 실패로 상태 모니터링 테스트 건너뜀")
+            return False
+        
+        # 상태 확인
+        status = camera.get_camera_status(camera_process)
+        print(f"   카메라 상태: {status}")
         
         # 디스크 사용량 확인
-        disk_info = cam.get_disk_usage()
-        print(f"디스크 정보: {disk_info}")
+        disk_usage = camera.get_disk_usage()
+        print(f"   디스크 사용량: {disk_usage:.1f}%")
         
-        print("✓ 상태 모니터링 정상")
+        # 카메라 종료
+        camera.terminate_camera()
+        
+        print("   ✓ 상태 모니터링 테스트 성공")
         return True
-        
     except Exception as e:
-        print(f"✗ 상태 모니터링 오류: {e}")
+        print(f"   ✗ 상태 모니터링 테스트 오류: {e}")
         return False
 
 def cleanup_test():
-    """테스트 정리."""
-    print("\n=== 테스트 정리 ===")
+    """테스트 정리"""
+    print("7. 테스트 정리...")
     
     try:
-        cam.terminate_camera()
-        print("✓ 카메라 정리 완료")
+        # 임시 파일 정리
+        temp_files = list(Path('.').glob('temp_*.mp4'))
+        for temp_file in temp_files:
+            temp_file.unlink()
+            print(f"   임시 파일 삭제: {temp_file}")
+        
+        print("   ✓ 테스트 정리 완료")
         return True
     except Exception as e:
-        print(f"✗ 정리 오류: {e}")
+        print(f"   ✗ 테스트 정리 오류: {e}")
         return False
 
 def main():
-    """메인 테스트 함수."""
-    print("카메라 앱 테스트 시작")
-    print("=" * 50)
+    """메인 테스트 함수"""
+    print("=== Camera App 테스트 시작 ===")
+    print(f"테스트 시간: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
     
-    # 테스트 결과 추적
-    test_results = []
+    # 테스트 결과 저장
+    test_results = {}
     
-    # 1. 하드웨어 테스트
-    test_results.append(("하드웨어", test_camera_hardware()))
-    
-    # 2. 드라이버 테스트
-    test_results.append(("드라이버", test_camera_driver()))
-    
-    # 3. ffmpeg 테스트
-    test_results.append(("ffmpeg", test_ffmpeg()))
-    
-    # 4. 초기화 테스트
-    test_results.append(("초기화", test_camera_initialization()))
-    
-    # 5. 상태 모니터링 테스트
-    test_results.append(("상태 모니터링", test_status_monitoring()))
-    
-    # 6. 녹화 테스트 (선택적)
-    print("\n녹화 테스트를 실행하시겠습니까? (y/n): ", end="")
-    response = input().lower().strip()
-    
-    if response == 'y':
-        test_results.append(("녹화", test_recording()))
-    else:
-        print("녹화 테스트 건너뜀")
-        test_results.append(("녹화", None))
-    
-    # 7. 정리
-    test_results.append(("정리", cleanup_test()))
+    # 각 테스트 실행
+    test_results['hardware'] = test_camera_hardware()
+    test_results['driver'] = test_camera_driver()
+    test_results['ffmpeg'] = test_ffmpeg()
+    test_results['initialization'] = test_camera_initialization()
+    test_results['recording'] = test_recording()
+    test_results['monitoring'] = test_status_monitoring()
+    test_results['cleanup'] = cleanup_test()
     
     # 결과 요약
-    print("\n" + "=" * 50)
-    print("테스트 결과 요약")
-    print("=" * 50)
+    print("\n=== 테스트 결과 요약 ===")
+    passed = sum(test_results.values())
+    total = len(test_results)
     
-    passed = 0
-    total = 0
+    for test_name, result in test_results.items():
+        status = "✓ 통과" if result else "✗ 실패"
+        print(f"{test_name:15}: {status}")
     
-    for test_name, result in test_results:
-        if result is None:
-            print(f"{test_name:15} : 건너뜀")
-        elif result:
-            print(f"{test_name:15} : ✓ 통과")
-            passed += 1
-        else:
-            print(f"{test_name:15} : ✗ 실패")
-        total += 1
-    
-    print("-" * 50)
-    print(f"통과: {passed}/{total}")
+    print(f"\n전체 결과: {passed}/{total} 테스트 통과")
     
     if passed == total:
-        print("🎉 모든 테스트 통과!")
-        return 0
+        print("🎉 모든 테스트 통과! 카메라 앱이 정상적으로 작동합니다.")
+        return True
     else:
-        print("⚠️  일부 테스트 실패")
-        return 1
+        print("⚠️  일부 테스트 실패. 카메라 설정을 확인하세요.")
+        return False
 
 if __name__ == "__main__":
-    exit(main()) 
+    main() 

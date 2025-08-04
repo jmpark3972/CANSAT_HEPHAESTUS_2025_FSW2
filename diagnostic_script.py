@@ -15,46 +15,54 @@ def check_system_resources():
     """Check system resources"""
     print("=== System Resources Check ===")
     
-    # Memory usage
-    memory = psutil.virtual_memory()
-    print(f"Memory Usage: {memory.percent}% ({memory.used // 1024 // 1024}MB / {memory.total // 1024 // 1024}MB)")
-    
-    # Disk usage
-    disk = psutil.disk_usage('/')
-    print(f"Disk Usage: {disk.percent}% ({disk.used // 1024 // 1024}MB / {disk.total // 1024 // 1024}MB)")
-    
-    # CPU usage
-    cpu_percent = psutil.cpu_percent(interval=1)
-    print(f"CPU Usage: {cpu_percent}%")
-    
-    # Process count
-    process_count = len(psutil.pids())
-    print(f"Active Processes: {process_count}")
-    
-    return memory.percent < 90 and disk.percent < 95
+    try:
+        # Memory usage
+        memory = psutil.virtual_memory()
+        print(f"Memory Usage: {memory.percent}% ({memory.used // 1024 // 1024}MB / {memory.total // 1024 // 1024}MB)")
+        
+        # Disk usage
+        disk = psutil.disk_usage('/')
+        print(f"Disk Usage: {disk.percent}% ({disk.used // 1024 // 1024}MB / {disk.total // 1024 // 1024}MB)")
+        
+        # CPU usage
+        cpu_percent = psutil.cpu_percent(interval=1)
+        print(f"CPU Usage: {cpu_percent}%")
+        
+        # Process count
+        process_count = len(psutil.pids())
+        print(f"Active Processes: {process_count}")
+        
+        return memory.percent < 90 and disk.percent < 95
+    except Exception as e:
+        print(f"Error checking system resources: {e}")
+        return False
 
 def check_python_processes():
     """Check for running Python processes"""
     print("\n=== Python Processes Check ===")
     python_processes = []
     
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        try:
-            if 'python' in proc.info['name'].lower():
-                cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else ''
-                if 'main.py' in cmdline:
-                    python_processes.append(proc.info)
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
-    
-    if python_processes:
-        print("Found running Python processes:")
-        for proc in python_processes:
-            print(f"  PID {proc['pid']}: {proc['name']} - {proc['cmdline']}")
-    else:
-        print("No running Python processes found")
-    
-    return python_processes
+    try:
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                if 'python' in proc.info['name'].lower():
+                    cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else ''
+                    if 'main.py' in cmdline:
+                        python_processes.append(proc.info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        
+        if python_processes:
+            print("Found running Python processes:")
+            for proc in python_processes:
+                print(f"  PID {proc['pid']}: {proc['name']} - {proc['cmdline']}")
+        else:
+            print("No running Python processes found")
+        
+        return python_processes
+    except Exception as e:
+        print(f"Error checking Python processes: {e}")
+        return []
 
 def check_i2c_devices():
     """Check I2C devices"""
@@ -83,11 +91,10 @@ def check_i2c_devices():
         else:
             print("Failed to scan I2C bus 0")
             
+        return True
     except Exception as e:
         print(f"Error checking I2C devices: {e}")
         return False
-    
-    return True
 
 def check_serial_ports():
     """Check available serial ports"""
@@ -98,143 +105,123 @@ def check_serial_ports():
         serial_devices = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyACM0', '/dev/ttyACM1', 
                          '/dev/serial0', '/dev/serial1', '/dev/ttyAMA0', '/dev/ttyAMA1']
         
+        found_devices = []
         for device in serial_devices:
             if os.path.exists(device):
-                print(f"Found serial device: {device}")
-                
-                # Check permissions
-                try:
-                    stat = os.stat(device)
-                    print(f"  Permissions: {oct(stat.st_mode)[-3:]}")
-                    print(f"  Owner: {stat.st_uid}")
-                except Exception as e:
-                    print(f"  Error checking permissions: {e}")
-            else:
-                print(f"Serial device not found: {device}")
-                
+                found_devices.append(device)
+        
+        if found_devices:
+            print("Found serial devices:")
+            for device in found_devices:
+                print(f"  {device}")
+        else:
+            print("No serial devices found")
+        
+        return len(found_devices) > 0
     except Exception as e:
         print(f"Error checking serial ports: {e}")
         return False
-    
-    return True
 
 def check_gpio_access():
     """Check GPIO access"""
     print("\n=== GPIO Access Check ===")
     
     try:
-        # Check if pigpiod is running
-        result = subprocess.run(['pgrep', 'pigpiod'], capture_output=True, text=True)
-        if result.returncode == 0:
-            print("pigpiod is running")
-        else:
-            print("pigpiod is not running")
+        # Check if GPIO is accessible
+        if os.path.exists('/sys/class/gpio'):
+            print("GPIO sysfs interface available")
             
-        # Check GPIO permissions
-        gpio_path = '/sys/class/gpio'
-        if os.path.exists(gpio_path):
-            print(f"GPIO sysfs available: {gpio_path}")
+            # Check if user is in gpio group
+            result = subprocess.run(['groups'], capture_output=True, text=True)
+            if result.returncode == 0 and 'gpio' in result.stdout:
+                print("User is in gpio group ✓")
+                return True
+            else:
+                print("User is not in gpio group ✗")
+                return False
         else:
-            print("GPIO sysfs not available")
-            
+            print("GPIO sysfs interface not available")
+            return False
     except Exception as e:
         print(f"Error checking GPIO access: {e}")
         return False
-    
-    return True
 
 def check_python_dependencies():
     """Check Python dependencies"""
     print("\n=== Python Dependencies Check ===")
     
-    required_packages = [
-        'board', 'busio', 'adafruit_blinka', 'psutil', 'multiprocessing',
-        'signal', 'threading', 'time', 'serial', 'pigpio'
+    required_modules = [
+        'board', 'busio', 'adafruit_mlx90614', 'adafruit_mlx90640',
+        'smbus2', 'serial', 'threading', 'multiprocessing', 'psutil'
     ]
     
-    missing_packages = []
-    
-    for package in required_packages:
+    missing_modules = []
+    for module in required_modules:
         try:
-            __import__(package)
-            print(f"✓ {package}")
+            __import__(module)
+            print(f"  ✓ {module}")
         except ImportError:
-            print(f"✗ {package} - MISSING")
-            missing_packages.append(package)
+            print(f"  ✗ {module}")
+            missing_modules.append(module)
     
-    if missing_packages:
-        print(f"\nMissing packages: {', '.join(missing_packages)}")
-        print("Install missing packages with: pip install " + ' '.join(missing_packages))
-        return False
-    
-    return True
+    return len(missing_modules) == 0
 
 def check_file_permissions():
     """Check file permissions"""
     print("\n=== File Permissions Check ===")
     
-    current_dir = Path.cwd()
-    print(f"Current directory: {current_dir}")
-    
-    # Check main.py
-    main_py = current_dir / 'main.py'
-    if main_py.exists():
-        stat = main_py.stat()
-        print(f"main.py permissions: {oct(stat.st_mode)[-3:]}")
-        print(f"main.py executable: {os.access(main_py, os.X_OK)}")
-    else:
-        print("main.py not found")
-    
-    # Check logs directory
-    logs_dir = current_dir / 'logs'
-    if logs_dir.exists():
-        print(f"logs directory exists: {logs_dir}")
-        print(f"logs writable: {os.access(logs_dir, os.W_OK)}")
-    else:
-        print("logs directory not found")
-    
-    # Check lib directory
-    lib_dir = current_dir / 'lib'
-    if lib_dir.exists():
-        print(f"lib directory exists: {lib_dir}")
-        print(f"lib readable: {os.access(lib_dir, os.R_OK)}")
-    else:
-        print("lib directory not found")
+    try:
+        # Check log directory
+        log_dir = './logs'
+        if os.path.exists(log_dir):
+            if os.access(log_dir, os.W_OK):
+                print(f"Log directory writable: {log_dir} ✓")
+            else:
+                print(f"Log directory not writable: {log_dir} ✗")
+        else:
+            print(f"Log directory not found: {log_dir}")
+        
+        # Check main.py
+        if os.path.exists('main.py'):
+            if os.access('main.py', os.R_OK):
+                print("main.py readable ✓")
+            else:
+                print("main.py not readable ✗")
+        else:
+            print("main.py not found")
+        
+        return True
+    except Exception as e:
+        print(f"Error checking file permissions: {e}")
+        return False
 
 def suggest_fixes():
     """Suggest fixes for common issues"""
     print("\n=== Suggested Fixes ===")
     
-    print("1. If THERMIS sensor is not found:")
-    print("   - Check I2C connections")
-    print("   - Verify Qwiic Mux channel selection")
-    print("   - Check ADS1115 address (0x48-0x4B)")
+    print("1. If I2C devices not found:")
+    print("   - Check physical connections")
+    print("   - Run: sudo apt install i2c-tools")
+    print("   - Enable I2C in raspi-config")
     
-    print("\n2. If sensors return 0.0 values:")
-    print("   - Check I2C bus connections")
-    print("   - Verify sensor power supply")
-    print("   - Check for I2C address conflicts")
+    print("\n2. If GPIO access denied:")
+    print("   - Run: sudo usermod -a -G gpio $USER")
+    print("   - Reboot the system")
     
-    print("\n3. If XBee is not connected:")
-    print("   - Connect XBee USB adapter")
-    print("   - Check USB permissions")
-    print("   - Verify XBee configuration")
+    print("\3. If Python modules missing:")
+    print("   - Run: pip3 install adafruit-circuitpython-mlx90614")
+    print("   - Run: pip3 install adafruit-circuitpython-mlx90640")
+    print("   - Run: pip3 install smbus2 pyserial psutil")
     
-    print("\n4. If main loop errors occur:")
-    print("   - Check message queue handling")
-    print("   - Verify process communication")
-    print("   - Check for memory leaks")
-    
-    print("\n5. General troubleshooting:")
-    print("   - Restart the system")
-    print("   - Check all hardware connections")
-    print("   - Verify power supply stability")
-    print("   - Check for loose cables")
+    print("\n4. If serial ports not found:")
+    print("   - Check USB connections")
+    print("   - Run: sudo usermod -a -G dialout $USER")
+    print("   - Reboot the system")
 
 def main():
     """Main diagnostic function"""
-    print("CANSAT Diagnostic Script")
-    print("=" * 50)
+    print("=== CANSAT System Diagnostic ===")
+    print(f"Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Run all checks
     system_ok = check_system_resources()
@@ -243,23 +230,23 @@ def main():
     serial_ok = check_serial_ports()
     gpio_ok = check_gpio_access()
     deps_ok = check_python_dependencies()
-    check_file_permissions()
+    perms_ok = check_file_permissions()
     
     # Summary
-    print("\n=== Summary ===")
+    print("\n=== Diagnostic Summary ===")
     print(f"System Resources: {'✓' if system_ok else '✗'}")
+    print(f"Python Processes: {len(python_processes)} found")
     print(f"I2C Devices: {'✓' if i2c_ok else '✗'}")
     print(f"Serial Ports: {'✓' if serial_ok else '✗'}")
     print(f"GPIO Access: {'✓' if gpio_ok else '✗'}")
-    print(f"Python Dependencies: {'✓' if deps_ok else '✗'}")
+    print(f"Dependencies: {'✓' if deps_ok else '✗'}")
+    print(f"File Permissions: {'✓' if perms_ok else '✗'}")
     
-    if python_processes:
-        print(f"Running Python Processes: {len(python_processes)}")
-    
-    # Suggest fixes
-    suggest_fixes()
-    
-    print("\nDiagnostic complete!")
+    # Suggest fixes if issues found
+    if not all([system_ok, i2c_ok, serial_ok, gpio_ok, deps_ok, perms_ok]):
+        suggest_fixes()
+    else:
+        print("\n✓ All checks passed! System appears to be healthy.")
 
 if __name__ == "__main__":
     main() 

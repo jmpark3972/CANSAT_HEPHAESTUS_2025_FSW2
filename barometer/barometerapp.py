@@ -10,7 +10,7 @@ from lib import logging
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
     try:
-        formatted_message = f"[Barometer] [{level}] {message}"
+        formatted_message = f"[{appargs.BarometerAppArg.AppName}] [{level}] {message}"
         logging.log(formatted_message, printlogs)
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
@@ -71,25 +71,6 @@ def emergency_log_to_file(log_type: str, message: str):
                 f.write(log_entry)
     except Exception as e:
         print(f"Emergency logging failed: {e}")
-
-def log_high_freq_barometer_data(pressure, temperature, altitude):
-    """고주파수 Barometer 데이터를 CSV로 로깅"""
-    try:
-        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-        
-        # CSV 헤더가 없으면 생성
-        if not os.path.exists(HIGH_FREQ_LOG_PATH):
-            with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(['timestamp', 'pressure', 'temperature', 'altitude'])
-        
-        # 데이터 추가
-        with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([timestamp, pressure, temperature, altitude])
-            
-    except Exception as e:
-        emergency_log_to_file("ERROR", f"High frequency barometer logging failed: {e}")
 
 def log_csv(filepath: str, headers: list, data: list):
     """CSV 파일에 데이터를 로깅하는 함수"""
