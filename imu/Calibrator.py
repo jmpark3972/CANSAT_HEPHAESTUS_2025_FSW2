@@ -95,7 +95,7 @@ def Cal():
     print("Insert these preset offset values into project code:")
     print(f"  Offsets_Magnetometer:  {sensor.offsets_magnetometer}")
     print(f"  Offsets_Gyroscope:     {sensor.offsets_gyroscope}")
-    print(f"  Offsets_Accelerometer: {sensor.offsets_accelerometer}")
+    print(f"  Offsets_Acceleration: {sensor.offsets_acceleration}")
 
     
     
@@ -104,7 +104,7 @@ def Cal():
     with open('offset.txt',mode = 'w') as offset_file:
         offset_file.write(f"{sensor.offsets_magnetometer[0]},{sensor.offsets_magnetometer[1]}, {sensor.offsets_magnetometer[2]}\n")
         offset_file.write(f"{sensor.offsets_gyroscope[0]}, {sensor.offsets_gyroscope[1]}, {sensor.offsets_gyroscope[2]}\n")
-        offset_file.write(f"{sensor.offsets_accelerometer[0]}, {sensor.offsets_accelerometer[1]}, {sensor.offsets_accelerometer[2]}\n")
-    return (sensor.offsets_magnetometer, sensor.offsets_gyroscope, sensor.offsets_accelerometer)
+        offset_file.write(f"{sensor.offsets_acceleration[0]}, {sensor.offsets_acceleration[1]}, {sensor.offsets_acceleration[2]}\n")
+    return (sensor.offsets_magnetometer, sensor.offsets_gyroscope, sensor.offsets_acceleration)
 
 Cal()

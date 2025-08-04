@@ -30,18 +30,24 @@ def init_barometer():
     # Barometer 센서 직접 연결
     bmp = None
     
-    # 여러 I2C 주소 시도 (BMP280/BMP388 일반적인 주소들)
-    bmp_addresses = [0x76, 0x77]
-    
-    for addr in bmp_addresses:
-        try:
-            print(f"Barometer I2C 주소 0x{addr:02X} 시도 중...")
-            bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c, address=addr)
-            print(f"Barometer 초기화 성공 (주소: 0x{addr:02X})")
-            break
-        except Exception as e:
-            print(f"주소 0x{addr:02X} 실패: {e}")
-            continue
+    # BMP390 I2C 주소 (0x77)
+    try:
+        print(f"Barometer BMP390 I2C 주소 0x77 시도 중...")
+        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c, address=0x77)
+        print(f"Barometer BMP390 초기화 성공 (주소: 0x77)")
+    except Exception as e:
+        print(f"BMP390 주소 0x77 실패: {e}")
+        # 폴백으로 다른 주소들 시도
+        bmp_addresses = [0x76]
+        for addr in bmp_addresses:
+            try:
+                print(f"Barometer I2C 주소 0x{addr:02X} 시도 중...")
+                bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c, address=addr)
+                print(f"Barometer 초기화 성공 (주소: 0x{addr:02X})")
+                break
+            except Exception as e2:
+                print(f"주소 0x{addr:02X} 실패: {e2}")
+                continue
 
     if bmp is None:
         raise Exception("Barometer를 찾을 수 없습니다. I2C 연결을 확인하세요.")
