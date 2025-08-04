@@ -32,10 +32,12 @@ def init_thermis():
     
     i2c = busio.I2C(board.SCL, board.SDA)
     
-    # Qwiic Mux 초기화 및 채널 4 선택 (Thermis 위치)
-    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    # Qwiic Mux 초기화 및 채널 5 선택 (Thermis 위치 - 실제 연결된 채널)
+    from lib.qwiic_mux import create_mux_instance
+    mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
     mux.select_channel(5)  # Thermis는 채널 5에 연결 (실제 연결 확인됨)
-    time.sleep(0.1)  # 안정화 대기
+    time.sleep(0.2)  # 안정화 대기 시간 증가
+    print("Qwiic Mux 채널 5 선택 완료 (Thermis)")
     
     # ADS1115 일반적인 I2C 주소들 시도
     ads_addresses = [0x48, 0x49, 0x4A, 0x4B]

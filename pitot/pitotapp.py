@@ -149,7 +149,7 @@ def send_hk(Main_Queue: Queue):
 # 4) Pitot 데이터 읽기 스레드
 # ──────────────────────────────────────────────────────────
 def read_pitot_data(Main_Queue: Queue):
-    global PITOT_BUS, PITOT_MUX
+    global PITOT_BUS, PITOT_MUX, PITOT_PRESSURE, PITOT_TEMP
     while PITOTAPP_RUNSTATUS:
         try:
             if PITOT_BUS:
@@ -161,7 +161,6 @@ def read_pitot_data(Main_Queue: Queue):
                         temp_cal = temp - TEMP_OFFSET
                         
                     # 전역 변수 업데이트
-                    global PITOT_PRESSURE, PITOT_TEMP
                     PITOT_PRESSURE = dp_cal
                     PITOT_TEMP = temp_cal
                     
@@ -176,15 +175,29 @@ def read_pitot_data(Main_Queue: Queue):
                     tlm_msg = msgstructure.MsgStructure()
                     msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
                     Main_Queue.put(msgstructure.pack_msg(tlm_msg))
-            
-            # 고주파수 로깅 (20Hz)
-            log_high_freq_pitot_data(dp_cal, temp_cal)
+                    
+                    # 고주파수 로깅 (20Hz)
+                    log_high_freq_pitot_data(dp_cal, temp_cal)
+                else:
+                    # 센서 읽기 실패 시 기본값으로 로깅
+                    log_high_freq_pitot_data(0.0, 0.0)
+                    # 전역 변수도 기본값으로 설정
+                    PITOT_PRESSURE = 0.0
+                    PITOT_TEMP = 0.0
+            else:
+                # PITOT_BUS가 None인 경우 기본값으로 로깅
+                log_high_freq_pitot_data(0.0, 0.0)
+                PITOT_PRESSURE = 0.0
+                PITOT_TEMP = 0.0
             
             time.sleep(0.05)  # 20Hz (50ms 간격)
             
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
                             f"Pitot read error: {e}")
+            # 오류 발생 시에도 기본값 설정
+            PITOT_PRESSURE = 0.0
+            PITOT_TEMP = 0.0
             time.sleep(1.0)
 
 # ──────────────────────────────────────────────────────────

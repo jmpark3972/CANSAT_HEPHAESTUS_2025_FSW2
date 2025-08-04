@@ -56,20 +56,30 @@ class QwiicMux:
             print(f"잘못된 채널 번호: {channel} (0-7 범위여야 함)")
             return False
         
+        # 이미 해당 채널이 선택되어 있으면 스킵
+        if self.current_channel == channel:
+            return True
+        
         try:
+            # 먼저 모든 채널 비활성화
+            self.i2c.writeto(self.mux_address, bytes([0x00]))
+            time.sleep(0.05)  # 안정화 대기
+            
             # 채널 선택 (1 << channel)
             channel_byte = 1 << channel
             self.i2c.writeto(self.mux_address, bytes([channel_byte]))
             self.current_channel = channel
             
-            # 안정화를 위한 짧은 대기
-            time.sleep(0.01)
+            # 안정화를 위한 충분한 대기
+            time.sleep(0.1)
             
             print(f"Qwiic Mux 채널 {channel} 선택됨")
             return True
             
         except Exception as e:
             print(f"채널 {channel} 선택 오류: {e}")
+            # 오류 발생 시 채널 상태 초기화
+            self.current_channel = None
             return False
     
     def disable_all_channels(self):
@@ -128,11 +138,11 @@ class QwiicMux:
             self.i2c = None
             self.current_channel = None
 
-# 전역 Mux 인스턴스
+# 전역 Mux 인스턴스 (사용하지 않음 - 각 센서가 독립적인 인스턴스 사용)
 _global_mux = None
 
 def get_global_mux() -> QwiicMux:
-    """전역 Mux 인스턴스 반환"""
+    """전역 Mux 인스턴스 반환 (권장하지 않음)"""
     global _global_mux
     if _global_mux is None:
         _global_mux = QwiicMux()
@@ -143,4 +153,8 @@ def close_global_mux():
     global _global_mux
     if _global_mux:
         _global_mux.close()
-        _global_mux = None 
+        _global_mux = None
+
+def create_mux_instance(i2c_bus=None, mux_address=0x70) -> QwiicMux:
+    """새로운 Mux 인스턴스 생성 (권장)"""
+    return QwiicMux(i2c_bus=i2c_bus, mux_address=mux_address) 

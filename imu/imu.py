@@ -44,10 +44,11 @@ def init_imu():
     
     # Qwiic Mux 초기화 및 채널 5 선택 (IMU 위치 - 실제 연결된 채널)
     try:
-        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+        from lib.qwiic_mux import create_mux_instance
+        mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
         mux.select_channel(5)  # IMU는 채널 5에 연결 (실제 연결 확인됨)
         time.sleep(0.2)  # 안정화 대기 시간 증가
-        print("Qwiic Mux 채널 5 선택 완료")
+        print("Qwiic Mux 채널 5 선택 완료 (IMU)")
     except Exception as e:
         print(f"Qwiic Mux 초기화 실패: {e}")
         raise Exception(f"Qwiic Mux 초기화 실패: {e}")

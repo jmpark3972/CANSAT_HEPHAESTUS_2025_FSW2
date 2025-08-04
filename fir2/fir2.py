@@ -34,11 +34,12 @@ def init_fir2():
     time.sleep(0.1)  # 안정화 대기
     
     # Qwiic Mux 초기화
-    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    from lib.qwiic_mux import create_mux_instance
+    mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
     
-    # 채널 1 선택
-    if not mux.select_channel(1):
-        raise RuntimeError("Qwiic Mux 채널 1 선택 실패")
+    # 채널 2 선택 (실제 연결된 채널)
+    if not mux.select_channel(2):
+        raise RuntimeError("Qwiic Mux 채널 2 선택 실패")
     time.sleep(0.1)  # 안정화 대기
     
     # MLX90614 센서 초기화
@@ -66,15 +67,15 @@ def read_fir2(mux, sensor):
     오류 발생 시 (0.0, 0.0) + 로그 기록.
     """
     try:
-        # 채널 1 선택 확인 및 강제 선택
+        # 채널 2 선택 확인 및 강제 선택
         current_channel = mux.get_current_channel()
-        if current_channel != 1:
-            _log(f"Channel switch: {current_channel} -> 1")
-            mux.select_channel(1)
+        if current_channel != 2:
+            _log(f"Channel switch: {current_channel} -> 2")
+            mux.select_channel(2)
             time.sleep(0.1)  # 안정화 대기 증가
         
         # 센서 재초기화 시도 (채널 변경 후)
-        if current_channel != 1:
+        if current_channel != 2:
             try:
                 import adafruit_mlx90614
                 sensor = adafruit_mlx90614.MLX90614(mux.i2c)

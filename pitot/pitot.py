@@ -43,9 +43,11 @@ def init_pitot():
         i2c = busio.I2C(board.SCL, board.SDA)
         time.sleep(0.1)  # 안정화 대기
         
-        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+        from lib.qwiic_mux import create_mux_instance
+        mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
         mux.select_channel(0)  # Pitot는 채널 0에 연결 (실제 연결 확인됨)
-        time.sleep(0.1)  # 안정화 대기
+        time.sleep(0.2)  # 안정화 대기 시간 증가
+        print("Qwiic Mux 채널 0 선택 완료 (Pitot)")
         
         # SMBus를 통해 I2C 버스 1에 접근 (Qwiic Mux가 연결된 버스)
         bus = SMBus(1)
