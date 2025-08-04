@@ -200,13 +200,13 @@ def firapp2_main(main_q: Queue, main_pipe: connection.Connection):
                 unpacked_msg = msgstructure.MsgStructure()
                 msgstructure.unpack_msg(unpacked_msg, recv_msg)
                 command_handler(main_q, unpacked_msg)
-            except:
-                # 타임아웃 시 루프 계속
-                continue
             except Exception as e:
                 events.LogEvent(appargs.FirApp2Arg.AppName, events.EventType.error,
                                 f"Message handling error: {e}")
                 time.sleep(0.1)
+            except:
+                # 타임아웃 시 루프 계속
+                continue
 
     except KeyboardInterrupt:
         events.LogEvent(appargs.FirApp2Arg.AppName, events.EventType.info,
