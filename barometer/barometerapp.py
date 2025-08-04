@@ -221,13 +221,13 @@ BAROMETER_OFFSET = 0
 
 def read_barometer_data(bmp):
     """Barometer 데이터 읽기 스레드."""
-    global BAROMETERAPP_RUNSTATUS, BAROMETER_ALTITUDE, BAROMETER_TEMPERATURE, BAROMETER_PRESSURE
+    global BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE
     while BAROMETERAPP_RUNSTATUS:
         try:
             pressure, temperature, altitude = barometer.read_barometer(bmp, 0)
-            BAROMETER_PRESSURE = pressure
-            BAROMETER_TEMPERATURE = temperature
-            BAROMETER_ALTITUDE = altitude
+            PRESSURE = pressure
+            TEMPERATURE = temperature
+            ALTITUDE = altitude
         except Exception as e:
             events.LogEvent(appargs.BarometerAppArg.AppName,
                             events.EventType.error,
