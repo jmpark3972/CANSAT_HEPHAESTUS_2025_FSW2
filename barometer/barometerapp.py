@@ -240,10 +240,10 @@ ALTITUDE = 0
 BAROMETER_OFFSET = 0
 
 def read_barometer_data(barometer_instance, BAROMETER_OFFSET):
-    global PRESSURE, TEMPERATURE, ALTITUDE, BAROMETERAPP_RUNSTATUS
+    global PRESSURE, TEMPERATURE, ALTITUDE, BAROMETERAPP_RUNSTATUS, BAROMETER_MUX
     while BAROMETERAPP_RUNSTATUS:
         try:
-            pressure, temperature, altitude = barometer.read_barometer(barometer_instance, BAROMETER_OFFSET)
+            pressure, temperature, altitude = barometer.read_barometer(barometer_instance, BAROMETER_MUX, BAROMETER_OFFSET)
             PRESSURE = pressure
             TEMPERATURE = temperature
             ALTITUDE = altitude

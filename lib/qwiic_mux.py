@@ -7,7 +7,24 @@ Qwiic Mux를 통해 여러 I2C 센서를 제어하는 라이브러리
 import board
 import busio
 import time
+import os
+import fcntl
+from contextlib import contextmanager
 from typing import Optional
+
+# 멀티플렉서 락 파일 경로
+_LOCK_FILE = "/tmp/qwiic_mux.lock"
+
+@contextmanager
+def _mux_lock():
+    """멀티플렉서 접근을 위한 파일 락"""
+    fd = os.open(_LOCK_FILE, os.O_CREAT | os.O_RDWR)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
 
 class QwiicMux:
     """Qwiic Mux 제어 클래스"""
@@ -21,26 +38,14 @@ class QwiicMux:
             mux_address: Mux의 I2C 주소 (기본값: 0x70)
         """
         if i2c_bus is None:
-            self.i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
+            self.i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         else:
             self.i2c = i2c_bus
         
         self.mux_address = mux_address
         self.current_channel = None
         
-        # Mux 초기화
-        self._init_mux()
-    
-    def _init_mux(self):
-        """Mux 초기화 - 모든 채널 비활성화"""
-        try:
-            # 모든 채널 비활성화 (0x00)
-            self.i2c.writeto(self.mux_address, bytes([0x00]))
-            self.current_channel = None
-            print(f"Qwiic Mux 초기화 완료 (주소: 0x{self.mux_address:02X})")
-        except Exception as e:
-            print(f"Qwiic Mux 초기화 오류: {e}")
-            raise
+        print(f"Qwiic Mux 초기화 완료 (주소: 0x{self.mux_address:02X})")
     
     def select_channel(self, channel: int) -> bool:
         """
@@ -59,28 +64,29 @@ class QwiicMux:
         # 이미 해당 채널이 선택되어 있으면 스킵
         if self.current_channel == channel:
             return True
-        
-        try:
-            # 먼저 모든 채널 비활성화
-            self.i2c.writeto(self.mux_address, bytes([0x00]))
-            time.sleep(0.05)  # 안정화 대기
-            
-            # 채널 선택 (1 << channel)
-            channel_byte = 1 << channel
-            self.i2c.writeto(self.mux_address, bytes([channel_byte]))
-            self.current_channel = channel
-            
-            # 안정화를 위한 충분한 대기
-            time.sleep(0.1)
-            
-            print(f"Qwiic Mux 채널 {channel} 선택됨")
-            return True
-            
-        except Exception as e:
-            print(f"채널 {channel} 선택 오류: {e}")
-            # 오류 발생 시 채널 상태 초기화
-            self.current_channel = None
-            return False
+
+        with _mux_lock():  # 🔒 멀티플렉서 락 획득
+            try:
+                # 먼저 모든 채널 비활성화
+                self.i2c.writeto(self.mux_address, bytes([0x00]))
+                time.sleep(0.05)  # 안정화 대기
+                
+                # 채널 선택 (1 << channel)
+                channel_byte = 1 << channel
+                self.i2c.writeto(self.mux_address, bytes([channel_byte]))
+                self.current_channel = channel
+                
+                # 안정화를 위한 충분한 대기
+                time.sleep(0.1)
+                
+                print(f"Qwiic Mux 채널 {channel} 선택됨")
+                return True
+                
+            except Exception as e:
+                print(f"채널 {channel} 선택 오류: {e}")
+                # 오류 발생 시 채널 상태 초기화
+                self.current_channel = None
+                return False
     
     def disable_all_channels(self):
         """모든 채널 비활성화"""
@@ -123,6 +129,18 @@ class QwiicMux:
         
         return devices
     
+    @contextmanager
+    def channel_guard(self, channel: int):
+        """채널 선택과 I2C 작업을 안전하게 보호하는 컨텍스트 매니저"""
+        with _mux_lock():  # 🔒 멀티플렉서 락 획득
+            ok = self.select_channel(channel)  # 채널 전환
+            if not ok:
+                raise RuntimeError(f"채널 {channel} 선택 실패")
+            try:
+                yield  # 여기서 I2C 작업 수행
+            finally:
+                pass  # 필요하면 모든 채널 끄기
+
     def close(self):
         """리소스 정리"""
         try:
