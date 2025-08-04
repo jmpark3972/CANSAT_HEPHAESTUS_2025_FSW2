@@ -178,7 +178,12 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
 
     try:
         while THERMOAPP_RUNSTATUS:
-            raw = Main_Pipe.recv()
+            try:
+                raw = Main_Pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
+            except:
+                # 타임아웃 시 루프 계속
+                continue
+                
             m = msgstructure.MsgStructure()
             if not msgstructure.unpack_msg(m, raw):
                 continue

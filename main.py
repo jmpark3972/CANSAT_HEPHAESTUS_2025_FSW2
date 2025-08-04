@@ -75,16 +75,24 @@ def terminate_FSW():
     for appID in app_dict:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
         try:
-            app_dict[appID].process.join(timeout=5)  # 5 second timeout
+            # 먼저 정상 종료 시도
+            app_dict[appID].process.join(timeout=3)  # 3초로 단축
             if app_dict[appID].process.is_alive():
                 events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
                 app_dict[appID].process.terminate()
                 app_dict[appID].process.join(timeout=2)
                 if app_dict[appID].process.is_alive():
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force killing AppID {appID}")
                     app_dict[appID].process.kill()
+                    app_dict[appID].process.join(timeout=1)
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
         except Exception as e:
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
+            # 예외 발생 시 강제 종료
+            try:
+                app_dict[appID].process.kill()
+            except:
+                pass
 
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
@@ -98,7 +106,13 @@ def terminate_FSW():
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 오류: {e}")
     
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
-    sys.exit()
+    
+    # 최종 강제 종료 보장
+    try:
+        import os
+        os._exit(0)  # 강제 종료
+    except:
+        sys.exit(0)
     return
 
 # Flag to prevent multiple termination calls
@@ -112,6 +126,8 @@ def signal_handler(signum, frame):
         return  # Already terminating
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
     MAINAPP_RUNSTATUS = False
+    # 실제 종료 프로세스 호출
+    terminate_FSW()
 
 # Setup signal handlers
 signal.signal(signal.SIGINT, signal_handler)

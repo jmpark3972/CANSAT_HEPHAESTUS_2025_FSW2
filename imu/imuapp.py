@@ -247,8 +247,13 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     try:
         while IMUAPP_RUNSTATUS:
-            # Receive Message From Pipe
-            message = Main_Pipe.recv()
+            # Receive Message From Pipe with timeout
+            try:
+                message = Main_Pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
+            except:
+                # 타임아웃 시 루프 계속
+                continue
+                
             recv_msg = msgstructure.MsgStructure()
 
             # Unpack Message, Skip this message if unpacked message is not valid
