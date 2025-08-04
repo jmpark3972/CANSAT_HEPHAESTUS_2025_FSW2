@@ -476,31 +476,47 @@ def send_hk(Main_Queue : Queue):
 
 def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
     """MG996R 모터에 펄스 명령 전송송"""
-    global MOTOR_TARGET_PULSE, IMU_ROLL_THRESHOLD, IMU_PITCH_THRESHOLD, CLOSE_EVENT_LOGGED, LAST_BAROMETER
+    global MOTOR_TARGET_PULSE, IMU_ROLL_THRESHOLD, IMU_PITCH_THRESHOLD, CLOSE_EVENT_LOGGED, LAST_BAROMETER, data_transmission_stats
     if pulse == MOTOR_TARGET_PULSE:
         return  # 이미 같은 펄스로 지시함
     MOTOR_TARGET_PULSE = pulse
     
-    try:
-        msg = msgstructure.MsgStructure()
-        success = msgstructure.send_msg(Main_Queue, msg,
-                          appargs.FlightlogicAppArg.AppID,
-                          appargs.MotorAppArg.AppID,
-                          appargs.FlightlogicAppArg.MID_SetServoAngle,
-                          str(pulse))
-        
-        # 강화된 모터 명령 로깅
-        if success:
-            log_motor_command(pulse, success=True, context="set_motor_pulse")
-        else:
-            log_motor_command(pulse, success=False, context="set_motor_pulse")
-            log_error(f"Motor command failed for pulse {pulse}", "set_motor_pulse")
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        try:
+            msg = msgstructure.MsgStructure()
+            success = msgstructure.send_msg(Main_Queue, msg,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.MotorAppArg.AppID,
+                              appargs.FlightlogicAppArg.MID_SetServoAngle,
+                              str(pulse))
             
-    except Exception as e:
-        log_motor_command(pulse, success=False, context=f"set_motor_pulse_error: {e}")
-        log_error(f"Motor command exception: {e}", "set_motor_pulse")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Motor command failed: {e}")
-        return
+            if success:
+                # 성공 시 통계 업데이트
+                data_transmission_stats['motor_commands_sent'] += 1
+                data_transmission_stats['last_successful_motor_command'] = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                data_transmission_stats['consecutive_motor_failures'] = 0
+                
+                log_motor_command(pulse, success=True, context="set_motor_pulse")
+                break  # 성공 시 루프 종료
+            else:
+                raise Exception("Message send failed")
+                
+        except Exception as e:
+            retry_count += 1
+            data_transmission_stats['motor_commands_failed'] += 1
+            data_transmission_stats['consecutive_motor_failures'] += 1
+            
+            if retry_count < max_retries:
+                log_motor_command(pulse, success=False, context=f"set_motor_pulse_retry_{retry_count}: {e}")
+                time.sleep(0.1)  # 재시도 전 짧은 대기
+            else:
+                log_motor_command(pulse, success=False, context=f"set_motor_pulse_final_failure: {e}")
+                log_error(f"Motor command failed after {max_retries} attempts: {e}", "set_motor_pulse")
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Motor command failed after {max_retries} attempts: {e}")
+                return
     
     if pulse == 500:
         state = "열림"
@@ -867,10 +883,41 @@ def check_simulation_status(Main_Queue:Queue):
 def send_current_state(Main_Queue:Queue):
     global FLIGHTLOGICAPP_RUNSTATUS
     global CURRENT_STATE
+    global data_transmission_stats
 
     SendCurrentStateMsg = msgstructure.MsgStructure()
+    consecutive_failures = 0
+    max_failures_before_log = 5
+    
     while FLIGHTLOGICAPP_RUNSTATUS:
-        msgstructure.send_msg(Main_Queue, SendCurrentStateMsg, appargs.FlightlogicAppArg.AppID, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCurrentStateToTlm, STATE_LIST[CURRENT_STATE])
+        try:
+            success = msgstructure.send_msg(Main_Queue, SendCurrentStateMsg, appargs.FlightlogicAppArg.AppID, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCurrentStateToTlm, STATE_LIST[CURRENT_STATE])
+            
+            if success:
+                consecutive_failures = 0
+                data_transmission_stats['state_updates_sent'] += 1
+                data_transmission_stats['last_successful_state_update'] = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                data_transmission_stats['consecutive_state_failures'] = 0
+            else:
+                consecutive_failures += 1
+                data_transmission_stats['state_updates_failed'] += 1
+                data_transmission_stats['consecutive_state_failures'] += 1
+                
+                if consecutive_failures <= max_failures_before_log:
+                    log_error(f"State transmission failed: {consecutive_failures} consecutive failures", "send_current_state")
+                elif consecutive_failures == max_failures_before_log + 1:
+                    log_error(f"State transmission errors suppressed after {max_failures_before_log} failures", "send_current_state")
+                    
+        except Exception as e:
+            consecutive_failures += 1
+            data_transmission_stats['state_updates_failed'] += 1
+            data_transmission_stats['consecutive_state_failures'] += 1
+            
+            if consecutive_failures <= max_failures_before_log:
+                log_error(f"State transmission error: {e}", "send_current_state")
+            elif consecutive_failures == max_failures_before_log + 1:
+                log_error(f"State transmission errors suppressed after {max_failures_before_log} failures", "send_current_state")
+        
         time.sleep(1)
     
     return

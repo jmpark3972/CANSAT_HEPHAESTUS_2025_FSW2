@@ -77,14 +77,14 @@ def emergency_log_to_file(log_type: str, message: str):
         log_entry = f"[{timestamp}] {log_type}: {message}\n"
         
         if log_type == "TELEMETRY":
-            with open(TLM_LOG_PATH, 'a', encoding='utf-8') as f:
-                f.write(log_entry)
+            from lib.logging import safe_write_to_file
+            safe_write_to_file(TLM_LOG_PATH, log_entry, max_size_mb=5)
         elif log_type == "COMMAND":
-            with open(CMD_LOG_PATH, 'a', encoding='utf-8') as f:
-                f.write(log_entry)
+            from lib.logging import safe_write_to_file
+            safe_write_to_file(CMD_LOG_PATH, log_entry, max_size_mb=2)
         elif log_type == "ERROR":
-            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
-                f.write(log_entry)
+            from lib.logging import safe_write_to_file
+            safe_write_to_file(ERROR_LOG_PATH, log_entry, max_size_mb=2)
     except Exception as e:
         print(f"Emergency logging failed: {e}")
 
@@ -516,9 +516,6 @@ def send_tlm(serial_instance):
                         f"{tlm_data.pitot_temp:.2f}",
                         f"{tlm_data.imu_temperature:.2f}"])+"\n"
 
-            # 강화된 로깅 - 항상 텔레메트리 데이터를 로그에 저장
-            log_telemetry_data(tlm_to_send, success=True)
-
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
                     f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
                      f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
@@ -544,6 +541,7 @@ def send_tlm(serial_instance):
                 try:
                     uartserial.send_serial_data(serial_instance, tlm_to_send)
                     consecutive_failures = 0  # 성공 시 실패 횟수 리셋
+                    # 강화된 로깅 - 전송 성공 시에만 로그에 저장
                     log_telemetry_data(tlm_to_send, success=True)
                 except Exception as e:
                     consecutive_failures += 1

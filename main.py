@@ -7,6 +7,7 @@ import os
 import signal
 import atexit
 import time
+from datetime import datetime
 
 MAINAPP_RUNSTATUS = True
 _termination_in_progress = False
@@ -372,6 +373,11 @@ def runloop(Main_Queue : Queue):
             # 주기적 프로세스 상태 체크 (10초마다)
             if time.time() - last_health_check > 10:
                 last_health_check = time.time()
+                
+                # 시스템 상태 리포트 생성 (1분마다)
+                if int(time.time()) % 60 < 10:  # 매분 처음 10초 동안
+                    generate_system_status_report()
+                
                 for appID in app_dict:
                     if app_dict[appID].process and not app_dict[appID].process.is_alive():
                         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, attempting restart")
@@ -462,6 +468,77 @@ def cleanup_on_exit():
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Cleanup on exit 오류: {e}")
 
+
+def generate_system_status_report():
+    """시스템 상태 리포트 생성"""
+    try:
+        report = {
+            'timestamp': datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+            'processes': {},
+            'memory_usage': {},
+            'disk_usage': {},
+            'transmission_stats': {}
+        }
+        
+        # 프로세스 상태
+        for appID in app_dict:
+            if app_dict[appID].process:
+                report['processes'][appID] = {
+                    'alive': app_dict[appID].process.is_alive(),
+                    'pid': app_dict[appID].process.pid if app_dict[appID].process.is_alive() else None,
+                    'exitcode': app_dict[appID].process.exitcode if not app_dict[appID].process.is_alive() else None
+                }
+        
+        # 메모리 사용량 (간단한 추정)
+        import psutil
+        process = psutil.Process()
+        report['memory_usage'] = {
+            'rss_mb': process.memory_info().rss / 1024 / 1024,
+            'vms_mb': process.memory_info().vms / 1024 / 1024,
+            'percent': process.memory_percent()
+        }
+        
+        # 디스크 사용량
+        try:
+            disk_usage = psutil.disk_usage('.')
+            report['disk_usage'] = {
+                'total_gb': disk_usage.total / 1024 / 1024 / 1024,
+                'used_gb': disk_usage.used / 1024 / 1024 / 1024,
+                'free_gb': disk_usage.free / 1024 / 1024 / 1024,
+                'percent': disk_usage.percent
+            }
+        except Exception as e:
+            report['disk_usage'] = {'error': str(e)}
+        
+        # 전송 통계 (CommApp에서 가져오기)
+        try:
+            from comm import commapp
+            report['transmission_stats'] = commapp.get_transmission_stats()
+        except Exception as e:
+            report['transmission_stats'] = {'error': str(e)}
+        
+        # 리포트를 로그 파일에 저장
+        import json
+        report_file = "logs/system_status_report.json"
+        os.makedirs(os.path.dirname(report_file), exist_ok=True)
+        
+        with open(report_file, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
+        
+        # 간단한 상태 출력
+        alive_count = sum(1 for p in report['processes'].values() if p['alive'])
+        total_count = len(report['processes'])
+        
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, 
+                       f"System Status: {alive_count}/{total_count} processes alive, "
+                       f"Memory: {report['memory_usage']['rss_mb']:.1f}MB, "
+                       f"Disk: {report['disk_usage'].get('percent', 0):.1f}% used")
+        
+        return report
+        
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"System status report generation failed: {e}")
+        return None
 
 
 if __name__ == '__main__':

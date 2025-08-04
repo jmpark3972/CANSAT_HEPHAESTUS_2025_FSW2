@@ -393,3 +393,40 @@ def close_dual_logging_system():
         print("이중 로깅 시스템 종료 완료")
     except Exception as e:
         print(f"이중 로깅 시스템 종료 오류: {e}")
+
+def check_and_rotate_log_file(filepath: str, max_size_mb: int = 10):
+    """로그 파일 크기를 체크하고 필요시 로테이션"""
+    try:
+        if os.path.exists(filepath):
+            file_size = os.path.getsize(filepath)
+            max_size_bytes = max_size_mb * 1024 * 1024  # MB to bytes
+            
+            if file_size > max_size_bytes:
+                # 백업 파일 생성
+                backup_path = f"{filepath}.backup"
+                if os.path.exists(backup_path):
+                    os.remove(backup_path)
+                shutil.move(filepath, backup_path)
+                
+                # 새 파일 생성
+                with open(filepath, 'w') as f:
+                    f.write(f"# Log rotated at {datetime.now().isoformat()}\n")
+                    
+                # events.LogEvent("Logging", events.EventType.info, f"Log file rotated: {filepath}") # events 모듈이 없으므로 주석 처리
+    except Exception as e:
+        # events.LogEvent("Logging", events.EventType.error, f"Log rotation failed for {filepath}: {e}") # events 모듈이 없으므로 주석 처리
+        print(f"로그 회전 실패: {filepath} - {e}")
+
+def safe_write_to_file(filepath: str, content: str, max_size_mb: int = 10):
+    """안전한 파일 쓰기 (크기 체크 포함)"""
+    try:
+        # 로그 파일 크기 체크
+        check_and_rotate_log_file(filepath, max_size_mb)
+        
+        # 파일에 쓰기
+        with open(filepath, 'a', encoding='utf-8') as f:
+            f.write(content)
+            f.flush()  # 즉시 디스크에 쓰기
+    except Exception as e:
+        # events.LogEvent("Logging", events.EventType.error, f"File write failed for {filepath}: {e}") # events 모듈이 없으므로 주석 처리
+        print(f"파일 쓰기 실패: {filepath} - {e}")
