@@ -380,18 +380,26 @@ def runloop(Main_Queue : Queue):
                         except Exception as e:
                             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pipe close error for dead process {appID}: {e}")
                         
-                        # 중요하지 않은 앱들은 재시작 시도
+                        # 중요도별 앱 분류
+                        critical_apps = [
+                            appargs.HkAppArg.AppID,
+                            appargs.CommAppArg.AppID,
+                            appargs.FlightlogicAppArg.AppID
+                        ]
+                        
                         non_critical_apps = [
-                            appargs.ThermalcameraAppArg.AppID,
                             appargs.FirApp1Arg.AppID,
-                            appargs.FirApp2Arg.AppID
+                            appargs.FirApp2Arg.AppID,
+                            appargs.ThermalcameraAppArg.AppID,
+                            appargs.Tmp007AppArg.AppID
                         ]
                         
                         if appID in non_critical_apps:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Attempting to restart non-critical process {appID}")
-                            # 여기에 재시작 로직을 추가할 수 있음
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Non-critical process {appID} is dead, continuing without restart")
+                        elif appID in critical_apps:
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical process {appID} is dead, system may be unstable but continuing")
                         else:
-                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical process {appID} is dead, system may be unstable")
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, continuing")
                 
             try:
                 recv_msg = Main_Queue.get(timeout=0.5)
@@ -565,6 +573,20 @@ if __name__ == '__main__':
             appargs.FlightlogicAppArg.AppID,  # 비행 로직 앱
         ]
         
+        # 중요도별 앱 분류
+        critical_apps = [
+            appargs.HkAppArg.AppID,
+            appargs.CommAppArg.AppID,
+            appargs.FlightlogicAppArg.AppID
+        ]
+        
+        non_critical_apps = [
+            appargs.FirApp1Arg.AppID,
+            appargs.FirApp2Arg.AppID,
+            appargs.ThermalcameraAppArg.AppID,
+            appargs.Tmp007AppArg.AppID
+        ]
+        
         # 핵심 앱들 시작
         for appID in core_apps:
             if appID in app_dict and app_dict[appID].process is not None:
@@ -573,8 +595,11 @@ if __name__ == '__main__':
                     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started core process for {appID}")
                     time.sleep(0.3)  # 더 긴 대기로 안정성 향상
                 except Exception as e:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to start {appID}: {e}")
-                    # 핵심 앱 실패 시에도 계속 진행
+                    if appID in critical_apps:
+                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical app {appID} failed to start: {e}")
+                        # 중요 앱 실패 시에도 계속 진행 (시스템 안정성 우선)
+                    else:
+                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Non-critical app {appID} failed to start: {e}")
                     continue
         
         # 나머지 앱들 시작
@@ -585,7 +610,7 @@ if __name__ == '__main__':
                     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started process for {appID}")
                     time.sleep(0.2)
                 except Exception as e:
-                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to start {appID}: {e}")
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Failed to start {appID}: {e}")
                     continue
                     
     except Exception as e:
