@@ -21,6 +21,9 @@ from imu import imu
 # Runstatus of application. Application is terminated when false
 IMUAPP_RUNSTATUS = True
 
+# MUX instance for channel management
+IMU_MUX = None
+
 # 고주파수 로깅 시스템
 LOG_DIR = "logs/imu"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -152,7 +155,7 @@ def send_hk(Main_Queue : Queue):
 
 # Initialization
 def imuapp_init():
-    global IMUAPP_RUNSTATUS
+    global IMUAPP_RUNSTATUS, IMU_MUX
     try:
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -162,6 +165,9 @@ def imuapp_init():
         
         #Initialize IMU Sensor
         i2c_instance, imu_instance, mux_instance = imu.init_imu()
+        
+        # Store MUX instance globally for proper channel management
+        IMU_MUX = mux_instance
         
         events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Imuapp Initialization Complete")
         return i2c_instance, imu_instance, mux_instance
@@ -232,7 +238,7 @@ def read_imu_data(imu_instance):
     global IMU_GYRZ
     global IMU_TEMP
     
-    global IMUAPP_RUNSTATUS
+    global IMUAPP_RUNSTATUS, IMU_MUX
     
     # 연속 실패 횟수 추적
     consecutive_failures = 0
@@ -240,8 +246,8 @@ def read_imu_data(imu_instance):
     
     while IMUAPP_RUNSTATUS:
         try:
-            # Read data from IMU
-            rcv_data = imu.read_sensor_data(imu_instance)
+            # Read data from IMU with channel guard
+            rcv_data = imu.read_sensor_data(imu_instance, IMU_MUX)
 
             # Continue if Quaternion data is empty
             if rcv_data == False:

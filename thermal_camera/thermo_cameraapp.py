@@ -108,17 +108,21 @@ def thermocamapp_terminate(i2c):
 MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
-    global MIN_T, MAX_T, AVG_T
+    """MLX90640 데이터 읽기 스레드."""
+    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX
     while THERMOCAMAPP_RUNSTATUS:
         try:
-            data = tcam.read_cam(cam, ascii=False)
-            if data is not None:
-                _, tmin, tmax, tavg = data
-                MIN_T, MAX_T, AVG_T = round(tmin, 1), round(tmax, 1), round(tavg, 1)
-        except Exception:
-            # 에러 메시지 출력하지 않고, 이전 값 유지
-            pass
-        time.sleep(0.5)
+            # channel_guard를 사용하여 안전하게 센서 읽기
+            with THERMOCAM_MUX.channel_guard(5):  # 🔒 채널 5 점유
+                data = tcam.read_cam(cam)
+                if data:
+                    global THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+                    THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data
+        except Exception as e:
+            events.LogEvent(appargs.ThermalcameraAppArg.AppName,
+                            events.EventType.error,
+                            f"Thermal camera read error: {e}")
+        time.sleep(0.5)  # 2 Hz
 
 def send_cam_data(Main_Queue: Queue):
     global MIN_T, MAX_T, AVG_T

@@ -81,13 +81,17 @@ def send_hk(main_q: Queue):
 # ──────────────────────────────────────────────
 
 def read_fir2_data(mux, sensor):
-    global AMB_TEMP, OBJ_TEMP
+    """Read FIR2 sensor data continuously."""
+    global FIRAPP2_RUNSTATUS, FIR2_AMB, FIR2_OBJ
     while FIRAPP2_RUNSTATUS:
-        with OFFSET_MUTEX:
-            amb, obj = fir2.read_fir2(mux, sensor)  # returns 0.0,0.0 on error
-            AMB_TEMP = round(amb - AMB_OFFSET, 2)
-            OBJ_TEMP = round(obj - OBJ_OFFSET, 2)
-        time.sleep(0.2)  # MLX90614 ~2Hz default
+        try:
+            amb, obj = fir2.read_fir2(mux, sensor)
+            FIR2_AMB = amb
+            FIR2_OBJ = obj
+        except Exception as e:
+            events.LogEvent(appargs.FirApp2Arg.AppName, events.EventType.error,
+                            f"FIR2 read error: {e}")
+        time.sleep(0.1)  # 10 Hz
 
 
 def send_fir2_data(main_q: Queue):

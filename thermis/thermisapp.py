@@ -81,10 +81,10 @@ def send_hk(main_q: Queue):
 # ──────────────────────────────────────────────
 
 def read_thermis_data(chan):
-    global TEMP
+    global TEMP, THERMIS_MUX
     while THERMISAPP_RUNSTATUS:
         with OFFSET_MUTEX:
-            temp = thermis.read_thermis(chan)  # returns None on error
+            temp = thermis.read_thermis(chan, THERMIS_MUX)  # returns None on error
             if temp is not None:
                 TEMP = round(temp - TEMP_OFFSET, 2)
         time.sleep(0.2)  # ADS1115 ~2Hz default

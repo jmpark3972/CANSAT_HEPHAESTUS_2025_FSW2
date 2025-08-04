@@ -21,6 +21,9 @@ from tmp007 import tmp007
 # Runstatus of application. Application is terminated when false
 TMP007APP_RUNSTATUS = True
 
+# MUX instance for channel management
+TMP007_MUX = None
+
 # 강화된 로깅 시스템
 LOG_DIR = "logs/tmp007"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -218,7 +221,7 @@ def send_hk(Main_Queue : Queue):
 
 # Initialization
 def tmp007app_init():
-    global TMP007APP_RUNSTATUS
+    global TMP007APP_RUNSTATUS, TMP007_MUX
     try:
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -228,6 +231,9 @@ def tmp007app_init():
         
         #Initialize TMP007 Sensor
         i2c_instance, tmp007_instance, mux_instance = tmp007.init_tmp007()
+        
+        # Store MUX instance globally for proper channel management
+        TMP007_MUX = mux_instance
         
         events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Tmp007app Initialization Complete")
         return i2c_instance, tmp007_instance, mux_instance
@@ -275,7 +281,7 @@ def tmp007app_terminate(i2c_instance):
 # Put user-defined methods here!
 
 def read_tmp007_data(tmp007_instance):
-    global TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE, TMP007_STATUS
+    global TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE, TMP007_STATUS, TMP007_MUX
     
     consecutive_failures = 0
     max_failures = 10
@@ -283,7 +289,7 @@ def read_tmp007_data(tmp007_instance):
     while TMP007APP_RUNSTATUS:
         try:
             # TMP007 센서 데이터 읽기
-            data = tmp007.read_tmp007_data(tmp007_instance)
+            data = tmp007.read_tmp007_data(tmp007_instance, TMP007_MUX)
             
             if data is not None:
                 TMP007_OBJECT_TEMP = data['object_temperature']

@@ -37,16 +37,15 @@ def init_fir2():
     from lib.qwiic_mux import create_mux_instance
     mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
     
-    # 채널 2 선택 (실제 연결된 채널)
-    if not mux.select_channel(2):
-        raise RuntimeError("Qwiic Mux 채널 2 선택 실패")
-    time.sleep(0.1)  # 안정화 대기
+    # channel_guard를 사용하여 안전하게 채널 선택 및 센서 초기화
+    with mux.channel_guard(2):  # 🔒 채널 2 점유
+        print("Qwiic Mux 채널 2 선택 완료 (FIR2)")
+        
+        # MLX90614 센서 초기화
+        sensor = adafruit_mlx90614.MLX90614(i2c)
+        time.sleep(0.1)  # 안정화 대기
     
-    # MLX90614 센서 초기화
-    sensor = adafruit_mlx90614.MLX90614(i2c)
-    time.sleep(0.1)  # 안정화 대기
-    
-    _log("FIR2 초기화 완료 (채널 1)")
+    _log("FIR2 초기화 완료 (채널 2)")
     return mux, sensor
 
 def terminate_fir2(mux):

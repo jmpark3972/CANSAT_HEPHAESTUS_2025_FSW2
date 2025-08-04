@@ -18,71 +18,49 @@ def log_thermal(text: str) -> None:
 # ──────────────────────
 # 2)  초기화 / 종료
 # ──────────────────────
-def init_cam(refresh_hz: int | float = 2):
-    """
-    MLX90640 센서를 초기화 후 mlx 객체를 반환.
-    refresh_hz : 0.5, 1, 2, 4, 8, 16, 32, 64 중 택1
-    """
-    import board, busio, adafruit_mlx90640 as mlxlib
-
-    hz_map = {
-        0.5: mlxlib.RefreshRate.REFRESH_0_5_HZ,
-        1  : mlxlib.RefreshRate.REFRESH_1_HZ,
-        2  : mlxlib.RefreshRate.REFRESH_2_HZ,
-        4  : mlxlib.RefreshRate.REFRESH_4_HZ,
-        8  : mlxlib.RefreshRate.REFRESH_8_HZ,
-        16 : mlxlib.RefreshRate.REFRESH_16_HZ,
-        32 : mlxlib.RefreshRate.REFRESH_32_HZ,
-        64 : mlxlib.RefreshRate.REFRESH_64_HZ,
-    }
-    if refresh_hz not in hz_map:
-        raise ValueError("refresh_hz must be one of " + ", ".join(map(str, hz_map)))
-
-    # I2C: 더 낮은 주파수로 시작 (안정성 우선)
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=100_000)
+def init_thermal_camera():
+    import board
+    import busio
+    import adafruit_amg88xx
+    from lib.qwiic_mux import QwiicMux
     
-    # I2C 버스 안정화를 위한 지연
-    time.sleep(0.5)
+    # I2C 버스 초기화
+    i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+    time.sleep(0.1)  # I2C 버스 안정화
     
     # Qwiic Mux 초기화 및 채널 5 선택 (Thermal Camera 위치 - 실제 연결된 채널)
-    from lib.qwiic_mux import create_mux_instance
-    mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
-    mux.select_channel(5)  # Thermal Camera는 채널 5에 연결 (실제 연결 확인됨)
-    time.sleep(0.5)  # 더 긴 안정화 대기
-    print("Qwiic Mux 채널 5 선택 완료 (Thermal Camera)")
-    
-    # MLX90640 일반적인 I2C 주소들 시도 (더 많은 주소 추가)
-    mlx_addresses = [0x33, 0x32, 0x34, 0x35, 0x36, 0x37]
-    mlx = None
-    
-    for addr in mlx_addresses:
-        try:
-            print(f"Thermal Camera I2C 주소 0x{addr:02X} 시도 중...")
-            mlx = mlxlib.MLX90640(i2c, address=addr)
-            mlx.refresh_rate = hz_map[refresh_hz]
-            print(f"Thermal Camera 초기화 성공 (주소: 0x{addr:02X})")
-            break
-        except Exception as e:
-            print(f"주소 0x{addr:02X} 실패: {e}")
-            time.sleep(0.2)  # 각 시도 사이 지연
-            continue
-    
-    if mlx is None:
-        raise Exception("Thermal Camera를 찾을 수 없습니다. I2C 연결을 확인하세요.")
-    
-    mlx.refresh_rate = hz_map[refresh_hz]
-    
-    # 성공 후 주파수를 높여서 성능 향상
     try:
-        i2c.frequency = 800_000
-        print("I2C 주파수를 800kHz로 증가")
-    except:
-        print("I2C 주파수 변경 실패, 기본 주파수 유지")
-    
-    return i2c, mlx, mux
-
-    print("MLX90640 serial:", [hex(x) for x in mlx.serial_number])
-    return i2c, mlx
+        from lib.qwiic_mux import create_mux_instance
+        mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
+        
+        # channel_guard를 사용하여 안전하게 채널 선택 및 센서 초기화
+        sensor = None
+        with mux.channel_guard(5):  # 🔒 채널 5 점유
+            print("Qwiic Mux 채널 5 선택 완료 (Thermal Camera)")
+            
+            # 여러 I2C 주소에서 AMG8833 찾기 시도
+            amg_addresses = [0x33, 0x32, 0x34, 0x35, 0x36, 0x37]  # AMG8833 일반적인 주소들
+            
+            for addr in amg_addresses:
+                try:
+                    print(f"Thermal Camera I2C 주소 0x{addr:02X} 시도 중...")
+                    sensor = adafruit_amg88xx.AMG88XX(i2c, addr=addr)
+                    # 센서 상태 확인
+                    if sensor is not None:
+                        print(f"Thermal Camera 초기화 성공 (주소: 0x{addr:02X})")
+                        break
+                except Exception as e:
+                    print(f"주소 0x{addr:02X} 실패: {e}")
+                    continue
+        
+        if sensor is None:
+            raise Exception("Thermal Camera를 찾을 수 없습니다. I2C 연결을 확인하세요.")
+        
+        return i2c, sensor, mux
+        
+    except Exception as e:
+        print(f"Qwiic Mux 초기화 실패: {e}")
+        raise Exception(f"Qwiic Mux 초기화 실패: {e}")
 
 def terminate_cam(i2c) -> None:
     try:
@@ -106,7 +84,7 @@ def _ascii_pixel(val: float) -> str:
     if val < 37:  return "X"
     return "&"
 
-def read_cam(mlx, ascii: bool = False):
+def read_cam(mlx, mux, ascii: bool = False):
     """
     한 프레임(768 픽셀)을 읽어 리스트로 반환하고 로그에 기록.
     오류(ValueError) 발생 시 None 반환.
@@ -114,7 +92,9 @@ def read_cam(mlx, ascii: bool = False):
     """
     frame = [0.0] * 768
     try:
-        mlx.getFrame(frame)
+        # channel_guard를 사용하여 안전하게 센서 읽기
+        with mux.channel_guard(5):  # 🔒 채널 5 점유
+            mlx.getFrame(frame)
     except ValueError:
         log_thermal("READ_ERROR")
         return None
@@ -143,11 +123,11 @@ def read_cam(mlx, ascii: bool = False):
 # 4)  단독 실행 데모
 # ──────────────────────
 if __name__ == "__main__":
-    i2c, cam = init_cam(2)   # 2 Hz
+    i2c, cam, mux = init_thermal_camera()   # 2 Hz
     try:
         while True:
             stamp = time.monotonic()
-            data = read_cam(cam, ascii=True)
+            data = read_cam(cam, mux, ascii=True)
             if data is not None:
                 _, tmin, tmax, tavg = data
                 print(f"Frame OK in {time.monotonic() - stamp:.2f}s  "
