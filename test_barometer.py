@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Barometer 센서 직접 테스트 스크립트
+Barometer 센서 (BMP390) 직접 테스트 스크립트
 """
 
 import time
@@ -9,8 +9,8 @@ import busio
 from lib.qwiic_mux import QwiicMux
 
 def test_barometer():
-    """Barometer 센서 직접 테스트"""
-    print("Barometer 센서 테스트 시작...")
+    """Barometer 센서 (BMP390) 직접 테스트"""
+    print("Barometer 센서 (BMP390) 테스트 시작...")
     
     try:
         # I2C 버스 초기화
@@ -26,19 +26,18 @@ def test_barometer():
         print("✓ 채널 4 선택 완료")
         time.sleep(0.1)
         
-        # BMP280/BME280 센서 초기화 (0x77 주소)
+        # BMP390 센서 초기화 (0x77 주소)
         try:
-            import adafruit_bmp280.advanced as adafruit_bmp280
-            bmp = adafruit_bmp280.Adafruit_BMP280_I2C(i2c, address=0x77)
-            print("✓ BMP280 초기화 성공 (주소: 0x77)")
-        except:
-            try:
-                import adafruit_bme280.advanced as adafruit_bme280
-                bmp = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x77)
-                print("✓ BME280 초기화 성공 (주소: 0x77)")
-            except Exception as e:
-                print(f"✗ Barometer 초기화 실패: {e}")
-                return False
+            import adafruit_bmp390
+            bmp = adafruit_bmp390.BMP390_I2C(i2c, address=0x77)
+            print("✓ BMP390 초기화 성공 (주소: 0x77)")
+        except ImportError:
+            print("✗ adafruit_bmp390 모듈이 설치되지 않았습니다.")
+            print("설치 명령: pip install adafruit-circuitpython-bmp390")
+            return False
+        except Exception as e:
+            print(f"✗ BMP390 초기화 실패: {e}")
+            return False
         
         # 센서 읽기 테스트
         print("\n센서 읽기 테스트 (10회):")
@@ -53,7 +52,7 @@ def test_barometer():
                 print(f"  {i+1:2d}: 오류 = {e}")
                 time.sleep(0.5)
         
-        print("\n✓ Barometer 센서 테스트 완료!")
+        print("\n✓ Barometer 센서 (BMP390) 테스트 완료!")
         return True
         
     except Exception as e:
