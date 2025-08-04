@@ -155,11 +155,14 @@ def gimbalmotorapp_terminate(motor_instance):
     global GIMBALMOTORAPP_RUNSTATUS
 
     GIMBALMOTORAPP_RUNSTATUS = False
-    events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.info, "Terminating gimbalmotorapp")
+    events.LogEvent(appargs.GimbalmotorAppArg.AppName, events.EventType.info, "Terminating gimbalmotorapp - rotating to 180°")
     # Termination Process Comes Here
 
-    # Terminate each motor
+    # Terminate each motor - 180도로 회전 후 종료
     if config.FSW_CONF == config.CONF_PAYLOAD:
+        # 종료 시 모터를 180도로 회전
+        payload_motor.rotate_MG92B_ByYaw(motor_instance, 180)
+        time.sleep(1)  # 모터가 회전할 시간을 줌
         payload_motor.terminate_MG92B(motor_instance)
     # Join Each Thread to make sure all threads terminates
     for thread_name in thread_dict:

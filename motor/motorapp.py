@@ -76,10 +76,10 @@ def motorapp_init() -> None:
                         "pigpio daemon not running – aborting")
         raise SystemExit(1)
 
-    # Set initial angle 0° (pulse 500 µs)
-    set_servo_pulse(500)
+    # Set initial angle 180° (pulse 2500 µs)
+    set_servo_pulse(2500)
     events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Motorapp initialised, servo at 0°")
+                    "Motorapp initialised, servo at 180°")
 
 
 def motorapp_terminate() -> None:
@@ -87,10 +87,13 @@ def motorapp_terminate() -> None:
     MOTORAPP_RUNSTATUS = False
 
     events.LogEvent(appargs.MotorAppArg.AppName, events.EventType.info,
-                    "Terminating motorapp")
+                    "Terminating motorapp - rotating to 180°")
 
     if pi and pi.connected:
-        pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 0)  # stop PWM
+        # 종료 시 모터를 180도로 회전
+        pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 2500)  # 180도 (2500µs)
+        time.sleep(1)  # 모터가 회전할 시간을 줌
+        pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 0)  # PWM 정지
         pi.stop()
 
     for t in thread_dict.values():

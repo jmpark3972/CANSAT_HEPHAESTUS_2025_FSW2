@@ -31,7 +31,7 @@ def angle_to_pulse(angle):
 
 
 
-pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 500)
+pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 2500)
 
 for i in range(10):
     ang = int(input("asdf"))

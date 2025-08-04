@@ -44,8 +44,8 @@ pi = pigpio.pi()
 if not pi.connected:
     sys.exit("pigpiod daemon not running. Start it with: sudo pigpiod")
 
-# Ensure servo is initialised to a known safe pulse (0 °)
-pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, _angle_to_pulse(0))
+# Ensure servo is initialised to a known safe pulse (180 °)
+pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, _angle_to_pulse(180))
 
 
 # ────────────────────────────────────────────────
@@ -59,6 +59,9 @@ def set_angle(angle: Union[int, float]):
 
 def cleanup():
     """Release the servo and disconnect from pigpio."""
+    # 종료 시 모터를 180도로 회전
+    pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, _angle_to_pulse(180))  # 180도로 회전
+    time.sleep(1)  # 모터가 회전할 시간을 줌
     pi.set_servo_pulsewidth(PAYLOAD_MOTOR_PIN, 0)  # stop pulses
     pi.stop()
 
