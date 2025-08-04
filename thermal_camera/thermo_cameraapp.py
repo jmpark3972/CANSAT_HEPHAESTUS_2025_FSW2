@@ -107,7 +107,7 @@ def read_cam_data(cam):
             # channel_guard를 사용하여 안전하게 센서 읽기
             data = tcam.read_cam(cam)
             if data:
-                THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data[3], data[1], data[2]  # avg, min, max
+                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data  # min, max, avg 순서
         except Exception as e:
             events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                             events.EventType.error,
@@ -125,7 +125,7 @@ def send_cam_data(Main_Queue: Queue):
         msgstructure.send_msg(Main_Queue, fl_msg,
                               appargs.ThermalcameraAppArg.AppID,
                               appargs.FlightlogicAppArg.AppID,
-                              appargs.ThermalcameraAppArg.MID_SendThermalCameraFlightLogicData,
+                              appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
                               f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
 
         if cnt > 10:  # 1 Hz telemetry

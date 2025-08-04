@@ -195,8 +195,8 @@ def read_tmp007_data(sensor):
         status = sensor.get_status()
         
         return {
-            'object_temp': object_temp,
-            'die_temp': die_temp,
+            'object_temperature': object_temp,
+            'die_temperature': die_temp,
             'voltage': voltage,
             'status': status
         }
