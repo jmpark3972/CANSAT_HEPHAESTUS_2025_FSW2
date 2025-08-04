@@ -29,24 +29,22 @@ FIR1_OBJ = 0.0
 # 1. 초기화
 # ──────────────────────────────
 def firapp1_init():
-    """센서 초기화·시리얼 확인."""
+    """FIR1 앱 초기화."""
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.info,
                         "Initializing firapp1")
 
-        # FIR1 센서 초기화 (직접 I2C 연결)
         i2c, sensor = fir1.init_fir1()
-        
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.info,
                         "Firapp1 initialization complete")
         return i2c, sensor
 
     except Exception as e:
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.error,
                         f"Init error: {e}")
         return None, None
@@ -63,8 +61,15 @@ def read_fir1_data(sensor):
             if amb is not None and obj is not None:
                 FIR1_AMB = amb
                 FIR1_OBJ = obj
+                events.LogEvent(appargs.FirApp1Arg.AppName,
+                                events.EventType.info,
+                                f"FIR1 데이터 읽기 성공: Ambient={amb:.2f}°C, Object={obj:.2f}°C")
+            else:
+                events.LogEvent(appargs.FirApp1Arg.AppName,
+                                events.EventType.warning,
+                                "FIR1 데이터 읽기 실패: None 값 반환")
         except Exception as e:
-            events.LogEvent(appargs.Fir1AppArg.AppName,
+            events.LogEvent(appargs.FirApp1Arg.AppName,
                             events.EventType.error,
                             f"FIR1 read error: {e}")
         time.sleep(0.5)  # 2 Hz
@@ -82,16 +87,16 @@ def send_fir1_data(Main_Queue: Queue):
     while FIR1APP_RUNSTATUS:
         # Flightlogic 10 Hz
         msgstructure.send_msg(Main_Queue, fl_msg,
-                              appargs.Fir1AppArg.AppID,
+                              appargs.FirApp1Arg.AppID,
                               appargs.FlightlogicAppArg.AppID,
-                              appargs.Fir1AppArg.MID_SendFir1FlightLogicData,
+                              appargs.FirApp1Arg.MID_SendFIR1Data,
                               f"{FIR1_AMB:.2f},{FIR1_OBJ:.2f}")
 
         if cnt > 10:  # 1 Hz telemetry
             msgstructure.send_msg(Main_Queue, tlm_msg,
-                                  appargs.Fir1AppArg.AppID,
+                                  appargs.FirApp1Arg.AppID,
                                   appargs.CommAppArg.AppID,
-                                  appargs.Fir1AppArg.MID_SendFir1TlmData,
+                                  appargs.FirApp1Arg.MID_SendFIR1Data,
                                   f"{FIR1_AMB:.2f},{FIR1_OBJ:.2f}")
             cnt = 0
 
@@ -108,11 +113,11 @@ def firapp1_terminate(i2c):
     
     try:
         fir1.terminate_fir1(i2c)
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.info,
                         "Firapp1 terminated")
     except Exception as e:
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.error,
                         f"Terminate error: {e}")
 
@@ -127,7 +132,7 @@ def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     i2c, sensor = firapp1_init()
     
     if i2c is None or sensor is None:
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.error,
                         "FIR1 초기화 실패로 인한 종료")
         return
@@ -144,11 +149,11 @@ def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
         while FIR1APP_RUNSTATUS:
             time.sleep(1)
     except KeyboardInterrupt:
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.info,
                         "FIR1 앱 사용자 중단")
     finally:
         firapp1_terminate(i2c)
-        events.LogEvent(appargs.Fir1AppArg.AppName,
+        events.LogEvent(appargs.FirApp1Arg.AppName,
                         events.EventType.info,
                         "FIR1 앱 종료") 

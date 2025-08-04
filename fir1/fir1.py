@@ -31,16 +31,30 @@ def init_fir1():
     
     # I2C setup
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+    print("FIR1: I2C 초기화 완료")
     
     try:
         # FIR1 센서 직접 연결 (주소 0x5a)
+        print("FIR1: MLX90614 센서 초기화 시도 (주소: 0x5a)")
         sensor = adafruit_mlx90614.MLX90614(i2c, address=0x5a)
         time.sleep(0.1)
+        
+        # 초기화 확인을 위해 한 번 읽기 시도
+        try:
+            ambient_temp = sensor.ambient_temperature
+            object_temp = sensor.object_temperature
+            print(f"FIR1: 초기화 확인 - Ambient={ambient_temp:.2f}°C, Object={object_temp:.2f}°C")
+        except Exception as e:
+            print(f"FIR1: 초기화 확인 실패: {e}")
+        
         _log("FIR1 초기화 완료 (직접 I2C 연결)")
+        print("FIR1: 센서 초기화 완료")
         return i2c, sensor
     except Exception as e:
-        _log(f"FIR1 초기화 실패: {e}")
-        raise Exception(f"FIR1 초기화 실패: {e}")
+        error_msg = f"FIR1 초기화 실패: {e}"
+        _log(error_msg)
+        print(error_msg)
+        raise Exception(error_msg)
 
 def read_fir1(sensor):
     """FIR1 센서 데이터 읽기"""
