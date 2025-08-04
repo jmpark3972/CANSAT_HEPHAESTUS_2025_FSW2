@@ -44,7 +44,7 @@ def init_dht(pin=None):
         # I2C 디바이스가 없으면 → DHT11 걸로 fallback
         import adafruit_dht, board
         if pin is None:
-            pin = board.D4  # GPIO 7번 핀
+            pin = board.D17  # GPIO 7번 핀
         sensor = adafruit_dht.DHT11(pin, use_pulseio=False)
         sensor_type = "DHT11(GPIO)"
         return sensor_type, sensor
