@@ -195,16 +195,18 @@ def firapp1_main(main_q: Queue, main_pipe: connection.Connection):
     # Main message loop
     try:
         while FIRAPP1_RUNSTATUS:
-            try:
-                recv_msg = main_pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
-                unpacked_msg = msgstructure.MsgStructure()
-                msgstructure.unpack_msg(unpacked_msg, recv_msg)
-                command_handler(main_q, unpacked_msg)
-            except Exception as e:
-                events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                                f"Message handling error: {e}")
-                time.sleep(0.1)
-            except:
+            # Non-blocking receive with timeout
+            if main_pipe.poll(1.0):  # 1초 타임아웃
+                try:
+                    recv_msg = main_pipe.recv()
+                    unpacked_msg = msgstructure.MsgStructure()
+                    msgstructure.unpack_msg(unpacked_msg, recv_msg)
+                    command_handler(main_q, unpacked_msg)
+                except Exception as e:
+                    events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
+                                    f"Message handling error: {e}")
+                    time.sleep(0.1)
+            else:
                 # 타임아웃 시 루프 계속
                 continue
 

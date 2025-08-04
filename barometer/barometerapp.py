@@ -253,9 +253,14 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     try:
         while BAROMETERAPP_RUNSTATUS:
             # Receive Message From Pipe with timeout
-            try:
-                message = Main_Pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
-            except:
+            # Non-blocking receive with timeout
+            if Main_Pipe.poll(1.0):  # 1초 타임아웃
+                try:
+                    message = Main_Pipe.recv()
+                except:
+                    # 에러 시 루프 계속
+                    continue
+            else:
                 # 타임아웃 시 루프 계속
                 continue
             recv_msg = msgstructure.MsgStructure()

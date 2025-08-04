@@ -203,9 +203,14 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
 
     try:
         while THERMISAPP_RUNSTATUS:
-            try:
-                raw = main_pipe.recv(timeout=1.0)  # 1초 타임아웃 추가
-            except:
+            # Non-blocking receive with timeout
+            if main_pipe.poll(1.0):  # 1초 타임아웃
+                try:
+                    raw = main_pipe.recv()
+                except:
+                    # 에러 시 루프 계속
+                    continue
+            else:
                 # 타임아웃 시 루프 계속
                 continue
             m = msgstructure.MsgStructure()
