@@ -57,8 +57,17 @@ def terminate_FSW():
         return  # Already terminating
     _termination_in_progress = True
     print(f"\nFSW 종료 프로세스 시작...")
+    
     # Set all Runstatus to false
     MAINAPP_RUNSTATUS = False
+
+    # 이중 로깅 시스템 종료
+    try:
+        from lib import logging
+        logging.close_dual_logging_system()
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 실패: {e}")
 
     termination_message = msgstructure.MsgStructure()
     msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
@@ -71,21 +80,24 @@ def terminate_FSW():
             app_dict[appID].pipe.send(termination_message_to_send)
         except Exception as e:
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send termination to {appID}: {e}")
+    
+    # 잠시 대기 후 강제 종료 시작
+    time.sleep(0.5)
 
     # Join all processes to make sure every processes is killed
     for appID in app_dict:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
         try:
             # 먼저 정상 종료 시도
-            app_dict[appID].process.join(timeout=3)  # 3초로 단축
+            app_dict[appID].process.join(timeout=2)  # 2초로 단축
             if app_dict[appID].process.is_alive():
                 events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
                 app_dict[appID].process.terminate()
-                app_dict[appID].process.join(timeout=2)
+                app_dict[appID].process.join(timeout=1)  # 1초로 단축
                 if app_dict[appID].process.is_alive():
                     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force killing AppID {appID}")
                     app_dict[appID].process.kill()
-                    app_dict[appID].process.join(timeout=1)
+                    app_dict[appID].process.join(timeout=0.5)  # 0.5초로 단축
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
         except Exception as e:
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
@@ -98,35 +110,31 @@ def terminate_FSW():
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
     
-    # 강제 종료를 위한 최종 확인
-    print("FSW 종료 완료. 프로그램을 종료합니다.")
-    os._exit(0)
-    
-    # 이중 로깅 시스템 종료
-    try:
-        logging.close_dual_logging_system()
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
-    except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 실패: {e}")
-    
-    print("FSW 종료 완료")
-    os._exit(0)
-    try:
-        from lib import logging
-        logging.close_dual_logging_system()
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
-    except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 오류: {e}")
-    
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
     
-    # 최종 강제 종료 보장
+    # 추가 정리: 모든 자식 프로세스 강제 종료
     try:
-        import os
-        os._exit(0)  # 강제 종료
-    except:
-        sys.exit(0)
-    return
+        import psutil
+        current_process = psutil.Process()
+        children = current_process.children(recursive=True)
+        for child in children:
+            try:
+                child.terminate()
+                child.wait(timeout=1)
+            except:
+                try:
+                    child.kill()
+                except:
+                    pass
+    except ImportError:
+        # psutil이 없는 경우 기본 방법 사용
+        pass
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Child process cleanup error: {e}")
+    
+    print("FSW 종료 완료. 프로그램을 종료합니다.")
+    # 최종 강제 종료
+    os._exit(0)
 
 # Flag to prevent multiple termination calls
 _termination_in_progress = False
@@ -139,9 +147,14 @@ def signal_handler(signum, frame):
         return  # Already terminating
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
     MAINAPP_RUNSTATUS = False
-    # 즉시 강제 종료
-    print("강제 종료 실행 중...")
-    os._exit(0)
+    
+    # 먼저 정상 종료 시도
+    try:
+        terminate_FSW()
+    except Exception as e:
+        print(f"정상 종료 실패: {e}")
+        print("강제 종료 실행 중...")
+        os._exit(0)
 
 # Setup signal handlers
 signal.signal(signal.SIGINT, signal_handler)
@@ -399,8 +412,17 @@ def run_app(AppID : types.AppID) :
 # Main Runloop
 def runloop(Main_Queue : Queue):
     global MAINAPP_RUNSTATUS
+    import time
+    start_time = time.time()
+    max_runtime = 3600  # 1시간 최대 실행 시간
+    
     try:
         while MAINAPP_RUNSTATUS:
+            # 최대 실행 시간 체크
+            if time.time() - start_time > max_runtime:
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, "Maximum runtime reached, terminating FSW")
+                break
+                
             try:
                 # Recv Message from queue with timeout
                 recv_msg = Main_Queue.get(timeout=0.1)  # 0.1초로 단축하여 더 빠른 응답
@@ -425,20 +447,41 @@ def runloop(Main_Queue : Queue):
     except KeyboardInterrupt:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
         MAINAPP_RUNSTATUS = False
-        print("KeyboardInterrupt 감지됨. 즉시 종료합니다.")
-        os._exit(0)
+        print("KeyboardInterrupt 감지됨. 종료합니다.")
+        try:
+            terminate_FSW()
+        except Exception as e:
+            print(f"정상 종료 실패: {e}")
+            os._exit(0)
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
         MAINAPP_RUNSTATUS = False
-        print("치명적 오류 발생. 즉시 종료합니다.")
-        os._exit(0)
+        print("치명적 오류 발생. 종료합니다.")
+        try:
+            terminate_FSW()
+        except Exception as e:
+            print(f"정상 종료 실패: {e}")
+            os._exit(0)
 
-    terminate_FSW()
-    # 강제 종료를 위한 최종 확인
-    print("메인 루프 종료 완료. 프로그램을 종료합니다.")
-    os._exit(0)
+    # 정상 종료 시
+    try:
+        terminate_FSW()
+    except Exception as e:
+        print(f"정상 종료 실패: {e}")
+        os._exit(0)
     return
 
+
+# Cleanup function for atexit
+def cleanup_on_exit():
+    """프로그램 종료 시 정리 작업"""
+    global MAINAPP_RUNSTATUS
+    if MAINAPP_RUNSTATUS:
+        print("\n프로그램 종료 시 정리 작업 실행...")
+        try:
+            terminate_FSW()
+        except:
+            pass
 
 # Operation starts HERE
 if __name__ == '__main__':
@@ -450,6 +493,9 @@ if __name__ == '__main__':
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 초기화 완료")
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 초기화 실패: {e}")
+
+    # Register cleanup function
+    atexit.register(cleanup_on_exit)
 
     # Start each app's process
     for appID in app_dict:
