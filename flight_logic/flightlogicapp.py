@@ -20,13 +20,28 @@ from datetime import datetime
 # Runstatus of application. Application is terminated when false
 FLIGHTLOGICAPP_RUNSTATUS = True
 
-# <NEW/> 현재 환경 측정값
-CURRENT_TEMP: float = 0.0  # DHT11 temperature (°C)
-#CURRENT_ALT:  float = 0.0  # Barometer altitude (m)
-# <NEW/> 마지막으로 실제 서보에 지시한 각도 (스팸 방지용). –1이면 미전송 상태
-MOTOR_TARGET_PULSE: int = -1  # mg996r: 500=open, 2500=close
+# ──────────────────────────────
+# 1. 모터 제어 설정
+# ──────────────────────────────
+# MG996R 서보모터 펄스 설정
+MOTOR_OPEN_PULSE = 500    # 0도 (열림)
+MOTOR_CLOSE_PULSE = 2500  # 180도 (닫힘)
 
-# <NEW/> 카메라 제어 변수
+# 모터 제어 조건
+THERMIS_TEMP_THRESHOLD = 40.0  # Thermis 온도 임계값 (°C)
+MOTOR_CLOSE_ALT_THRESHOLD = 70.0  # 모터 완전 닫음 고도 (m)
+RECENT_ALT_CHECK_LEN = 5  # 최근 고도 체크 개수
+
+# ──────────────────────────────
+# 2. 현재 환경 측정값
+# ──────────────────────────────
+CURRENT_TEMP: float = 0.0  # DHT11 temperature (°C)
+CURRENT_THERMIS_TEMP: float = 0.0  # Thermis temperature (°C)
+MOTOR_TARGET_PULSE: int = -1  # 마지막으로 실제 서보에 지시한 각도 (스팸 방지용)
+
+# ──────────────────────────────
+# 3. 카메라 제어 변수
+# ──────────────────────────────
 CAMERA_ACTIVE: bool = False  # 카메라 활성화 상태
 CAMERA_STATUS: str = "IDLE"  # 카메라 상태
 CAMERA_VIDEO_COUNT: int = 0  # 저장된 비디오 파일 수
@@ -34,7 +49,44 @@ CAMERA_DISK_USAGE: float = 0.0  # 디스크 사용량 (%)
 CAMERA_ACTIVATION_TIME: float = 0.0  # 카메라 활성화 시간
 CAMERA_DEACTIVATION_TIME: float = 0.0  # 카메라 비활성화 시간
 
-# 강화된 로깅 시스템
+# ──────────────────────────────
+# 4. 상태 관리 변수
+# ──────────────────────────────
+STATE_LIST = ["발사대 대기", "상승", "최고점", "하강", "모터 완전 닫음", "착륙"]
+CURRENT_STATE = 0
+
+# Simulation Mode Flags
+SIMULATION_ENABLE = False
+SIMULATION_ACTIVATE = False
+
+# Variable used in state determination
+MAX_ALT = 0
+recent_alt = []  # 최근 고도 데이터 (5개 유지)
+
+# 상태 전환 카운터
+BAROMETER_ASCENT_COUNTER = 0
+BAROMETER_DESCENT_COUNTER = 0
+BAROMETER_APOGEE_COUNTER = 0
+BAROMETER_MOTOR_CLOSE_COUNTER = 0
+BAROMETER_LANDED_COUNTER = 0
+
+# 이벤트 로깅 플래그
+DESCENT_EVENT_LOGGED = False
+CLOSE_EVENT_LOGGED = False
+
+# ──────────────────────────────
+# 5. 센서 데이터 저장
+# ──────────────────────────────
+LAST_GPS = None
+LAST_IMU_ROLL = 0.0
+LAST_IMU_PITCH = 0.0
+LAST_BAROMETER = 0.0
+LAST_FIR1 = None
+LAST_THERMAL = None
+
+# ──────────────────────────────
+# 6. 강화된 로깅 시스템
+# ──────────────────────────────
 LOG_DIR = "logs/flight_logic"
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -60,7 +112,9 @@ data_transmission_stats = {
     'consecutive_state_failures': 0
 }
 
-# 강화된 로깅 시스템
+# ──────────────────────────────
+# 7. 로깅 함수들
+# ──────────────────────────────
 def emergency_log_to_file(log_type: str, message: str):
     """강제 종료 시에도 파일에 로그를 저장하는 함수"""
     global _emergency_logging_enabled
@@ -102,8 +156,12 @@ def log_state_change(old_state: str, new_state: str, reason: str = ""):
             writer = csv.writer(csvfile)
             writer.writerow([timestamp, old_state, new_state, reason])
             
+        # 이벤트 로그에도 기록
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
+                       f"State change: {old_state} → {new_state} ({reason})")
+        
     except Exception as e:
-        emergency_log_to_file("ERROR", f"State logging failed: {e}")
+        emergency_log_to_file("ERROR", f"State change logging failed: {e}")
 
 def log_motor_command(pulse: int, success: bool = True, context: str = ""):
     """모터 명령을 로깅"""
@@ -114,28 +172,21 @@ def log_motor_command(pulse: int, success: bool = True, context: str = ""):
         if not os.path.exists(MOTOR_LOG_PATH):
             with open(MOTOR_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['timestamp', 'pulse', 'success', 'context'])
+                writer.writerow(['timestamp', 'pulse', 'angle_deg', 'success', 'context'])
+        
+        # 각도 계산
+        angle_deg = int((pulse - 500) * 180 / 2000)  # 500~2500 → 0~180도
         
         # 데이터 추가
         with open(MOTOR_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([timestamp, pulse, success, context])
-            
-        # 전송 통계 업데이트
-        global data_transmission_stats
-        if success:
-            data_transmission_stats['motor_commands_sent'] += 1
-            data_transmission_stats['last_successful_motor_command'] = timestamp
-            data_transmission_stats['consecutive_motor_failures'] = 0
-        else:
-            data_transmission_stats['motor_commands_failed'] += 1
-            data_transmission_stats['consecutive_motor_failures'] += 1
+            writer.writerow([timestamp, pulse, angle_deg, success, context])
             
     except Exception as e:
-        emergency_log_to_file("ERROR", f"Motor logging failed: {e}")
+        emergency_log_to_file("ERROR", f"Motor command logging failed: {e}")
 
 def log_sensor_data(sensor_type: str, data: dict):
-    """센서 데이터를 통합 로깅 시스템에 기록"""
+    """센서 데이터를 로깅"""
     try:
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
         
@@ -151,61 +202,63 @@ def log_sensor_data(sensor_type: str, data: dict):
             writer.writerow([timestamp, sensor_type, str(data)])
             
     except Exception as e:
-        emergency_log_to_file("ERROR", f"Sensor logging failed: {e}")
+        emergency_log_to_file("ERROR", f"Sensor data logging failed: {e}")
 
 def log_error(error_msg: str, context: str = ""):
     """오류를 로깅"""
     try:
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-        full_msg = f"{error_msg} | Context: {context}" if context else error_msg
         
         # CSV 헤더가 없으면 생성
         if not os.path.exists(ERROR_LOG_PATH):
             with open(ERROR_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['timestamp', 'error_message'])
+                writer.writerow(['timestamp', 'error', 'context'])
         
         # 데이터 추가
         with open(ERROR_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([timestamp, full_msg])
+            writer.writerow([timestamp, error_msg, context])
             
+        # 이벤트 로그에도 기록
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
+                       f"Error: {error_msg} (Context: {context})")
+        
     except Exception as e:
-        print(f"Error logging failed: {e}")
+        emergency_log_to_file("ERROR", f"Error logging failed: {e}")
 
 def get_transmission_stats():
     """전송 통계 반환"""
-    global data_transmission_stats
-    return data_transmission_stats.copy()
+    return data_transmission_stats
 
 def log_system_event(event_type: str, message: str):
-    """시스템 이벤트를 통합 로깅 시스템에 기록"""
+    """시스템 이벤트를 로깅"""
     try:
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-        log_entry = f"[{event_type}] {timestamp} | {message}"
-        logging.log(log_entry, printlogs=True)
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
+                       f"[{event_type}] {message}")
     except Exception as e:
-        print(f"시스템 이벤트 로깅 오류: {e}")
+        emergency_log_to_file("ERROR", f"System event logging failed: {e}")
 
+# ──────────────────────────────
+# 8. 유틸리티 함수들
+# ──────────────────────────────
 def now_epoch():
+    """현재 시간을 epoch으로 반환"""
     return time.time()
 
 def now_iso():
-    return datetime.now().isoformat()
+    """현재 시간을 ISO 형식으로 반환"""
+    return datetime.now().isoformat(sep=' ', timespec='milliseconds')
 
 def safe(val):
-    return "NA" if val is None else val
+    """안전한 값 반환 (None이면 0 반환)"""
+    return val if val is not None else 0
 
 def log_csv(filepath: str, headers: list, data: list):
     """CSV 파일에 데이터 로깅"""
     try:
-        import csv
-        import os
-        
-        # 디렉토리가 없으면 생성
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        
-        # 파일이 없으면 헤더 작성
+        # 파일이 없으면 헤더 생성
         if not os.path.exists(filepath):
             with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
@@ -217,291 +270,19 @@ def log_csv(filepath: str, headers: list, data: list):
             writer.writerow(data)
             
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"CSV 로깅 오류: {e}")
+        emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 
-######################################################
-## FUNDEMENTAL METHODS                              ##
-######################################################
-
-# SB Methods
-# Methods for sending/receiving/handling SB messages
-
-# Handles received message
-def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
-    global SIMULATION_ACTIVATE, MAX_ALT, recent_alt, FLIGHTLOGICAPP_RUNSTATUS
-    global SIMULATION_ENABLE, CURRENT_TEMP, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR1, LAST_THERMIS, LAST_THERMAL
-    try:
-        if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-            # Change Runstatus to false to start termination process
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"FLIGHTLOGICAPP TERMINATION DETECTED")
-            FLIGHTLOGICAPP_RUNSTATUS = False
-
-        elif recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_SIM:
-            # When simulation command is input
-            option = recv_msg.data
-            if option == "ENABLE":
-                SIMULATION_ENABLE = True
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Simulation Enabled")
-            if option == "ACTIVATE":
-                SIMULATION_ACTIVATE = True
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Simulation Activated")
-            if option == "DISABLE":
-                SIMULATION_ACTIVATE = False
-                SIMULATION_ENABLE = False
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Simulation Disabled")
-                
-            check_simulation_status(Main_Queue)
-
-        # Simulation pressure data
-        elif recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_SIMP:
-            if SIMULATION_ACTIVATE and SIMULATION_ENABLE:
-
-                simulated_altitude = float(recv_msg.data)
-                
-                barometer_logic(Main_Queue, simulated_altitude)
-            else:
-                return
-
-        # Receive Sensor data
-        # Barometer Data input at 10Hz
-        elif recv_msg.MsgID == appargs.BarometerAppArg.MID_SendBarometerFlightLogicData:
-            # Ignore the barometer data when simulation is activated
-            if SIMULATION_ENABLE and SIMULATION_ACTIVATE:
-                return
-            
-            try:
-                log_barometer_data(recv_msg.data)
-                recv_altitude = float(recv_msg.data)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"Barometer data parse error: {type(e).__name__}: {e}")
-                return
-
-            # Perform barometer logic
-            barometer_logic(Main_Queue, recv_altitude)
-
-        elif recv_msg.MsgID == getattr(appargs, "ThermoAppArg").MID_SendThermoFlightLogicData:
-            try:
-                log_dht11_data(recv_msg.data)
-                temp_str, _ = recv_msg.data.split(",")
-                CURRENT_TEMP = float(temp_str)
-            except Exception:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                "Thermo data parse error")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
-            try:
-                # 예: "amb,obj,rawdata..." 형태로 온다고 가정
-                parts = recv_msg.data.split(",")
-                amb, obj = map(float, parts[:2])
-                raw_fir1 = ",".join(parts[2:]) if len(parts) > 2 else None
-                LAST_FIR1 = (amb, obj)
-                if raw_fir1:
-                    log_fir1_data(raw_fir1)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"FIR1 data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisFlightLogicData:
-            try:
-                # 예: "temp,rawdata..." 형태로 온다고 가정
-                parts = recv_msg.data.split(",")
-                temp = float(parts[0])
-                raw_thermis = ",".join(parts[1:]) if len(parts) > 1 else None
-                LAST_THERMIS = temp
-                if raw_thermis:
-                    log_thermis_data(raw_thermis)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"THERMIS data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        # TMP007 Data input at 4Hz
-        elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007FlightLogicData:
-            try:
-                log_tmp007_data(recv_msg.data)
-                parts = recv_msg.data.split(",")
-                if len(parts) >= 3:
-                    object_temp, die_temp, voltage = map(float, parts[:3])
-                    # TMP007 데이터를 모터 제어 로직에 활용할 수 있음
-                    # 예: 고온에서 모터 열림 등
-                    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.debug,
-                                    f"TMP007: Object={object_temp}°C, Die={die_temp}°C, Voltage={voltage}μV")
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"TMP007 data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-        elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotFlightLogicData:
-            try:
-                # 예: "pressure,temp,rawdata..." 형태로 온다고 가정
-                parts = recv_msg.data.split(",")
-                pressure, temp = map(float, parts[:2])
-                raw_pitot = ",".join(parts[2:]) if len(parts) > 2 else None
-                LAST_PITOT_PRESSURE = pressure
-                LAST_PITOT_TEMP = temp
-                if raw_pitot:
-                    log_pitot_data(raw_pitot)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"Pitot data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        # Camera Data input at 5Hz
-        elif recv_msg.MsgID == appargs.CameraAppArg.MID_SendCameraFlightLogicData:
-            try:
-                # "status,video_count,disk_usage" 형태로 전송됨
-                parts = recv_msg.data.split(",")
-                if len(parts) >= 3:
-                    status, video_count, disk_usage = parts[0], int(parts[1]), float(parts[2])
-                    
-                    # 카메라 상태 업데이트
-                    CAMERA_STATUS = status
-                    CAMERA_VIDEO_COUNT = video_count
-                    CAMERA_DISK_USAGE = disk_usage
-                    
-                    # 디스크 사용량이 90%를 넘으면 경고
-                    if disk_usage > 90.0:
-                        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                                       events.EventType.warning,
-                                       f"Camera disk usage high: {disk_usage:.1f}%")
-                    
-                    # 비디오 파일 수가 증가하면 로그
-                    if video_count > 0 and video_count % 10 == 0:  # 10개마다 로그
-                        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                                       events.EventType.info,
-                                       f"Camera recorded {video_count} videos, disk usage: {disk_usage:.1f}%")
-                        
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                               events.EventType.error,
-                               f"Camera data parse error: {type(e).__name__}: {e}")
-                return
-
-        elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData:
-            try:
-                # 예: "avg,min,max,p0,p1,...,p767" 형태로 온다고 가정
-                parts = recv_msg.data.split(",")
-                avg, min_t, max_t = map(float, parts[:3])
-                frame = list(map(float, parts[3:]))
-                LAST_THERMAL = (avg, min_t, max_t)
-                log_thermal_frame(frame, avg, min_t, max_t)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"ThermalCam data parse error: {type(e).__name__}: {e}")
-            return
-
-        elif recv_msg.MsgID == appargs.CommAppArg.MID_RouteCmd_SS:
-            # When received Set State command
-            recv_state = int(recv_msg.data)
-
-            # LAUNCHPAD
-            if recv_state == 0:
-                launchpad_state_transition(Main_Queue)
-
-            # ASCENT
-            elif recv_state == 1:
-                ascent_state_transition(Main_Queue)
-
-            # APOGEE
-            elif recv_state == 2:
-                apogee_state_transition(Main_Queue)
-
-            # DESCENT
-            elif recv_state == 3:
-                descent_state_transition(Main_Queue)
-
-            # MOTOR FULLY CLOSED
-            elif recv_state == 4:
-                motor_close_state_transition(Main_Queue)
-
-            # LANDED
-            elif recv_state == 5:
-                landed_state_transition(Main_Queue)
-                
-            # Received State out of state range
-            else: 
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Error receiving SS message, Expected state value of 0 ~ {len(STATE_LIST) - 1}, received {recv_state}")
-
-        # When reset message from barometer app is received, set the max alt to 0
-        elif recv_msg.MsgID == appargs.BarometerAppArg.MID_ResetBarometerMaxAlt:
-            MAX_ALT = 0
-            recent_alt.clear()
-
-        elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsFlightLogicData:
-            try:
-                log_gps_data(recv_msg.data)
-                lat, lon, alt, *_ = map(float, recv_msg.data.split(","))
-                LAST_GPS = (lat, lon, alt)
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"GPS data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuFlightLogicData:
-            try:
-                log_imu_data(recv_msg.data)
-                roll, pitch, *_ = map(float, recv_msg.data.split(","))
-                LAST_IMU_ROLL = roll
-                LAST_IMU_PITCH = pitch
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                                f"IMU data parse error: {type(e).__name__}: {e}")
-                return
-            update_motor_logic(Main_Queue)
-            return
-
-        else:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"MID {recv_msg.MsgID} not handled")
-    except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                        f"Exception in command_handler: {type(e).__name__}: {e}")
-        raise
-    return
-
-def send_hk(Main_Queue : Queue):
-    global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, CURRENT_TEMP, recent_alt
-    global LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_GPS, LAST_FIR1, LAST_THERMIS, MOTOR_TARGET_PULSE
-    while FLIGHTLOGICAPP_RUNSTATUS:
-        flightlogicHK = msgstructure.MsgStructure()
-        hk_payload = (
-            f"run={FLIGHTLOGICAPP_RUNSTATUS},state={CURRENT_STATE},temp={CURRENT_TEMP},alt={recent_alt[-1] if recent_alt else 'NA'},"
-            f"imu_roll={LAST_IMU_ROLL},imu_pitch={LAST_IMU_PITCH},gps={LAST_GPS},fir1={LAST_FIR1},thermis={LAST_THERMIS},motor={MOTOR_TARGET_PULSE}"
-        )
-        msgstructure.send_msg(Main_Queue, flightlogicHK, appargs.FlightlogicAppArg.AppID, appargs.HkAppArg.AppID, appargs.FlightlogicAppArg.MID_SendHK, hk_payload)
-        hk_row = [now_epoch(), now_iso(), FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, safe(CURRENT_TEMP),
-                  safe(recent_alt[-1] if recent_alt else None), safe(LAST_IMU_ROLL), safe(LAST_IMU_PITCH),
-                  safe(LAST_GPS), safe(LAST_FIR1), safe(LAST_THERMIS), safe(LAST_PITOT_PRESSURE), safe(LAST_PITOT_TEMP), safe(MOTOR_TARGET_PULSE)]
-        log_csv(HK_LOG_PATH, ["epoch","iso","run","state","temp","alt","imu_roll","imu_pitch","gps","fir1","thermis","pitot_pressure","pitot_temp","motor"], hk_row)
-        # 더 빠른 종료를 위해 짧은 간격으로 체크
-        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
-            if not FLIGHTLOGICAPP_RUNSTATUS:
-                break
-            time.sleep(0.1)
-    return
-
-######################################################
-# Motor‑control helpers <NEW/>
-######################################################
-
+# ──────────────────────────────
+# 9. 모터 제어 함수
+# ──────────────────────────────
 def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
-    """MG996R 모터에 펄스 명령 전송송"""
-    global MOTOR_TARGET_PULSE, IMU_ROLL_THRESHOLD, IMU_PITCH_THRESHOLD, CLOSE_EVENT_LOGGED, LAST_BAROMETER, data_transmission_stats
+    """MG996R 모터에 펄스 명령 전송"""
+    global MOTOR_TARGET_PULSE, CLOSE_EVENT_LOGGED, LAST_BAROMETER, data_transmission_stats
+    
+    # 이미 같은 펄스로 지시했다면 스킵
     if pulse == MOTOR_TARGET_PULSE:
-        return  # 이미 같은 펄스로 지시함
+        return
+    
     MOTOR_TARGET_PULSE = pulse
     
     max_retries = 3
@@ -541,28 +322,24 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
                 events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Motor command failed after {max_retries} attempts: {e}")
                 return
     
-    if pulse == 500:
-        state = "열림"
+    # 모터 상태 로깅
+    if pulse == MOTOR_OPEN_PULSE:
+        state = "열림 (0도)"
         CLOSE_EVENT_LOGGED = False
-    elif pulse == 2500:
-        state = "닫힘"
+    elif pulse == MOTOR_CLOSE_PULSE:
+        state = "닫힘 (180도)"
         # 완전히 닫힘 시점에 센서 데이터 저장 및 로그
         if not CLOSE_EVENT_LOGGED:
             try:
-                # IMU, GPS, Barometer, 온도 등 실제 데이터로 대입 필요
-                IMU_ROLL_THRESHOLD = get_current_imu_roll()  # 함수 구현 필요
-                IMU_PITCH_THRESHOLD = get_current_imu_pitch()  # 함수 구현 필요
-                LAST_GPS = get_current_gps()  # 함수 구현 필요
-                LAST_BAROMETER = recent_alt[-1] if recent_alt else None
                 close_data = {
                     "time": time.time(),
                     "gps": LAST_GPS,
-                    "imu_roll": IMU_ROLL_THRESHOLD,
-                    "imu_pitch": IMU_PITCH_THRESHOLD,
+                    "imu_roll": LAST_IMU_ROLL,
+                    "imu_pitch": LAST_IMU_PITCH,
                     "barometer": LAST_BAROMETER,
                     "temp": CURRENT_TEMP,
+                    "thermis_temp": CURRENT_THERMIS_TEMP,
                     "fir1": LAST_FIR1,
-                    "fir2": None, # FIR2 데이터는 여기서 사용하지 않음
                     "thermal": LAST_THERMAL
                 }
                 log_system_event("CLOSE_EVENT", f"Motor closed with data: {close_data}")
@@ -571,16 +348,33 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
             except Exception as e:
                 log_error(f"Close event logging failed: {e}", "set_motor_pulse")
     else:
-        state = None
-    if state:
-        log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                        f"Motor pulse cmd → {pulse} ({state})")
-    else:
-        log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
-                        f"Motor pulse cmd → {pulse}")
+        state = f"중간 위치 ({int((pulse - 500) * 180 / 2000)}도)"
+    
+    log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
+    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
+                    f"Motor pulse cmd → {pulse} ({state})")
 
+def update_motor_logic(Main_Queue: Queue):
+    """온도/고도 조건에 따라 모터 제어"""
+    global CURRENT_STATE, MOTOR_CLOSE_ALT_THRESHOLD, RECENT_ALT_CHECK_LEN
+    
+    # 1. 절대적 고도 조건 (70m 이하) - 최우선
+    if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
+        set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+        log_system_event("MOTOR_LOGIC", f"Motor closed due to altitude <= {MOTOR_CLOSE_ALT_THRESHOLD}m")
+        return
+    
+    # 2. 온도 조건 (Thermis 온도 기준)
+    if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:
+        set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
+        log_system_event("MOTOR_LOGIC", f"Motor opened due to Thermis temp >= {THERMIS_TEMP_THRESHOLD}°C")
+    else:
+        set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+        log_system_event("MOTOR_LOGIC", f"Motor closed due to Thermis temp < {THERMIS_TEMP_THRESHOLD}°C")
+
+# ──────────────────────────────
+# 10. 카메라 제어 함수
+# ──────────────────────────────
 def activate_camera(Main_Queue: Queue) -> bool:
     """카메라 활성화"""
     global CAMERA_ACTIVE, CAMERA_ACTIVATION_TIME
@@ -603,23 +397,14 @@ def activate_camera(Main_Queue: Queue) -> bool:
         if success:
             CAMERA_ACTIVE = True
             CAMERA_ACTIVATION_TIME = time.time()
-            
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.info,
-                           "Camera activation command sent")
-            
-            log_system_event("CAMERA_ACTIVATE", "Camera recording started")
+            log_system_event("CAMERA", "Camera activation command sent successfully")
             return True
         else:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.error,
-                           "Camera activation command failed")
+            log_error("Failed to send camera activation command", "activate_camera")
             return False
-        
+            
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                       events.EventType.error,
-                       f"Camera activation failed: {e}")
+        log_error(f"Camera activation error: {e}", "activate_camera")
         return False
 
 def deactivate_camera(Main_Queue: Queue) -> bool:
@@ -644,155 +429,156 @@ def deactivate_camera(Main_Queue: Queue) -> bool:
         if success:
             CAMERA_ACTIVE = False
             CAMERA_DEACTIVATION_TIME = time.time()
-            
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.info,
-                           "Camera deactivation command sent")
-            
-            log_system_event("CAMERA_DEACTIVATE", "Camera recording stopped")
+            log_system_event("CAMERA", "Camera deactivation command sent successfully")
             return True
         else:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                           events.EventType.error,
-                           "Camera deactivation command failed")
+            log_error("Failed to send camera deactivation command", "deactivate_camera")
             return False
-        
+            
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName,
-                       events.EventType.error,
-                       f"Camera deactivation failed: {e}")
+        log_error(f"Camera deactivation error: {e}", "deactivate_camera")
         return False
 
-# 최근 0.5초(5회) 동안 고도가 모두 70m 이하인지 체크
-RECENT_ALT_CHECK_LEN = 5  # 0.5초(10Hz)
-
-# IMU 관련 변수(닫힘 시점 값 저장용)
-IMU_ROLL_THRESHOLD = None
-IMU_PITCH_THRESHOLD = None
-CLOSE_EVENT_LOGGED = False  # 중복 저장 방지
-
-# 센서 데이터 저장용(예시)
-LAST_GPS = None  # 실제 GPS 데이터 구조에 맞게 할당 필요
-LAST_IMU = None  # 실제 IMU 데이터 구조에 맞게 할당 필요
-LAST_BAROMETER = None  # 최근 고도값 등
-
-def update_motor_logic(Main_Queue: Queue):
-    """고도/온도 조건에 따라 MG996R 모터 제어 (500=open, 2500=close)"""
-    # recent_alt의 최신값이 최근 5개 모두 MOTOR_CLOSE_ALT_THRESHOLD 이하라면 닫힘
-    if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
-        set_motor_pulse(Main_Queue, 2500)  # 닫힘
-        return
-    # 온도 조건
-    if CURRENT_TEMP >= 40:
-        set_motor_pulse(Main_Queue, 500)  # 열림
-    else:
-        set_motor_pulse(Main_Queue, 2500)  # 닫힘
-
-######################################################
-## INITIALIZATION, TERMINATION                      ##
-######################################################
-
-# Initialization
-def flightlogicapp_init(Main_Queue : Queue):
+# ──────────────────────────────
+# 11. 메시지 핸들러
+# ──────────────────────────────
+def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
+    """메시지 핸들러"""
+    global CURRENT_TEMP, CURRENT_THERMIS_TEMP, CAMERA_ACTIVE, CAMERA_STATUS, CAMERA_VIDEO_COUNT, CAMERA_DISK_USAGE
+    global LAST_GPS, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_BAROMETER, LAST_FIR1, LAST_THERMAL
+    
     try:
-        global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, MAX_ALT, MOTOR_CLOSE_ALT_THRESHOLD
-        # Disable Keyboardinterrupt since Termination is handled by parent process
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Initializating flightlogicapp")
-        ## User Defined Initialization goes HERE
-
-        # For recovery, set the prev state as the current state.
-        CURRENT_STATE = int(prevstate.PREV_STATE)
-
-        # Perform state transition according to state
-        if CURRENT_STATE == 0:
-            launchpad_state_transition(Main_Queue)
-        elif CURRENT_STATE == 1:
-            ascent_state_transition(Main_Queue)
-        elif CURRENT_STATE == 2 :
-            descent_state_transition(Main_Queue)
-        elif CURRENT_STATE == 3 :
-            apogee_state_transition(Main_Queue)
-        elif CURRENT_STATE == 4 :
-            motor_close_state_transition(Main_Queue)
-        elif CURRENT_STATE == 5:
-            landed_state_transition(Main_Queue)
+        # 프로세스 종료 명령
+        if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "TERMINATION DETECTED")
+            global FLIGHTLOGICAPP_RUNSTATUS
+            FLIGHTLOGICAPP_RUNSTATUS = False
+            return
+        
+        # DHT11 온도 데이터
+        elif recv_msg.MsgID == appargs.Dht11AppArg.MID_SendDht11Data:
+            try:
+                data = recv_msg.MsgData.split(',')
+                if len(data) >= 2:
+                    CURRENT_TEMP = float(data[0])
+                    log_sensor_data("DHT11", {"temperature": CURRENT_TEMP, "humidity": data[1]})
+            except Exception as e:
+                log_error(f"DHT11 data parsing error: {e}", "command_handler")
+        
+        # Thermis 온도 데이터
+        elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisData:
+            try:
+                data = recv_msg.MsgData.split(',')
+                if len(data) >= 1:
+                    CURRENT_THERMIS_TEMP = float(data[0])
+                    log_sensor_data("Thermis", {"temperature": CURRENT_THERMIS_TEMP})
+            except Exception as e:
+                log_error(f"Thermis data parsing error: {e}", "command_handler")
+        
+        # IMU 데이터
+        elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuData:
+            try:
+                data = recv_msg.MsgData.split(',')
+                if len(data) >= 3:
+                    LAST_IMU_ROLL = float(data[0])
+                    LAST_IMU_PITCH = float(data[1])
+                    log_sensor_data("IMU", {"roll": LAST_IMU_ROLL, "pitch": LAST_IMU_PITCH, "yaw": data[2]})
+            except Exception as e:
+                log_error(f"IMU data parsing error: {e}", "command_handler")
+        
+        # GPS 데이터
+        elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsData:
+            try:
+                LAST_GPS = recv_msg.MsgData
+                log_sensor_data("GPS", {"data": LAST_GPS})
+            except Exception as e:
+                log_error(f"GPS data parsing error: {e}", "command_handler")
+        
+        # Barometer 데이터
+        elif recv_msg.MsgID == appargs.BarometerAppArg.MID_SendBarometerData:
+            try:
+                data = recv_msg.MsgData.split(',')
+                if len(data) >= 1:
+                    altitude = float(data[0])
+                    LAST_BAROMETER = altitude
+                    barometer_logic(Main_Queue, altitude)
+                    log_sensor_data("Barometer", {"altitude": altitude})
+            except Exception as e:
+                log_error(f"Barometer data parsing error: {e}", "command_handler")
+        
+        # FIR1 데이터
+        elif recv_msg.MsgID == appargs.Fir1AppArg.MID_SendFir1Data:
+            try:
+                LAST_FIR1 = recv_msg.MsgData
+                log_sensor_data("FIR1", {"data": LAST_FIR1})
+            except Exception as e:
+                log_error(f"FIR1 data parsing error: {e}", "command_handler")
+        
+        # Thermal Camera 데이터
+        elif recv_msg.MsgID == appargs.ThermalCameraAppArg.MID_SendThermalData:
+            try:
+                LAST_THERMAL = recv_msg.MsgData
+                log_sensor_data("Thermal", {"data": LAST_THERMAL})
+            except Exception as e:
+                log_error(f"Thermal data parsing error: {e}", "command_handler")
+        
+        # Camera 상태 데이터
+        elif recv_msg.MsgID == appargs.CameraAppArg.MID_SendCameraFlightLogicData:
+            try:
+                data = recv_msg.MsgData.split(',')
+                if len(data) >= 4:
+                    CAMERA_STATUS = data[0]
+                    CAMERA_VIDEO_COUNT = int(data[1])
+                    CAMERA_DISK_USAGE = float(data[2])
+                    
+                    # 디스크 사용량 경고
+                    if CAMERA_DISK_USAGE > 95:
+                        log_error(f"Critical disk space: {CAMERA_DISK_USAGE:.1f}%", "camera_status")
+                    elif CAMERA_DISK_USAGE > 85:
+                        log_error(f"Low disk space: {CAMERA_DISK_USAGE:.1f}%", "camera_status")
+                        
+            except Exception as e:
+                log_error(f"Camera status parsing error: {e}", "command_handler")
+        
+        # 기타 메시지
+        else:
+            log_error(f"Unknown message ID: {recv_msg.MsgID}", "command_handler")
             
-        # For recovery set the max altitude
-        MAX_ALT = float(prevstate.PREV_MAX_ALT)
-        MOTOR_CLOSE_ALT_THRESHOLD = 70  # 고정값 70m
-
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Setting Current state to {CURRENT_STATE}")
-
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Flightlogicapp Initialization Complete")
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
-                        f"Error during initialization: {type(e).__name__}: {e}")
-        FLIGHTLOGICAPP_RUNSTATUS = False
+        log_error(f"Command handler error: {e}", "command_handler")
 
-# Termination
-def flightlogicapp_terminate():
-    global FLIGHTLOGICAPP_RUNSTATUS
-
-    FLIGHTLOGICAPP_RUNSTATUS = False
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp")
-    # Termination Process Comes Here
-
-    # Join Each Thread to make sure all threads terminates
-    for thread_name in thread_dict:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+# ──────────────────────────────
+# 12. HK 송신 함수
+# ──────────────────────────────
+def send_hk(Main_Queue: Queue):
+    """HK 데이터 송신"""
+    while FLIGHTLOGICAPP_RUNSTATUS:
         try:
-            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
-            if thread_dict[thread_name].is_alive():
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+            hk_msg = msgstructure.MsgStructure()
+            success = msgstructure.send_msg(Main_Queue, hk_msg,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.HkAppArg.AppID,
+                              appargs.FlightlogicAppArg.MID_SendHK,
+                              str(FLIGHTLOGICAPP_RUNSTATUS))
+            
+            if success:
+                data_transmission_stats['state_updates_sent'] += 1
+                data_transmission_stats['last_successful_state_update'] = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                data_transmission_stats['consecutive_state_failures'] = 0
+            else:
+                data_transmission_stats['state_updates_failed'] += 1
+                data_transmission_stats['consecutive_state_failures'] += 1
+                
+            time.sleep(1)
         except Exception as e:
-            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+            log_error(f"HK transmission error: {e}", "send_hk")
+            time.sleep(1)
 
-    # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp complete")
-    return
-
-######################################################
-## USER METHOD                                      ##
-######################################################
-
-STATE_LIST = ["발사대 대기",
-              "상승",
-              "최고점",
-              "하강",
-              "모터 완전 닫음",
-              "착륙"]
-
-CURRENT_STATE = 0
-
-# Simulation Mode Flags, both ENABLE and ACTIVATE should be true to use simulation mode
-SIMULATION_ENABLE = False
-SIMULATION_ACTIVATE = False
-
-# Variable used in state determination
-MAX_ALT = 0
-# MOTOR_CLOSE_ALT_THRESHOLD: 모터를 완전히 닫는 고도 임계값 (약 70미터)
-MOTOR_CLOSE_ALT_THRESHOLD = 70  # 고정값 70m
-
-# counters for each state transition. State will change when counter > 3,
-# counter + 1 when state transition condition satisfies, counter - 2 when not
-BAROMETER_ASCENT_COUNTER = 0
-BAROMETER_APOGEE_COUNTER = 0
-BAROMETER_DESCENT_COUNTER = 0
-BAROMETER_MOTOR_CLOSE_COUNTER = 0
-BAROMETER_LANDED_COUNTER = 0
-
-# IMU 관련 상수(실제 사용처 없으면 삭제, 전역 변수로만 유지)
-IMU_ROLL_THRESHOLD = 70
-IMU_PITCH_THRESHOLD = 70
-
-recent_alt = []
-
-def barometer_logic(Main_Queue:Queue, altitude:float):
-    # 최대 고도 찍고 감소하면 -> 하강 State
-    # 하강 State에서 70m 고도 되면 모터 완전 닫음 State
+# ──────────────────────────────
+# 13. 고도 로직 함수
+# ──────────────────────────────
+def barometer_logic(Main_Queue: Queue, altitude: float):
+    """고도에 따른 상태 전환 로직"""
     global MAX_ALT, MOTOR_CLOSE_ALT_THRESHOLD, CURRENT_STATE
     global BAROMETER_ASCENT_COUNTER, BAROMETER_DESCENT_COUNTER
     global BAROMETER_APOGEE_COUNTER, BAROMETER_MOTOR_CLOSE_COUNTER, BAROMETER_LANDED_COUNTER
@@ -803,6 +589,7 @@ def barometer_logic(Main_Queue:Queue, altitude:float):
     if len(recent_alt) > 5:
         recent_alt.pop(0)
 
+    # 최대 고도 업데이트
     if len(recent_alt) > 2:
         sorted_alts = sorted(recent_alt, reverse=True)
         second_max = sorted_alts[1]
@@ -811,111 +598,100 @@ def barometer_logic(Main_Queue:Queue, altitude:float):
             MAX_ALT = second_max
             prevstate.update_maxalt(second_max)
 
-    # MOTOR_CLOSE_ALT_THRESHOLD는 고정값 70m 사용
-    #print(f"alt : {altitude} , max : {MAX_ALT}")
+    # 최소 3개 데이터가 있을 때만 로직 실행
     if len(recent_alt) < 3:
-        # Do not perform any logic before filter is enabled
         return
 
-    if BAROMETER_ASCENT_COUNTER <= 0 :
+    # 카운터 초기화
+    if BAROMETER_ASCENT_COUNTER <= 0:
         BAROMETER_ASCENT_COUNTER = 0
-
-    if BAROMETER_APOGEE_COUNTER <= 0 :
+    if BAROMETER_APOGEE_COUNTER <= 0:
         BAROMETER_APOGEE_COUNTER = 0
-
-    if BAROMETER_DESCENT_COUNTER <= 0 :
+    if BAROMETER_DESCENT_COUNTER <= 0:
         BAROMETER_DESCENT_COUNTER = 0
-    
     if BAROMETER_MOTOR_CLOSE_COUNTER <= 0:
         BAROMETER_MOTOR_CLOSE_COUNTER = 0
-
-    if BAROMETER_LANDED_COUNTER <= 0 :
+    if BAROMETER_LANDED_COUNTER <= 0:
         BAROMETER_LANDED_COUNTER = 0
         
-    # At Standby State
+    # 발사대 대기 상태 (State 0)
     if CURRENT_STATE == 0:
-
-        # When Altitude is higher than 75 meters
-        if (altitude > 75):
+        # 75m 이상일 때 상승 카운터 증가
+        if altitude > 75:
             BAROMETER_ASCENT_COUNTER += 1
         else:
             BAROMETER_ASCENT_COUNTER -= 2
         
-        # When the counter is larger than 3 ; when the altitude is higher than 50 meter 3 times in a row
+        # 3회 연속 75m 이상이면 상승 상태로 전환
         if BAROMETER_ASCENT_COUNTER >= 3:
             ascent_state_transition(Main_Queue)
     
-    # At Ascent State
+    # 상승 상태 (State 1)
     if CURRENT_STATE == 1:
-
-        # When Altitude is 20 meter lower than max altitude
-
-        if (altitude <= MAX_ALT - 20):
+        # 최대 고도보다 20m 낮을 때 하강 카운터 증가
+        if altitude <= MAX_ALT - 20:
             BAROMETER_DESCENT_COUNTER += 1
         else:
             BAROMETER_DESCENT_COUNTER -= 2
         
-        # 0.25 meter is the resolution of BMP390
-        if (altitude < MAX_ALT - 0.25 and altitude > MAX_ALT - 20):
+        # 최대 고도 근처에서 최고점 카운터 증가
+        if altitude < MAX_ALT - 0.25 and altitude > MAX_ALT - 20:
             BAROMETER_APOGEE_COUNTER += 1
         else:
             BAROMETER_APOGEE_COUNTER -= 2
 
-        # When the counter is larger than 2; When the altitude is 2 meter lower than max altitude 2 times in a row
+        # 하강 조건 확인
         if BAROMETER_DESCENT_COUNTER >= 2:
             descent_state_transition(Main_Queue)
 
+        # 최고점 조건 확인
         if BAROMETER_APOGEE_COUNTER >= 2:
             apogee_state_transition(Main_Queue)
 
-    # At Apogee State
+    # 최고점 상태 (State 2)
     if CURRENT_STATE == 2:
-        
-        # Check for descent
-        if (altitude <= MAX_ALT - 20):
+        # 하강 조건 확인
+        if altitude <= MAX_ALT - 20:
             BAROMETER_DESCENT_COUNTER += 1
         else:
             BAROMETER_DESCENT_COUNTER -= 2
 
-        # When the counter is larger than 3; When the altitude is 2 meter lower than max altitude 3 times in a row
         if BAROMETER_DESCENT_COUNTER >= 2:
             descent_state_transition(Main_Queue)
 
-    # At Descent State
+    # 하강 상태 (State 3)
     if CURRENT_STATE == 3:
-        # When Altitude is 70 meters (모터 완전 닫음 고도)
-
-        if (altitude <= MOTOR_CLOSE_ALT_THRESHOLD):
+        # 70m 이하일 때 모터 닫음 카운터 증가
+        if altitude <= MOTOR_CLOSE_ALT_THRESHOLD:
             BAROMETER_MOTOR_CLOSE_COUNTER += 1
         else:
             BAROMETER_MOTOR_CLOSE_COUNTER -= 2
 
-        # When the counter is larger than 2; When the altitude is 70m 2 times in a row
+        # 2회 연속 70m 이하면 모터 완전 닫음 상태로 전환
         if BAROMETER_MOTOR_CLOSE_COUNTER >= 2:
             motor_close_state_transition(Main_Queue)
     
-    # At Motor Fully Closed State
-
+    # 모터 완전 닫음 상태 (State 4)
     if CURRENT_STATE == 4:
-        # When altitude is almost zero
-
+        # 15m 이하일 때 착륙 카운터 증가
         if altitude <= 15:
             BAROMETER_LANDED_COUNTER += 1
         else:
             BAROMETER_LANDED_COUNTER -= 2
 
+        # 3회 연속 15m 이하면 착륙 상태로 전환
         if BAROMETER_LANDED_COUNTER >= 3:
             landed_state_transition(Main_Queue)
-        
 
-    return
-
+# ──────────────────────────────
+# 14. 상태 전환 함수들
+# ──────────────────────────────
 def log_and_update_state(state: int, log_msg: str):
+    """상태 변경 및 로깅"""
     global CURRENT_STATE
     old_state = CURRENT_STATE
     CURRENT_STATE = state
     
-    # 강화된 상태 변경 로깅
     try:
         log_state_change(STATE_LIST[old_state], STATE_LIST[state], log_msg)
         log_system_event("STATE_CHANGE", f"State {old_state} -> {state}: {log_msg}")
@@ -923,17 +699,16 @@ def log_and_update_state(state: int, log_msg: str):
         prevstate.update_prevstate(CURRENT_STATE)
     except Exception as e:
         log_error(f"State change logging failed: {e}", "log_and_update_state")
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"State change logging failed: {e}")
 
-def launchpad_state_transition(Main_Queue : Queue):
-    global MAX_ALT
-    global recent_alt
+def launchpad_state_transition(Main_Queue: Queue):
+    """발사대 대기 상태로 전환"""
+    global MAX_ALT, recent_alt
     log_and_update_state(0, "CHANGED STATE TO LAUNCHPAD STANDBY")
     MAX_ALT = 0
     recent_alt.clear()
-    return
 
-def ascent_state_transition(Main_Queue : Queue):
+def ascent_state_transition(Main_Queue: Queue):
+    """상승 상태로 전환"""
     log_and_update_state(1, "CHANGED STATE TO ASCENT")
     
     # 상승 시 카메라 활성화
@@ -945,18 +720,16 @@ def ascent_state_transition(Main_Queue : Queue):
         events.LogEvent(appargs.FlightlogicAppArg.AppName,
                        events.EventType.error,
                        "Failed to activate camera for ascent phase")
-    return
 
-def apogee_state_transition(Main_Queue : Queue):
+def apogee_state_transition(Main_Queue: Queue):
+    """최고점 상태로 전환"""
     log_and_update_state(2, "CHANGED STATE TO APOGEE")
-    return
 
-# 낙하(Descent) 상태 진입 시점 이벤트 로깅
-DESCENT_EVENT_LOGGED = False
-
-def descent_state_transition(Main_Queue:Queue):
+def descent_state_transition(Main_Queue: Queue):
+    """하강 상태로 전환"""
     global DESCENT_EVENT_LOGGED, LAST_BAROMETER
     log_and_update_state(3, "CHANGED STATE TO DESCENT")
+    
     if not DESCENT_EVENT_LOGGED:
         LAST_BAROMETER = recent_alt[-1] if recent_alt else None
         descent_data = {
@@ -967,20 +740,20 @@ def descent_state_transition(Main_Queue:Queue):
             "imu_pitch": safe(LAST_IMU_PITCH),
             "barometer": safe(LAST_BAROMETER),
             "temp": safe(CURRENT_TEMP),
+            "thermis_temp": safe(CURRENT_THERMIS_TEMP),
             "fir1": safe(LAST_FIR1),
-            "fir2": None, # FIR2 데이터는 여기서 사용하지 않음
             "thermal": safe(LAST_THERMAL)
         }
         log_system_event("DESCENT_EVENT", f"Descent initiated with data: {descent_data}")
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"DESCENT_EVENT: {descent_data}")
         DESCENT_EVENT_LOGGED = True
-    return
 
-def motor_close_state_transition(Main_Queue:Queue):
+def motor_close_state_transition(Main_Queue: Queue):
+    """모터 완전 닫음 상태로 전환"""
     log_and_update_state(4, "CHANGED STATE TO MOTOR FULLY CLOSED")
-    return
 
-def landed_state_transition(Main_Queue : Queue):
+def landed_state_transition(Main_Queue: Queue):
+    """착륙 상태로 전환"""
     log_and_update_state(5, "CHANGED STATE TO LANDED")
     
     # 착륙 후 30초 대기 후 카메라 비활성화
@@ -998,192 +771,116 @@ def landed_state_transition(Main_Queue : Queue):
     # 별도 스레드에서 카메라 비활성화 실행
     deactivation_thread = threading.Thread(target=delayed_camera_deactivation, daemon=True)
     deactivation_thread.start()
-    
-    return
 
-def check_simulation_status(Main_Queue:Queue):
-    simulation_status = "F"
-
-    if SIMULATION_ENABLE and SIMULATION_ACTIVATE:
-        simulation_status = "S"
-        
-    SimulationStatusToTlmMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, SimulationStatusToTlmMsg, appargs.FlightlogicAppArg.AppID, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.MID_SendSimulationStatustoTlm, simulation_status)   
-
-# Put user-defined methods here!
-
-def send_current_state(Main_Queue:Queue):
-    global FLIGHTLOGICAPP_RUNSTATUS
-    global CURRENT_STATE
-    global data_transmission_stats
-
-    SendCurrentStateMsg = msgstructure.MsgStructure()
-    consecutive_failures = 0
-    max_failures_before_log = 5
-    
-    while FLIGHTLOGICAPP_RUNSTATUS:
-        try:
-            success = msgstructure.send_msg(Main_Queue, SendCurrentStateMsg, appargs.FlightlogicAppArg.AppID, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.MID_SendCurrentStateToTlm, STATE_LIST[CURRENT_STATE])
-            
-            if success:
-                consecutive_failures = 0
-                data_transmission_stats['state_updates_sent'] += 1
-                data_transmission_stats['last_successful_state_update'] = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-                data_transmission_stats['consecutive_state_failures'] = 0
-            else:
-                consecutive_failures += 1
-                data_transmission_stats['state_updates_failed'] += 1
-                data_transmission_stats['consecutive_state_failures'] += 1
-                
-                if consecutive_failures <= max_failures_before_log:
-                    log_error(f"State transmission failed: {consecutive_failures} consecutive failures", "send_current_state")
-                elif consecutive_failures == max_failures_before_log + 1:
-                    log_error(f"State transmission errors suppressed after {max_failures_before_log} failures", "send_current_state")
-                    
-        except Exception as e:
-            consecutive_failures += 1
-            data_transmission_stats['state_updates_failed'] += 1
-            data_transmission_stats['consecutive_state_failures'] += 1
-            
-            if consecutive_failures <= max_failures_before_log:
-                log_error(f"State transmission error: {e}", "send_current_state")
-            elif consecutive_failures == max_failures_before_log + 1:
-                log_error(f"State transmission errors suppressed after {max_failures_before_log} failures", "send_current_state")
-        
-        time.sleep(1)
-    
-    return
-######################################################
-## MAIN METHOD                                      ##
-######################################################
-
-thread_dict = dict[str, threading.Thread]()
-
-# This method is called from main app. Initialization, runloop process
-def flightlogicapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
-    global FLIGHTLOGICAPP_RUNSTATUS
-    FLIGHTLOGICAPP_RUNSTATUS = True
-
-    # Initialization Process
-    flightlogicapp_init(Main_Queue)
-
-    # Spawn SB Message Listner Thread
-    thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
-    thread_dict["SendCurrentState_Thread"] = threading.Thread(target=send_current_state, args=(Main_Queue, ), name="SendCurrentState_Thread")
-
-    # Spawn Each Threads
-    for t in thread_dict.values():
-        if not hasattr(t, '_is_resilient') or not t._is_resilient:
-            t.start()
-
+# ──────────────────────────────
+# 15. 초기화 및 종료 함수
+# ──────────────────────────────
+def flightlogicapp_init(Main_Queue: Queue):
+    """Flight Logic 앱 초기화"""
     try:
-        while FLIGHTLOGICAPP_RUNSTATUS:
-            # Receive Message From Pipe with timeout
-            # Non-blocking receive with timeout
-            try:
-                if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
-                    try:
-                        message = Main_Pipe.recv()
-                    except (EOFError, BrokenPipeError, ConnectionResetError):
-                        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, "Pipe connection lost")
-                        log_error("Pipe connection lost", "flightlogicapp_main")
-                        break
-                    except Exception as e:
-                        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Pipe receive error: {e}")
-                        log_error(f"Pipe receive error: {e}", "flightlogicapp_main")
-                        continue
-                else:
-                    # 타임아웃 시 루프 계속
-                    continue
-                    
-                recv_msg = msgstructure.MsgStructure()
+        global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, MAX_ALT, MOTOR_CLOSE_ALT_THRESHOLD
+        
+        # 키보드 인터럽트 비활성화
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-                # Unpack Message, Skip this message if unpacked message is not valid
-                if msgstructure.unpack_msg(recv_msg, message) == False:
-                    continue
-                
-                # Validate Message, Skip this message if target AppID different from flightlogicapp's AppID
-                # Exception when the message is from main app
-                if recv_msg.receiver_app == appargs.FlightlogicAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
-                    # Handle Command According to Message ID
-                    command_handler(recv_msg, Main_Queue)
-                else:
-                    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, "Receiver MID does not match with flightlogicapp MID")
-                    
-            except Exception as e:
-                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
-                log_error(f"Main loop error: {e}", "flightlogicapp_main")
-                time.sleep(0.1)  # 에러 시 짧은 대기
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Initializing flightlogicapp")
+        
+        # 이전 상태 복구
+        CURRENT_STATE = int(prevstate.PREV_STATE)
+        MAX_ALT = float(prevstate.PREV_MAX_ALT)
+        MOTOR_CLOSE_ALT_THRESHOLD = 70  # 고정값 70m
 
-    # If error occurs, terminate app
+        # 상태에 따른 초기화
+        if CURRENT_STATE == 0:
+            launchpad_state_transition(Main_Queue)
+        elif CURRENT_STATE == 1:
+            ascent_state_transition(Main_Queue)
+        elif CURRENT_STATE == 2:
+            apogee_state_transition(Main_Queue)
+        elif CURRENT_STATE == 3:
+            descent_state_transition(Main_Queue)
+        elif CURRENT_STATE == 4:
+            motor_close_state_transition(Main_Queue)
+        elif CURRENT_STATE == 5:
+            landed_state_transition(Main_Queue)
+            
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Setting Current state to {CURRENT_STATE}")
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Flightlogicapp Initialization Complete")
+        
     except Exception as e:
-        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"flightlogicapp error : {e}")
-        log_error(f"Critical flightlogicapp error: {e}", "flightlogicapp_main")
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error,
+                        f"Error during initialization: {type(e).__name__}: {e}")
         FLIGHTLOGICAPP_RUNSTATUS = False
 
-    # Termination Process after runloop
-    flightlogicapp_terminate()
+def flightlogicapp_terminate():
+    """Flight Logic 앱 종료"""
+    global FLIGHTLOGICAPP_RUNSTATUS, _emergency_logging_enabled
 
+    FLIGHTLOGICAPP_RUNSTATUS = False
+    _emergency_logging_enabled = False
+    
+    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp")
+    
+    # 스레드 종료 대기
+    for thread_name in thread_dict:
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
+        try:
+            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+            if thread_dict[thread_name].is_alive():
+                events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
+        except Exception as e:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
+        events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
+
+    events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, "Terminating flightlogicapp complete")
     return
 
-# 파일 최상단
-LAST_IMU_ROLL = None
-LAST_IMU_PITCH = None
-LAST_GPS = None
-LAST_FIR1 = None
-LAST_THERMIS = None
-LAST_PITOT_PRESSURE = None
-LAST_PITOT_TEMP = None
+# ──────────────────────────────
+# 16. 메인 함수
+# ──────────────────────────────
+thread_dict = {}
 
-LAST_THERMAL = None
-LAST_BAROMETER = None
+def flightlogicapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
+    """Flight Logic 앱 메인 함수"""
+    global FLIGHTLOGICAPP_RUNSTATUS, thread_dict
+    
+    try:
+        # 초기화
+        flightlogicapp_init(Main_Queue)
+        
+        # 스레드 생성 및 시작
+        thread_dict["HK"] = threading.Thread(target=send_hk, args=(Main_Queue,), daemon=True)
+        thread_dict["MOTOR_LOGIC"] = threading.Thread(target=lambda: update_motor_logic_loop(Main_Queue), daemon=True)
+        
+        for thread_name, thread in thread_dict.items():
+            thread.start()
+            events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info, f"Started {thread_name} thread")
+        
+        # 메인 루프
+        while FLIGHTLOGICAPP_RUNSTATUS:
+            try:
+                # 메시지 수신
+                if Main_Pipe.poll(0.1):
+                    recv_msg = Main_Pipe.recv()
+                    command_handler(recv_msg, Main_Queue)
+                    
+            except Exception as e:
+                log_error(f"Main loop error: {e}", "flightlogicapp_main")
+                time.sleep(0.1)
+        
+        # 종료
+        flightlogicapp_terminate()
+        
+    except Exception as e:
+        log_error(f"Flight Logic main error: {e}", "flightlogicapp_main")
+        flightlogicapp_terminate()
 
-def get_current_imu_roll():
-    return LAST_IMU_ROLL
-
-def get_current_imu_pitch():
-    return LAST_IMU_PITCH
-
-def get_current_gps():
-    return LAST_GPS
-
-# Thermal Camera(mlx90640) 전체 프레임 로그
-THERMAL_FRAME_SIZE = 24*32
-
-def log_thermal_frame(frame, avg, min_t, max_t):
-    data = {
-        "avg": safe(avg),
-        "min": safe(min_t), 
-        "max": safe(max_t),
-        "frame_size": len(frame),
-        "frame_avg": sum(frame)/len(frame) if frame else 0
-    }
-    log_sensor_data("THERMAL", data)
-
-def log_fir1_data(raw_data):
-    log_sensor_data("FIR1", {"raw_data": safe(raw_data)})
-
-def log_thermis_data(raw_data):
-    log_sensor_data("THERMIS", {"raw_data": safe(raw_data)})
-
-def log_pitot_data(raw_data):
-    log_sensor_data("PITOT", {"raw_data": safe(raw_data)})
-
-def log_gps_data(raw_data):
-    log_sensor_data("GPS", {"raw_data": safe(raw_data)})
-
-def log_imu_data(raw_data):
-    log_sensor_data("IMU", {"raw_data": safe(raw_data)})
-
-def log_barometer_data(raw_data):
-    log_sensor_data("BAROMETER", {"raw_data": safe(raw_data)})
-
-def log_dht11_data(raw_data):
-    log_sensor_data("DHT11", {"raw_data": safe(raw_data)})
-
-def log_tmp007_data(raw_data):
-    log_sensor_data("TMP007", {"raw_data": safe(raw_data)})
-
-def log_error(msg):
-    log_system_event("ERROR", msg)
-
+def update_motor_logic_loop(Main_Queue: Queue):
+    """모터 제어 로직 루프"""
+    while FLIGHTLOGICAPP_RUNSTATUS:
+        try:
+            update_motor_logic(Main_Queue)
+            time.sleep(0.1)  # 10Hz로 모터 제어 업데이트
+        except Exception as e:
+            log_error(f"Motor logic loop error: {e}", "update_motor_logic_loop")
+            time.sleep(0.1) 
