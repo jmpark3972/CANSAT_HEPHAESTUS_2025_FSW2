@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 """tmp007.py – TMP007 온도 센서 제어 모듈
 
-* Qwiic Mux 채널 7번에 연결
+* Qwiic Mux 채널 3번에 연결
 * I2C 주소: 0x40 (기본)
 * 정밀 온도 측정 센서
 * 비접촉 온도 측정 가능
