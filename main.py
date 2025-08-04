@@ -52,8 +52,10 @@ app_dict: dict[types.AppID, app_elements] = {}
 
 def terminate_FSW():
     global MAINAPP_RUNSTATUS, _termination_in_progress
-    if _termination_in_progress and not MAINAPP_RUNSTATUS:
+    if _termination_in_progress:
         return  # Already terminating
+    _termination_in_progress = True
+    print(f"\nFSW 종료 프로세스 시작...")
     # Set all Runstatus to false
     MAINAPP_RUNSTATUS = False
 
@@ -108,17 +110,12 @@ def signal_handler(signum, frame):
     global MAINAPP_RUNSTATUS, _termination_in_progress
     if _termination_in_progress:
         return  # Already terminating
-    _termination_in_progress = True
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
     MAINAPP_RUNSTATUS = False
-    terminate_FSW()
 
 # Setup signal handlers
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
-
-# Register cleanup function for unexpected exits
-atexit.register(terminate_FSW)
 """
 # e.g importing test app and executing runloop
 #########################################################
