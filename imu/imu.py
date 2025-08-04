@@ -63,8 +63,8 @@ def read_sensor_data(sensor):
         mag = sensor.magnetic  # 공식 속성명
         temp = sensor.temperature  # 공식 속성명
         
-        # 디버그 로그 추가
-        print(f"IMU Raw Data - Quaternion: {q}, Gyro: {gyro}, Accel: {accel}, Mag: {mag}, Temp: {temp}")
+        # 디버그 로그 (파일로만 기록, 화면 출력 안함)
+        log_imu(f"RAW_DATA,{q},{gyro},{accel},{mag},{temp}")
         
         # 유효성 검사
         if q is None or gyro is None or accel is None or mag is None:
@@ -87,7 +87,8 @@ def read_sensor_data(sensor):
             pitch_deg = math.degrees(pitch)
             yaw_deg = math.degrees(yaw)
             
-            print(f"IMU Processed - Roll: {roll_deg:.2f}°, Pitch: {pitch_deg:.2f}°, Yaw: {yaw_deg:.2f}°")
+            # 처리된 데이터 로그 (파일로만 기록)
+            log_imu(f"PROCESSED,{roll_deg:.2f},{pitch_deg:.2f},{yaw_deg:.2f}")
             
             return (gyro, accel, mag, (roll_deg, pitch_deg, yaw_deg), temp)
         

@@ -22,16 +22,17 @@ def init_thermal_camera():
     """Thermal Camera 센서 초기화 (직접 I2C 연결)"""
     import board
     import busio
-    import adafruit_amg88xx
+    import adafruit_mlx90640
     
     # I2C setup
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
     
     try:
-        # Thermal Camera 센서 직접 연결
-        sensor = adafruit_amg88xx.AMG88XX(i2c)
+        # Thermal Camera 센서 직접 연결 (MLX90640 at 0x33)
+        sensor = adafruit_mlx90640.MLX90640(i2c, address=0x33)
+        sensor.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ
         time.sleep(0.1)
-        print("Thermal Camera 센서 초기화 완료 (직접 I2C 연결)")
+        print("Thermal Camera MLX90640 센서 초기화 완료 (주소: 0x33)")
         return i2c, sensor
     except Exception as e:
         print(f"Thermal Camera 초기화 실패: {e}")
@@ -60,15 +61,17 @@ def _ascii_pixel(val: float) -> str:
     return "&"
 
 def read_cam(sensor, ascii: bool = False):
-    """Thermal Camera 센서 데이터 읽기"""
+    """Thermal Camera 센서 데이터 읽기 (MLX90640)"""
     try:
-        # 8x8 픽셀 데이터 읽기
-        pixels = sensor.pixels
+        # 24x32 픽셀 데이터 읽기
+        frame = [0] * 768  # 24x32 = 768 pixels
+        sensor.getFrame(frame)
         
-        # 온도 계산
-        min_temp = min([min(row) for row in pixels])
-        max_temp = max([max(row) for row in pixels])
-        avg_temp = sum([sum(row) for row in pixels]) / 64
+        # 온도 계산 (섭씨로 변환)
+        temps = [temp - 273.15 for temp in frame]  # 켈빈을 섭씨로 변환
+        min_temp = min(temps)
+        max_temp = max(temps)
+        avg_temp = sum(temps) / len(temps)
         
         return min_temp, max_temp, avg_temp
         
