@@ -44,10 +44,10 @@ def init_cam(refresh_hz: int | float = 2):
     # I2C 버스 안정화를 위한 지연
     time.sleep(0.5)
     
-    # Qwiic Mux 초기화 및 채널 4 선택 (Thermal Camera 위치)
+    # Qwiic Mux 초기화 및 채널 5 선택 (Thermal Camera 위치 - 실제 연결된 채널)
     from lib.qwiic_mux import QwiicMux
     mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-    mux.select_channel(4)  # Thermal Camera는 채널 4에 연결
+    mux.select_channel(5)  # Thermal Camera는 채널 5에 연결 (실제 연결 확인됨)
     time.sleep(0.5)  # 더 긴 안정화 대기
     
     # MLX90640 일반적인 I2C 주소들 시도 (더 많은 주소 추가)

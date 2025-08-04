@@ -175,9 +175,9 @@ def init_tmp007():
         # I2C 버스 초기화
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         
-        # Qwiic Mux 초기화 및 채널 3 선택 (TMP007 위치)
+        # Qwiic Mux 초기화 및 채널 5 선택 (TMP007 위치 - 실제 연결된 채널)
         mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-        mux.select_channel(3)  # TMP007는 채널 3에 연결
+        mux.select_channel(5)  # TMP007는 채널 5에 연결 (실제 연결 확인됨)
         time.sleep(0.1)  # 안정화 대기
         
         # TMP007 센서 초기화
