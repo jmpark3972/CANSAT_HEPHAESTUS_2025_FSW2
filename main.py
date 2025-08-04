@@ -50,6 +50,53 @@ class app_elements:
 #app_dict = dict[types.AppID, app_elements]()
 app_dict: dict[types.AppID, app_elements] = {}
 
+def terminate_FSW():
+    global MAINAPP_RUNSTATUS
+    # Set all Runstatus to false
+    MAINAPP_RUNSTATUS = False
+
+    termination_message = msgstructure.MsgStructure()
+    msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
+    termination_message_to_send = msgstructure.pack_msg(termination_message)
+
+    # Send termination message to kill every process
+    for appID in app_dict:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID}")
+        try:
+            app_dict[appID].pipe.send(termination_message_to_send)
+        except Exception as e:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send termination to {appID}: {e}")
+
+    # Join all processes to make sure every processes is killed
+    for appID in app_dict:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
+        try:
+            app_dict[appID].process.join(timeout=5)  # 5 second timeout
+            if app_dict[appID].process.is_alive():
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
+                app_dict[appID].process.terminate()
+                app_dict[appID].process.join(timeout=2)
+                if app_dict[appID].process.is_alive():
+                    app_dict[appID].process.kill()
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
+        except Exception as e:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
+
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
+    prevstate.reset_prevstate()
+    
+    # 이중 로깅 시스템 종료
+    try:
+        from lib import logging
+        logging.close_dual_logging_system()
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 오류: {e}")
+    
+    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
+    sys.exit()
+    return
+
 # Signal handler for graceful termination
 def signal_handler(signum, frame):
     """시그널 핸들러 - Ctrl+C 등으로 인한 종료 처리"""
@@ -311,57 +358,7 @@ def run_app(AppID : types.AppID) :
     else:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"AppID {AppID} not in app dictionary")
 
-#########################################################
-# Termination Process                                   #
-# Jobs need to be done when terminating process         # 
-#########################################################
 
-def terminate_FSW():
-    global MAINAPP_RUNSTATUS
-    # Set all Runstatus to false
-    MAINAPP_RUNSTATUS = False
-
-    termination_message = msgstructure.MsgStructure()
-    msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
-    termination_message_to_send = msgstructure.pack_msg(termination_message)
-
-    # Send termination message to kill every process
-    for appID in app_dict:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID}")
-        try:
-            app_dict[appID].pipe.send(termination_message_to_send)
-        except Exception as e:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send termination to {appID}: {e}")
-
-    # Join all processes to make sure every processes is killed
-    for appID in app_dict:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
-        try:
-            app_dict[appID].process.join(timeout=5)  # 5 second timeout
-            if app_dict[appID].process.is_alive():
-                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
-                app_dict[appID].process.terminate()
-                app_dict[appID].process.join(timeout=2)
-                if app_dict[appID].process.is_alive():
-                    app_dict[appID].process.kill()
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
-        except Exception as e:
-            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
-
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
-    prevstate.reset_prevstate()
-    
-    # 이중 로깅 시스템 종료
-    try:
-        from lib import logging
-        logging.close_dual_logging_system()
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "이중 로깅 시스템 종료 완료")
-    except Exception as e:
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"이중 로깅 시스템 종료 오류: {e}")
-    
-    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"All Termination Process complete, terminating FSW")
-    sys.exit()
-    return
 # Import and execute each app's runloop HERE
 
 # Main Runloop
