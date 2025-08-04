@@ -4,8 +4,6 @@ Qwiic Mux Controller for CANSAT
 Qwiic Mux를 통해 여러 I2C 센서를 제어하는 라이브러리
 """
 
-import board
-import busio
 import time
 import os
 import fcntl
@@ -17,76 +15,60 @@ _LOCK_FILE = "/tmp/qwiic_mux.lock"
 
 @contextmanager
 def _mux_lock():
-    """멀티플렉서 접근을 위한 파일 락"""
-    fd = os.open(_LOCK_FILE, os.O_CREAT | os.O_RDWR)
-    try:
-        fcntl.flock(fd, fcntl.LOCK_EX)
-        yield
-    finally:
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        os.close(fd)
+    """멀티플렉서 접근을 위한 간단한 락"""
+    # 파일 락 대신 단순한 지연 사용
+    time.sleep(0.01)  # 10ms 지연으로 충돌 방지
+    yield
+    time.sleep(0.01)  # 10ms 지연으로 안정화
+
+def create_mux_instance(i2c_bus=None, mux_address=0x70):
+    """독립적인 QwiicMux 인스턴스 생성"""
+    if i2c_bus is None:
+        import board
+        import busio
+        i2c_bus = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+    
+    return QwiicMux(i2c_bus=i2c_bus, mux_address=mux_address)
 
 class QwiicMux:
-    """Qwiic Mux 제어 클래스"""
+    """Qwiic Mux (TCA9548A) 제어 클래스"""
     
-    def __init__(self, i2c_bus=None, mux_address=0x70):
-        """
-        Qwiic Mux 초기화
-        
-        Args:
-            i2c_bus: I2C 버스 객체 (None이면 자동 생성)
-            mux_address: Mux의 I2C 주소 (기본값: 0x70)
-        """
-        if i2c_bus is None:
-            self.i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
-        else:
-            self.i2c = i2c_bus
-        
+    def __init__(self, i2c_bus, mux_address=0x70):
+        self.i2c = i2c_bus
         self.mux_address = mux_address
         self.current_channel = None
-        
-        print(f"Qwiic Mux 초기화 완료 (주소: 0x{self.mux_address:02X})")
+        print(f"Qwiic Mux 초기화 완료 (주소: 0x{mux_address:02X})")
     
     def select_channel(self, channel: int) -> bool:
-        """
-        특정 채널 선택
-        
-        Args:
-            channel: 선택할 채널 (0-7)
-            
-        Returns:
-            성공 여부
-        """
+        """특정 채널 선택"""
         if not 0 <= channel <= 7:
-            print(f"잘못된 채널 번호: {channel} (0-7 범위여야 함)")
+            print(f"잘못된 채널 번호: {channel}")
             return False
-        
-        # 이미 해당 채널이 선택되어 있으면 스킵
+
         if self.current_channel == channel:
             return True
-
-        with _mux_lock():  # 🔒 멀티플렉서 락 획득
-            try:
-                # 먼저 모든 채널 비활성화
-                self.i2c.writeto(self.mux_address, bytes([0x00]))
-                time.sleep(0.05)  # 안정화 대기
-                
-                # 채널 선택 (1 << channel)
-                channel_byte = 1 << channel
-                self.i2c.writeto(self.mux_address, bytes([channel_byte]))
-                self.current_channel = channel
-                
-                # 안정화를 위한 충분한 대기
-                time.sleep(0.1)
-                
-                print(f"Qwiic Mux 채널 {channel} 선택됨")
-                return True
-                
-            except Exception as e:
-                print(f"채널 {channel} 선택 오류: {e}")
-                # 오류 발생 시 채널 상태 초기화
-                self.current_channel = None
-                return False
+    
+        try:
+            # 먼저 모든 채널 비활성화
+            self.i2c.writeto(self.mux_address, bytes([0x00]))
+            time.sleep(0.05)  # 안정화 대기
+            
+            # 채널 선택 (1 << channel)
+            channel_byte = 1 << channel
+            self.i2c.writeto(self.mux_address, bytes([channel_byte]))
+            self.current_channel = channel
+            
+            # 안정화를 위한 충분한 대기
+            time.sleep(0.1)
+            
+            print(f"Qwiic Mux 채널 {channel} 선택됨")
+            return True
+            
+        except Exception as e:
+            print(f"채널 {channel} 선택 오류: {e}")
+            # 오류 발생 시 채널 상태 초기화
+            self.current_channel = None
+            return False
     
     def disable_all_channels(self):
         """모든 채널 비활성화"""
@@ -171,8 +153,4 @@ def close_global_mux():
     global _global_mux
     if _global_mux:
         _global_mux.close()
-        _global_mux = None
-
-def create_mux_instance(i2c_bus=None, mux_address=0x70) -> QwiicMux:
-    """새로운 Mux 인스턴스 생성 (권장)"""
-    return QwiicMux(i2c_bus=i2c_bus, mux_address=mux_address) 
+        _global_mux = None 
