@@ -67,7 +67,7 @@ class CommAppArg:
 class MotorAppArg:
     AppID: types.AppID = 17      # 24에서 17로 변경 (10번대, 중복되지 않게)
     AppName = "Motor"
-    MID_SendHK:          types.MID = 2401   # 1 Hz HK
+    MID_SendHK:          types.MID = 1701   # 1 Hz HK (2401에서 1701로 수정)
     # Flightlogic → MotorApp 각도 지시를 Motor 쪽에서 받을 때 사용할 MID
     MID_SetServoAngle:   types.MID = 1402
 

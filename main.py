@@ -30,6 +30,27 @@ if config.FSW_CONF == config.CONF_NONE:
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, "CONFIG IS SELECTED AS NONE, TERMINATING FSW")
     sys.exit(0)
 
+# 시스템 안전성 검사
+def system_safety_check():
+    """시스템 안전성 검사"""
+    try:
+        # 메모리 사용량 확인
+        import psutil
+        memory = psutil.virtual_memory()
+        if memory.percent > 90:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High memory usage: {memory.percent}%")
+        
+        # 디스크 공간 확인
+        disk = psutil.disk_usage('/')
+        if disk.percent > 95:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Low disk space: {disk.percent}% used")
+            
+    except ImportError:
+        # psutil이 없는 경우 기본 검사만
+        pass
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Safety check error: {e}")
+
 # Read prev state, altitude calibration for recovery
 from lib import prevstate
 
@@ -144,17 +165,17 @@ def signal_handler(signum, frame):
     """시그널 핸들러 - Ctrl+C 등으로 인한 종료 처리"""
     global MAINAPP_RUNSTATUS, _termination_in_progress
     if _termination_in_progress:
-        return  # Already terminating
+        print("이미 종료 중입니다. 강제 종료 실행...")
+        os._exit(0)
+        return
+    
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
+    _termination_in_progress = True
     MAINAPP_RUNSTATUS = False
     
-    # 먼저 정상 종료 시도
-    try:
-        terminate_FSW()
-    except Exception as e:
-        print(f"정상 종료 실패: {e}")
-        print("강제 종료 실행 중...")
-        os._exit(0)
+    # 즉시 강제 종료 실행
+    print("강제 종료 실행 중...")
+    os._exit(0)
 
 # Setup signal handlers
 signal.signal(signal.SIGINT, signal_handler)
@@ -427,17 +448,28 @@ def runloop(Main_Queue : Queue):
                 # Recv Message from queue with timeout
                 recv_msg = Main_Queue.get(timeout=0.1)  # 0.1초로 단축하여 더 빠른 응답
 
+                # 메시지 유효성 검사
+                if not isinstance(recv_msg, str):
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Invalid message type: {type(recv_msg)}")
+                    continue
+
                 # Unpack the message to Check receiver
                 unpacked_msg = msgstructure.MsgStructure()
-                msgstructure.unpack_msg(unpacked_msg, recv_msg)
+                if not msgstructure.unpack_msg(unpacked_msg, recv_msg):
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to unpack message: {recv_msg}")
+                    continue
                 
                 if unpacked_msg.receiver_app in app_dict:
                     try:
+                        # 파이프 유효성 검사
+                        if app_dict[unpacked_msg.receiver_app].pipe is None:
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pipe is None for {unpacked_msg.receiver_app}")
+                            continue
                         app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
                     except Exception as e:
                         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send message to {unpacked_msg.receiver_app}: {e}")
                 else:
-                    #events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, "Error : Received MID in not in app dictionary")
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Unknown receiver app: {unpacked_msg.receiver_app}")
                     continue
             except Exception as e:
                 # Handle queue timeout and other exceptions gracefully
@@ -447,56 +479,45 @@ def runloop(Main_Queue : Queue):
     except KeyboardInterrupt:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
         MAINAPP_RUNSTATUS = False
-        print("KeyboardInterrupt 감지됨. 종료합니다.")
-        try:
-            terminate_FSW()
-        except Exception as e:
-            print(f"정상 종료 실패: {e}")
-            os._exit(0)
+        print("KeyboardInterrupt 감지됨. 강제 종료합니다.")
+        os._exit(0)
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
         MAINAPP_RUNSTATUS = False
-        print("치명적 오류 발생. 종료합니다.")
-        try:
-            terminate_FSW()
-        except Exception as e:
-            print(f"정상 종료 실패: {e}")
-            os._exit(0)
+        print("치명적 오류 발생. 강제 종료합니다.")
+        os._exit(0)
 
     # 정상 종료 시
-    try:
-        terminate_FSW()
-    except Exception as e:
-        print(f"정상 종료 실패: {e}")
-        os._exit(0)
+    print("정상 종료 완료.")
     return
 
 
 # Cleanup function for atexit
 def cleanup_on_exit():
     """프로그램 종료 시 정리 작업"""
-    global MAINAPP_RUNSTATUS
-    if MAINAPP_RUNSTATUS:
-        print("\n프로그램 종료 시 정리 작업 실행...")
-        try:
-            terminate_FSW()
-        except:
-            pass
+    print("\n프로그램 종료 시 정리 작업 실행...")
+    try:
+        terminate_FSW()
+    except:
+        pass
 
 # Watchdog function to ensure termination
 def watchdog_termination():
     """워치독 함수 - 일정 시간 후 강제 종료"""
     global MAINAPP_RUNSTATUS
-    time.sleep(30)  # 30초 후 체크
+    time.sleep(10)  # 10초로 단축
     if MAINAPP_RUNSTATUS:
-        print("\n워치독: 30초 경과, 강제 종료 실행...")
-        try:
-            terminate_FSW()
-        except:
-            os._exit(0)
+        print("\n워치독: 10초 경과, 강제 종료 실행...")
+        os._exit(0)
 
 # Operation starts HERE
 if __name__ == '__main__':
+
+    # 시스템 안전성 검사
+    try:
+        system_safety_check()
+    except Exception as e:
+        print(f"Safety check failed: {e}")
 
     # 이중 로깅 시스템 초기화
     try:
@@ -514,9 +535,18 @@ if __name__ == '__main__':
     watchdog_thread = threading.Thread(target=watchdog_termination, daemon=True)
     watchdog_thread.start()
 
-    # Start each app's process
-    for appID in app_dict:
-        app_dict[appID].process.start()
+    # 프로세스 시작 전 검증
+    try:
+        # Start each app's process
+        for appID in app_dict:
+            if app_dict[appID].process is None:
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Process for {appID} is None")
+                continue
+            app_dict[appID].process.start()
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started process for {appID}")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error starting processes: {e}")
+        os._exit(1)
 
     # Main app runloop
     runloop(main_queue)

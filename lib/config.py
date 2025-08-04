@@ -12,20 +12,29 @@ FSW_CONF = CONF_PAYLOAD
 config_file_path = 'lib/config.txt'
 
 if not os.path.exists(config_file_path):
-    print(f"#################################################################\n\nConfig file does not exist: {config_file_path}, Configure the config file to run FSW!\n\n#################################################################")
+    print(f"#################################################################\n\nConfig file does not exist: {config_file_path}, Creating default config file...\n\n#################################################################")
 
     initial_conf_file_content = """# Config.txt
 # Select the FSW operation mode
 # Currently supports PAYLOAD, CONTAINER, ROCKET
-SELECTED=NONE
-# SELECTED=PAYLOAD
+SELECTED=PAYLOAD
+# SELECTED=NONE
 # SELECTED=CONTAINER
 # SELECTED=ROCKET"""
 
-    with open(config_file_path, 'w') as file:
-        file.write(initial_conf_file_content)
-
-    raise FileNotFoundError(f"Required configuration file not found: {config_file_path}")
+    try:
+        # 디렉토리가 없으면 생성
+        os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+        
+        with open(config_file_path, 'w') as file:
+            file.write(initial_conf_file_content)
+        
+        print(f"Default config file created: {config_file_path}")
+        print("Please review and modify the configuration as needed.")
+        
+    except Exception as e:
+        print(f"Error creating config file: {e}")
+        raise FileNotFoundError(f"Failed to create configuration file: {config_file_path}")
 
 else:
     with open(config_file_path, 'r') as file:

@@ -118,9 +118,15 @@ class QwiicMux:
         try:
             self.disable_all_channels()
             if hasattr(self.i2c, 'deinit'):
-                self.i2c.deinit()
+                try:
+                    self.i2c.deinit()
+                except Exception as e:
+                    print(f"I2C deinit 오류: {e}")
         except Exception as e:
             print(f"Qwiic Mux 종료 오류: {e}")
+        finally:
+            self.i2c = None
+            self.current_channel = None
 
 # 전역 Mux 인스턴스
 _global_mux = None
