@@ -428,5 +428,11 @@ def safe_write_to_file(filepath: str, content: str, max_size_mb: int = 10):
             f.write(content)
             f.flush()  # 즉시 디스크에 쓰기
     except Exception as e:
-        # events.LogEvent("Logging", events.EventType.error, f"File write failed for {filepath}: {e}") # events 모듈이 없으므로 주석 처리
-        print(f"파일 쓰기 실패: {filepath} - {e}")
+        print(f"[로그 기록 오류] {filepath}: {e}")
+        # 필요시, 별도 에러 로그 파일에 기록
+        try:
+            with open("logs/log_error.txt", "a") as errlog:
+                from datetime import datetime
+                errlog.write(f"{datetime.now().isoformat()} {filepath} {e}\n")
+        except Exception as e2:
+            print(f"[로그 기록 오류-2] log_error.txt: {e2}")

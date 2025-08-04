@@ -86,18 +86,20 @@ def init_serial():
         print("USB 케이블과 포트를 확인하세요.")
         return None
 
-def send_serial_data(ser, string_to_write:str):
-    """시리얼 데이터 전송"""
+def send_serial_data(ser, string_to_write:str, retry=2):
+    """시리얼 데이터 전송 (재시도 포함)"""
     if ser is None:
         print("⚠️ XBee가 연결되지 않아 데이터 전송을 건너뜁니다.")
         return False
-    
-    try:
-        ser.write(string_to_write.encode())
-        return True
-    except Exception as e:
-        print(f"❌ 시리얼 데이터 전송 오류: {e}")
-        return False
+    for attempt in range(retry):
+        try:
+            ser.write(string_to_write.encode())
+            return True
+        except Exception as e:
+            print(f"❌ 시리얼 데이터 전송 오류 (시도 {attempt+1}): {e}")
+            time.sleep(0.1)
+    print("❌ 시리얼 데이터 전송 최종 실패")
+    return False
 
 def receive_serial_data(ser) -> str:
     """시리얼 데이터 수신"""
