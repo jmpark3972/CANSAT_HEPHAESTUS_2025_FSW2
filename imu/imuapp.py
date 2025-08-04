@@ -21,9 +21,6 @@ from imu import imu
 # Runstatus of application. Application is terminated when false
 IMUAPP_RUNSTATUS = True
 
-# MUX instance for channel management
-IMU_MUX = None
-
 # IMU 데이터 변수들
 IMU_GYRO = (0.0, 0.0, 0.0)
 IMU_ACCEL = (0.0, 0.0, 0.0)

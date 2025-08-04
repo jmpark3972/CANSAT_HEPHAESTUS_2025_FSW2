@@ -21,9 +21,6 @@ from tmp007 import tmp007
 # Runstatus of application. Application is terminated when false
 TMP007APP_RUNSTATUS = True
 
-# MUX instance for channel management
-TMP007_MUX = None
-
 # 강화된 로깅 시스템
 LOG_DIR = "logs/tmp007"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -221,7 +218,7 @@ def send_hk(Main_Queue : Queue):
 
 # Initialization
 def tmp007app_init():
-    global TMP007APP_RUNSTATUS, TMP007_MUX
+    global TMP007APP_RUNSTATUS
     try:
         # Disable Keyboardinterrupt since Termination is handled by parent process
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -230,49 +227,32 @@ def tmp007app_init():
         ## User Defined Initialization goes HERE
         
         #Initialize TMP007 Sensor
-        i2c_instance, tmp007_instance, mux_instance = tmp007.init_tmp007()
-        
-        # Store MUX instance globally for proper channel management
-        TMP007_MUX = mux_instance
+        i2c_instance, tmp007_instance = tmp007.init_tmp007()
         
         events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Tmp007app Initialization Complete")
-        return i2c_instance, tmp007_instance, mux_instance
+        return i2c_instance, tmp007_instance
     
     except Exception as e:
         events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
         TMP007APP_RUNSTATUS = False
-        return None, None, None
+        return None, None
 
 # Termination
 def tmp007app_terminate(i2c_instance):
     global TMP007APP_RUNSTATUS
-
     TMP007APP_RUNSTATUS = False
     events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Terminating tmp007app")
     
-    try:
-        tmp007.tmp007_terminate(i2c_instance)
-    except Exception as e:
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Error terminating TMP007: {e}")
-
+    # Close MUX connection
+    # MUX 관련 코드 제거됨
+    
+    tmp007.terminate_tmp007(i2c_instance)
+    
     # Join Each Thread to make sure all threads terminates
-    for thread_name in thread_dict:
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, f"Terminating thread {thread_name}")
-        try:
-            if not hasattr(thread_dict[thread_name], '_is_resilient') or not thread_dict[thread_name]._is_resilient:
-                thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
-                if thread_dict[thread_name].is_alive():
-                    events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"Thread {thread_name} did not terminate gracefully")
-            else:
-                # resilient thread는 자동으로 종료됨
-                pass
-        except Exception as e:
-            events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.error, f"Error joining thread {thread_name}: {e}")
-        events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, f"Terminating thread {thread_name} Complete")
-
-    # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
+    for t in thread_dict.values():
+        t.join()
+    
     events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.info, "Terminating tmp007app complete")
-    return
 
 ######################################################
 ## USER METHOD                                      ##
@@ -281,7 +261,7 @@ def tmp007app_terminate(i2c_instance):
 # Put user-defined methods here!
 
 def read_tmp007_data(tmp007_instance):
-    global TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE, TMP007_STATUS, TMP007_MUX
+    global TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE, TMP007_STATUS
     
     consecutive_failures = 0
     max_failures = 10
@@ -289,7 +269,7 @@ def read_tmp007_data(tmp007_instance):
     while TMP007APP_RUNSTATUS:
         try:
             # TMP007 센서 데이터 읽기
-            data = tmp007.read_tmp007_data(tmp007_instance, TMP007_MUX)
+            data = tmp007.read_tmp007_data(tmp007_instance)
             
             if data is not None:
                 TMP007_OBJECT_TEMP = data['object_temperature']
@@ -408,7 +388,7 @@ def tmp007app_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     TMP007APP_RUNSTATUS = True
 
     # Initialization Process
-    i2c_instance, tmp007_instance, mux_instance = tmp007app_init()
+    i2c_instance, tmp007_instance = tmp007app_init()
 
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")

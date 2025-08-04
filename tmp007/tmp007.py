@@ -170,20 +170,19 @@ class TMP007:
 
 
 def init_tmp007():
-    """TMP007 센서 초기화 (직접 I2C 연결)"""
-    import board
-    import busio
-    import adafruit_tmp007
-    
-    # I2C setup
-    i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
-    
+    """TMP007 센서 초기화 - 직접 I2C 연결"""
     try:
-        # TMP007 센서 직접 연결
-        sensor = adafruit_tmp007.TMP007(i2c)
-        time.sleep(0.1)
+        # 직접 I2C 연결
+        i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+        time.sleep(0.1)  # 안정화 대기
+        
+        # TMP007 센서 초기화
+        sensor = TMP007(i2c, address=0x40)
+        time.sleep(0.1)  # 안정화 대기
+        
         print("TMP007 센서 초기화 완료 (직접 I2C 연결)")
         return i2c, sensor
+        
     except Exception as e:
         print(f"TMP007 초기화 실패: {e}")
         raise Exception(f"TMP007 초기화 실패: {e}")
@@ -191,19 +190,31 @@ def init_tmp007():
 def read_tmp007_data(sensor):
     """TMP007 센서 데이터 읽기"""
     try:
-        data = sensor.read_all_data()
-        return data
+        # 모든 데이터 읽기
+        object_temp = sensor.read_temperature()
+        die_temp = sensor.read_die_temperature()
+        voltage = sensor.read_voltage()
+        status = sensor.get_status()
+        
+        return {
+            'object_temp': object_temp,
+            'die_temp': die_temp,
+            'voltage': voltage,
+            'status': status
+        }
+        
     except Exception as e:
         print(f"TMP007 데이터 읽기 오류: {e}")
         return None
 
 
-def tmp007_terminate(i2c):
+def terminate_tmp007(i2c):
     """TMP007 센서 종료"""
     try:
-        if i2c:
+        if hasattr(i2c, "deinit"):
             i2c.deinit()
-        print("TMP007 센서 종료 완료")
+        elif hasattr(i2c, "close"):
+            i2c.close()
     except Exception as e:
         print(f"TMP007 종료 오류: {e}")
 
@@ -222,8 +233,8 @@ if __name__ == "__main__":
             try:
                 data = read_tmp007_data(sensor)
                 if data:
-                    print(f"객체 온도: {data['object_temperature']}°C")
-                    print(f"다이 온도: {data['die_temperature']}°C")
+                    print(f"객체 온도: {data['object_temp']}°C")
+                    print(f"다이 온도: {data['die_temp']}°C")
                     print(f"전압: {data['voltage']}μV")
                     print(f"상태: {data['status']}")
                     print("-" * 40)
@@ -240,6 +251,6 @@ if __name__ == "__main__":
         print(f"TMP007 테스트 실패: {e}")
     finally:
         try:
-            tmp007_terminate(i2c)
+            terminate_tmp007(i2c)
         except:
             pass 
