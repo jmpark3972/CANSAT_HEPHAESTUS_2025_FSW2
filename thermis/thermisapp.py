@@ -26,8 +26,6 @@ TEMP_OFFSET = 50.0  # °C - Added +50 offset for THERMIS sensor
 
 TEMP = 0.0
 
-THERMIS_MUX = None  # MUX instance for channel 4
-
 # ──────────────────────────────────────────────
 # Command handler
 # ──────────────────────────────────────────────
@@ -81,10 +79,10 @@ def send_hk(main_q: Queue):
 # ──────────────────────────────────────────────
 
 def read_thermis_data(chan):
-    global TEMP, THERMIS_MUX
+    global TEMP
     while THERMISAPP_RUNSTATUS:
         with OFFSET_MUTEX:
-            temp = thermis.read_thermis(chan, THERMIS_MUX)  # returns None on error
+            temp = thermis.read_thermis(chan)  # returns None on error
             if temp is not None:
                 TEMP = round(temp - TEMP_OFFSET, 2)
         time.sleep(0.2)  # ADS1115 ~2Hz default
@@ -128,37 +126,26 @@ def thermisapp_init():
         events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
                         "Initializing thermisapp")
 
-        i2c, ads, chan, mux = thermis.init_thermis()
-
-        # Store MUX instance globally for proper channel management
-        global THERMIS_MUX
-        THERMIS_MUX = mux
+        i2c, chan = thermis.init_thermis()
 
         # previous calibration (if any)
         TEMP_OFFSET = float(getattr(prevstate, "PREV_THERMIS_OFF", 0.0))
 
         events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
                         "Thermisapp initialization complete")
-        return i2c, ads, chan
+        return i2c, chan
 
     except Exception as e:
         events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error,
                         f"Init error: {e}")
-        return None, None, None
+        return None, None
 
 
 def thermisapp_terminate(i2c):
-    global THERMISAPP_RUNSTATUS, THERMIS_MUX
+    global THERMISAPP_RUNSTATUS
     THERMISAPP_RUNSTATUS = False
     events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
                     "Terminating thermisapp")
-    
-    # Close MUX connection
-    if THERMIS_MUX:
-        try:
-            THERMIS_MUX.close()
-        except Exception as e:
-            events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
     
     thermis.terminate_thermis(i2c)
     for t in thread_dict.values():
@@ -189,7 +176,7 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
     global THERMISAPP_RUNSTATUS
     THERMISAPP_RUNSTATUS = True
 
-    i2c, ads, chan = thermisapp_init()
+    i2c, chan = thermisapp_init()
     if chan is None:
         return
 

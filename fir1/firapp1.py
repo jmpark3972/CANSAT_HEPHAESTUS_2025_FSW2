@@ -10,6 +10,7 @@
 import signal
 import time
 from queue import Queue
+from multiprocessing import connection
 from lib import events
 from lib import appargs
 from lib import msgstructure
@@ -120,7 +121,6 @@ def firapp1_terminate(i2c):
 # ──────────────────────────────
 def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     """FIR1 앱 메인 함수."""
-    from multiprocessing import connection
     import threading
     
     # 초기화

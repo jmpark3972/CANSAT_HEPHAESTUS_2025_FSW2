@@ -81,7 +81,7 @@ def read_sensor_data(sensor):
         return (gyro, accel, mag, (roll_deg, pitch_deg, yaw_deg), temp)
         
     except Exception as e:
-        _log(f"READ_ERROR,{e}")
+        log_imu(f"READ_ERROR,{e}")
         return None, None, None, None, None
 
 def imu_terminate(i2c):
