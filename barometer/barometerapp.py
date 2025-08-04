@@ -1,22 +1,18 @@
 # Python FSW V2 Barometer App
 # Author : Hyeon Lee
 
+import signal
+import time
+from queue import Queue
+from lib import events
 from lib import appargs
 from lib import msgstructure
-from lib import logging
-from lib import events
-from lib import types
-from lib import prevstate
+from barometer import barometer
 
-import signal
-from multiprocessing import Queue, connection
 import threading
-import time
 import csv
 import os
 from datetime import datetime
-
-from barometer import barometer
 
 # Runstatus of application. Application is terminated when false
 BAROMETERAPP_RUNSTATUS = True

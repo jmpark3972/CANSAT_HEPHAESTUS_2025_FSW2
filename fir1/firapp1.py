@@ -10,9 +10,9 @@
 import signal
 import time
 from queue import Queue
-import events
-import appargs
-import msgstructure
+from lib import events
+from lib import appargs
+from lib import msgstructure
 from fir1 import fir1
 
 # ──────────────────────────────
@@ -113,4 +113,42 @@ def firapp1_terminate(i2c):
     except Exception as e:
         events.LogEvent(appargs.Fir1AppArg.AppName,
                         events.EventType.error,
-                        f"Terminate error: {e}") 
+                        f"Terminate error: {e}")
+
+# ──────────────────────────────
+# 5. 메인 함수
+# ──────────────────────────────
+def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
+    """FIR1 앱 메인 함수."""
+    from multiprocessing import connection
+    import threading
+    
+    # 초기화
+    i2c, sensor = firapp1_init()
+    
+    if i2c is None or sensor is None:
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.error,
+                        "FIR1 초기화 실패로 인한 종료")
+        return
+    
+    # 스레드 시작
+    read_thread = threading.Thread(target=read_fir1_data, args=(sensor,), daemon=True)
+    send_thread = threading.Thread(target=send_fir1_data, args=(Main_Queue,), daemon=True)
+    
+    read_thread.start()
+    send_thread.start()
+    
+    # 메인 루프
+    try:
+        while FIR1APP_RUNSTATUS:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.info,
+                        "FIR1 앱 사용자 중단")
+    finally:
+        firapp1_terminate(i2c)
+        events.LogEvent(appargs.Fir1AppArg.AppName,
+                        events.EventType.info,
+                        "FIR1 앱 종료") 

@@ -170,42 +170,29 @@ class TMP007:
 
 
 def init_tmp007():
+    """TMP007 센서 초기화 (직접 I2C 연결)"""
     import board
     import busio
     import adafruit_tmp007
-    from lib.qwiic_mux import QwiicMux
     
-    # I2C 버스 초기화
+    # I2C setup
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
-    time.sleep(0.1)  # I2C 버스 안정화
     
-    # Qwiic Mux 초기화 및 채널 5 선택 (TMP007 위치 - 실제 연결된 채널)
     try:
-        from lib.qwiic_mux import create_mux_instance
-        mux = create_mux_instance(i2c_bus=i2c, mux_address=0x70)
-        
-        # channel_guard를 사용하여 안전하게 채널 선택 및 센서 초기화
-        with mux.channel_guard(5):  # 🔒 채널 5 점유
-            print("Qwiic Mux 채널 5 선택 완료 (TMP007)")
-            
-            # TMP007 센서 초기화
-            sensor = adafruit_tmp007.TMP007(i2c)
-            time.sleep(0.1)  # 안정화 대기
-        
-        return i2c, sensor, mux
-        
+        # TMP007 센서 직접 연결
+        sensor = adafruit_tmp007.TMP007(i2c)
+        time.sleep(0.1)
+        print("TMP007 센서 초기화 완료 (직접 I2C 연결)")
+        return i2c, sensor
     except Exception as e:
-        print(f"Qwiic Mux 초기화 실패: {e}")
-        raise Exception(f"Qwiic Mux 초기화 실패: {e}")
+        print(f"TMP007 초기화 실패: {e}")
+        raise Exception(f"TMP007 초기화 실패: {e}")
 
-
-def read_tmp007_data(sensor, mux):
+def read_tmp007_data(sensor):
     """TMP007 센서 데이터 읽기"""
     try:
-        # channel_guard를 사용하여 안전하게 센서 읽기
-        with mux.channel_guard(5):  # 🔒 채널 5 점유
-            data = sensor.read_all_data()
-            return data
+        data = sensor.read_all_data()
+        return data
     except Exception as e:
         print(f"TMP007 데이터 읽기 오류: {e}")
         return None
@@ -227,13 +214,13 @@ if __name__ == "__main__":
         print("TMP007 센서 테스트 시작...")
         
         # 센서 초기화
-        i2c, sensor, mux = init_tmp007()
+        i2c, sensor = init_tmp007()
         
         print("온도 측정 시작 (Ctrl+C로 종료)...")
         
         while True:
             try:
-                data = read_tmp007_data(sensor, mux)
+                data = read_tmp007_data(sensor)
                 if data:
                     print(f"객체 온도: {data['object_temperature']}°C")
                     print(f"다이 온도: {data['die_temperature']}°C")
