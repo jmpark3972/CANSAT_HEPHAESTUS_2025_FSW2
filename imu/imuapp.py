@@ -11,12 +11,81 @@ import signal
 from multiprocessing import Queue, connection
 import threading
 import time
+import csv
+from datetime import datetime
 
 # Import IMU sensor library
 from imu import imu
 
 # Runstatus of application. Application is terminated when false
 IMUAPP_RUNSTATUS = True
+
+# 고주파수 로깅 시스템
+LOG_DIR = "logs/imu"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# 로그 파일 경로들
+HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "high_freq_imu_log.csv")
+HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
+ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
+
+# 강제 종료 시에도 로그를 저장하기 위한 플래그
+_emergency_logging_enabled = True
+
+def emergency_log_to_file(log_type: str, message: str):
+    """강제 종료 시에도 파일에 로그를 저장하는 함수"""
+    global _emergency_logging_enabled
+    if not _emergency_logging_enabled:
+        return
+        
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{timestamp}] {log_type}: {message}\n"
+        
+        if log_type == "HIGH_FREQ":
+            with open(HIGH_FREQ_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "ERROR":
+            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+    except Exception as e:
+        print(f"Emergency logging failed: {e}")
+
+def log_high_freq_imu_data(roll, pitch, yaw, accx, accy, accz, magx, magy, magz, gyrx, gyry, gyrz, temp):
+    """고주파수 IMU 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(HIGH_FREQ_LOG_PATH):
+            with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'roll', 'pitch', 'yaw', 'accx', 'accy', 'accz', 'magx', 'magy', 'magz', 'gyrx', 'gyry', 'gyrz', 'temp'])
+        
+        # 데이터 추가
+        with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, roll, pitch, yaw, accx, accy, accz, magx, magy, magz, gyrx, gyry, gyrz, temp])
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"High frequency IMU logging failed: {e}")
+
+def log_csv(filepath: str, headers: list, data: list):
+    """CSV 파일에 데이터를 로깅하는 함수"""
+    try:
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(filepath):
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+        
+        # 데이터 추가
+        with open(filepath, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data)
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 
 ######################################################
 ## FUNDEMENTAL METHODS                              ##
@@ -39,14 +108,15 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
     return
 
 def send_hk(Main_Queue : Queue):
-    global IMUAPP_RUNSTATUS
+    global IMUAPP_RUNSTATUS, IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_TEMP
     consecutive_hk_failures = 0
     max_hk_failures = 3
     
     while IMUAPP_RUNSTATUS:
         try:
             imuHK = msgstructure.MsgStructure()
-            status = msgstructure.send_msg(Main_Queue, imuHK, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.ImuAppArg.MID_SendHK, str(IMUAPP_RUNSTATUS))
+            hk_payload = f"run={IMUAPP_RUNSTATUS},roll={IMU_ROLL:.2f},pitch={IMU_PITCH:.2f},yaw={IMU_YAW:.2f},temp={IMU_TEMP:.2f}"
+            status = msgstructure.send_msg(Main_Queue, imuHK, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.ImuAppArg.MID_SendHK, hk_payload)
             if status == False:
                 consecutive_hk_failures += 1
                 if consecutive_hk_failures <= max_hk_failures:
@@ -55,6 +125,12 @@ def send_hk(Main_Queue : Queue):
                     events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.warning, f"HK send errors suppressed after {max_hk_failures} failures")
             else:
                 consecutive_hk_failures = 0
+                
+                # HK 데이터 로깅
+                timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                hk_row = [timestamp, IMUAPP_RUNSTATUS, IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_TEMP]
+                log_csv(HK_LOG_PATH, ["timestamp", "run", "roll", "pitch", "yaw", "temp"], hk_row)
+                
         except Exception as e:
             consecutive_hk_failures += 1
             if consecutive_hk_failures <= max_hk_failures:
@@ -191,6 +267,12 @@ def read_imu_data(imu_instance):
                 IMU_GYRY        = rcv_data[10]
                 IMU_GYRZ        = rcv_data[11]
                 IMU_TEMP        = rcv_data[12]
+                
+                # 고주파수 로깅 (200Hz)
+                log_high_freq_imu_data(IMU_ROLL, IMU_PITCH, IMU_YAW, 
+                                      IMU_ACCX, IMU_ACCY, IMU_ACCZ,
+                                      IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                                      IMU_GYRX, IMU_GYRY, IMU_GYRZ, IMU_TEMP)
         except Exception as e:
             consecutive_failures += 1
             if consecutive_failures <= max_failures:
@@ -209,8 +291,8 @@ def read_imu_data(imu_instance):
             time.sleep(0.1)
             continue
             
-        # The imu runs on 100Hz
-        time.sleep(0.01)
+        # The imu runs on 200Hz (5ms interval) for maximum data collection
+        time.sleep(0.005)
 
     return
 
@@ -278,7 +360,7 @@ def send_imu_data(Main_Queue : Queue):
             
             send_counter = 0
             
-        # Sleep 1 second
+        # Sleep 0.1 second (10Hz telemetry rate)
         time.sleep(0.1)
 
     return  

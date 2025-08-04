@@ -10,6 +10,8 @@ from multiprocessing.connection import Connection
 from lib import appargs, events, msgstructure, prevstate
 import sys
 import os
+import csv
+from datetime import datetime
 sys.path.insert(0, os.path.dirname(__file__))
 import pitot
 
@@ -17,10 +19,79 @@ import pitot
 # 1) 전역 변수
 # ──────────────────────────────────────────────────────────
 PITOTAPP_RUNSTATUS = True
+
+# 고주파수 로깅 시스템
+LOG_DIR = "logs/pitot"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# 로그 파일 경로들
+HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "high_freq_pitot_log.csv")
+HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
+ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
+
+# 강제 종료 시에도 로그를 저장하기 위한 플래그
+_emergency_logging_enabled = True
+
+def emergency_log_to_file(log_type: str, message: str):
+    """강제 종료 시에도 파일에 로그를 저장하는 함수"""
+    global _emergency_logging_enabled
+    if not _emergency_logging_enabled:
+        return
+        
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{timestamp}] {log_type}: {message}\n"
+        
+        if log_type == "HIGH_FREQ":
+            with open(HIGH_FREQ_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "ERROR":
+            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+    except Exception as e:
+        print(f"Emergency logging failed: {e}")
+
+def log_high_freq_pitot_data(pressure, temperature):
+    """고주파수 Pitot 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(HIGH_FREQ_LOG_PATH):
+            with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'pressure', 'temperature'])
+        
+        # 데이터 추가
+        with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, pressure, temperature])
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"High frequency pitot logging failed: {e}")
+
+def log_csv(filepath: str, headers: list, data: list):
+    """CSV 파일에 데이터를 로깅하는 함수"""
+    try:
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(filepath):
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+        
+        # 데이터 추가
+        with open(filepath, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data)
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 PITOT_BUS = None
 PITOT_MUX = None
 PRESSURE_OFFSET = 0.0
 TEMP_OFFSET = 0.0
+PITOT_PRESSURE = 0.0
+PITOT_TEMP = 0.0
 OFFSET_MUTEX = threading.Lock()
 
 # ──────────────────────────────────────────────────────────
@@ -54,11 +125,20 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
 # 3) HK 전송 스레드
 # ──────────────────────────────────────────────────────────
 def send_hk(Main_Queue: Queue):
+    global PITOT_PRESSURE, PITOT_TEMP
     while PITOTAPP_RUNSTATUS:
         try:
             hk_msg = msgstructure.MsgStructure()
-            msgstructure.fill_msg(hk_msg, appargs.PitotAppArg.AppID, appargs.MainAppArg.AppID, appargs.PitotAppArg.MID_SendHK, "PITOT_HK_OK")
-            Main_Queue.put(msgstructure.pack_msg(hk_msg))
+            hk_payload = f"run={PITOTAPP_RUNSTATUS},pressure={PITOT_PRESSURE:.2f},temp={PITOT_TEMP:.2f}"
+            msgstructure.fill_msg(hk_msg, appargs.PitotAppArg.AppID, appargs.MainAppArg.AppID, appargs.PitotAppArg.MID_SendHK, hk_payload)
+            status = Main_Queue.put(msgstructure.pack_msg(hk_msg))
+            
+            if status:
+                # HK 데이터 로깅
+                timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                hk_row = [timestamp, PITOTAPP_RUNSTATUS, PITOT_PRESSURE, PITOT_TEMP]
+                log_csv(HK_LOG_PATH, ["timestamp", "run", "pressure", "temperature"], hk_row)
+                
             time.sleep(5.0)  # 5초마다 HK 전송
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,
@@ -79,6 +159,11 @@ def read_pitot_data(Main_Queue: Queue):
                     with OFFSET_MUTEX:
                         dp_cal = dp - PRESSURE_OFFSET
                         temp_cal = temp - TEMP_OFFSET
+                        
+                    # 전역 변수 업데이트
+                    global PITOT_PRESSURE, PITOT_TEMP
+                    PITOT_PRESSURE = dp_cal
+                    PITOT_TEMP = temp_cal
                     
                     # FlightLogic용 데이터 전송
                     flight_data = f"{dp_cal:.2f},{temp_cal:.2f}"
@@ -92,7 +177,10 @@ def read_pitot_data(Main_Queue: Queue):
                     msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
                     Main_Queue.put(msgstructure.pack_msg(tlm_msg))
             
-            time.sleep(0.2)  # 5Hz (200ms 간격)
+            # 고주파수 로깅 (20Hz)
+            log_high_freq_pitot_data(dp_cal, temp_cal)
+            
+            time.sleep(0.05)  # 20Hz (50ms 간격)
             
         except Exception as e:
             events.LogEvent(appargs.PitotAppArg.AppName, events.EventType.error,

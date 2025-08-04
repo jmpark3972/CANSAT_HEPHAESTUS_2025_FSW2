@@ -26,6 +26,7 @@ LOG_DIR = "logs/tmp007"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 # 로그 파일 경로들
+HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "high_freq_tmp007_log.csv")
 HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
 SENSOR_LOG_PATH = os.path.join(LOG_DIR, "sensor_log.csv")
 ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
@@ -62,7 +63,10 @@ def emergency_log_to_file(log_type: str, message: str):
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
         log_entry = f"[{timestamp}] {log_type}: {message}\n"
         
-        if log_type == "SENSOR":
+        if log_type == "HIGH_FREQ":
+            with open(HIGH_FREQ_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "SENSOR":
             with open(SENSOR_LOG_PATH, 'a', encoding='utf-8') as f:
                 f.write(log_entry)
         elif log_type == "ERROR":
@@ -70,6 +74,42 @@ def emergency_log_to_file(log_type: str, message: str):
                 f.write(log_entry)
     except Exception as e:
         print(f"Emergency logging failed: {e}")
+
+def log_high_freq_tmp007_data(object_temp, die_temp, voltage):
+    """고주파수 TMP007 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(HIGH_FREQ_LOG_PATH):
+            with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'object_temp', 'die_temp', 'voltage'])
+        
+        # 데이터 추가
+        with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, object_temp, die_temp, voltage])
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"High frequency TMP007 logging failed: {e}")
+
+def log_csv(filepath: str, headers: list, data: list):
+    """CSV 파일에 데이터를 로깅하는 함수"""
+    try:
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(filepath):
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+        
+        # 데이터 추가
+        with open(filepath, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data)
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 
 def log_sensor_data(sensor_type: str, data: dict):
     """센서 데이터를 CSV로 로깅"""
@@ -136,14 +176,15 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
     return
 
 def send_hk(Main_Queue : Queue):
-    global TMP007APP_RUNSTATUS
+    global TMP007APP_RUNSTATUS, TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE
     consecutive_hk_failures = 0
     max_hk_failures = 3
     
     while TMP007APP_RUNSTATUS:
         try:
             tmp007HK = msgstructure.MsgStructure()
-            status = msgstructure.send_msg(Main_Queue, tmp007HK, appargs.Tmp007AppArg.AppID, appargs.HkAppArg.AppID, appargs.Tmp007AppArg.MID_SendHK, str(TMP007APP_RUNSTATUS))
+            hk_payload = f"run={TMP007APP_RUNSTATUS},obj_temp={TMP007_OBJECT_TEMP:.2f},die_temp={TMP007_DIE_TEMP:.2f},voltage={TMP007_VOLTAGE:.2f}"
+            status = msgstructure.send_msg(Main_Queue, tmp007HK, appargs.Tmp007AppArg.AppID, appargs.HkAppArg.AppID, appargs.Tmp007AppArg.MID_SendHK, hk_payload)
             if status == False:
                 consecutive_hk_failures += 1
                 if consecutive_hk_failures <= max_hk_failures:
@@ -152,6 +193,11 @@ def send_hk(Main_Queue : Queue):
                     events.LogEvent(appargs.Tmp007AppArg.AppName, events.EventType.warning, f"HK send errors suppressed after {max_hk_failures} failures")
             else:
                 consecutive_hk_failures = 0
+                
+                # HK 데이터 로깅
+                timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                hk_row = [timestamp, TMP007APP_RUNSTATUS, TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE]
+                log_csv(HK_LOG_PATH, ["timestamp", "run", "object_temp", "die_temp", "voltage"], hk_row)
         except Exception as e:
             consecutive_hk_failures += 1
             if consecutive_hk_failures <= max_hk_failures:
@@ -248,6 +294,9 @@ def read_tmp007_data(tmp007_instance):
                 # 센서 데이터 로깅
                 log_sensor_data("TMP007", data)
                 
+                # 고주파수 로깅 (10Hz)
+                log_high_freq_tmp007_data(TMP007_OBJECT_TEMP, TMP007_DIE_TEMP, TMP007_VOLTAGE)
+                
                 consecutive_failures = 0  # 성공 시 실패 횟수 리셋
             else:
                 consecutive_failures += 1
@@ -279,8 +328,8 @@ def read_tmp007_data(tmp007_instance):
             time.sleep(0.1)
             continue
             
-        # TMP007 runs on 4Hz (0.25초 간격)
-        time.sleep(0.25)
+        # TMP007 runs on 10Hz (0.1초 간격) for maximum data collection
+        time.sleep(0.1)
     return
 
 def send_tmp007_data(Main_Queue : Queue):

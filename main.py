@@ -87,8 +87,8 @@ def terminate_FSW():
                 events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
                 try:
                     app_dict[appID].process.kill()
-                except:
-                    pass
+                except Exception as kill_error:
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"프로세스 강제 종료 중 오류: {kill_error}")
 
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
@@ -127,13 +127,14 @@ def signal_handler(signum, frame):
                     if app_dict[appID].process.is_alive():
                         app_dict[appID].process.kill()
                         app_dict[appID].process.join(timeout=0.5)
-                except:
+                except Exception as e:
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 프로세스 종료 오류: {e}")
                     try:
                         app_dict[appID].process.kill()
-                    except:
-                        pass
-    except:
-        pass
+                    except Exception as kill_error:
+                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 강제 종료 오류: {kill_error}")
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"시그널 핸들러에서 전체 프로세스 정리 오류: {e}")
     
     try:
         pass
@@ -373,11 +374,24 @@ def runloop(Main_Queue : Queue):
                 last_health_check = time.time()
                 for appID in app_dict:
                     if app_dict[appID].process and not app_dict[appID].process.is_alive():
-                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, but continuing other processes")
+                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Process {appID} is dead, attempting restart")
                         try:
                             app_dict[appID].pipe.close()
-                        except:
-                            pass
+                        except Exception as e:
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Pipe close error for dead process {appID}: {e}")
+                        
+                        # 중요하지 않은 앱들은 재시작 시도
+                        non_critical_apps = [
+                            appargs.ThermalcameraAppArg.AppID,
+                            appargs.FirApp1Arg.AppID,
+                            appargs.FirApp2Arg.AppID
+                        ]
+                        
+                        if appID in non_critical_apps:
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Attempting to restart non-critical process {appID}")
+                            # 여기에 재시작 로직을 추가할 수 있음
+                        else:
+                            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical process {appID} is dead, system may be unstable")
                 
             try:
                 recv_msg = Main_Queue.get(timeout=0.5)
@@ -427,8 +441,8 @@ def runloop(Main_Queue : Queue):
                 if app_dict[appID].process and app_dict[appID].process.is_alive():
                     print(f"강제 종료: {appID}")
                     app_dict[appID].process.kill()
-        except:
-            pass
+        except Exception as e:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"KeyboardInterrupt에서 프로세스 강제 종료 오류: {e}")
         
         os._exit(0)
     except Exception as e:
@@ -445,8 +459,8 @@ def cleanup_on_exit():
     print("\n프로그램 종료 시 정리 작업 실행...")
     try:
         terminate_FSW()
-    except:
-        pass
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Cleanup on exit 오류: {e}")
 
 
 

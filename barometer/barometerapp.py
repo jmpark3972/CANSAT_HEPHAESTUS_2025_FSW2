@@ -12,11 +12,80 @@ import signal
 from multiprocessing import Queue, connection
 import threading
 import time
+import csv
+from datetime import datetime
 
 from barometer import barometer
 
 # Runstatus of application. Application is terminated when false
 BAROMETERAPP_RUNSTATUS = True
+
+# 고주파수 로깅 시스템
+LOG_DIR = "logs/barometer"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# 로그 파일 경로들
+HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "high_freq_barometer_log.csv")
+HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
+ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
+
+# 강제 종료 시에도 로그를 저장하기 위한 플래그
+_emergency_logging_enabled = True
+
+def emergency_log_to_file(log_type: str, message: str):
+    """강제 종료 시에도 파일에 로그를 저장하는 함수"""
+    global _emergency_logging_enabled
+    if not _emergency_logging_enabled:
+        return
+        
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        log_entry = f"[{timestamp}] {log_type}: {message}\n"
+        
+        if log_type == "HIGH_FREQ":
+            with open(HIGH_FREQ_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        elif log_type == "ERROR":
+            with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+    except Exception as e:
+        print(f"Emergency logging failed: {e}")
+
+def log_high_freq_barometer_data(pressure, temperature, altitude):
+    """고주파수 Barometer 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+        
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(HIGH_FREQ_LOG_PATH):
+            with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['timestamp', 'pressure', 'temperature', 'altitude'])
+        
+        # 데이터 추가
+        with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([timestamp, pressure, temperature, altitude])
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"High frequency barometer logging failed: {e}")
+
+def log_csv(filepath: str, headers: list, data: list):
+    """CSV 파일에 데이터를 로깅하는 함수"""
+    try:
+        # CSV 헤더가 없으면 생성
+        if not os.path.exists(filepath):
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(headers)
+        
+        # 데이터 추가
+        with open(filepath, 'a', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data)
+            
+    except Exception as e:
+        emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 
 # Mutex to prevent two process sharing the same barometer instance
 OFFSET_MUTEX = threading.Lock()
@@ -71,10 +140,22 @@ def command_handler (Main_Queue:Queue, recv_msg : msgstructure.MsgStructure, bar
     return
 
 def send_hk(Main_Queue : Queue):
-    global BAROMETERAPP_RUNSTATUS
+    global BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE
     while BAROMETERAPP_RUNSTATUS:
-        barometerHK = msgstructure.MsgStructure()
-        msgstructure.send_msg(Main_Queue, barometerHK, appargs.BarometerAppArg.AppID, appargs.HkAppArg.AppID, appargs.BarometerAppArg.MID_SendHK, str(BAROMETERAPP_RUNSTATUS))
+        try:
+            barometerHK = msgstructure.MsgStructure()
+            hk_payload = f"run={BAROMETERAPP_RUNSTATUS},pressure={PRESSURE:.2f},temp={TEMPERATURE:.2f},alt={ALTITUDE:.2f}"
+            status = msgstructure.send_msg(Main_Queue, barometerHK, appargs.BarometerAppArg.AppID, appargs.HkAppArg.AppID, appargs.BarometerAppArg.MID_SendHK, hk_payload)
+            
+            if status:
+                # HK 데이터 로깅
+                timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
+                hk_row = [timestamp, BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE]
+                log_csv(HK_LOG_PATH, ["timestamp", "run", "pressure", "temperature", "altitude"], hk_row)
+                
+        except Exception as e:
+            events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"HK send error: {e}")
+            
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
             if not BAROMETERAPP_RUNSTATUS:
@@ -165,10 +246,14 @@ def read_barometer_data(barometer_instance, BAROMETER_OFFSET):
             PRESSURE = pressure
             TEMPERATURE = temperature
             ALTITUDE = altitude
+            
+            # 고주파수 로깅 (50Hz)
+            log_high_freq_barometer_data(pressure, temperature, altitude)
+            
         except Exception:
             # 에러 메시지 출력하지 않고, 이전 값 유지
             pass
-        time.sleep(0.2)
+        time.sleep(0.02)  # 50Hz (20ms 간격)
 
 def send_barometer_data(Main_Queue : Queue):
     global PRESSURE

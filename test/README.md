@@ -21,6 +21,7 @@
 - **test_main_termination.py** - 메인 앱 종료 로직 테스트
 - **test_sensor_issues.py** - 센서 문제 진단 및 해결 테스트
 - **test_motor_base.py** - 모터 기본 제어 테스트
+- **test_flight_states.py** - 비행 상태 관리 시스템 테스트
 
 ## 사용법
 
@@ -50,6 +51,9 @@ python3 test/test_main_termination.py
 
 # 모터 기본 테스트
 python3 test/test_motor_base.py
+
+# 비행 상태 관리 테스트
+python3 test/test_flight_states.py
 ```
 
 ## 주의사항

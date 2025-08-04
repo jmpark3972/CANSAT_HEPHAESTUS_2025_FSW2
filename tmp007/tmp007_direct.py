@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2025 HEPHAESTUS
 # SPDX-License-Identifier: MIT
-"""tmp007.py – TMP007 온도 센서 제어 모듈
+"""tmp007_direct.py – TMP007 온도 센서 직접 I2C 연결 모듈
 
-* Qwiic Mux 채널 7번에 연결
+* I2C에 직접 연결 (Qwiic Mux 없음)
 * I2C 주소: 0x40 (기본)
 * 정밀 온도 측정 센서
 * 비접촉 온도 측정 가능
@@ -15,12 +15,11 @@
 import time
 import board
 import busio
-from lib.qwiic_mux import QwiicMux
 
-# TMP007 센서 클래스
-class TMP007:
+# TMP007 센서 클래스 (직접 I2C 연결)
+class TMP007Direct:
     def __init__(self, i2c, address=0x40):
-        """TMP007 센서 초기화"""
+        """TMP007 센서 초기화 (직접 I2C 연결)"""
         self.i2c = i2c
         self.address = address
         
@@ -57,10 +56,10 @@ class TMP007:
             # 상태 레지스터 초기화
             self._write_register(self.REG_STATUS, 0x0000)
             
-            print(f"TMP007 초기화 성공 (주소: 0x{self.address:02X})")
+            print(f"TMP007 직접 연결 초기화 성공 (주소: 0x{self.address:02X})")
             
         except Exception as e:
-            raise Exception(f"TMP007 초기화 실패: {e}")
+            raise Exception(f"TMP007 직접 연결 초기화 실패: {e}")
     
     def _read_register(self, reg):
         """레지스터 읽기 (16비트)"""
@@ -169,62 +168,57 @@ class TMP007:
             raise Exception(f"데이터 읽기 실패: {e}")
 
 
-def init_tmp007():
-    """TMP007 센서 초기화"""
+def init_tmp007_direct():
+    """TMP007 센서 직접 I2C 연결 초기화"""
     try:
-        # I2C 버스 초기화
+        # I2C 버스 초기화 (Qwiic Mux 없이 직접 연결)
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         
-        # Qwiic Mux 초기화 및 채널 7 선택 (TMP007 위치)
-        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-        mux.select_channel(7)  # TMP007는 채널 7에 연결
-        time.sleep(0.1)  # 안정화 대기
-        
         # TMP007 센서 초기화
-        sensor = TMP007(i2c, address=0x40)
+        sensor = TMP007Direct(i2c, address=0x40)
         
         # 센서 안정화를 위한 추가 지연
         time.sleep(0.5)
         
-        return i2c, sensor, mux
+        return i2c, sensor
         
     except Exception as e:
-        raise Exception(f"TMP007 초기화 실패: {e}")
+        raise Exception(f"TMP007 직접 연결 초기화 실패: {e}")
 
 
-def read_tmp007_data(sensor):
-    """TMP007 센서 데이터 읽기"""
+def read_tmp007_direct_data(sensor):
+    """TMP007 센서 데이터 읽기 (직접 연결)"""
     try:
         data = sensor.read_all_data()
         return data
     except Exception as e:
-        print(f"TMP007 데이터 읽기 실패: {e}")
+        print(f"TMP007 직접 연결 데이터 읽기 실패: {e}")
         return None
 
 
-def tmp007_terminate(i2c):
-    """TMP007 센서 종료"""
+def tmp007_direct_terminate(i2c):
+    """TMP007 센서 직접 연결 종료"""
     try:
         if i2c:
             i2c.deinit()
-        print("TMP007 센서 종료 완료")
+        print("TMP007 직접 연결 센서 종료 완료")
     except Exception as e:
-        print(f"TMP007 종료 오류: {e}")
+        print(f"TMP007 직접 연결 종료 오류: {e}")
 
 
 # 테스트 코드
 if __name__ == "__main__":
     try:
-        print("TMP007 센서 테스트 시작...")
+        print("TMP007 직접 I2C 연결 센서 테스트 시작...")
         
         # 센서 초기화
-        i2c, sensor, mux = init_tmp007()
+        i2c, sensor = init_tmp007_direct()
         
         print("온도 측정 시작 (Ctrl+C로 종료)...")
         
         while True:
             try:
-                data = read_tmp007_data(sensor)
+                data = read_tmp007_direct_data(sensor)
                 if data:
                     print(f"객체 온도: {data['object_temperature']}°C")
                     print(f"다이 온도: {data['die_temperature']}°C")
@@ -241,9 +235,9 @@ if __name__ == "__main__":
                 time.sleep(1)
         
     except Exception as e:
-        print(f"TMP007 테스트 실패: {e}")
+        print(f"TMP007 직접 연결 테스트 실패: {e}")
     finally:
         try:
-            tmp007_terminate(i2c)
+            tmp007_direct_terminate(i2c)
         except:
             pass 

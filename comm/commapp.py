@@ -173,6 +173,14 @@ def get_transmission_stats():
 # Methods for sending/receiving/handling SB messages
 
 # Handles received message
+def safe_float(value, default=0.0):
+    """안전한 float 변환 함수"""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Invalid float value: {value}, using default: {default}")
+        return default
+
 def command_handler (recv_msg : msgstructure.MsgStructure):
     global COMMAPP_RUNSTATUS
     global tlm_data
@@ -195,10 +203,10 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         
         # If simulation mode, ignore the pressure and altitude data
         if (tlm_data.mode == "F"):
-            tlm_data.pressure = float(sep_data[0])
-            tlm_data.altitude = float(sep_data[2])
+            tlm_data.pressure = safe_float(sep_data[0])
+            tlm_data.altitude = safe_float(sep_data[2])
 
-        tlm_data.temperature = float(sep_data[1])
+        tlm_data.temperature = safe_float(sep_data[1])
 
     # Receive IMU Data
     elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuTlmData:
@@ -209,23 +217,23 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}")
             return
         
-        tlm_data.filtered_roll = float(sep_data[0])
-        tlm_data.filtered_pitch = float(sep_data[1])
-        tlm_data.filtered_yaw = float(sep_data[2])
+        tlm_data.filtered_roll = safe_float(sep_data[0])
+        tlm_data.filtered_pitch = safe_float(sep_data[1])
+        tlm_data.filtered_yaw = safe_float(sep_data[2])
         
-        tlm_data.acc_roll = float(sep_data[3])
-        tlm_data.acc_pitch = float(sep_data[4])
-        tlm_data.acc_yaw = float(sep_data[5])
+        tlm_data.acc_roll = safe_float(sep_data[3])
+        tlm_data.acc_pitch = safe_float(sep_data[4])
+        tlm_data.acc_yaw = safe_float(sep_data[5])
 
-        tlm_data.mag_roll = float(sep_data[6])
-        tlm_data.mag_pitch = float(sep_data[7])
-        tlm_data.mag_yaw = float(sep_data[8])
+        tlm_data.mag_roll = safe_float(sep_data[6])
+        tlm_data.mag_pitch = safe_float(sep_data[7])
+        tlm_data.mag_yaw = safe_float(sep_data[8])
     
-        tlm_data.gyro_roll = float(sep_data[9])
-        tlm_data.gyro_pitch = float(sep_data[10])
-        tlm_data.gyro_yaw = float(sep_data[11])
+        tlm_data.gyro_roll = safe_float(sep_data[9])
+        tlm_data.gyro_pitch = safe_float(sep_data[10])
+        tlm_data.gyro_yaw = safe_float(sep_data[11])
         
-        tlm_data.imu_temperature = float(sep_data[12])
+        tlm_data.imu_temperature = safe_float(sep_data[12])
 
     # Receive GPS Data
     elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
@@ -237,10 +245,14 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             return
 
         tlm_data.gps_time = str(sep_data[0])
-        tlm_data.gps_alt = float(sep_data[1])
-        tlm_data.gps_lat = float(sep_data[2])
-        tlm_data.gps_lon = float(sep_data[3])
-        tlm_data.gps_sats = int(sep_data[4])
+        tlm_data.gps_alt = safe_float(sep_data[1])
+        tlm_data.gps_lat = safe_float(sep_data[2])
+        tlm_data.gps_lon = safe_float(sep_data[3])
+        try:
+            tlm_data.gps_sats = int(sep_data[4])
+        except (ValueError, TypeError):
+            events.LogEvent(appargs.CommAppArg.AppName, events.EventType.warning, f"Invalid GPS satellites value: {sep_data[4]}, using default: 0")
+            tlm_data.gps_sats = 0
 
     # Receive Voltage Sensor Data
     #elif recv_msg.MsgID == appargs.VoltageAppArg.MID_SendVoltageTlmData:
@@ -279,9 +291,9 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
     elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007TlmData:
         sep_data = recv_msg.data.split(",")
         if len(sep_data) == 3:
-            tlm_data.tmp007_object_temp = float(sep_data[0])
-            tlm_data.tmp007_die_temp = float(sep_data[1])
-            tlm_data.tmp007_voltage = float(sep_data[2])
+            tlm_data.tmp007_object_temp = safe_float(sep_data[0])
+            tlm_data.tmp007_die_temp = safe_float(sep_data[1])
+            tlm_data.tmp007_voltage = safe_float(sep_data[2])
         else:
             events.LogEvent(appargs.CommAppArg.AppName, events.EventType.error, f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data)}")
 
