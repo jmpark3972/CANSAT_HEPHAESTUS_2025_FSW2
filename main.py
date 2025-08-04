@@ -139,9 +139,8 @@ def signal_handler(signum, frame):
         return  # Already terminating
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
     MAINAPP_RUNSTATUS = False
-    # 실제 종료 프로세스 호출
-    terminate_FSW()
-    # 강제 종료를 위한 os._exit 추가
+    # 즉시 강제 종료
+    print("강제 종료 실행 중...")
     os._exit(0)
 
 # Setup signal handlers
@@ -404,7 +403,7 @@ def runloop(Main_Queue : Queue):
         while MAINAPP_RUNSTATUS:
             try:
                 # Recv Message from queue with timeout
-                recv_msg = Main_Queue.get(timeout=1.0)  # 1 second timeout
+                recv_msg = Main_Queue.get(timeout=0.1)  # 0.1초로 단축하여 더 빠른 응답
 
                 # Unpack the message to Check receiver
                 unpacked_msg = msgstructure.MsgStructure()
@@ -426,9 +425,13 @@ def runloop(Main_Queue : Queue):
     except KeyboardInterrupt:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
         MAINAPP_RUNSTATUS = False
+        print("KeyboardInterrupt 감지됨. 즉시 종료합니다.")
+        os._exit(0)
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
         MAINAPP_RUNSTATUS = False
+        print("치명적 오류 발생. 즉시 종료합니다.")
+        os._exit(0)
 
     terminate_FSW()
     # 강제 종료를 위한 최종 확인
