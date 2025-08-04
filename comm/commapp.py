@@ -511,9 +511,21 @@ def send_tlm(serial_instance):
                         f"{tlm_data.filtered_roll:.4f}",
                         f"{tlm_data.filtered_pitch:.4f}",
                         f"{tlm_data.filtered_yaw:.4f}",
+                        f"{tlm_data.thermo_temp:.2f}",
+                        f"{tlm_data.thermo_humi:.2f}",
+                        f"{tlm_data.fir1_amb:.2f}",
+                        f"{tlm_data.fir1_obj:.2f}",
+                        f"{tlm_data.fir2_amb:.2f}",
+                        f"{tlm_data.fir2_obj:.2f}",
+                        f"{tlm_data.thermal_camera_avg:.2f}",
+                        f"{tlm_data.thermal_camera_min:.2f}",
+                        f"{tlm_data.thermal_camera_max:.2f}",
                         f"{tlm_data.thermis_temp:.2f}",
                         f"{tlm_data.pitot_pressure:.2f}",
                         f"{tlm_data.pitot_temp:.2f}",
+                        f"{tlm_data.tmp007_object_temp:.2f}",
+                        f"{tlm_data.tmp007_die_temp:.2f}",
+                        f"{tlm_data.tmp007_voltage:.2f}",
                         f"{tlm_data.imu_temperature:.2f}"])+"\n"
 
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\

@@ -44,7 +44,7 @@ def init_pitot():
         time.sleep(0.1)  # 안정화 대기
         
         mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-        mux.select_channel(2)  # Pitot는 채널 2에 연결
+        mux.select_channel(0)  # Pitot는 채널 0에 연결 (실제 연결 확인됨)
         time.sleep(0.1)  # 안정화 대기
         
         # SMBus를 통해 I2C 버스 1에 접근 (Qwiic Mux가 연결된 버스)
@@ -65,7 +65,7 @@ def read_pitot(bus, mux=None):
             current_channel = mux.get_current_channel()
             if current_channel != 2:
                 _log(f"Channel switch: {current_channel} -> 2")
-                mux.select_channel(2)
+                mux.select_channel(0)
                 time.sleep(0.05)  # 안정화 대기
         
         # 측정 트리거

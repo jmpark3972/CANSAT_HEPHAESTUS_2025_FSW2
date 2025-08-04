@@ -40,11 +40,17 @@ def init_imu():
     
     # I2C 버스 초기화
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+    time.sleep(0.1)  # I2C 버스 안정화
     
-    # Qwiic Mux 초기화 및 채널 4 선택 (IMU 위치)
-    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-    mux.select_channel(4)  # IMU는 채널 4에 연결
-    time.sleep(0.1)  # 안정화 대기
+    # Qwiic Mux 초기화 및 채널 5 선택 (IMU 위치 - 실제 연결된 채널)
+    try:
+        mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+        mux.select_channel(5)  # IMU는 채널 5에 연결 (실제 연결 확인됨)
+        time.sleep(0.2)  # 안정화 대기 시간 증가
+        print("Qwiic Mux 채널 5 선택 완료")
+    except Exception as e:
+        print(f"Qwiic Mux 초기화 실패: {e}")
+        raise Exception(f"Qwiic Mux 초기화 실패: {e}")
     
     # 여러 주소에서 IMU 찾기 시도
     imu_addresses = [0x28, 0x29]  # BNO055 일반적인 주소들
@@ -53,12 +59,22 @@ def init_imu():
     for addr in imu_addresses:
         try:
             print(f"IMU I2C 주소 0x{addr:02X} 시도 중...")
+            # I2C 버스 재초기화 시도
+            try:
+                i2c.unlock()
+            except:
+                pass
             sensor = adafruit_bno055.BNO055_I2C(i2c, address=addr)
-            print(f"IMU 초기화 성공 (주소: 0x{addr:02X})")
-            break
+            # 센서 상태 확인
+            if sensor.temperature is not None:
+                print(f"IMU 초기화 성공 (주소: 0x{addr:02X})")
+                break
+            else:
+                print(f"IMU 센서 응답 없음 (주소: 0x{addr:02X})")
+                sensor = None
         except Exception as e:
             print(f"주소 0x{addr:02X} 실패: {e}")
-            time.sleep(0.2)  # 각 시도 사이 지연
+            time.sleep(0.3)  # 각 시도 사이 지연 증가
             continue
     
     if sensor is None:

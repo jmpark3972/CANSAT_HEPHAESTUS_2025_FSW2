@@ -28,9 +28,9 @@ def init_barometer():
     # I2C setup
     i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
     
-    # Qwiic Mux 초기화 및 채널 4 선택 (Barometer 위치)
+    # Qwiic Mux 초기화 및 채널 5 선택 (Barometer 위치 - 실제 연결된 채널)
     mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
-    mux.select_channel(4)  # Barometer는 채널 4에 연결
+    mux.select_channel(5)  # Barometer는 채널 5에 연결 (실제 연결 확인됨)
     time.sleep(0.1)  # 안정화 대기
     
     # 여러 I2C 주소 시도 (BMP280/BMP388 일반적인 주소들)
