@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2025 HEPHAESTUS
 # SPDX-License-Identifier: MIT
-"""FIR1 센서 테스트 코드"""
+"""IMU 센서 테스트 코드"""
 
 import time
 import sys
@@ -10,24 +10,24 @@ import os
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from fir1 import fir1
+from imu import imu
 
-def test_fir1():
-    """FIR1 센서 테스트"""
+def test_imu():
+    """IMU 센서 테스트"""
     print("=" * 50)
-    print("FIR1 센서 테스트 시작")
+    print("IMU 센서 테스트 시작")
     print("=" * 50)
     
     try:
         # 센서 초기화
-        print("1. FIR1 센서 초기화 중...")
-        i2c, fir1_sensor = fir1.init_fir1()
+        print("1. IMU 센서 초기화 중...")
+        i2c, imu_sensor = imu.init_imu()
         
-        if fir1_sensor is None:
-            print("❌ FIR1 초기화 실패")
+        if imu_sensor is None:
+            print("❌ IMU 초기화 실패")
             return False
             
-        print("✅ FIR1 초기화 성공")
+        print("✅ IMU 초기화 성공")
         
         # 데이터 읽기 테스트
         print("\n2. 데이터 읽기 테스트 시작...")
@@ -37,11 +37,13 @@ def test_fir1():
         while True:
             try:
                 # 센서 데이터 읽기
-                ambient_temp, object_temp = fir1.read_fir1(fir1_sensor)
+                gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, mag_x, mag_y, mag_z, temp = imu.read_imu(imu_sensor)
                 
-                print(f"📊 FIR1 데이터:")
-                print(f"   주변 온도: {ambient_temp:.2f} °C")
-                print(f"   대상 온도: {object_temp:.2f} °C")
+                print(f"📊 IMU 데이터:")
+                print(f"   자이로스코프: X={gyro_x:.3f}, Y={gyro_y:.3f}, Z={gyro_z:.3f} °/s")
+                print(f"   가속도계: X={accel_x:.3f}, Y={accel_y:.3f}, Z={accel_z:.3f} m/s²")
+                print(f"   자기계: X={mag_x:.3f}, Y={mag_y:.3f}, Z={mag_z:.3f} μT")
+                print(f"   온도: {temp:.2f} °C")
                 print("-" * 30)
                 
                 time.sleep(1)
@@ -55,13 +57,13 @@ def test_fir1():
         
         # 정리
         print("\n3. 센서 정리 중...")
-        fir1.terminate_fir1(i2c)
-        print("✅ FIR1 테스트 완료")
+        imu.terminate_imu(i2c)
+        print("✅ IMU 테스트 완료")
         return True
         
     except Exception as e:
-        print(f"❌ FIR1 테스트 실패: {e}")
+        print(f"❌ IMU 테스트 실패: {e}")
         return False
 
 if __name__ == "__main__":
-    test_fir1() 
+    test_imu() 

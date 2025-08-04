@@ -128,6 +128,16 @@ class Tmp007AppArg:
     MID_SendTmp007FlightLogicData: types.MID = 2603  # 4 Hz 온도 데이터
     MID_Tmp007Calibration:    types.MID = 2604  # CAL 처리용(옵션)
 
+# ────────── CAMERA (Raspberry Pi Camera Module v3 Wide) ──────────
+class CameraAppArg:
+    AppID: types.AppID = 27          # **고유해야 함**
+    AppName = "Camera"
+    MID_SendHK:            types.MID = 2701
+    MID_SendCameraTlmData:    types.MID = 2702  # 1 Hz 텔레메트리 (status, file_count)
+    MID_SendCameraFlightLogicData: types.MID = 2703  # 5 Hz 카메라 상태
+    MID_CameraActivate:    types.MID = 2704  # FlightLogic에서 카메라 활성화 명령
+    MID_CameraDeactivate:  types.MID = 2705  # FlightLogic에서 카메라 비활성화 명령
+
 
 # ────────── 샘플/테스트 앱 ──────────
 class SampleAppArg:

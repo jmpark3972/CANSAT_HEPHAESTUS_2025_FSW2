@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2025 HEPHAESTUS
 # SPDX-License-Identifier: MIT
-"""FIR1 센서 테스트 코드"""
+"""Thermis 센서 테스트 코드"""
 
 import time
 import sys
@@ -10,24 +10,24 @@ import os
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from fir1 import fir1
+from thermis import thermis
 
-def test_fir1():
-    """FIR1 센서 테스트"""
+def test_thermis():
+    """Thermis 센서 테스트"""
     print("=" * 50)
-    print("FIR1 센서 테스트 시작")
+    print("Thermis 센서 테스트 시작")
     print("=" * 50)
     
     try:
         # 센서 초기화
-        print("1. FIR1 센서 초기화 중...")
-        i2c, fir1_sensor = fir1.init_fir1()
+        print("1. Thermis 센서 초기화 중...")
+        i2c, thermis_sensor = thermis.init_thermis()
         
-        if fir1_sensor is None:
-            print("❌ FIR1 초기화 실패")
+        if thermis_sensor is None:
+            print("❌ Thermis 초기화 실패")
             return False
             
-        print("✅ FIR1 초기화 성공")
+        print("✅ Thermis 초기화 성공")
         
         # 데이터 읽기 테스트
         print("\n2. 데이터 읽기 테스트 시작...")
@@ -37,11 +37,10 @@ def test_fir1():
         while True:
             try:
                 # 센서 데이터 읽기
-                ambient_temp, object_temp = fir1.read_fir1(fir1_sensor)
+                temperature = thermis.read_thermis(thermis_sensor)
                 
-                print(f"📊 FIR1 데이터:")
-                print(f"   주변 온도: {ambient_temp:.2f} °C")
-                print(f"   대상 온도: {object_temp:.2f} °C")
+                print(f"📊 Thermis 데이터:")
+                print(f"   온도: {temperature:.2f} °C")
                 print("-" * 30)
                 
                 time.sleep(1)
@@ -55,13 +54,13 @@ def test_fir1():
         
         # 정리
         print("\n3. 센서 정리 중...")
-        fir1.terminate_fir1(i2c)
-        print("✅ FIR1 테스트 완료")
+        thermis.terminate_thermis(i2c)
+        print("✅ Thermis 테스트 완료")
         return True
         
     except Exception as e:
-        print(f"❌ FIR1 테스트 실패: {e}")
+        print(f"❌ Thermis 테스트 실패: {e}")
         return False
 
 if __name__ == "__main__":
-    test_fir1() 
+    test_thermis() 

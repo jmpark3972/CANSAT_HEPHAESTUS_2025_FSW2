@@ -26,6 +26,14 @@ CURRENT_TEMP: float = 0.0  # DHT11 temperature (°C)
 # <NEW/> 마지막으로 실제 서보에 지시한 각도 (스팸 방지용). –1이면 미전송 상태
 MOTOR_TARGET_PULSE: int = -1  # mg996r: 500=open, 2500=close
 
+# <NEW/> 카메라 제어 변수
+CAMERA_ACTIVE: bool = False  # 카메라 활성화 상태
+CAMERA_STATUS: str = "IDLE"  # 카메라 상태
+CAMERA_VIDEO_COUNT: int = 0  # 저장된 비디오 파일 수
+CAMERA_DISK_USAGE: float = 0.0  # 디스크 사용량 (%)
+CAMERA_ACTIVATION_TIME: float = 0.0  # 카메라 활성화 시간
+CAMERA_DEACTIVATION_TIME: float = 0.0  # 카메라 비활성화 시간
+
 # 강화된 로깅 시스템
 LOG_DIR = "logs/flight_logic"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -350,6 +358,37 @@ def command_handler (recv_msg : msgstructure.MsgStructure, Main_Queue:Queue):
             update_motor_logic(Main_Queue)
             return
 
+        # Camera Data input at 5Hz
+        elif recv_msg.MsgID == appargs.CameraAppArg.MID_SendCameraFlightLogicData:
+            try:
+                # "status,video_count,disk_usage" 형태로 전송됨
+                parts = recv_msg.data.split(",")
+                if len(parts) >= 3:
+                    status, video_count, disk_usage = parts[0], int(parts[1]), float(parts[2])
+                    
+                    # 카메라 상태 업데이트
+                    CAMERA_STATUS = status
+                    CAMERA_VIDEO_COUNT = video_count
+                    CAMERA_DISK_USAGE = disk_usage
+                    
+                    # 디스크 사용량이 90%를 넘으면 경고
+                    if disk_usage > 90.0:
+                        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                                       events.EventType.warning,
+                                       f"Camera disk usage high: {disk_usage:.1f}%")
+                    
+                    # 비디오 파일 수가 증가하면 로그
+                    if video_count > 0 and video_count % 10 == 0:  # 10개마다 로그
+                        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                                       events.EventType.info,
+                                       f"Camera recorded {video_count} videos, disk usage: {disk_usage:.1f}%")
+                        
+            except Exception as e:
+                events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                               events.EventType.error,
+                               f"Camera data parse error: {type(e).__name__}: {e}")
+                return
+
         elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData:
             try:
                 # 예: "avg,min,max,p0,p1,...,p767" 형태로 온다고 가정
@@ -541,6 +580,88 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
         log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse}")
         events.LogEvent(appargs.FlightlogicAppArg.AppName, events.EventType.info,
                         f"Motor pulse cmd → {pulse}")
+
+def activate_camera(Main_Queue: Queue) -> bool:
+    """카메라 활성화"""
+    global CAMERA_ACTIVE, CAMERA_ACTIVATION_TIME
+    
+    try:
+        if CAMERA_ACTIVE:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.warning,
+                           "Camera already active")
+            return True
+        
+        # 카메라 앱에 활성화 명령 전송
+        camera_msg = msgstructure.MsgStructure()
+        success = msgstructure.send_msg(Main_Queue, camera_msg,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.CameraAppArg.AppID,
+                              appargs.CameraAppArg.MID_CameraActivate,
+                              "")
+        
+        if success:
+            CAMERA_ACTIVE = True
+            CAMERA_ACTIVATION_TIME = time.time()
+            
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.info,
+                           "Camera activation command sent")
+            
+            log_system_event("CAMERA_ACTIVATE", "Camera recording started")
+            return True
+        else:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.error,
+                           "Camera activation command failed")
+            return False
+        
+    except Exception as e:
+        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                       events.EventType.error,
+                       f"Camera activation failed: {e}")
+        return False
+
+def deactivate_camera(Main_Queue: Queue) -> bool:
+    """카메라 비활성화"""
+    global CAMERA_ACTIVE, CAMERA_DEACTIVATION_TIME
+    
+    try:
+        if not CAMERA_ACTIVE:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.warning,
+                           "Camera already inactive")
+            return True
+        
+        # 카메라 앱에 비활성화 명령 전송
+        camera_msg = msgstructure.MsgStructure()
+        success = msgstructure.send_msg(Main_Queue, camera_msg,
+                              appargs.FlightlogicAppArg.AppID,
+                              appargs.CameraAppArg.AppID,
+                              appargs.CameraAppArg.MID_CameraDeactivate,
+                              "")
+        
+        if success:
+            CAMERA_ACTIVE = False
+            CAMERA_DEACTIVATION_TIME = time.time()
+            
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.info,
+                           "Camera deactivation command sent")
+            
+            log_system_event("CAMERA_DEACTIVATE", "Camera recording stopped")
+            return True
+        else:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.error,
+                           "Camera deactivation command failed")
+            return False
+        
+    except Exception as e:
+        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                       events.EventType.error,
+                       f"Camera deactivation failed: {e}")
+        return False
 
 # 최근 0.5초(5회) 동안 고도가 모두 70m 이하인지 체크
 RECENT_ALT_CHECK_LEN = 5  # 0.5초(10Hz)
@@ -814,6 +935,16 @@ def launchpad_state_transition(Main_Queue : Queue):
 
 def ascent_state_transition(Main_Queue : Queue):
     log_and_update_state(1, "CHANGED STATE TO ASCENT")
+    
+    # 상승 시 카메라 활성화
+    if activate_camera(Main_Queue):
+        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                       events.EventType.info,
+                       "Camera activated for ascent phase")
+    else:
+        events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                       events.EventType.error,
+                       "Failed to activate camera for ascent phase")
     return
 
 def apogee_state_transition(Main_Queue : Queue):
@@ -851,6 +982,23 @@ def motor_close_state_transition(Main_Queue:Queue):
 
 def landed_state_transition(Main_Queue : Queue):
     log_and_update_state(5, "CHANGED STATE TO LANDED")
+    
+    # 착륙 후 30초 대기 후 카메라 비활성화
+    def delayed_camera_deactivation():
+        time.sleep(30)  # 30초 대기
+        if deactivate_camera(Main_Queue):
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.info,
+                           "Camera deactivated after 30 seconds from landing")
+        else:
+            events.LogEvent(appargs.FlightlogicAppArg.AppName,
+                           events.EventType.error,
+                           "Failed to deactivate camera after landing")
+    
+    # 별도 스레드에서 카메라 비활성화 실행
+    deactivation_thread = threading.Thread(target=delayed_camera_deactivation, daemon=True)
+    deactivation_thread.start()
+    
     return
 
 def check_simulation_status(Main_Queue:Queue):

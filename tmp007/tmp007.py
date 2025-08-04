@@ -231,8 +231,8 @@ if __name__ == "__main__":
             try:
                 data = read_tmp007_data(sensor)
                 if data:
-                    print(f"객체 온도: {data['object_temp']}°C")
-                    print(f"다이 온도: {data['die_temp']}°C")
+                    print(f"객체 온도: {data['object_temperature']}°C")
+                    print(f"다이 온도: {data['die_temperature']}°C")
                     print(f"전압: {data['voltage']}μV")
                     print(f"상태: {data['status']}")
                     print("-" * 40)

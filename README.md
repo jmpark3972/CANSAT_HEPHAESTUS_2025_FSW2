@@ -33,6 +33,13 @@ It is pre-installed on Rapsberry Pi OS images
 
     sudo apt install python3-picamera2
 
+### 3.1. Install Camera App Dependencies
+For Raspberry Pi Camera Module v3 Wide support:
+
+    sudo apt install ffmpeg v4l2-utils
+    chmod +x camera/install_camera.sh
+    ./camera/install_camera.sh
+
 ## 4. Install Basic modules
 Other basic modules should be installed too
 
@@ -404,3 +411,146 @@ logging.close_dual_logging_system()
 ### 성능 최적화
 - 보조 SD카드 속도가 느린 경우 `spi-max-frequency`를 4000000으로 낮춤
 - 백업 주기를 조정하려면 `lib/logging.py`의 `_backup_worker` 함수 수정
+
+# Camera App - Raspberry Pi Camera Module v3 Wide
+
+라즈베리파이 카메라 모듈 v3 wide를 사용하여 FSW 상승부터 낙하 후 30초까지 5초 주기로 영상을 녹화하는 앱입니다.
+
+## 하드웨어 요구사항
+- Raspberry Pi Zero 2W
+- Raspberry Pi Camera Module v3 Wide
+- CSI 케이블 연결
+
+## 설치 및 설정
+
+### 1. 의존성 설치
+```bash
+# 필수 패키지 설치
+sudo apt install ffmpeg v4l2-utils
+
+# 설치 스크립트 실행
+chmod +x camera/install_camera.sh
+./camera/install_camera.sh
+```
+
+### 2. 카메라 활성화
+```bash
+# raspi-config에서 카메라 활성화
+sudo raspi-config
+# Interface Options > Camera > Enable
+```
+
+### 3. 테스트
+```bash
+# 카메라 앱 테스트
+python3 test_camera.py
+```
+
+## 기능
+
+### 자동 녹화
+- FSW 상승 시 자동 카메라 활성화
+- 5초 주기로 5초 길이 비디오 파일 생성
+- 착륙 후 30초까지 계속 녹화
+- 타임스탬프 기반 파일명 자동 생성
+
+### 안정성 기능
+- 하드웨어 연결 상태 확인
+- 프로세스 타임아웃 처리
+- 임시 파일 자동 정리
+- 디스크 사용량 모니터링
+- 에러 복구 메커니즘
+
+### 상태 모니터링
+- 실시간 카메라 상태 확인
+- 저장된 비디오 파일 수 추적
+- 디스크 사용량 경고 (90% 초과 시)
+
+## 설정
+
+### 카메라 설정 (camera/camera_config.py)
+```python
+CAMERA_RESOLUTION = "1920x1080"  # 해상도
+CAMERA_FPS = 30                   # 프레임레이트
+RECORDING_INTERVAL = 5            # 녹화 주기 (초)
+VIDEO_DURATION = 5                # 비디오 길이 (초)
+VIDEO_QUALITY = "23"              # h264 품질
+```
+
+### 환경별 설정
+```python
+# 개발 환경 (낮은 해상도, 빠른 테스트)
+from camera import camera_config
+settings = camera_config.get_settings("dev")
+camera_config.apply_settings(settings)
+
+# 프로덕션 환경 (고해상도, 안정적)
+settings = camera_config.get_settings("prod")
+camera_config.apply_settings(settings)
+```
+
+## 메시지 구조
+
+### 송신 메시지
+- **HK**: 1Hz 하트비트
+- **FlightLogic**: 5Hz 카메라 상태 (상태, 파일수, 디스크사용량)
+- **Telemetry**: 1Hz 카메라 상태
+
+### 수신 메시지
+- **CameraActivate**: FlightLogic에서 카메라 활성화 명령
+- **CameraDeactivate**: FlightLogic에서 카메라 비활성화 명령
+
+## 파일 구조
+```
+camera/
+├── camera.py              # 카메라 핵심 기능
+├── cameraapp.py           # 앱 메인 로직
+├── camera_config.py       # 설정 파일
+├── install_camera.sh      # 설치 스크립트
+└── README.md              # 상세 문서
+```
+
+## 문제 해결
+
+### 카메라가 인식되지 않는 경우
+```bash
+# 하드웨어 확인
+vcgencmd get_camera
+
+# 드라이버 확인
+ls /dev/video*
+
+# 권한 설정
+sudo chmod 666 /dev/video0
+```
+
+### ffmpeg 오류
+```bash
+# ffmpeg 재설치
+sudo apt remove ffmpeg
+sudo apt install ffmpeg
+```
+
+### 디스크 공간 부족
+```bash
+# 사용량 확인
+df -h
+
+# 오래된 파일 정리
+find /home/pi/cansat_videos -name "*.h264" -mtime +7 -delete
+```
+
+## 성능 최적화
+
+### 비디오 품질 조정
+- `VIDEO_QUALITY` 값을 높이면 파일 크기 감소 (23-28 권장)
+- 해상도를 낮추면 메모리 사용량 감소 (1280x720 권장)
+
+### 녹화 주기 조정
+- `RECORDING_INTERVAL` 값을 조정하여 녹화 빈도 변경 (5-10초 권장)
+
+## 주의사항
+1. **디스크 공간**: 비디오 파일은 크기가 클 수 있으므로 충분한 저장 공간 확보
+2. **전력 소모**: 카메라 녹화는 전력을 많이 소모하므로 배터리 상태 확인
+3. **온도 관리**: 장시간 녹화 시 라즈베리파이 온도 모니터링
+4. **파일 관리**: 정기적으로 오래된 비디오 파일 정리 필요

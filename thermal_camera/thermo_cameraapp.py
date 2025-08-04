@@ -132,7 +132,7 @@ def send_cam_data(Main_Queue: Queue):
             msgstructure.send_msg(Main_Queue, tlm_msg,
                                   appargs.ThermalcameraAppArg.AppID,
                                   appargs.CommAppArg.AppID,
-                                  appargs.ThermalcameraAppArg.MID_SendThermalCameraTlmData,
+                                  appargs.ThermalcameraAppArg.MID_SendCamTlmData,
                                   f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
             cnt = 0
 
