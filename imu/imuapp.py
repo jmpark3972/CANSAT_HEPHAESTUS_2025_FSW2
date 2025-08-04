@@ -24,6 +24,27 @@ IMUAPP_RUNSTATUS = True
 # MUX instance for channel management
 IMU_MUX = None
 
+# IMU 데이터 변수들
+IMU_GYRO = (0.0, 0.0, 0.0)
+IMU_ACCEL = (0.0, 0.0, 0.0)
+IMU_MAG = (0.0, 0.0, 0.0)
+IMU_EULER = (0.0, 0.0, 0.0)
+IMU_TEMP = 0.0
+
+# 개별 데이터 변수들
+IMU_ROLL = 0.0
+IMU_PITCH = 0.0
+IMU_YAW = 0.0
+IMU_ACCX = 0.0
+IMU_ACCY = 0.0
+IMU_ACCZ = 0.0
+IMU_MAGX = 0.0
+IMU_MAGY = 0.0
+IMU_MAGZ = 0.0
+IMU_GYRX = 0.0
+IMU_GYRY = 0.0
+IMU_GYRZ = 0.0
+
 # 고주파수 로깅 시스템
 LOG_DIR = "logs/imu"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -208,23 +229,11 @@ def imuapp_terminate(i2c_instance):
 ## USER METHOD                                      ##
 ######################################################
 
-IMU_ROLL: float = 0.0
-IMU_PITCH: float = 0.0
-IMU_YAW: float = 0.0
-IMU_ACCX: float = 0.0
-IMU_ACCY: float = 0.0
-IMU_ACCZ: float = 0.0
-IMU_MAGX: float = 0.0
-IMU_MAGY: float = 0.0
-IMU_MAGZ: float = 0.0
-IMU_GYRX: float = 0.0
-IMU_GYRY: float = 0.0
-IMU_GYRZ: float = 0.0
-IMU_TEMP: float = 0.0
-
 def read_imu_data(sensor):
     """IMU 데이터 읽기 스레드."""
     global IMUAPP_RUNSTATUS, IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
+    global IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_ACCX, IMU_ACCY, IMU_ACCZ, IMU_MAGX, IMU_MAGY, IMU_MAGZ, IMU_GYRX, IMU_GYRY, IMU_GYRZ
+    
     while IMUAPP_RUNSTATUS:
         try:
             gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
@@ -234,6 +243,28 @@ def read_imu_data(sensor):
                 IMU_MAG = mag
                 IMU_EULER = euler
                 IMU_TEMP = temp
+                
+                # 개별 변수들 업데이트
+                if len(euler) >= 3:
+                    IMU_ROLL = euler[0]
+                    IMU_PITCH = euler[1]
+                    IMU_YAW = euler[2]
+                
+                if len(accel) >= 3:
+                    IMU_ACCX = accel[0]
+                    IMU_ACCY = accel[1]
+                    IMU_ACCZ = accel[2]
+                
+                if len(mag) >= 3:
+                    IMU_MAGX = mag[0]
+                    IMU_MAGY = mag[1]
+                    IMU_MAGZ = mag[2]
+                
+                if len(gyro) >= 3:
+                    IMU_GYRX = gyro[0]
+                    IMU_GYRY = gyro[1]
+                    IMU_GYRZ = gyro[2]
+                    
         except Exception as e:
             events.LogEvent(appargs.ImuAppArg.AppName,
                             events.EventType.error,
