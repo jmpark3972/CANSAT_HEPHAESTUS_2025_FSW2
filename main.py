@@ -51,7 +51,9 @@ class app_elements:
 app_dict: dict[types.AppID, app_elements] = {}
 
 def terminate_FSW():
-    global MAINAPP_RUNSTATUS
+    global MAINAPP_RUNSTATUS, _termination_in_progress
+    if _termination_in_progress and not MAINAPP_RUNSTATUS:
+        return  # Already terminating
     # Set all Runstatus to false
     MAINAPP_RUNSTATUS = False
 
@@ -97,11 +99,17 @@ def terminate_FSW():
     sys.exit()
     return
 
+# Flag to prevent multiple termination calls
+_termination_in_progress = False
+
 # Signal handler for graceful termination
 def signal_handler(signum, frame):
     """시그널 핸들러 - Ctrl+C 등으로 인한 종료 처리"""
+    global MAINAPP_RUNSTATUS, _termination_in_progress
+    if _termination_in_progress:
+        return  # Already terminating
+    _termination_in_progress = True
     print(f"\n시그널 {signum} 수신, FSW 종료 중...")
-    global MAINAPP_RUNSTATUS
     MAINAPP_RUNSTATUS = False
     terminate_FSW()
 

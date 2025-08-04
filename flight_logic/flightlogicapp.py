@@ -29,6 +29,9 @@ MOTOR_TARGET_PULSE: int = -1  # mg996r: 500=open, 2500=close
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
+# HK log file path
+HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
+
 # 통합 로깅 시스템 사용 - 플라이트 로직과 독립적
 def log_sensor_data(sensor_type: str, data: dict):
     """센서 데이터를 통합 로깅 시스템에 기록"""
