@@ -44,12 +44,54 @@ def system_safety_check():
         disk = psutil.disk_usage('/')
         if disk.percent > 95:
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Low disk space: {disk.percent}% used")
+        
+        # 프로세스 수 확인
+        try:
+            import threading
+            active_threads = threading.active_count()
+            if active_threads > 50:  # 스레드 수 제한
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High thread count: {active_threads}")
+        except:
+            pass
             
     except ImportError:
         # psutil이 없는 경우 기본 검사만
         pass
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Safety check error: {e}")
+
+def check_system_limits():
+    """시스템 리소스 한계 확인"""
+    try:
+        import resource
+        import threading
+        import psutil
+        
+        # 현재 스레드 수 확인
+        current_threads = threading.active_count()
+        
+        # 시스템 한계 확인
+        soft, hard = resource.getrlimit(resource.RLIMIT_NPROC)
+        current_processes = len(psutil.pids())
+        
+        print(f"시스템 리소스 상태:")
+        print(f"  - 현재 스레드 수: {current_threads}")
+        print(f"  - 현재 프로세스 수: {current_processes}")
+        print(f"  - 프로세스 한계: {soft}/{hard}")
+        
+        if current_threads > 30:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High thread count detected: {current_threads}")
+            return False
+            
+        if current_processes > soft * 0.8:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"High process count detected: {current_processes}")
+            return False
+            
+        return True
+        
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"System limits check error: {e}")
+        return False
 
 # Read prev state, altitude calibration for recovery
 from lib import prevstate
@@ -513,6 +555,14 @@ def watchdog_termination():
 # Operation starts HERE
 if __name__ == '__main__':
 
+    # 시스템 리소스 한계 확인
+    try:
+        if not check_system_limits():
+            print("시스템 리소스 한계에 도달했습니다. 프로그램을 종료합니다.")
+            os._exit(1)
+    except Exception as e:
+        print(f"System limits check failed: {e}")
+
     # 시스템 안전성 검사
     try:
         system_safety_check()
@@ -530,20 +580,21 @@ if __name__ == '__main__':
     # Register cleanup function
     atexit.register(cleanup_on_exit)
 
-    # Start watchdog thread
-    import threading
-    watchdog_thread = threading.Thread(target=watchdog_termination, daemon=True)
-    watchdog_thread.start()
+    # Watchdog 스레드 제거 (스레드 수 줄이기)
+    # import threading
+    # watchdog_thread = threading.Thread(target=watchdog_termination, daemon=True)
+    # watchdog_thread.start()
 
-    # 프로세스 시작 전 검증
+    # 프로세스 시작 전 검증 (순차적 시작으로 리소스 부하 줄이기)
     try:
-        # Start each app's process
+        # Start each app's process sequentially
         for appID in app_dict:
             if app_dict[appID].process is None:
                 events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Process for {appID} is None")
                 continue
             app_dict[appID].process.start()
             events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Started process for {appID}")
+            time.sleep(0.1)  # 각 프로세스 시작 사이에 짧은 대기
     except Exception as e:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error starting processes: {e}")
         os._exit(1)
