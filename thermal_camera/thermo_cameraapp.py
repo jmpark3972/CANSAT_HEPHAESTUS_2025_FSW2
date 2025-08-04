@@ -156,18 +156,13 @@ thread_dict: dict[str, threading.Thread] = {}
 import threading
 
 def resilient_thread(target, args=(), name=None):
-    def wrapper():
-        while THERMOCAMAPP_RUNSTATUS:
-            try:
-                target(*args)
-            except Exception:
-                pass
-            time.sleep(1)
-    t = threading.Thread(target=wrapper, name=name)
-    t.daemon = True
-    t._is_resilient = True
-    t.start()
-    return t
+    try:
+        target(*args)
+    except Exception as e:
+        events.LogEvent(appargs.ThermalcameraAppArg.AppName,
+                        events.EventType.error,
+                        f"Thread {name} error: {e}")
+    return None
 
 def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     global THERMOCAMAPP_RUNSTATUS
@@ -179,14 +174,14 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
 
     # 스레드 생성
     thread_dict["HK"] = threading.Thread(target=send_hk, args=(Main_Queue,),
-                                         name="HKSender_Thread")
-    thread_dict["READ"] = resilient_thread(read_cam_data, args=(cam,), name="ReadCamData_Thread")
+                                         name="HKSender_Thread", daemon=True)
+    thread_dict["READ"] = threading.Thread(target=read_cam_data, args=(cam,),
+                                           name="ReadCamData_Thread", daemon=True)
     thread_dict["SEND"] = threading.Thread(target=send_cam_data, args=(Main_Queue,),
-                                           name="SendCamData_Thread")
+                                           name="SendCamData_Thread", daemon=True)
 
     for t in thread_dict.values():
-        if not hasattr(t, '_is_resilient') or not t._is_resilient:
-            t.start()
+        t.start()
 
     try:
         while THERMOCAMAPP_RUNSTATUS:

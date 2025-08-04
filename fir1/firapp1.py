@@ -84,10 +84,9 @@ def read_fir1_data(mux, sensor):
     global AMB_TEMP, OBJ_TEMP
     while FIRAPP1_RUNSTATUS:
         with OFFSET_MUTEX:
-            amb, obj = fir1.read_fir1(mux, sensor)  # returns None,None on error
-            if amb is not None:
-                AMB_TEMP = round(amb - AMB_OFFSET, 2)
-                OBJ_TEMP = round(obj - OBJ_OFFSET, 2)
+            amb, obj = fir1.read_fir1(mux, sensor)  # returns 0.0,0.0 on error
+            AMB_TEMP = round(amb - AMB_OFFSET, 2)
+            OBJ_TEMP = round(obj - OBJ_OFFSET, 2)
         time.sleep(0.2)  # MLX90614 ~2Hz default
 
 
@@ -162,16 +161,12 @@ def firapp1_terminate(mux):
                         f"FIR1 termination error: {e}")
 
 def resilient_thread(target, args=(), name=None):
-    """Thread wrapper with error handling and restart capability."""
-    def wrapper():
-        while FIRAPP1_RUNSTATUS:
-            try:
-                target(*args)
-            except Exception as e:
-                events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
-                                f"Thread {name} error: {e}")
-                time.sleep(1)  # Wait before restart
-    wrapper()
+    """Thread wrapper with error handling."""
+    try:
+        target(*args)
+    except Exception as e:
+        events.LogEvent(appargs.FirApp1Arg.AppName, events.EventType.error,
+                        f"Thread {name} error: {e}")
 
 def firapp1_main(main_q: Queue, main_pipe: connection.Connection):
     """Main FIR1 application loop."""

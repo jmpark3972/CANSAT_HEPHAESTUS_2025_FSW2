@@ -63,7 +63,7 @@ def terminate_fir2(mux):
 def read_fir2(mux, sensor):
     """
     (ambient, object) 튜플 반환.
-    오류 발생 시 (None, None) + 로그 기록.
+    오류 발생 시 (0.0, 0.0) + 로그 기록.
     """
     try:
         # 채널 1 선택 확인 및 강제 선택
@@ -84,9 +84,15 @@ def read_fir2(mux, sensor):
         
         amb = round(float(sensor.ambient_temperature), 2)
         obj = round(float(sensor.object_temperature),  2)
+        
+        # 유효한 값인지 확인
+        if amb < -40 or amb > 125 or obj < -40 or obj > 125:
+            _log(f"Invalid temperature values: amb={amb}, obj={obj}")
+            return 0.0, 0.0
+            
     except Exception as e:
         _log(f"READ_ERROR,{e}")
-        return None, None
+        return 0.0, 0.0
 
     _log(f"{amb:.2f},{obj:.2f}")
     return amb, obj

@@ -24,10 +24,11 @@ class EventType:
     error = 0
     info = 1
     debug = 2
+    warning = 3
 
 def LogEvent(app_name : str ,event_type : int, event_msg : str, print_event=True):
 
-    event_type_str_arr = ["ERROR", "INFO","DEBUG"]
+    event_type_str_arr = ["ERROR", "INFO","DEBUG","WARNING"]
     t = datetime.now().isoformat(sep=' ', timespec='milliseconds')
     data_to_log = f"{event_type_str_arr[event_type]} | {app_name} : {event_msg}"
 
@@ -43,6 +44,9 @@ def LogEvent(app_name : str ,event_type : int, event_msg : str, print_event=True
     elif event_type == EventType.debug:
         debuglogfile.write(log_to_write)
         debuglogfile.flush()
+    elif event_type == EventType.warning:
+        errorlogfile.write(log_to_write)  # Write warnings to error log
+        errorlogfile.flush()
 
     if print_event:
         print(log_to_write, end="")
