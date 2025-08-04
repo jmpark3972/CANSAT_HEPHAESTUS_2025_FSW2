@@ -4,6 +4,8 @@
 # Sys library is needed to exit app
 import sys
 import os
+import signal
+import atexit
 
 MAINAPP_RUNSTATUS = True
 
@@ -47,6 +49,21 @@ class app_elements:
 # The app dictionary has key as AppID, app elements as Value
 #app_dict = dict[types.AppID, app_elements]()
 app_dict: dict[types.AppID, app_elements] = {}
+
+# Signal handler for graceful termination
+def signal_handler(signum, frame):
+    """시그널 핸들러 - Ctrl+C 등으로 인한 종료 처리"""
+    print(f"\n시그널 {signum} 수신, FSW 종료 중...")
+    global MAINAPP_RUNSTATUS
+    MAINAPP_RUNSTATUS = False
+    terminate_FSW()
+
+# Setup signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+# Register cleanup function for unexpected exits
+atexit.register(terminate_FSW)
 """
 # e.g importing test app and executing runloop
 #########################################################
@@ -311,13 +328,25 @@ def terminate_FSW():
     # Send termination message to kill every process
     for appID in app_dict:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID}")
-        app_dict[appID].pipe.send(termination_message_to_send)
+        try:
+            app_dict[appID].pipe.send(termination_message_to_send)
+        except Exception as e:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send termination to {appID}: {e}")
 
     # Join all processes to make sure every processes is killed
     for appID in app_dict:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Joining AppID {appID}")
-        app_dict[appID].process.join()
-        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
+        try:
+            app_dict[appID].process.join(timeout=5)  # 5 second timeout
+            if app_dict[appID].process.is_alive():
+                events.LogEvent(appargs.MainAppArg.AppName, events.EventType.warning, f"Force terminating AppID {appID}")
+                app_dict[appID].process.terminate()
+                app_dict[appID].process.join(timeout=2)
+                if app_dict[appID].process.is_alive():
+                    app_dict[appID].process.kill()
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Terminating AppID {appID} complete")
+        except Exception as e:
+            events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Error joining {appID}: {e}")
 
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
@@ -340,21 +369,32 @@ def runloop(Main_Queue : Queue):
     global MAINAPP_RUNSTATUS
     try:
         while MAINAPP_RUNSTATUS:
-            # Recv Message from queue
-            recv_msg = Main_Queue.get()
+            try:
+                # Recv Message from queue with timeout
+                recv_msg = Main_Queue.get(timeout=1.0)  # 1 second timeout
 
-            # Unpack the message to Check receiver
-            unpacked_msg = msgstructure.MsgStructure()
-            msgstructure.unpack_msg(unpacked_msg, recv_msg)
-            
-            if unpacked_msg.receiver_app in app_dict:
-                app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
-            else:
-                #events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, "Error : Received MID in not in app dictionary")
-                continue
+                # Unpack the message to Check receiver
+                unpacked_msg = msgstructure.MsgStructure()
+                msgstructure.unpack_msg(unpacked_msg, recv_msg)
+                
+                if unpacked_msg.receiver_app in app_dict:
+                    try:
+                        app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
+                    except Exception as e:
+                        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Failed to send message to {unpacked_msg.receiver_app}: {e}")
+                else:
+                    #events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, "Error : Received MID in not in app dictionary")
+                    continue
+            except Exception as e:
+                # Handle queue timeout and other exceptions gracefully
+                if "Empty" not in str(e):  # Not a timeout
+                    events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Main loop error: {e}")
 
     except KeyboardInterrupt:
         events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, "KeyboardInterrupt Detected, Terminating FSW")
+        MAINAPP_RUNSTATUS = False
+    except Exception as e:
+        events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"Critical error in main loop: {e}")
         MAINAPP_RUNSTATUS = False
 
     terminate_FSW()

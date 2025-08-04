@@ -24,6 +24,9 @@ OFFSET_MUTEX = threading.Lock()
 # Mutex to prevent sending of logic data when resetting
 MAXALT_RESET_MUTEX = threading.Lock()
 
+# MUX instance for channel 4 management
+BAROMETER_MUX = None
+
 ######################################################
 ## FUNDEMENTAL METHODS                              ##
 ######################################################
@@ -94,6 +97,10 @@ def barometerapp_init():
         # Init barometer sensor
         i2c_instance, barometer_instance, mux_instance = barometer.init_barometer()
         
+        # Store MUX instance globally for proper channel management
+        global BAROMETER_MUX
+        BAROMETER_MUX = mux_instance
+        
         # Calibrate barometer if prev calibration value exists
         BAROMETER_OFFSET = (float(prevstate.PREV_ALT_CAL))
 
@@ -108,11 +115,18 @@ def barometerapp_init():
 
 # Termination
 def barometerapp_terminate(i2c_instance):
-    global BAROMETERAPP_RUNSTATUS
+    global BAROMETERAPP_RUNSTATUS, BAROMETER_MUX
 
     BAROMETERAPP_RUNSTATUS = False
     events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.info, "Terminating barometerapp")
     # Termination Process Comes Here
+
+    # Close MUX connection
+    if BAROMETER_MUX:
+        try:
+            BAROMETER_MUX.close()
+        except Exception as e:
+            events.LogEvent(appargs.BarometerAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
 
     barometer.terminate_barometer(i2c_instance)
     # Join Each Thread to make sure all threads terminates

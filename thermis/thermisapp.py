@@ -26,6 +26,8 @@ TEMP_OFFSET = 0.0  # °C
 
 TEMP = 0.0
 
+THERMIS_MUX = None  # MUX instance for channel 4
+
 # ──────────────────────────────────────────────
 # Command handler
 # ──────────────────────────────────────────────
@@ -128,6 +130,10 @@ def thermisapp_init():
 
         i2c, ads, chan, mux = thermis.init_thermis()
 
+        # Store MUX instance globally for proper channel management
+        global THERMIS_MUX
+        THERMIS_MUX = mux
+
         # previous calibration (if any)
         TEMP_OFFSET = float(getattr(prevstate, "PREV_THERMIS_OFF", 0.0))
 
@@ -142,10 +148,18 @@ def thermisapp_init():
 
 
 def thermisapp_terminate(i2c):
-    global THERMISAPP_RUNSTATUS
+    global THERMISAPP_RUNSTATUS, THERMIS_MUX
     THERMISAPP_RUNSTATUS = False
     events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.info,
                     "Terminating thermisapp")
+    
+    # Close MUX connection
+    if THERMIS_MUX:
+        try:
+            THERMIS_MUX.close()
+        except Exception as e:
+            events.LogEvent(appargs.ThermisAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
+    
     thermis.terminate_thermis(i2c)
     for t in thread_dict.values():
         t.join()

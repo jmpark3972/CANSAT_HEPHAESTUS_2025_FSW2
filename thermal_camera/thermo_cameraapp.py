@@ -12,6 +12,7 @@ from thermal_camera import thermo_camera as tcam
 # ──────────────────────────────
 THERMOCAMAPP_RUNSTATUS = True
 # MLX90640 는 별도 오프셋 필요 없음 → 락도 생략
+THERMOCAM_MUX = None  # MUX instance for channel 4
 
 # ──────────────────────────────
 # 1. 메시지 핸들러
@@ -60,6 +61,10 @@ def thermocamapp_init():
 
         # MLX90640 start (기본 2 Hz)
         i2c, cam, mux = tcam.init_cam(refresh_hz=2)
+        
+        # Store MUX instance globally for proper channel management
+        global THERMOCAM_MUX
+        THERMOCAM_MUX = mux
 
         events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                         events.EventType.info,
@@ -74,12 +79,19 @@ def thermocamapp_init():
 
 def thermocamapp_terminate(i2c):
     """스레드 합류 후 I²C 종료."""
-    global THERMOCAMAPP_RUNSTATUS
+    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX
     THERMOCAMAPP_RUNSTATUS = False
 
     events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                     events.EventType.info,
                     "Terminating thermocamapp")
+
+    # Close MUX connection
+    if THERMOCAM_MUX:
+        try:
+            THERMOCAM_MUX.close()
+        except Exception as e:
+            events.LogEvent(appargs.ThermalcameraAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
 
     tcam.terminate_cam(i2c)
 
