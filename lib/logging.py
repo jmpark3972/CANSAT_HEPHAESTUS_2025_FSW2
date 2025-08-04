@@ -106,17 +106,34 @@ class DualLogger:
         try:
             if not os.path.exists(self.secondary_log_dir):
                 print(f"보조 SD 카드 마운트 포인트가 존재하지 않음: {self.secondary_log_dir}")
-                self.secondary_log_dir = None
-            else:
-                # 쓰기 권한 확인
-                test_file = os.path.join(self.secondary_log_dir, "test_write.tmp")
+                # 디렉토리 생성 시도
                 try:
-                    with open(test_file, 'w') as f:
-                        f.write("test")
-                    os.remove(test_file)
-                except Exception:
-                    print(f"보조 SD 카드 쓰기 권한 없음: {self.secondary_log_dir}")
+                    os.makedirs(self.secondary_log_dir, exist_ok=True)
+                    print(f"보조 로그 디렉토리 생성 성공: {self.secondary_log_dir}")
+                except PermissionError:
+                    print(f"보조 로그 디렉토리 생성 권한 없음: {self.secondary_log_dir}")
+                    print("sudo mkdir -p /mnt/log_sd/logs && sudo chown -R pi:pi /mnt/log_sd/logs 명령을 실행하세요")
                     self.secondary_log_dir = None
+                    return
+                except Exception as e:
+                    print(f"보조 로그 디렉토리 생성 실패: {e}")
+                    self.secondary_log_dir = None
+                    return
+            
+            # 쓰기 권한 확인
+            test_file = os.path.join(self.secondary_log_dir, "test_write.tmp")
+            try:
+                with open(test_file, 'w') as f:
+                    f.write("test")
+                os.remove(test_file)
+                print(f"보조 SD 카드 쓰기 권한 확인 완료: {self.secondary_log_dir}")
+            except PermissionError:
+                print(f"보조 SD 카드 쓰기 권한 없음: {self.secondary_log_dir}")
+                print("sudo chown -R pi:pi /mnt/log_sd/logs && sudo chmod -R 755 /mnt/log_sd/logs 명령을 실행하세요")
+                self.secondary_log_dir = None
+            except Exception as e:
+                print(f"보조 SD 카드 쓰기 테스트 실패: {e}")
+                self.secondary_log_dir = None
         except Exception as e:
             print(f"보조 SD 카드 확인 오류: {e}")
             self.secondary_log_dir = None
