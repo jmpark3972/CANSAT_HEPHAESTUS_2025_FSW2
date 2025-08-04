@@ -34,12 +34,17 @@ def log_imu(text):
 
 def init_imu():
     import board
+    import busio
     import adafruit_bno055
-    # Initializa I2C interface
-    i2c = board.I2C()  # board.SCL과 board.SDA 사용
+    from lib.qwiic_mux import QwiicMux
     
-    # I2C 버스 안정화를 위한 지연
-    time.sleep(0.5)
+    # I2C 버스 초기화
+    i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+    
+    # Qwiic Mux 초기화 및 채널 4 선택 (IMU 위치)
+    mux = QwiicMux(i2c_bus=i2c, mux_address=0x70)
+    mux.select_channel(4)  # IMU는 채널 4에 연결
+    time.sleep(0.1)  # 안정화 대기
     
     # 여러 주소에서 IMU 찾기 시도
     imu_addresses = [0x28, 0x29]  # BNO055 일반적인 주소들
@@ -67,7 +72,7 @@ def init_imu():
     # 센서 안정화를 위한 추가 지연
     time.sleep(1.0)
     
-    return i2c, sensor
+    return i2c, sensor, mux
 
 def read_sensor_data(sensor):
     global angle_window

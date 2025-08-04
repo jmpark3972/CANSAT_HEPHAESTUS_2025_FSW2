@@ -65,15 +65,15 @@ def imuapp_init():
         ## User Defined Initialization goes HERE
         
         #Initialize IMU Sensor
-        i2c_instance, imu_instance = imu.init_imu()
+        i2c_instance, imu_instance, mux_instance = imu.init_imu()
         
         events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.info, "Imuapp Initialization Complete")
-        return i2c_instance, imu_instance
+        return i2c_instance, imu_instance, mux_instance
     
     except Exception as e:
         events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, f"Error during initialization: {e}")
         IMUAPP_RUNSTATUS = False
-        return None, None
+        return None, None, None
 
 # Termination
 def imuapp_terminate(i2c_instance):
@@ -236,10 +236,10 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     IMUAPP_RUNSTATUS = True
 
     # Initialization Process
-    i2c_instance, imu_instance = imuapp_init()
+    i2c_instance, imu_instance, mux_instance = imuapp_init()
     
     # 초기화 실패 시 종료
-    if i2c_instance is None or imu_instance is None:
+    if i2c_instance is None or imu_instance is None or mux_instance is None:
         events.LogEvent(appargs.ImuAppArg.AppName, events.EventType.error, "IMU 초기화 실패로 인한 종료")
         return
 

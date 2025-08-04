@@ -227,9 +227,38 @@ def signal_handler(signum, frame):
         for appID in app_dict:
             if app_dict[appID].process and app_dict[appID].process.is_alive():
                 print(f"강제 종료: {appID}")
-                app_dict[appID].process.kill()
+                try:
+                    app_dict[appID].process.terminate()
+                    app_dict[appID].process.join(timeout=0.5)
+                    if app_dict[appID].process.is_alive():
+                        app_dict[appID].process.kill()
+                        app_dict[appID].process.join(timeout=0.5)
+                except:
+                    try:
+                        app_dict[appID].process.kill()
+                    except:
+                        pass
     except:
         pass
+    
+    # 추가 정리: 모든 자식 프로세스 강제 종료
+    try:
+        import psutil
+        current_process = psutil.Process()
+        children = current_process.children(recursive=True)
+        for child in children:
+            try:
+                child.terminate()
+                child.wait(timeout=0.5)
+            except:
+                try:
+                    child.kill()
+                except:
+                    pass
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"자식 프로세스 정리 오류: {e}")
     
     # 즉시 강제 종료 실행
     print("강제 종료 실행 중...")
