@@ -93,6 +93,48 @@ on /etc/modules, add
 
 CANSAT 미션 중 낙하 시 라즈베리파이 파손으로 인한 데이터 손실을 방지하기 위해 추가 SD카드를 통한 이중 로깅 시스템을 구현했습니다. **플라이트 로직과 완전히 분리되어 있어 로직 오류나 앱 고장과 관계없이 항상 로그가 기록됩니다.**
 
+# 시스템 진단 및 유틸리티
+
+## lib/utils.py - 통합 진단 도구
+
+시스템 진단과 센서 테스트를 위한 통합 유틸리티가 `lib/utils.py`에 포함되어 있습니다.
+
+### 사용 방법
+
+```bash
+python3 -m lib.utils
+```
+
+### 주요 기능
+
+1. **I2C 스캔** - 모든 I2C 장치 검색
+2. **센서 초기화 테스트** - 주요 센서들의 연결 상태 확인
+3. **Qwiic Mux 테스트** - 멀티플렉서 채널별 장치 확인
+4. **시스템 보고서 생성** - 전체 시스템 상태 보고서 생성
+5. **빠른 진단** - 주요 문제점만 빠르게 확인
+
+### 프로그래밍 방식 사용
+
+```python
+from lib import utils
+
+# I2C 장치 스캔
+devices = utils.scan_i2c_devices()
+
+# 특정 센서 연결 테스트
+if utils.test_i2c_connection(0x28):
+    print("IMU 연결 성공")
+
+# 빠른 진단
+if utils.quick_diagnostic():
+    print("모든 센서 정상")
+else:
+    print("문제 발견")
+
+# 시스템 보고서 생성
+report = utils.create_system_report()
+```
+
 ## 주요 특징
 
 ### 🔒 **플라이트 로직 독립성**
