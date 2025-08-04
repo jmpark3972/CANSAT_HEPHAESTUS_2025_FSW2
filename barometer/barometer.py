@@ -55,32 +55,38 @@ def init_barometer():
 def read_barometer(bmp, offset:float):
     global altitude_altZero
     
-    pressure = bmp.pressure
-    temperature = bmp.temperature
-    altitude = bmp.altitude
+    try:
+        pressure = bmp.pressure
+        temperature = bmp.temperature
+        altitude = bmp.altitude
 
-    # Type Checking of barometer data
-    if type(pressure) == float:
-        pressure = round(pressure, 2)
-    else:
-        pressure = 0
+        # Type Checking of barometer data
+        if type(pressure) == float:
+            pressure = round(pressure, 2)
+        else:
+            pressure = 0
 
-    if type(temperature) == float:
-        temperature = round(temperature, 2)
-    else:
-        temperature = 0
+        if type(temperature) == float:
+            temperature = round(temperature, 2)
+        else:
+            temperature = 0
 
-    if type(altitude) == float:
-        altitude = round(altitude, 2)
-    else:
-        altitude = 0
+        if type(altitude) == float:
+            altitude = round(altitude, 2)
+        else:
+            altitude = 0
 
-    # Apply offset
-    altitude = round(altitude - offset, 2)
+        # Apply offset
+        altitude = round(altitude - offset, 2)
 
-    log_barometer(f"{pressure:.2f}, {temperature:.2f}, {altitude:.2f}")
-    
-    return ( pressure, temperature, altitude )
+        log_barometer(f"{pressure:.2f}, {temperature:.2f}, {altitude:.2f}")
+        
+        return ( pressure, temperature, altitude )
+        
+    except Exception as e:
+        print(f"Barometer 읽기 오류: {e}")
+        log_barometer(f"READ_ERROR,{e}")
+        return (0.0, 0.0, 0.0)
 
 def terminate_barometer(i2c):
     try:

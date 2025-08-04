@@ -63,8 +63,12 @@ def read_sensor_data(sensor):
         mag = sensor.magnetic
         temp = sensor.temperature
         
+        # 디버그 로그 추가
+        print(f"IMU Raw Data - Quaternion: {q}, Gyro: {gyro}, Accel: {accel}, Mag: {mag}, Temp: {temp}")
+        
         # 유효성 검사
         if q is None or gyro is None or accel is None or mag is None:
+            print("IMU: None 값 감지됨")
             return None, None, None, None, None
         
         # 오일러 각도 계산
@@ -78,9 +82,12 @@ def read_sensor_data(sensor):
         pitch_deg = math.degrees(pitch)
         yaw_deg = math.degrees(yaw)
         
+        print(f"IMU Processed - Roll: {roll_deg:.2f}°, Pitch: {pitch_deg:.2f}°, Yaw: {yaw_deg:.2f}°")
+        
         return (gyro, accel, mag, (roll_deg, pitch_deg, yaw_deg), temp)
         
     except Exception as e:
+        print(f"IMU 읽기 오류: {e}")
         log_imu(f"READ_ERROR,{e}")
         return None, None, None, None, None
 
