@@ -80,14 +80,6 @@ class FirApp1Arg:
     MID_SendFIR1Data:      types.MID = 2002  # 1 Hz 텔레메트리 (amb,obj)
     MID_Fir1Calibration:   types.MID = 2004  # CAL 처리용(옵션)
 
-# ────────── FIR2 (MLX90614 Channel 1) ──────────
-class FirApp2Arg:
-    AppID: types.AppID = 21          # **고유해야 함**
-    AppName = "FIR2"
-    MID_SendHK:            types.MID = 2101
-    MID_SendFIR2Data:      types.MID = 2102  # 1 Hz 텔레메트리 (amb,obj)
-    MID_Fir2Calibration:   types.MID = 2104  # CAL 처리용(옵션)
-
 # ────────── THERMIS (ADS1115) ──────────
 class ThermisAppArg:
     AppID: types.AppID = 24          # **고유해야 함**

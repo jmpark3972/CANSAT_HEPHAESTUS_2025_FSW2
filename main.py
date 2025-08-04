@@ -285,14 +285,6 @@ try:
 except Exception as e:
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.error, f"FIR1 앱 로드 실패: {e}")
 
-# FIR2App (MLX90614 Channel 1) - 비활성화
-# from fir2 import firapp2
-# parent_pipe, child_pipe = Pipe()
-# firapp2_elements = app_elements()
-# firapp2_elements.process = Process(target = firapp2.firapp2_main, args = (main_queue, child_pipe, ))
-# firapp2_elements.pipe = parent_pipe
-# app_dict[appargs.FirApp2Arg.AppID] = firapp2_elements
-
 # THERMISApp
 try:
     from thermis import thermisapp

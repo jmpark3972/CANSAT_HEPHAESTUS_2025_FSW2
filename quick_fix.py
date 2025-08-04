@@ -152,18 +152,6 @@ def test_i2c_bus():
         print(f"✗ I2C bus error: {e}")
         return False
 
-def test_qwiic_mux():
-    """Test Qwiic Mux"""
-    print("Testing Qwiic Mux...")
-    try:
-        from lib.qwiic_mux import QwiicMux
-        mux = QwiicMux()
-        print("✓ Qwiic Mux initialized")
-        return True
-    except Exception as e:
-        print(f"✗ Qwiic Mux error: {e}")
-        return False
-
 def test_barometer():
     """Test barometer sensor"""
     print("Testing barometer...")
@@ -195,7 +183,6 @@ def main():
     
     tests = [
         test_i2c_bus,
-        test_qwiic_mux,
         test_barometer,
         test_thermis
     ]

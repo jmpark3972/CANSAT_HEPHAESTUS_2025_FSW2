@@ -11,8 +11,6 @@ from thermal_camera import thermo_camera as tcam
 # 0. 글로벌 플래그
 # ──────────────────────────────
 THERMOCAMAPP_RUNSTATUS = True
-# MLX90640 는 별도 오프셋 필요 없음 → 락도 생략
-THERMOCAM_MUX = None  # MUX instance for channel 4
 
 # Thermal camera data
 THERMAL_AVG = 0.0
@@ -65,12 +63,8 @@ def thermocamapp_init():
                         "Initializing thermocamapp")
 
         # MLX90640 start (기본 2 Hz)
-        i2c, cam, mux = tcam.init_thermal_camera()
+        i2c, cam = tcam.init_thermal_camera()
         
-        # Store MUX instance globally for proper channel management
-        global THERMOCAM_MUX
-        THERMOCAM_MUX = mux
-
         events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                         events.EventType.info,
                         "Thermocamapp initialization complete")
@@ -84,19 +78,12 @@ def thermocamapp_init():
 
 def thermocamapp_terminate(i2c):
     """스레드 합류 후 I²C 종료."""
-    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX
+    global THERMOCAMAPP_RUNSTATUS
     THERMOCAMAPP_RUNSTATUS = False
 
     events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                     events.EventType.info,
                     "Terminating thermocamapp")
-
-    # Close MUX connection
-    if THERMOCAM_MUX:
-        try:
-            THERMOCAM_MUX.close()
-        except Exception as e:
-            events.LogEvent(appargs.ThermalcameraAppArg.AppName, events.EventType.error, f"MUX 종료 오류: {e}")
 
     tcam.terminate_cam(i2c)
 
@@ -114,14 +101,13 @@ MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
     """MLX90640 데이터 읽기 스레드."""
-    global THERMOCAMAPP_RUNSTATUS, THERMOCAM_MUX, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+    global THERMOCAMAPP_RUNSTATUS, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
     while THERMOCAMAPP_RUNSTATUS:
         try:
             # channel_guard를 사용하여 안전하게 센서 읽기
-            with THERMOCAM_MUX.channel_guard(5):  # 🔒 채널 5 점유
-                data = tcam.read_cam(cam, THERMOCAM_MUX)
-                if data:
-                    THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data[3], data[1], data[2]  # avg, min, max
+            data = tcam.read_cam(cam)
+            if data:
+                THERMAL_AVG, THERMAL_MIN, THERMAL_MAX = data[3], data[1], data[2]  # avg, min, max
         except Exception as e:
             events.LogEvent(appargs.ThermalcameraAppArg.AppName,
                             events.EventType.error,

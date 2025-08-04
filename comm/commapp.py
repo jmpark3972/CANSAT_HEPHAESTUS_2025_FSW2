@@ -280,12 +280,6 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
         tlm_data.fir1_amb = float(sep_data[0])
         tlm_data.fir1_obj = float(sep_data[1])
-    
-    # FIR2 데이터 수신 - 비활성화
-    # elif recv_msg.MsgID == appargs.FirApp2Arg.MID_SendFIR2Data:
-    #     sep_data = recv_msg.data.split(",")
-    #     tlm_data.fir2_amb = float(sep_data[0])
-    #     tlm_data.fir2_obj = float(sep_data[1])
 
     # Receive TMP007 Data
     elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007TlmData:
@@ -448,8 +442,6 @@ class _tlm_data_format:
     thermo_humi: float = 0.0
     fir1_amb: float = 0.0
     fir1_obj: float = 0.0
-    # fir2_amb: float = 0.0  # 비활성화
-    # fir2_obj: float = 0.0  # 비활성화
 
     thermal_camera_avg: float = 0.0
     thermal_camera_min: float = 0.0

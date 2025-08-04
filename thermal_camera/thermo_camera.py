@@ -80,13 +80,13 @@ def read_cam(sensor, ascii: bool = False):
 # 4)  단독 실행 데모
 # ──────────────────────
 if __name__ == "__main__":
-    i2c, cam, mux = init_thermal_camera()   # 2 Hz
+    i2c, cam = init_thermal_camera()   # 2 Hz
     try:
         while True:
             stamp = time.monotonic()
             data = read_cam(cam, ascii=True)
             if data is not None:
-                _, tmin, tmax, tavg = data
+                tmin, tmax, tavg = data
                 print(f"Frame OK in {time.monotonic() - stamp:.2f}s  "
                       f"min={tmin:.1f}°C  max={tmax:.1f}°C  avg={tavg:.1f}°C")
             time.sleep(0.1)   # refresh_hz=2 → 0.5 s 주기, 살짝 여유

@@ -10,8 +10,6 @@ PREV_THERMO_TOFF = 0.0
 PREV_THERMO_HOFF = 0.0
 PREV_FIR1_AOFF = 0.0
 PREV_FIR1_OOFF = 0.0
-PREV_FIR2_AOFF = 0.0
-PREV_FIR2_OOFF = 0.0
 PREV_THERMIS_OFF = 0.0
 PREV_NIR_OFFSET = 0.0
 PREV_PITOT_POFF = 0.0  # 압력 오프셋
@@ -36,8 +34,6 @@ THERMO_TOFF={PREV_THERMO_TOFF}
 THERMO_HOFF={PREV_THERMO_HOFF}
 FIR1_AOFF={PREV_FIR1_AOFF}
 FIR1_OOFF={PREV_FIR1_OOFF}
-FIR2_AOFF={PREV_FIR2_AOFF}
-FIR2_OOFF={PREV_FIR2_OOFF}
 THERMIS_OFF={PREV_THERMIS_OFF}
 NIR_OFFSET={PREV_NIR_OFFSET}
 PITOT_POFF={PREV_PITOT_POFF}
@@ -88,13 +84,6 @@ def update_fir1cal(amb_off: float, obj_off: float):
     write_prevstate_file()
     return
 
-def update_fir2cal(amb_off: float, obj_off: float):
-    global PREV_FIR2_AOFF, PREV_FIR2_OOFF
-    PREV_FIR2_AOFF = amb_off
-    PREV_FIR2_OOFF = obj_off
-    write_prevstate_file()
-    return
-
 def update_thermiscal(temp_off: float):
     global PREV_THERMIS_OFF
     PREV_THERMIS_OFF = temp_off
@@ -123,8 +112,6 @@ def init_prevstate():
     global PREV_THERMO_HOFF
     global PREV_FIR1_AOFF
     global PREV_FIR1_OOFF
-    global PREV_FIR2_AOFF
-    global PREV_FIR2_OOFF
     global PREV_THERMIS_OFF
     global PREV_NIR_OFFSET
     global PREV_PITOT_POFF
@@ -190,16 +177,6 @@ def init_prevstate():
                     PREV_FIR1_OOFF = float(prevstate_line.split("=")[1].strip())
                 except Exception:
                     PREV_FIR1_OOFF = 0.0
-            elif "FIR2_AOFF=" in prevstate_line:
-                try:
-                    PREV_FIR2_AOFF = float(prevstate_line.split("=")[1].strip())
-                except Exception:
-                    PREV_FIR2_AOFF = 0.0
-            elif "FIR2_OOFF=" in prevstate_line:
-                try:
-                    PREV_FIR2_OOFF = float(prevstate_line.split("=")[1].strip())
-                except Exception:
-                    PREV_FIR2_OOFF = 0.0
             elif "THERMIS_OFF=" in prevstate_line:
                 try:
                     PREV_THERMIS_OFF = float(prevstate_line.split("=")[1].strip())
@@ -226,10 +203,6 @@ def init_prevstate():
 def get_fir1cal():
     """Get FIR1 calibration values (ambient_offset, object_offset)"""
     return PREV_FIR1_AOFF, PREV_FIR1_OOFF
-
-def get_fir2cal():
-    """Get FIR2 calibration values (ambient_offset, object_offset)"""
-    return PREV_FIR2_AOFF, PREV_FIR2_OOFF
 
 def get_thermocal():
     """Get THERMO calibration values (temp_offset, humidity_offset)"""
