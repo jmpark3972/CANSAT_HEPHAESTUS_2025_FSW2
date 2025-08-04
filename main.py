@@ -98,6 +98,10 @@ def terminate_FSW():
     events.LogEvent(appargs.MainAppArg.AppName, events.EventType.info, f"Manual termination! Resetting prev state file")
     prevstate.reset_prevstate()
     
+    # 강제 종료를 위한 최종 확인
+    print("FSW 종료 완료. 프로그램을 종료합니다.")
+    os._exit(0)
+    
     # 이중 로깅 시스템 종료
     try:
         logging.close_dual_logging_system()
@@ -137,6 +141,8 @@ def signal_handler(signum, frame):
     MAINAPP_RUNSTATUS = False
     # 실제 종료 프로세스 호출
     terminate_FSW()
+    # 강제 종료를 위한 os._exit 추가
+    os._exit(0)
 
 # Setup signal handlers
 signal.signal(signal.SIGINT, signal_handler)
@@ -425,6 +431,9 @@ def runloop(Main_Queue : Queue):
         MAINAPP_RUNSTATUS = False
 
     terminate_FSW()
+    # 강제 종료를 위한 최종 확인
+    print("메인 루프 종료 완료. 프로그램을 종료합니다.")
+    os._exit(0)
     return
 
 
