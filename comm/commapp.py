@@ -224,7 +224,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
         # Check the length of separated data
         if (len(sep_data) != 13):
-            safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data, "error".upper(), True)}")
+            safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}", "error".upper(), True)
             return
         
         tlm_data.filtered_roll = safe_float(sep_data[0])

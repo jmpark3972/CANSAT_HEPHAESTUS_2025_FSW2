@@ -12,6 +12,7 @@ import time
 from queue import Queue
 from multiprocessing import connection
 from lib import logging
+from lib import events
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""

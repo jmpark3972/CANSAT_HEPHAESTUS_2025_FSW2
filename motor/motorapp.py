@@ -82,7 +82,7 @@ def motorapp_init() -> None:
     global pi, PAYLOAD_MOTOR_ENABLE
     signal.signal(signal.SIGINT, signal.SIG_IGN)  # parent handles SIGINT
 
-    safe_log("Initialising motorapp (pigpio, "info".upper(), True)")
+    safe_log("Initialising motorapp (pigpio)", "info".upper(), True)
 
     pi = pigpio.pi()
     if not pi.connected:
