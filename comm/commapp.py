@@ -299,7 +299,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             tlm_data.tmp007_die_temp = safe_float(sep_data[1])
             tlm_data.tmp007_voltage = safe_float(sep_data[2])
         else:
-            safe_log(f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data, "error".upper(), True)}")
+            safe_log(f"ERROR receiving TMP007, expected 3 fields, got {len(sep_data)}", "error".upper(), True)
 
 
 

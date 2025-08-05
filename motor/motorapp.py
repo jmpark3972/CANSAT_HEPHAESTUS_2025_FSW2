@@ -235,7 +235,7 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
         try:
             pulse = int(float(recv.data))
             set_servo_pulse(pulse)
-            safe_log(f"Servo pulse set to {pulse}µs (from flightlogic, "info".upper(), True)")
+            safe_log(f"Servo pulse set to {pulse}µs (from flightlogic)", "info".upper(), True)
         except Exception as e:
             safe_log(f"Bad pulse cmd: {recv.data} – {e}", "error".upper(), True)
         return

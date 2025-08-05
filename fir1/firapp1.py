@@ -12,7 +12,7 @@ import time
 from queue import Queue
 from multiprocessing import connection
 from lib import logging
-from lib import events
+# from lib import events  # Removed - events module doesn't exist
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -56,21 +56,15 @@ def firapp1_init():
     """FIR1 앱 초기화."""
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.info,
-                        "Initializing firapp1")
+        safe_log("Initializing firapp1", "info".upper(), True)
 
         i2c, sensor = fir1.init_fir1()
 
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.info,
-                        "Firapp1 initialization complete")
+        safe_log("Firapp1 initialization complete", "info".upper(), True)
         return i2c, sensor
 
     except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.error,
-                        f"Init error: {e}")
+        safe_log(f"Init error: {e}", "error".upper(), True)
         return None, None
 
 # ──────────────────────────────
@@ -85,17 +79,11 @@ def read_fir1_data(sensor):
             if amb is not None and obj is not None:
                 FIR1_AMB = amb
                 FIR1_OBJ = obj
-                events.LogEvent(appargs.FirApp1Arg.AppName,
-                                events.EventType.info,
-                                f"FIR1 데이터 읽기 성공: Ambient={amb:.2f}°C, Object={obj:.2f}°C")
+                safe_log(f"FIR1 데이터 읽기 성공: Ambient={amb:.2f}°C, Object={obj:.2f}°C", "info".upper(), True)
             else:
-                events.LogEvent(appargs.FirApp1Arg.AppName,
-                                events.EventType.warning,
-                                "FIR1 데이터 읽기 실패: None 값 반환")
+                safe_log("FIR1 데이터 읽기 실패: None 값 반환", "warning".upper(), True)
         except Exception as e:
-            events.LogEvent(appargs.FirApp1Arg.AppName,
-                            events.EventType.error,
-                            f"FIR1 read error: {e}")
+            safe_log(f"FIR1 read error: {e}", "error".upper(), True)
         time.sleep(0.5)  # 2 Hz
 
 # ──────────────────────────────
