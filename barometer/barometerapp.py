@@ -9,6 +9,7 @@ import sys
 import time
 import threading
 import csv
+import signal
 from datetime import datetime
 from multiprocessing import Queue, Process, connection
 from pathlib import Path

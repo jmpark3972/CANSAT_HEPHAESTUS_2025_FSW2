@@ -219,33 +219,33 @@ def read_imu_data(sensor):
     while IMUAPP_RUNSTATUS:
         try:
             gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
-            if gyro is not None:
+            if gyro is not None and accel is not None and mag is not None and euler is not None:
                 IMU_GYRO = gyro
                 IMU_ACCEL = accel
                 IMU_MAG = mag
                 IMU_EULER = euler
-                IMU_TEMP = temp
+                IMU_TEMP = temp if temp is not None else 0.0
                 
                 # 개별 변수들 업데이트
                 if len(euler) >= 3:
-                    IMU_ROLL = euler[0]
-                    IMU_PITCH = euler[1]
-                    IMU_YAW = euler[2]
+                    IMU_ROLL = euler[0] if euler[0] is not None else 0.0
+                    IMU_PITCH = euler[1] if euler[1] is not None else 0.0
+                    IMU_YAW = euler[2] if euler[2] is not None else 0.0
                 
                 if len(accel) >= 3:
-                    IMU_ACCX = accel[0]
-                    IMU_ACCY = accel[1]
-                    IMU_ACCZ = accel[2]
+                    IMU_ACCX = accel[0] if accel[0] is not None else 0.0
+                    IMU_ACCY = accel[1] if accel[1] is not None else 0.0
+                    IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
                 
                 if len(mag) >= 3:
-                    IMU_MAGX = mag[0]
-                    IMU_MAGY = mag[1]
-                    IMU_MAGZ = mag[2]
+                    IMU_MAGX = mag[0] if mag[0] is not None else 0.0
+                    IMU_MAGY = mag[1] if mag[1] is not None else 0.0
+                    IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
                 
                 if len(gyro) >= 3:
-                    IMU_GYRX = gyro[0]
-                    IMU_GYRY = gyro[1]
-                    IMU_GYRZ = gyro[2]
+                    IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
+                    IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
+                    IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
                     
         except Exception as e:
             safe_log(f"IMU read error: {e}", "error".upper(), True)

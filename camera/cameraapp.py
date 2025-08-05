@@ -34,7 +34,7 @@ VIDEO_COUNT = 0
 DISK_USAGE = 0.0
 
 # 로그 디렉토리
-LOG_DIR = "/home/pi/cansat_logs"
+LOG_DIR = "logs"
 
 # ──────────────────────────────
 # 1. 로깅 함수
