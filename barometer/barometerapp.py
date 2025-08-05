@@ -29,6 +29,7 @@ MAXALT_RESET_MUTEX = threading.Lock()
 # 로그 파일 경로
 LOG_DIR = "logs"
 HIGH_FREQ_LOG_PATH = os.path.join(LOG_DIR, "barometer_high_freq.csv")
+HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""

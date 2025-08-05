@@ -28,6 +28,7 @@ class GpsAppArg:
     AppName = "GPS"
     MID_SendHK:     types.MID = 1201
     MID_SendGpsTlmData: types.MID = 1202
+    MID_SendGpsFlightLogicData: types.MID = 1203
 
 class ImuAppArg:
     AppID: types.AppID = 13
