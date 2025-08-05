@@ -293,8 +293,18 @@ def cameraapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             try:
                 # 메시지 수신
                 if Main_Pipe.poll(0.1):
-                    recv_msg = Main_Pipe.recv()
-                    command_handler(Main_Queue, recv_msg)
+                    message = Main_Pipe.recv()
+                    recv_msg = msgstructure.MsgStructure()
+                    
+                    # Unpack Message, Skip this message if unpacked message is not valid
+                    if msgstructure.unpack_msg(recv_msg, message) == False:
+                        continue
+                    
+                    # Validate Message, Skip this message if target AppID different from cameraapp's AppID
+                    if recv_msg.receiver_app == appargs.CameraAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
+                        command_handler(Main_Queue, recv_msg)
+                    else:
+                        log_app_error(f"Receiver MID does not match with cameraapp MID: {recv_msg.receiver_app}")
                     
             except Exception as e:
                 log_app_error(f"Main loop error: {e}")
