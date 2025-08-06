@@ -53,12 +53,7 @@ class OffsetManager:
                 "VOLTAGE_OFFSET": 0.0           # μV
             },
             
-            # Pitot Tube 오프셋
-            "PITOT": {
-                "PRESSURE_OFFSET": 0.0,         # Pa
-                "TEMPERATURE_OFFSET": 60.0,    # °C (기본값)
-                "AIRSPEED_OFFSET": 0.0          # m/s
-            },
+
             
             # Thermal Camera 오프셋
             "THERMAL_CAMERA": {
@@ -209,12 +204,7 @@ class OffsetManager:
                         elif line.startswith('NIR_OFFSET='):
                             value = float(line.split('=')[1])
                             current_offsets["NIR"]["OFFSET"] = value
-                        elif line.startswith('PITOT_POFF='):
-                            value = float(line.split('=')[1])
-                            current_offsets["PITOT"]["PRESSURE_OFFSET"] = value
-                        elif line.startswith('PITOT_TOFF='):
-                            value = float(line.split('=')[1])
-                            current_offsets["PITOT"]["TEMPERATURE_OFFSET"] = value
+
                 
                 logging.log("기존 prevstate.txt 오프셋 데이터를 마이그레이션했습니다", True)
         except Exception as e:
@@ -281,16 +271,7 @@ class OffsetManager:
         """Thermis 온도 오프셋 설정"""
         self.set("THERMIS.TEMPERATURE_OFFSET", offset)
     
-    def get_pitot_offsets(self) -> Tuple[float, float]:
-        """Pitot 압력/온도 오프셋 가져오기"""
-        pressure = self.get("PITOT.PRESSURE_OFFSET", 0.0)
-        temperature = self.get("PITOT.TEMPERATURE_OFFSET", -60.0)
-        return pressure, temperature
-    
-    def set_pitot_offsets(self, pressure_offset: float, temperature_offset: float):
-        """Pitot 압력/온도 오프셋 설정"""
-        self.set("PITOT.PRESSURE_OFFSET", pressure_offset)
-        self.set("PITOT.TEMPERATURE_OFFSET", temperature_offset)
+
     
     def get_thermal_camera_offset(self) -> float:
         """Thermal Camera 온도 오프셋 가져오기"""
@@ -404,9 +385,7 @@ def get_thermis_offset() -> float:
     """Thermis 오프셋 가져오기 (기존 호환성)"""
     return get_offset_manager().get_thermis_offset()
 
-def get_pitot_offsets() -> Tuple[float, float]:
-    """Pitot 오프셋 가져오기 (기존 호환성)"""
-    return get_offset_manager().get_pitot_offsets()
+
 
 def get_comm_offset() -> float:
     """통신 SIMP 오프셋 가져오기 (기존 호환성)"""
@@ -421,8 +400,6 @@ if __name__ == "__main__":
     print("\n=== 오프셋 테스트 ===")
     manager.set_barometer_offset(10.5)
     manager.set_thermis_offset(25.0)
-    manager.set_pitot_offsets(5.2, -55.0)
     
     print(f"Barometer 오프셋: {manager.get_barometer_offset()}m")
-    print(f"Thermis 오프셋: {manager.get_thermis_offset()}°C")
-    print(f"Pitot 오프셋: {manager.get_pitot_offsets()}") 
+    print(f"Thermis 오프셋: {manager.get_thermis_offset()}°C") 

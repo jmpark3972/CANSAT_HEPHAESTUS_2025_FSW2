@@ -105,14 +105,7 @@ def migrate_offsets():
                         value = float(line.split('=')[1])
                         manager.set("NIR.OFFSET", value)
                         print(f"  ✓ NIR 오프셋: {value}")
-                    elif line.startswith('PITOT_POFF='):
-                        value = float(line.split('=')[1])
-                        manager.set("PITOT.PRESSURE_OFFSET", value)
-                        print(f"  ✓ Pitot 압력 오프셋: {value}Pa")
-                    elif line.startswith('PITOT_TOFF='):
-                        value = float(line.split('=')[1])
-                        manager.set("PITOT.TEMPERATURE_OFFSET", value)
-                        print(f"  ✓ Pitot 온도 오프셋: {value}°C")
+
     except Exception as e:
         print(f"  ✗ prevstate.txt 마이그레이션 실패: {e}")
     
@@ -139,8 +132,7 @@ def verify_migration():
         ("IMU.ACCELEROMETER", "IMU 가속도계 오프셋"),
         ("BAROMETER.ALTITUDE_OFFSET", "Barometer 고도 오프셋"),
         ("THERMIS.TEMPERATURE_OFFSET", "Thermis 온도 오프셋"),
-        ("PITOT.PRESSURE_OFFSET", "Pitot 압력 오프셋"),
-        ("PITOT.TEMPERATURE_OFFSET", "Pitot 온도 오프셋"),
+
         ("THERMAL_CAMERA.TEMPERATURE_OFFSET", "Thermal Camera 온도 오프셋"),
         ("COMM.SIMP_OFFSET", "통신 SIMP 오프셋")
     ]

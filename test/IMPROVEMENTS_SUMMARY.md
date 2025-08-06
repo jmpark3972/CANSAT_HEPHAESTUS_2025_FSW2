@@ -30,14 +30,14 @@ from lib import config
 **수정된 파일들**:
 - `test_camera_cam.py`
 - `test_fir1.py`
-- `test_pitot.py`
+
 - `test_thermal_camera.py`
 - `test_fixes.py`
 - `test_final_fixes.py`
 - `test_message_fixes.py`
 - `test_motor_logic_update.py`
 - `test_motor_status_fixes.py`
-- `test_pitot_calibration.py`
+
 
 ### 2. 인터랙티브 테스트 자동화 ✅
 **문제**: `test_motor_base.py`에서 `input()` 대기

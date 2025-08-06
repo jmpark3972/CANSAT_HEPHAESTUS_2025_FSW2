@@ -46,10 +46,7 @@ lib/
 - `TMP007.TEMPERATURE_OFFSET`: 온도 오프셋 (°C)
 - `TMP007.VOLTAGE_OFFSET`: 전압 오프셋 (μV)
 
-### Pitot Tube
-- `PITOT.PRESSURE_OFFSET`: 압력 오프셋 (Pa)
-- `PITOT.TEMPERATURE_OFFSET`: 온도 오프셋 (°C)
-- `PITOT.AIRSPEED_OFFSET`: 유속도 오프셋 (m/s)
+
 
 ### Thermal Camera (MLX90640)
 - `THERMAL_CAMERA.TEMPERATURE_OFFSET`: 온도 오프셋 (K)
@@ -95,7 +92,7 @@ manager.set_thermis_offset(30.0)
 ```python
 from lib.offsets import (
     get_imu_offsets, get_barometer_offset, get_thermis_offset,
-    get_pitot_offsets, get_thermal_camera_offset
+    get_thermal_camera_offset
 )
 
 # IMU 오프셋
@@ -107,8 +104,7 @@ altitude_offset = get_barometer_offset()
 # Thermis 오프셋
 temp_offset = get_thermis_offset()
 
-# Pitot 오프셋
-pressure_offset, temp_offset = get_pitot_offsets()
+
 
 # Thermal Camera 오프셋
 temp_offset = get_thermal_camera_offset()
@@ -150,7 +146,6 @@ manager.set_imu_offsets(
 # 다른 오프셋들 설정
 manager.set_barometer_offset(0.0)
 manager.set_thermis_offset(50.0)
-manager.set_pitot_offsets(0.0, -60.0)
 ```
 
 ## 오프셋 파일 형식
@@ -173,11 +168,7 @@ manager.set_pitot_offsets(0.0, -60.0)
   "THERMIS": {
     "TEMPERATURE_OFFSET": 50.0
   },
-  "PITOT": {
-    "PRESSURE_OFFSET": 0.0,
-    "TEMPERATURE_OFFSET": -60.0,
-    "AIRSPEED_OFFSET": 0.0
-  },
+
   "META": {
     "LAST_UPDATED": "2025-01-27T10:30:00",
     "VERSION": "1.0",
@@ -226,10 +217,7 @@ CMD,3139,CAL
 CMD,3139,CAL,25.0
 ```
 
-### Pitot 보정
-```
-CMD,3139,CAL,5.2,-55.0
-```
+
 
 ## 백업 및 복원
 

@@ -39,7 +39,6 @@ class UnifiedLogger:
         self.loggers: Dict[str, logging.Logger] = {}
         self.log_dir = "logs"
         self.max_file_size = 10 * 1024 * 1024  # 10MB
-        self.backup_count = 5
         self._lock = threading.Lock()
         
         # 로그 디렉토리 생성
@@ -190,27 +189,9 @@ class UnifiedLogger:
             print(f"Log file rotation failed: {e}")
     
     def _cleanup_old_backups(self, log_file: str):
-        """오래된 백업 파일 정리"""
-        try:
-            import glob
-            
-            # 백업 파일 패턴
-            backup_pattern = f"{log_file}.*.gz"
-            backup_files = glob.glob(backup_pattern)
-            
-            # 파일 수가 백업 개수를 초과하면 오래된 것부터 삭제
-            if len(backup_files) > self.backup_count:
-                backup_files.sort(key=os.path.getmtime)
-                files_to_delete = backup_files[:-self.backup_count]
-                
-                for file_to_delete in files_to_delete:
-                    try:
-                        os.remove(file_to_delete)
-                    except Exception as e:
-                        print(f"Failed to delete old backup {file_to_delete}: {e}")
-                        
-        except Exception as e:
-            print(f"Backup cleanup failed: {e}")
+        """오래된 백업 파일 정리 (사용자 요청으로 백업 개수 제한 제거)"""
+        # 백업 파일 개수 제한 기능 제거됨
+        pass
     
     def get_log_stats(self) -> Dict[str, Any]:
         """로그 통계 정보"""

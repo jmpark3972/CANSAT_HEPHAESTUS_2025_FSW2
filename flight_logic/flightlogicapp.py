@@ -567,16 +567,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
             except Exception as e:
                 log_error(f"Camera status parsing error: {e}", "command_handler")
         
-        # Pitot 데이터 (2503)
-        elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotFlightLogicData:
-            try:
-                data = recv_msg.data.split(',')
-                if len(data) >= 2:
-                    pressure = float(data[0])
-                    temp = float(data[1])
-                    log_sensor_data("Pitot", {"pressure": pressure, "temperature": temp})
-            except Exception as e:
-                log_error(f"Pitot data parsing error: {e}", "command_handler")
+
         
         # TMP007 데이터 (2603)
         elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007FlightLogicData:

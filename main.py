@@ -28,6 +28,7 @@ from multiprocessing import Process, Queue, Pipe, connection
 from lib import config
 from lib import resource_manager
 from lib import memory_optimizer
+from lib import log_rotation
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -42,6 +43,9 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
 # 리소스 모니터링 및 메모리 최적화 시작
 resource_manager.start_resource_monitoring()
 memory_optimizer.start_memory_optimization()
+
+# 로그 로테이션 초기화
+log_rotator = log_rotation.LogRotator(max_size_mb=10, max_age_days=30)
 
 if config.get_config("FSW_MODE") == "NONE":
     safe_log("CONFIG IS SELECTED AS NONE, TERMINATING FSW", "ERROR", True)
@@ -71,6 +75,10 @@ def terminate_FSW():
         resource_manager.stop_resource_monitoring()
         memory_optimizer.stop_memory_optimization()
         safe_log("리소스 모니터링 및 메모리 최적화 중지 완료", "INFO", True)
+        
+        # 로그 로테이션 실행
+        log_rotator.rotate_logs()
+        safe_log("로그 로테이션 완료", "INFO", True)
         
         # 로깅 시스템 정리
         logging.close_dual_logging_system()
@@ -357,10 +365,6 @@ except Exception as e:
 # THERMISApp
 try:
     from thermis import thermisapp
-    import sys
-    import os
-    sys.path.append(os.path.join(os.path.dirname(__file__), 'pitot'))
-    import pitotapp
     
     parent_pipe, child_pipe = Pipe()
     
@@ -426,20 +430,7 @@ try:
 except Exception as e:
     safe_log(f"Thermo 앱 로드 실패: {e}", "ERROR", True)
 
-# PitotApp
-try:
-    parent_pipe, child_pipe = Pipe()
-    
-    # Add Process, pipe to elements dictionary
-    pitotapp_elements = app_elements()
-    pitotapp_elements.process = Process(target = pitotapp.pitotapp_main, args = (main_queue, child_pipe, ))
-    pitotapp_elements.pipe = parent_pipe
-    
-    # Add the process to dictionary
-    app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
-    safe_log("Pitot 앱 로드 완료", "INFO", True)
-except Exception as e:
-    safe_log(f"Pitot 앱 로드 실패: {e}", "ERROR", True)
+
 
 # CameraApp (Raspberry Pi Camera Module v3 Wide)
 try:
@@ -711,7 +702,6 @@ if __name__ == '__main__':
             appargs.FirApp1Arg.AppID,
             appargs.ThermoAppArg.AppID,
             appargs.Tmp007AppArg.AppID,  # TMP007 센서 앱
-            appargs.PitotAppArg.AppID,
             appargs.ThermalcameraAppArg.AppID,
             appargs.CameraAppArg.AppID,  # 카메라 앱
             appargs.CommAppArg.AppID,    # 통신 앱

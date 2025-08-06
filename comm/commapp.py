@@ -326,22 +326,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         if len(sep_data) == 1:
             tlm_data.thermis_temp = float(sep_data[0])
 
-    elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotTlmData:
-        sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
-            tlm_data.pitot_pressure = float(sep_data[0])
-            tlm_data.pitot_temp = float(sep_data[1])
-            tlm_data.pitot_airspeed = float(sep_data[2])
-            tlm_data.pitot_total_pressure = float(sep_data[3])
-            tlm_data.pitot_static_pressure = float(sep_data[4])
-            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
-        elif len(sep_data) == 2:  # 기존 호환성 유지
-            tlm_data.pitot_pressure = float(sep_data[0])
-            tlm_data.pitot_temp = float(sep_data[1])
-            tlm_data.pitot_airspeed = 0.0
-            tlm_data.pitot_total_pressure = 0.0
-            tlm_data.pitot_static_pressure = 0.0
-            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
+
 
     # 모터 상태 수신
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
@@ -486,11 +471,6 @@ class _tlm_data_format:
     thermal_camera_min: float = 0.0
     thermal_camera_max: float = 0.0
     thermis_temp: float = 0.0
-    pitot_pressure: float = 0.0
-    pitot_temp: float = 0.0
-    pitot_airspeed: float = 0.0
-    pitot_total_pressure: float = 0.0
-    pitot_static_pressure: float = 0.0
     tmp007_object_temp: float = 0.0
     tmp007_die_temp: float = 0.0
     tmp007_voltage: float = 0.0
@@ -498,12 +478,6 @@ class _tlm_data_format:
     motor_status: int = 1  # 0=열림, 1=닫힘
     
     # 고급 데이터 필드들 (로그에만 저장, 텔레메트리에는 전송하지 않음)
-    # Pitot 추가 데이터
-    pitot_mach_number: float = 0.0
-    pitot_air_density: float = 0.0
-    pitot_reynolds_number: float = 0.0
-    pitot_dynamic_pressure: float = 0.0
-    
     # Thermal Camera 추가 데이터
     thermal_camera_max_gradient: float = 0.0
     thermal_camera_avg_gradient: float = 0.0
@@ -598,21 +572,12 @@ def send_tlm(serial_instance):
                         f"{tlm_data.thermal_camera_min:.2f}",
                         f"{tlm_data.thermal_camera_max:.2f}",
                         f"{tlm_data.thermis_temp:.2f}",
-                        f"{tlm_data.pitot_pressure:.2f}",
-                        f"{tlm_data.pitot_temp:.2f}",
-                        f"{tlm_data.pitot_airspeed:.2f}",
-                        f"{tlm_data.pitot_total_pressure:.2f}",
-                        f"{tlm_data.pitot_static_pressure:.2f}",
                         f"{tlm_data.tmp007_object_temp:.2f}",
                         f"{tlm_data.tmp007_die_temp:.2f}",
                         f"{tlm_data.tmp007_voltage:.2f}",
                         f"{tlm_data.imu_temperature:.2f}",
                         str(tlm_data.motor_status),
                         # 추가된 고급 데이터 필드들
-                        f"{tlm_data.pitot_mach_number:.4f}",
-                        f"{tlm_data.pitot_air_density:.4f}",
-                        f"{tlm_data.pitot_reynolds_number:.0f}",
-                        f"{tlm_data.pitot_dynamic_pressure:.2f}",
                         f"{tlm_data.thermal_camera_max_gradient:.3f}",
                         f"{tlm_data.thermal_camera_avg_gradient:.3f}",
                         f"{tlm_data.thermal_camera_std_temp:.2f}",
@@ -645,7 +610,6 @@ def send_tlm(serial_instance):
 
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
                     f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure}), SeaLevelP({tlm_data.barometer_sea_level_pressure})\n" \
-                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp}), Airspeed({tlm_data.pitot_airspeed}), TotalP({tlm_data.pitot_total_pressure}), StaticP({tlm_data.pitot_static_pressure}), Mach({tlm_data.pitot_mach_number:.4f}), Density({tlm_data.pitot_air_density:.4f})\n" \
                      f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
                      f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
                      f"Thermis : Temperature({tlm_data.thermis_temp})\n" \

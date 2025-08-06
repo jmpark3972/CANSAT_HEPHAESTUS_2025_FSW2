@@ -14,7 +14,7 @@
 ```
 ModuleNotFoundError: No module named 'camera'
 ModuleNotFoundError: No module named 'fir1'
-ModuleNotFoundError: No module named 'pitot'
+
 ImportError: cannot import name 'config' from 'lib'
 ```
 

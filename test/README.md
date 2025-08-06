@@ -30,7 +30,7 @@
 - `test_camera_cam.py` - cam 명령어 테스트
 - `test_thermal_camera.py` - 열화상 카메라 테스트
 - `test_thermal_camera_advanced.py` - 열화상 카메라 고급 테스트
-- `test_pitot.py` - Pitot 센서 테스트
+
 - `test_fir1.py` - FIR1 센서 테스트
 - `test_thermo.py` - 온도 센서 테스트
 - `test_thermis.py` - Thermis 센서 테스트
@@ -48,8 +48,7 @@
 - `test_message_fixes.py` - 메시지 구조 수정사항 테스트
 - `test_motor_logic_update.py` - 모터 로직 업데이트 테스트
 - `test_motor_status_fixes.py` - 모터 상태 수정사항 테스트
-- `test_pitot_calibration.py` - Pitot 캘리브레이션 테스트
-- `test_pitot_final_fix.py` - Pitot 최종 수정사항 테스트
+
 
 ### 🚀 실행 도구 (Execution Tools)
 - `run_all_tests.py` - 모든 테스트 실행

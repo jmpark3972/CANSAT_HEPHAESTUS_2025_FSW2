@@ -97,14 +97,7 @@ class ThermisAppArg:
     MID_SendThermisFlightLogicData: types.MID = 2403  # 10 Hz 온도
     MID_ThermisCalibration:    types.MID = 2404  # CAL 처리용(옵션)
 
-# ────────── PITOT (Differential Pressure) ──────────
-class PitotAppArg:
-    AppID: types.AppID = 25          # **고유해야 함**
-    AppName = "PITOT"
-    MID_SendHK:            types.MID = 2501
-    MID_SendPitotTlmData:    types.MID = 2502  # 1 Hz 텔레메트리 (pressure, temp)
-    MID_SendPitotFlightLogicData: types.MID = 2503  # 5 Hz 차압, 온도
-    MID_PitotCalibration:    types.MID = 2504  # CAL 처리용(옵션)
+
 
 
 
