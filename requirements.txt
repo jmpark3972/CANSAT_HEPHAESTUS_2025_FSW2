@@ -1,0 +1,31 @@
+# CANSAT HEPHAESTUS 2025 FSW2 - Python Dependencies
+# Generated: 2025-08-06
+
+# Core dependencies
+psutil>=5.9.0
+pigpio>=1.78
+
+# Sensor libraries
+adafruit-circuitpython-bno055>=1.4.0
+adafruit-circuitpython-bmp3xx>=1.4.0
+adafruit-blinka>=8.0.0
+
+# Camera and video processing
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Serial communication
+pyserial>=3.5
+
+# Testing and development
+coverage>=7.0.0
+pytest>=7.0.0
+
+# Optional: For advanced features
+# picamera2>=0.3.0  # Only if using Pi Camera 2
+# libcamera-tools   # System package, not pip installable
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0 

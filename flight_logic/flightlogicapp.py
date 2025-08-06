@@ -62,6 +62,10 @@ SIMULATION_ACTIVATE = False
 MAX_ALT = 0
 recent_alt = []  # 최근 고도 데이터 (5개 유지)
 
+# 고도 초기화 플래그
+ALTITUDE_INITIALIZED = False
+INITIAL_ALTITUDE = 0.0
+
 # 상태 전환 카운터
 BAROMETER_ASCENT_COUNTER = 0
 BAROMETER_DESCENT_COUNTER = 0
@@ -370,20 +374,34 @@ def update_motor_logic(Main_Queue: Queue):
     """온도/고도 조건에 따라 모터 제어"""
     global CURRENT_STATE, MOTOR_CLOSE_ALT_THRESHOLD, RECENT_ALT_CHECK_LEN
     
-    # 1. 절대적 고도 조건 (70m 이하) - 최우선
-    if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
+    # 하강 상태 (State 3)에서 70m 이하일 때는 무조건 모터 닫음
+    if CURRENT_STATE == 3:  # 하강 상태
+        if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
+            set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+            return
+    
+    # 모터 완전 닫음 상태 (State 4)에서는 항상 닫힘
+    if CURRENT_STATE == 4:
         set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
         return
     
-    # 2. 기본 모터 상태 (닫힘)
-    set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+    # 상승 상태 (State 1) 또는 하강 상태 (State 3)에서 Thermis 온도에 따른 제어
+    if CURRENT_STATE == 1 or CURRENT_STATE == 3:  # 상승 또는 하강 상태
+        if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:  # 35°C 이상
+            set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
+        else:  # 35°C 이하
+            set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+        return
     
-    # 3. 추가 조건들 (필요시 여기에 추가)
-    # 예: 시간 기반 조건, 다른 센서 조건 등
-    
-    # 4. 온도 조건 (Thermis 온도 기준) - 35도 이상시 열림
-    if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:
+    # 최고점 상태 (State 2)에서는 기본적으로 열림 (페이로드 방출 준비)
+    if CURRENT_STATE == 2:
         set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
+        return
+    
+    # 발사대 대기 상태 (State 0)에서는 기본적으로 닫힘
+    if CURRENT_STATE == 0:
+        set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+        return
 
 # ──────────────────────────────
 # 10. 카메라 제어 함수
@@ -628,7 +646,20 @@ def barometer_logic(Main_Queue: Queue, altitude: float):
     global MAX_ALT, MOTOR_CLOSE_ALT_THRESHOLD, CURRENT_STATE
     global BAROMETER_ASCENT_COUNTER, BAROMETER_DESCENT_COUNTER
     global BAROMETER_APOGEE_COUNTER, BAROMETER_MOTOR_CLOSE_COUNTER, BAROMETER_LANDED_COUNTER
-    global recent_alt
+    global recent_alt, ALTITUDE_INITIALIZED, INITIAL_ALTITUDE
+
+    # 고도 초기화 (첫 번째 고도 데이터)
+    if not ALTITUDE_INITIALIZED:
+        INITIAL_ALTITUDE = altitude
+        ALTITUDE_INITIALIZED = True
+        safe_log(f"고도 초기화: {INITIAL_ALTITUDE}m", "INFO", True)
+        
+        # 초기 고도를 0으로 설정 (상대 고도 계산)
+        altitude = 0.0
+        safe_log("상대 고도 계산 시작 (초기 고도를 0m로 설정)", "INFO", True)
+    else:
+        # 상대 고도 계산 (초기 고도 대비)
+        altitude = altitude - INITIAL_ALTITUDE
 
     # recent_alt 길이 5로 유지
     recent_alt.append(altitude)
@@ -817,6 +848,7 @@ def flightlogicapp_init(Main_Queue: Queue):
     """Flight Logic 앱 초기화"""
     try:
         global FLIGHTLOGICAPP_RUNSTATUS, CURRENT_STATE, MAX_ALT, MOTOR_CLOSE_ALT_THRESHOLD
+        global ALTITUDE_INITIALIZED, INITIAL_ALTITUDE
         
         # 키보드 인터럽트 비활성화
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -827,6 +859,10 @@ def flightlogicapp_init(Main_Queue: Queue):
         CURRENT_STATE = int(prevstate.PREV_STATE)
         MAX_ALT = float(prevstate.PREV_MAX_ALT)
         MOTOR_CLOSE_ALT_THRESHOLD = 70  # 고정값 70m
+        
+        # 고도 초기화 플래그 리셋
+        ALTITUDE_INITIALIZED = False
+        INITIAL_ALTITUDE = 0.0
 
         # 상태에 따른 초기화
         if CURRENT_STATE == 0:

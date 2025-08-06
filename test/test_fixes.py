@@ -7,7 +7,9 @@ import sys
 import os
 
 # Add the project root to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
 
 def test_config_fix():
     """Test that FSW_CONF is now available"""
@@ -33,7 +35,7 @@ def test_config_fix():
 def test_camera_paths():
     """Test that camera paths are now relative"""
     try:
-        from camera import camera
+        from camera.camera import camera
         print("✅ Camera module imported successfully")
         
         # Test directory creation
@@ -50,7 +52,7 @@ def test_camera_paths():
 def test_comm_app():
     """Test that comm app can import config without errors"""
     try:
-        from comm import commapp
+        from comm.commapp import commapp
         print("✅ Comm app imported successfully")
         
         # Test that FSW_CONF is accessible

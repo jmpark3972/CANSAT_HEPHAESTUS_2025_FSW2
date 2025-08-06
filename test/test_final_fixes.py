@@ -14,7 +14,15 @@ def test_imports():
     print("=== Import 테스트 ===")
     
     try:
-        from lib import appargs
+        import sys
+import os
+
+# 프로젝트 루트 디렉토리를 Python 경로에 추가
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+
+from lib import appargs
         print("✅ lib.appargs import 성공")
         
         # TelemetryAppArg 확인
@@ -34,14 +42,14 @@ def test_imports():
         return False
     
     try:
-        from camera import camera
+        from camera.camera import camera
         print("✅ camera.camera import 성공")
     except Exception as e:
         print(f"❌ camera.camera import 실패: {e}")
         return False
     
     try:
-        from camera import cameraapp
+        from camera.cameraapp import cameraapp
         print("✅ camera.cameraapp import 성공")
     except Exception as e:
         print(f"❌ camera.cameraapp import 실패: {e}")
@@ -54,7 +62,7 @@ def test_camera_functions():
     print("\n=== 카메라 함수 테스트 ===")
     
     try:
-        from camera import camera
+        from camera.camera import camera
         
         # 디렉토리 생성 테스트
         result = camera.ensure_directories()

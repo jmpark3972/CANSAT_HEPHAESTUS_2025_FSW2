@@ -7,7 +7,9 @@ import sys
 import os
 
 # Add the project root to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
 
 def test_msg_structure():
     """Test that MsgStructure works correctly with data attribute"""
@@ -60,7 +62,7 @@ def test_msg_structure():
 def test_flight_logic_import():
     """Test that FlightLogic can import without errors"""
     try:
-        from flight_logic import flightlogicapp
+        from flight_logic.flightlogicapp import flightlogicapp
         print("✅ FlightLogic import successful")
         return True
     except Exception as e:
@@ -118,7 +120,7 @@ def test_app_args():
 def test_motor_app_import():
     """Test that Motor app can import without errors"""
     try:
-        from motor import motorapp
+        from motor.motorapp import motorapp
         print("✅ Motor app import successful")
         return True
     except Exception as e:

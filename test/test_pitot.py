@@ -10,7 +10,15 @@ import os
 # 프로젝트 루트 디렉토리를 Python 경로에 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from pitot import pitot
+import sys
+import os
+
+# 프로젝트 루트 디렉토리를 Python 경로에 추가
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+
+from pitot.pitot import pitot
 
 def test_pitot():
     """Pitot 센서 테스트"""
