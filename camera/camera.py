@@ -246,7 +246,7 @@ def terminate_camera():
         safe_log(f"카메라 종료 오류: {e}", "ERROR", True)
 
 def record_single_video(camera_process: subprocess.Popen, duration: int = VIDEO_DURATION) -> bool:
-    """단일 비디오 녹화 (cam 명령어 사용)"""
+    """단일 비디오 녹화 (cam 명령어 사용, 이중 로깅 지원)"""
     global _video_count
     
     try:
@@ -275,6 +275,16 @@ def record_single_video(camera_process: subprocess.Popen, duration: int = VIDEO_
                 if os.path.exists(final_path):
                     _video_count += 1
                     safe_log(f"녹화 완료: {final_filename}", "INFO", True)
+                    
+                    # 이중 로깅: 서브 SD 카드에 복사
+                    if os.path.exists("/mnt/log_sd"):
+                        try:
+                            dual_path = os.path.join(DUAL_VIDEO_DIR, final_filename)
+                            shutil.copy2(final_path, dual_path)
+                            safe_log(f"서브 SD에 복사 완료: {dual_path}", "INFO", True)
+                        except Exception as e:
+                            safe_log(f"서브 SD 복사 실패: {e}", "WARNING", True)
+                    
                     return True
                 else:
                     safe_log("비디오 파일이 생성되지 않음", "ERROR", True)
