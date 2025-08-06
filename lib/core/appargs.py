@@ -1,5 +1,5 @@
 # define arguments of each app (identifier, message ID, ...)
-from lib import types
+from . import types
 
 # ────────────────────────── 시스템 공통 ──────────────────────────
 class MainAppArg:

@@ -1,5 +1,5 @@
 import os
-from lib import logging
+from ..logging import safe_log
 
 # Previous state variables
 PREV_STATE = "0"
@@ -16,7 +16,7 @@ def update_prevstate(state: str):
             f.write(f"PREV_ALT_CAL={PREV_ALT_CAL}\n")
             f.write(f"PREV_MAX_ALT={PREV_MAX_ALT}\n")
     except Exception as e:
-        logging.log(f"Failed to update prevstate: {e}", True)
+        safe_log(f"Failed to update prevstate: {e}", True)
 
 def update_alt_cal(alt_cal: str):
     """Update altitude calibration"""
@@ -28,7 +28,7 @@ def update_alt_cal(alt_cal: str):
             f.write(f"PREV_ALT_CAL={alt_cal}\n")
             f.write(f"PREV_MAX_ALT={PREV_MAX_ALT}\n")
     except Exception as e:
-        logging.log(f"Failed to update alt_cal: {e}", True)
+        safe_log(f"Failed to update alt_cal: {e}", True)
 
 def update_maxalt(max_alt: str):
     """Update maximum altitude"""
@@ -40,7 +40,7 @@ def update_maxalt(max_alt: str):
             f.write(f"PREV_ALT_CAL={PREV_ALT_CAL}\n")
             f.write(f"PREV_MAX_ALT={max_alt}\n")
     except Exception as e:
-        logging.log(f"Failed to update max_alt: {e}", True)
+        safe_log(f"Failed to update max_alt: {e}", True)
 
 def reset_prevstate():
     """Reset previous state"""
@@ -53,9 +53,9 @@ def reset_prevstate():
             f.write(f"PREV_STATE=0\n")
             f.write(f"PREV_ALT_CAL=0\n")
             f.write(f"PREV_MAX_ALT=0\n")
-        logging.log("Previous state reset", True)
+        safe_log("Previous state reset", True)
     except Exception as e:
-        logging.log(f"Failed to reset prevstate: {e}", True)
+        safe_log(f"Failed to reset prevstate: {e}", True)
 
 def load_prevstate():
     """Load previous state from file"""
@@ -69,9 +69,9 @@ def load_prevstate():
                     PREV_ALT_CAL = line.split("=")[1].strip()
                 elif line.startswith("PREV_MAX_ALT="):
                     PREV_MAX_ALT = line.split("=")[1].strip()
-        logging.log(f"Loaded previous state: {PREV_STATE}, {PREV_ALT_CAL}, {PREV_MAX_ALT}", True)
+        safe_log(f"Loaded previous state: {PREV_STATE}, {PREV_ALT_CAL}, {PREV_MAX_ALT}", True)
     except Exception as e:
-        logging.log(f"Failed to load prevstate: {e}", True)
+        safe_log(f"Failed to load prevstate: {e}", True)
 
 # Load previous state on import
 load_prevstate()
