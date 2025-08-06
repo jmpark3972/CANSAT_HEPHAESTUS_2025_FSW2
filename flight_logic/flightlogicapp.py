@@ -355,9 +355,6 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
     else:
         state = f"중간 위치 ({int((pulse - 500) * 180 / 2000)}도)"
     
-    log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
-    safe_log(f"Motor pulse cmd → {pulse} ({state})", "INFO", True)
-    
     # 모터 상태를 Comm 앱으로 전송
     send_motor_status_to_comm(Main_Queue, pulse)
 
@@ -375,7 +372,7 @@ def send_motor_status_to_comm(Main_Queue: Queue, pulse: int):
                           str(motor_status))
         
         if success:
-            log_system_event("MOTOR_STATUS", f"Motor status {motor_status} sent to Comm")
+            pass  # 로그 제거
         else:
             log_error("Failed to send motor status to Comm", "send_motor_status_to_comm")
             
