@@ -65,6 +65,13 @@ def read_fir1_data(sensor):
     global FIR1APP_RUNSTATUS, FIR1_AMB, FIR1_OBJ
     while FIR1APP_RUNSTATUS:
         try:
+            if sensor is None:
+                # 센서가 없으면 더미 데이터 사용
+                FIR1_AMB = 25.0  # 기본 실내 온도
+                FIR1_OBJ = 25.0  # 기본 실내 온도
+                time.sleep(0.5)  # 2 Hz
+                continue
+                
             amb, obj = fir1.read_fir1(sensor)
             if amb is not None and obj is not None:
                 FIR1_AMB = amb
@@ -131,8 +138,9 @@ def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     i2c, sensor = firapp1_init()
     
     if i2c is None or sensor is None:
-        safe_log("FIR1 초기화 실패로 인한 종료", "ERROR", True)
-        return
+        safe_log("FIR1 센서 연결 실패 - 더미 데이터로 계속 실행", "WARNING", True)
+        # 센서가 없어도 앱은 계속 실행
+        sensor = None
     
     # 스레드 시작
     read_thread = threading.Thread(target=read_fir1_data, args=(sensor,), daemon=True)

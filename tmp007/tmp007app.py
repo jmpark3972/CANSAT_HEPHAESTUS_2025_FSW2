@@ -244,8 +244,7 @@ def tmp007app_init():
         return i2c_instance, tmp007_instance
     
     except Exception as e:
-        safe_log(f"Error during initialization: {e}", "error".upper(), True)
-        TMP007APP_RUNSTATUS = False
+        safe_log(f"TMP007 초기화 실패: {e} - 더미 데이터로 계속 실행", "WARNING", True)
         return None, None
 
 # Termination
@@ -279,6 +278,25 @@ def read_tmp007_data(tmp007_instance):
     
     while TMP007APP_RUNSTATUS:
         try:
+            if tmp007_instance is None:
+                # TMP007 센서가 없으면 더미 데이터 사용
+                TMP007_OBJECT_TEMP = 25.0  # 기본 실내 온도
+                TMP007_DIE_TEMP = 25.0  # 기본 실내 온도
+                TMP007_VOLTAGE = 0.0  # 기본 전압
+                TMP007_STATUS = {}  # 기본 상태
+                
+                # 더미 데이터 로깅
+                dummy_data = {
+                    'object_temperature': TMP007_OBJECT_TEMP,
+                    'die_temperature': TMP007_DIE_TEMP,
+                    'voltage': TMP007_VOLTAGE,
+                    'status': TMP007_STATUS
+                }
+                log_sensor_data("TMP007_DUMMY", dummy_data)
+                
+                time.sleep(0.1)  # 10Hz
+                continue
+                
             # TMP007 센서 데이터 읽기
             data = tmp007.read_tmp007_data(tmp007_instance)
             

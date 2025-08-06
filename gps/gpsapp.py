@@ -154,8 +154,8 @@ def gpsapp_init():
         safe_log("Gpsapp Initialization Complete", "info".upper(), True)
         return gps_instance
     except Exception as e:
-        safe_log("Error during initialization", "error".upper(), True)
-        GPSAPP_RUNSTATUS = False
+        safe_log(f"GPS 초기화 실패: {e} - 더미 데이터로 계속 실행", "WARNING", True)
+        return None
 
 # Termination
 def gpsapp_terminate():
@@ -194,6 +194,22 @@ def read_gps_data(gps_instance):
     global GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS, GPS_ADVANCED_DATA, GPSAPP_RUNSTATUS
     while GPSAPP_RUNSTATUS:
         try:
+            if gps_instance is None:
+                # GPS 센서가 없으면 더미 데이터 사용
+                GPS_LAT = 37.5665  # 서울 시청 위도
+                GPS_LON = 126.9780  # 서울 시청 경도
+                GPS_ALT = 0.0  # 기본 고도
+                GPS_TIME = "00:00:00"  # 기본 시간
+                GPS_SATS = 0  # 위성 수 0
+                GPS_ADVANCED_DATA = {}  # 기본값
+                
+                # 더 빠른 종료를 위해 짧은 간격으로 체크
+                for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+                    if not GPSAPP_RUNSTATUS:
+                        break
+                    time.sleep(0.1)
+                continue
+                
             # 고급 데이터 읽기 시도
             result = gps.gps_readdata_advanced(gps_instance)
             if result and len(result) >= 6:

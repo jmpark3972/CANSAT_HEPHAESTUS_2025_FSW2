@@ -110,11 +110,13 @@ def read_thermo_data(dht_device):
     while THERMOAPP_RUNSTATUS:
         try:
             if dht_device is None:
-                time.sleep(2)
-                continue
-            t, h = thermo.read_dht(dht_device)
-            if t is not None and h is not None:
-                TEMP_C, HUMI = t, h
+                # 센서가 없으면 더미 데이터 사용
+                TEMP_C = 25.0  # 기본 실내 온도
+                HUMI = 50.0    # 기본 실내 습도
+            else:
+                t, h = thermo.read_dht(dht_device)
+                if t is not None and h is not None:
+                    TEMP_C, HUMI = t, h
         except Exception as e:
             # 에러 메시지 출력하지 않고, 이전 값 유지
             safe_log(f"센서 읽기 오류: {e}", "WARNING")

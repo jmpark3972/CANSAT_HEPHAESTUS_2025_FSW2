@@ -220,6 +220,16 @@ def read_barometer_data(bmp):
     global BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE, SEA_LEVEL_PRESSURE, RESOLUTION_INFO
     while BAROMETERAPP_RUNSTATUS:
         try:
+            if bmp is None:
+                # 센서가 없으면 더미 데이터 사용
+                PRESSURE = 1013.25  # 표준 대기압 (hPa)
+                TEMPERATURE = 25.0  # 기본 실내 온도 (°C)
+                ALTITUDE = 0.0 + BAROMETER_OFFSET  # 기본 고도 + 오프셋
+                SEA_LEVEL_PRESSURE = 1013.25  # 표준 대기압
+                RESOLUTION_INFO = None
+                time.sleep(0.1)  # 10 Hz
+                continue
+                
             # 고급 데이터 읽기
             result = barometer.read_barometer_advanced(bmp, 0)
             if result and len(result) >= 5:

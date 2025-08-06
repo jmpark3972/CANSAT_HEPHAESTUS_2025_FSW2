@@ -263,9 +263,32 @@ def read_imu_data(sensor):
     
     while IMUAPP_RUNSTATUS:
         try:
-            # 센서가 None인 경우 기본값 유지
+            # 센서가 None인 경우 더미 데이터 사용
             if sensor is None:
-                time.sleep(0.1)
+                # 더미 데이터 설정 (정지 상태)
+                IMU_GYRO = (0.0, 0.0, 0.0)
+                IMU_ACCEL = (0.0, 0.0, 9.81)  # 중력만 작용
+                IMU_MAG = (0.0, 0.0, 0.0)
+                IMU_EULER = (0.0, 0.0, 0.0)
+                IMU_TEMP = 25.0  # 기본 실내 온도
+                
+                # 개별 변수들도 더미 데이터로 설정
+                IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
+                IMU_ACCX = IMU_ACCY = 0.0
+                IMU_ACCZ = 9.81  # 중력
+                IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
+                IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
+                
+                # 고급 데이터도 더미로 설정
+                IMU_ADVANCED_DATA = {
+                    'quaternion': (1.0, 0.0, 0.0, 0.0),
+                    'linear_accel': (0.0, 0.0, 0.0),
+                    'gravity': (0.0, 0.0, 9.81),
+                    'calibration': (0, 0, 0),
+                    'system_status': 0
+                }
+                
+                time.sleep(0.1)  # 10 Hz
                 continue
                 
             # 고급 데이터 읽기 시도
@@ -465,10 +488,10 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     # Initialization Process
     i2c_instance, imu_instance = imuapp_init()
     
-    # 초기화 실패 시 종료
+    # 초기화 실패 시 더미 데이터로 계속 실행
     if i2c_instance is None or imu_instance is None:
-        safe_log("IMU 초기화 실패로 인한 종료", "error".upper(), True)
-        return
+        safe_log("IMU 센서 연결 실패 - 더미 데이터로 계속 실행", "WARNING", True)
+        imu_instance = None  # 센서가 없음을 표시
 
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")

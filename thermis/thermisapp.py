@@ -108,9 +108,13 @@ def read_thermis_data(chan):
     global TEMP
     while THERMISAPP_RUNSTATUS:
         with OFFSET_MUTEX:
-            temp = thermis.read_thermis(chan)  # returns None on error
-            if temp is not None:
-                TEMP = round(temp - TEMP_OFFSET, 2)
+            if chan is None:
+                # 센서가 없으면 더미 데이터 사용
+                TEMP = 25.0 - TEMP_OFFSET  # 기본 실내 온도 - 오프셋
+            else:
+                temp = thermis.read_thermis(chan)  # returns None on error
+                if temp is not None:
+                    TEMP = round(temp - TEMP_OFFSET, 2)
         time.sleep(0.2)  # ADS1115 ~2Hz default
 
 
@@ -198,7 +202,8 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
 
     i2c, chan = thermisapp_init()
     if chan is None:
-        return
+        safe_log("Thermis 센서 연결 실패 - 더미 데이터로 계속 실행", "WARNING", True)
+        chan = None  # 센서가 없음을 표시
 
     # spawn threads
     thread_dict["HK"] = resilient_thread(send_hk, args=(main_q,), name="HK")
