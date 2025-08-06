@@ -5,7 +5,7 @@
 
 # Example) python_path = /home/hyunlee/Desktop/flight_code/Python_Cansat_FSW
 
-python_path="/home/SpaceY/Desktop/CANSAT_AAS_2025_FSW"
+python_path="/home/SpaceY/Desktop/CANSAT_AAS_2025_FSW2"
 venv_path="/home/SpaceY/Desktop/env/bin"
 
 if [ "${python_path}" == "not_configured" ]; then
