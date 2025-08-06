@@ -937,5 +937,5 @@ def update_motor_logic_loop(Main_Queue: Queue):
             update_motor_logic(Main_Queue)
             time.sleep(0.1)  # 10Hz로 모터 제어 업데이트
         except Exception as e:
-            log_error(f"Motor logic loop error: {e}", "update_motor_logic_loop")
+            # 모터 로직 오류는 조용히 처리 (로그 출력하지 않음)
             time.sleep(0.1) 

@@ -524,7 +524,30 @@ def runloop(Main_Queue : Queue):
                     safe_log(f"Failed to unpack message: {recv_msg}", "ERROR", True)
                     continue
                 
-                if unpacked_msg.receiver_app in app_dict:
+                # 메인 앱에서 직접 처리할 메시지들
+                if unpacked_msg.receiver_app == appargs.MainAppArg.AppID:
+                    # 메인 앱으로 직접 전송된 메시지 처리
+                    safe_log(f"Main app received message: {unpacked_msg.MsgID} from {unpacked_msg.sender_app}", "DEBUG", True)
+                    continue
+                
+                # 텔레메트리 앱으로의 메시지 (AppID: 3)
+                elif unpacked_msg.receiver_app == 3:  # TelemetryAppArg.AppID
+                    # 텔레메트리 메시지는 Comm 앱으로 리다이렉트
+                    if appargs.CommAppArg.AppID in app_dict:
+                        try:
+                            if app_dict[appargs.CommAppArg.AppID].pipe and app_dict[appargs.CommAppArg.AppID].process.is_alive():
+                                app_dict[appargs.CommAppArg.AppID].pipe.send(unpacked_msg)
+                                safe_log(f"Telemetry message redirected to Comm app: {unpacked_msg.MsgID}", "DEBUG", True)
+                            else:
+                                safe_log(f"Comm app not available for telemetry message: {unpacked_msg.MsgID}", "WARNING", True)
+                        except Exception as e:
+                            safe_log(f"Failed to redirect telemetry message to Comm app: {e}", "ERROR", True)
+                    else:
+                        safe_log(f"Comm app not found for telemetry message: {unpacked_msg.MsgID}", "WARNING", True)
+                    continue
+                
+                # 알려진 앱으로의 메시지
+                elif unpacked_msg.receiver_app in app_dict:
                     try:
                         if app_dict[unpacked_msg.receiver_app].pipe is None:
                             safe_log(f"Pipe is None for {unpacked_msg.receiver_app}", "ERROR", True)
@@ -544,7 +567,16 @@ def runloop(Main_Queue : Queue):
                     except Exception as e:
                         safe_log(f"Failed to send message to {unpacked_msg.receiver_app}: {e}", "ERROR", True)
                 else:
-                    safe_log(f"Unknown receiver app: {unpacked_msg.receiver_app}", "WARNING", True)
+                    # 알 수 없는 receiver app에 대한 처리
+                    safe_log(f"Unknown receiver app: {unpacked_msg.receiver_app} (MsgID: {unpacked_msg.MsgID}, Sender: {unpacked_msg.sender_app})", "WARNING", True)
+                    
+                    # 특정 메시지 타입에 대한 기본 처리
+                    if unpacked_msg.MsgID in [appargs.MainAppArg.MID_TerminateProcess]:
+                        safe_log(f"Termination message received, but receiver app {unpacked_msg.receiver_app} not found", "WARNING", True)
+                    elif unpacked_msg.MsgID in [appargs.HkAppArg.MID_SendHK]:
+                        safe_log(f"HK message received, but receiver app {unpacked_msg.receiver_app} not found", "WARNING", True)
+                    else:
+                        safe_log(f"Unhandled message type {unpacked_msg.MsgID} for unknown receiver {unpacked_msg.receiver_app}", "WARNING", True)
                     continue
             except Exception as e:
                 if "Empty" not in str(e):
