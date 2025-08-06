@@ -30,5 +30,5 @@ __all__ = [
     'reset_prevstate', 'update_prevstate',
     
     # utils에서
-    'safe_write_to_file', 'check_and_rotate_log_file'
+    'now_epoch', 'now_iso', 'safe', 'ensure_directory', 'get_file_size_mb', 'is_process_alive', 'safe_thread_join', 'format_bytes', 'format_duration', 'create_timestamp', 'validate_file_path', 'get_available_disk_space', 'is_file_readable', 'is_file_writable'
 ] 
