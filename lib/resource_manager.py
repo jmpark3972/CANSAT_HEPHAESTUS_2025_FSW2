@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Callable
 from datetime import datetime
 from pathlib import Path
 
-from .safe_log import safe_log
+from .logging import safe_log
 from .core.config import get_config, set_config
 
 class ResourceManager:
@@ -24,9 +24,9 @@ class ResourceManager:
         self.monitoring = False
         self.monitor_thread = None
         self.resource_handlers: Dict[str, Callable] = {}
-        self.memory_threshold = config.get_config("SYSTEM.MAX_MEMORY_USAGE", 80)
-        self.disk_threshold = config.get_config("SYSTEM.MAX_DISK_USAGE", 90)
-        self.check_interval = config.get_config("SYSTEM.PROCESS_CHECK_INTERVAL", 1.0)
+        self.memory_threshold = get_config("SYSTEM.MAX_MEMORY_USAGE", 80)
+        self.disk_threshold = get_config("SYSTEM.MAX_DISK_USAGE", 90)
+        self.check_interval = get_config("SYSTEM.PROCESS_CHECK_INTERVAL", 1.0)
         
         # 리소스 사용량 히스토리
         self.memory_history: List[float] = []
@@ -168,8 +168,8 @@ class ResourceManager:
     def _cleanup_log_files(self):
         """로그 파일 정리"""
         try:
-            log_dir = config.get_config("safe_log.PRIMARY_LOG_DIR", "logs")
-            retention_days = config.get_config("safe_log_RETENTION_DAYS", 7)
+            log_dir = get_config("safe_log.PRIMARY_LOG_DIR", "logs")
+            retention_days = get_config("safe_log.LOG_RETENTION_DAYS", 7)
             current_time = time.time()
             
             if os.path.exists(log_dir):
