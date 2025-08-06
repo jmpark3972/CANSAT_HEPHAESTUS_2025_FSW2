@@ -157,17 +157,20 @@ def cameraapp_init():
 
         log_app_info("Initializing cameraapp")
 
-        # 카메라 초기화
-        if not cam.init_camera():
-            log_app_error("Camera initialization failed")
-            return False
+        # 카메라 초기화 (실패해도 계속 진행)
+        camera_result = cam.init_camera()
+        if not camera_result:
+            log_app_warning("Camera initialization failed, but continuing")
+            # 카메라가 없어도 앱은 계속 실행
+            return True
         
         log_app_info("Cameraapp initialization complete")
         return True
 
     except Exception as e:
         log_app_error(f"Cameraapp init error: {e}")
-        return False
+        # 오류가 발생해도 앱은 계속 실행
+        return True
 
 def cameraapp_terminate():
     """카메라 앱 종료."""

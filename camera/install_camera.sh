@@ -81,6 +81,14 @@ else
     log_info "카메라 자동 감지 설정이 이미 존재함"
 fi
 
+# Pi Camera v2 전용 설정 (OV5647 센서)
+if ! grep -q "dtoverlay=ov5647" /boot/config.txt; then
+    echo "dtoverlay=ov5647" | sudo tee -a /boot/config.txt
+    log_success "Pi Camera v2 (OV5647) 오버레이 설정 추가"
+else
+    log_info "Pi Camera v2 오버레이 설정이 이미 존재함"
+fi
+
 # I2C 활성화 (센서 통신용)
 log_info "I2C 인터페이스 활성화 중..."
 if ! grep -q "dtparam=i2c_arm=on" /boot/config.txt; then

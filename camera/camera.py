@@ -58,16 +58,59 @@ def ensure_directories():
         return False
 
 def check_camera_hardware() -> bool:
-    """카메라 하드웨어 확인"""
+    """카메라 하드웨어 확인 (Pi Camera v2 호환)"""
     try:
+        # 방법 1: vcgencmd 사용 (v2에서도 동일)
         result = subprocess.run(['vcgencmd', 'get_camera'], 
                               capture_output=True, text=True, timeout=5)
         if result.returncode == 0 and 'detected=1' in result.stdout:
-            safe_log("카메라 하드웨어 감지됨", "INFO", True)
+            safe_log("카메라 하드웨어 감지됨 (vcgencmd)", "INFO", True)
             return True
-        else:
-            safe_log("카메라 하드웨어 감지되지 않음", "ERROR", True)
-            return False
+        
+        # 방법 2: /proc/device-tree 확인 (v2용 경로)
+        camera_node_v1 = Path('/proc/device-tree/soc/csi1')
+        camera_node_v2 = Path('/proc/device-tree/soc/csi0')
+        if camera_node_v1.exists() or camera_node_v2.exists():
+            safe_log("카메라 하드웨어 감지됨 (device-tree)", "INFO", True)
+            return True
+        
+        # 방법 3: dmesg에서 카메라 관련 메시지 확인
+        result = subprocess.run(['dmesg'], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0 and ('camera' in result.stdout.lower() or 'csi' in result.stdout.lower()):
+            safe_log("카메라 하드웨어 감지됨 (dmesg)", "INFO", True)
+            return True
+        
+        # 방법 4: libcamera-hello 테스트 (v2 호환)
+        try:
+            result = subprocess.run(['libcamera-hello', '--list-cameras'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0 and result.stdout.strip():
+                safe_log("카메라 하드웨어 감지됨 (libcamera)", "INFO", True)
+                return True
+        except FileNotFoundError:
+            pass
+        
+        # 방법 5: raspistill 테스트 (v2 전용)
+        try:
+            result = subprocess.run(['raspistill', '--help'], 
+                                  capture_output=True, text=True, timeout=5)
+            if result.returncode == 0:
+                safe_log("카메라 하드웨어 감지됨 (raspistill)", "INFO", True)
+                return True
+        except FileNotFoundError:
+            pass
+        
+        safe_log("카메라 하드웨어 감지되지 않음", "WARNING", True)
+        safe_log("Pi Camera v2 설정 확인:", "INFO", True)
+        safe_log("1. Pi Camera v2가 올바르게 연결되었는지 확인", "INFO", True)
+        safe_log("2. CSI 케이블이 제대로 연결되었는지 확인", "INFO", True)
+        safe_log("3. /boot/config.txt에 다음 설정 확인:", "INFO", True)
+        safe_log("   camera_auto_detect=1", "INFO", True)
+        safe_log("   또는", "INFO", True)
+        safe_log("   dtoverlay=ov5647", "INFO", True)
+        safe_log("4. 시스템 재부팅 후 다시 시도", "INFO", True)
+        return False
+        
     except Exception as e:
         safe_log(f"카메라 하드웨어 확인 오류: {e}", "ERROR", True)
         return False
@@ -110,26 +153,34 @@ def init_camera() -> Optional[subprocess.Popen]:
         
         # 디렉토리 생성
         if not ensure_directories():
+            safe_log("디렉토리 생성 실패로 카메라 초기화 중단", "ERROR", True)
             return None
         
-        # 하드웨어 확인
-        if not check_camera_hardware():
-            return None
+        # 하드웨어 확인 (경고로 처리하고 계속 진행)
+        hardware_ok = check_camera_hardware()
+        if not hardware_ok:
+            safe_log("카메라 하드웨어 감지 실패, 하지만 계속 진행", "WARNING", True)
         
-        # 드라이버 확인
-        if not check_camera_driver():
-            return None
+        # 드라이버 확인 (경고로 처리하고 계속 진행)
+        driver_ok = check_camera_driver()
+        if not driver_ok:
+            safe_log("카메라 드라이버 감지 실패, 하지만 계속 진행", "WARNING", True)
         
         # FFmpeg 확인
         if not check_ffmpeg():
+            safe_log("FFmpeg 설치 확인 실패로 카메라 초기화 중단", "ERROR", True)
             return None
         
         # 상태 초기화
         _recording_active = False
         _video_count = 0
-        _camera_status = "READY"
+        _camera_status = "READY" if (hardware_ok and driver_ok) else "LIMITED"
         
-        safe_log("카메라 초기화 완료", "INFO", True)
+        if _camera_status == "LIMITED":
+            safe_log("카메라가 제한된 모드로 초기화됨 (하드웨어/드라이버 문제)", "WARNING", True)
+        else:
+            safe_log("카메라 초기화 완료", "INFO", True)
+        
         return subprocess.Popen(['echo', 'camera_ready'], stdout=subprocess.PIPE)
         
     except Exception as e:

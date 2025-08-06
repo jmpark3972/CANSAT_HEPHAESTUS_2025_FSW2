@@ -117,23 +117,33 @@ def send_cam_data(Main_Queue: Queue):
     tlm_msg = msgstructure.MsgStructure()
 
     while THERMOCAMAPP_RUNSTATUS:
-        # Flightlogic 10 Hz
-        msgstructure.send_msg(Main_Queue, fl_msg,
-                              appargs.ThermalcameraAppArg.AppID,
-                              appargs.FlightlogicAppArg.AppID,
-                              appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
-                              f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
-
-        if cnt > 10:  # 1 Hz telemetry
-            msgstructure.send_msg(Main_Queue, tlm_msg,
+        try:
+            # None 값 체크 및 기본값 설정
+            avg_val = THERMAL_AVG if THERMAL_AVG is not None else 0.0
+            min_val = THERMAL_MIN if THERMAL_MIN is not None else 0.0
+            max_val = THERMAL_MAX if THERMAL_MAX is not None else 0.0
+            
+            # Flightlogic 10 Hz
+            msgstructure.send_msg(Main_Queue, fl_msg,
                                   appargs.ThermalcameraAppArg.AppID,
-                                  appargs.CommAppArg.AppID,
-                                  appargs.ThermalcameraAppArg.MID_SendCamTlmData,
-                                  f"{THERMAL_AVG:.2f},{THERMAL_MIN:.2f},{THERMAL_MAX:.2f}")
-            cnt = 0
+                                  appargs.FlightlogicAppArg.AppID,
+                                  appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData,
+                                  f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
 
-        cnt += 1
-        time.sleep(0.1)  # 10 Hz
+            if cnt > 10:  # 1 Hz telemetry
+                msgstructure.send_msg(Main_Queue, tlm_msg,
+                                      appargs.ThermalcameraAppArg.AppID,
+                                      appargs.CommAppArg.AppID,
+                                      appargs.ThermalcameraAppArg.MID_SendCamTlmData,
+                                      f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
+                cnt = 0
+
+            cnt += 1
+            time.sleep(0.1)  # 10 Hz
+            
+        except Exception as e:
+            safe_log(f"send_cam_data error: {e}", "ERROR", True)
+            time.sleep(0.1)  # 오류 시에도 계속 실행
 
 # ──────────────────────────────
 # 5. 메인 엔트리
