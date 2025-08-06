@@ -329,7 +329,15 @@ def runloop(Main_Queue : Queue):
                         continue
                     
                     if not app_dict[unpacked_msg.receiver_app].process.is_alive():
-                        main_safe_log(f"Process {unpacked_msg.receiver_app} is dead, skipping message", "WARNING", True)
+                        # 경고 메시지 빈도 줄이기 (10초에 한 번만)
+                        current_time = time.time()
+                        if not hasattr(main, '_last_dead_process_warning'):
+                            main._last_dead_process_warning = {}
+                        
+                        app_id = unpacked_msg.receiver_app
+                        if app_id not in main._last_dead_process_warning or current_time - main._last_dead_process_warning[app_id] > 10:
+                            main_safe_log(f"Process {app_id} is dead, skipping message", "WARNING", True)
+                            main._last_dead_process_warning[app_id] = current_time
                         continue
                     
                     try:
