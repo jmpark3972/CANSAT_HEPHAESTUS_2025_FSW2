@@ -1,6 +1,8 @@
 # Main Flight Software Code for Cansat Mission
 # Author : Hyeon Lee
 
+print("=== MAIN.PY IS RUNNING ===")
+
 # Sys library is needed to exit app
 import sys
 import os
@@ -165,6 +167,8 @@ def cleanup_queues():
 def load_apps():
     """앱 로드 및 프로세스 시작"""
     try:
+        main_safe_log("load_apps() 함수 시작", "INFO", True)
+        
         # 앱 정의 (모듈명, 클래스명, AppID)
         apps_to_load = [
             ("hk.hkapp", "HKApp", appargs.HkAppArg.AppID),
@@ -180,8 +184,12 @@ def load_apps():
             ("thermo.thermoapp", "ThermoApp", appargs.ThermoAppArg.AppID),
         ]
 
+        main_safe_log(f"로드할 앱 수: {len(apps_to_load)}", "INFO", True)
+
         for module_path, class_name, app_id in apps_to_load:
             try:
+                main_safe_log(f"{class_name} 앱 로드 시도 중...", "INFO", True)
+                
                 # 모듈 동적 임포트
                 module = __import__(module_path, fromlist=[class_name])
                 app_class = getattr(module, class_name)
@@ -204,6 +212,8 @@ def load_apps():
             except Exception as e:
                 main_safe_log(f"{class_name} 앱 로드 실패: {e}", "ERROR", True)
 
+        main_safe_log(f"앱 딕셔너리 크기: {len(app_dict)}", "INFO", True)
+
         # 모든 앱 프로세스 시작
         main_safe_log("모든 앱 프로세스 시작 중...", "INFO", True)
         for app_id, app_elem in app_dict.items():
@@ -218,7 +228,9 @@ def load_apps():
         main_safe_log("모든 앱 로드 및 프로세스 시작 완료", "INFO", True)
 
     except Exception as e:
-        main_safe_log(f"앱 로드 중 오류: {e}", "ERROR", True)
+        main_safe_log(f"load_apps() 함수에서 예외 발생: {e}", "ERROR", True)
+        import traceback
+        main_safe_log(f"예외 상세: {traceback.format_exc()}", "ERROR", True)
 
 def runloop(Main_Queue : Queue):
     """메인 루프"""
@@ -342,14 +354,21 @@ def main():
         main_safe_log("CANSAT HEPHAESTUS 2025 FSW2 시작", "INFO", True)
         
         # 앱 로드
+        main_safe_log("load_apps() 호출 시작", "INFO", True)
         load_apps()
+        main_safe_log("load_apps() 호출 완료", "INFO", True)
         
         # 메인 루프 실행
+        main_safe_log("runloop() 호출 시작", "INFO", True)
         runloop(main_queue)
+        main_safe_log("runloop() 호출 완료", "INFO", True)
         
     except KeyboardInterrupt:
         main_safe_log("KeyboardInterrupt Detected, Terminating FSW", "INFO", True)
     except Exception as e:
+        main_safe_log(f"main() 함수에서 예외 발생: {e}", "ERROR", True)
+        import traceback
+        main_safe_log(f"예외 상세: {traceback.format_exc()}", "ERROR", True)
         try:
             cleanup_child_processes()
         except Exception as cleanup_error:
