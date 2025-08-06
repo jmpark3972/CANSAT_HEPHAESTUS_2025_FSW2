@@ -391,22 +391,9 @@ try:
 except Exception as e:
     safe_log(f"Pitot 앱 로드 실패: {e}", "ERROR", True)
 
-# CameraApp (Raspberry Pi Camera Module v3 Wide)
-try:
-    from camera import cameraapp
-    
-    parent_pipe, child_pipe = Pipe()
-    
-    # Add Process, pipe to elements dictionary
-    cameraapp_elements = app_elements()
-    cameraapp_elements.process = Process(target = cameraapp.cameraapp_main, args = (main_queue, child_pipe, ))
-    cameraapp_elements.pipe = parent_pipe
-    
-    # Add the process to dictionary
-    app_dict[appargs.CameraAppArg.AppID] = cameraapp_elements
-    safe_log("Camera 앱 로드 완료", "INFO", True)
-except Exception as e:
-    safe_log(f"Camera 앱 로드 실패: {e}", "ERROR", True)
+# CameraApp (Raspberry Pi Camera Module v3 Wide) - DISABLED
+# 카메라 하드웨어가 설치되지 않아 비활성화됨
+safe_log("Camera 앱 비활성화됨 (하드웨어 미설치)", "INFO", True)
 
 
 
@@ -631,7 +618,7 @@ if __name__ == '__main__':
             appargs.Tmp007AppArg.AppID,  # TMP007 센서 앱
             appargs.PitotAppArg.AppID,
             appargs.ThermalcameraAppArg.AppID,
-            appargs.CameraAppArg.AppID,  # 카메라 앱
+            # appargs.CameraAppArg.AppID,  # 카메라 앱 - 비활성화됨
             appargs.CommAppArg.AppID,    # 통신 앱
             appargs.MotorAppArg.AppID,   # 모터 앱
             appargs.FlightlogicAppArg.AppID,  # 비행 로직 앱
@@ -648,7 +635,7 @@ if __name__ == '__main__':
             appargs.FirApp1Arg.AppID,
             appargs.ThermalcameraAppArg.AppID,
             appargs.Tmp007AppArg.AppID,
-            appargs.CameraAppArg.AppID
+            # appargs.CameraAppArg.AppID  # 카메라 앱 - 비활성화됨
         ]
         
         # 핵심 앱들 시작

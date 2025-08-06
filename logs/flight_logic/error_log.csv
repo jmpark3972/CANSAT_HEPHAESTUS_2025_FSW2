@@ -1,6 +1,0 @@
-timestamp,error,context
-2025-08-09 17:36:12.189,Main loop error: 'str' object has no attribute 'receiver_app',flightlogicapp_main
-2025-08-09 20:17:04.300,Main loop error: 'str' object has no attribute 'receiver_app',flightlogicapp_main
-2025-08-10 12:39:55.092,Main loop error: 'str' object has no attribute 'receiver_app',flightlogicapp_main
-2025-08-11 12:48:19.064,Main loop error: 'str' object has no attribute 'receiver_app',flightlogicapp_main
-2025-08-13 08:56:53.354,Main loop error: 'str' object has no attribute 'receiver_app',flightlogicapp_main

@@ -23,7 +23,9 @@ The flight software uses Adafruit CircuitPython modules
     pip3 install adafruit-circuitpython-ads1x15
     pip3 install adafruit-circuitpython-motor
 
-## 3. Install Video Related modules
+## 3. Install Video Related modules (OPTIONAL - Camera Disabled)
+**Note: Camera functionality is currently disabled as hardware is not installed.**
+
 Opencv2 module is used in USB camera recording
 
     pip install opencv-python
@@ -33,12 +35,12 @@ It is pre-installed on Rapsberry Pi OS images
 
     sudo apt install python3-picamera2
 
-### 3.1. Install Camera App Dependencies
-For Raspberry Pi Camera Module v3 Wide support:
+### 3.1. Install Camera App Dependencies (DISABLED)
+For Raspberry Pi Camera Module v3 Wide support (currently disabled):
 
-    sudo apt install ffmpeg v4l2-utils
-    chmod +x camera/install_camera.sh
-    ./camera/install_camera.sh
+    # sudo apt install ffmpeg v4l2-utils
+    # chmod +x camera/install_camera.sh
+    # ./camera/install_camera.sh
 
 ## 4. Install Basic modules
 Other basic modules should be installed too
