@@ -121,4 +121,17 @@ def create_ring_buffer(max_size: int = 100) -> deque:
 def cleanup_data_cache():
     """데이터 캐시 정리 (편의 함수)"""
     optimizer = get_data_optimizer()
-    optimizer.cleanup_cache() 
+    optimizer.cleanup_cache()
+
+def optimize_data_structure(data: Any) -> Any:
+    """데이터 구조 최적화 (편의 함수)"""
+    optimizer = get_data_optimizer()
+    
+    if isinstance(data, dict):
+        return optimizer.optimize_sensor_data(data)
+    elif isinstance(data, list):
+        return optimizer.optimize_list(data)
+    elif isinstance(data, str):
+        return optimizer.optimize_string(data)
+    else:
+        return data 
