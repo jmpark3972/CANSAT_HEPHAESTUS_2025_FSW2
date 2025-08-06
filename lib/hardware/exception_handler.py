@@ -303,4 +303,11 @@ def retry_on_exception(max_retries: int = 3, delay: float = 1.0,
             return None
         
         return wrapper
-    return decorator 
+    return decorator
+
+# 편의 함수들
+def setup_exception_handler():
+    """예외 핸들러 설정 (편의 함수)"""
+    # 전역 예외 핸들러가 이미 초기화되어 있음
+    print("Exception handler setup complete")
+    return exception_handler 

@@ -10,7 +10,7 @@ import threading
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 from datetime import datetime
-from lib import logging
+from .logging import safe_log
 
 class OffsetManager:
     """통합 오프셋 관리자 클래스"""
@@ -114,7 +114,7 @@ class OffsetManager:
                 self._save_offsets(current_offsets)
                 return current_offsets
         except Exception as e:
-            logging.log(f"오프셋 파일 로드 오류: {e}", True)
+            safe_log(f"오프셋 파일 로드 오류: {e}", True)
             return self.default_offsets.copy()
     
     def _merge_offsets(self, default: Dict[str, Any], user: Dict[str, Any]) -> Dict[str, Any]:
@@ -142,7 +142,7 @@ class OffsetManager:
             with open(self.offset_file, 'w', encoding='utf-8') as f:
                 json.dump(offsets, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            logging.log(f"오프셋 파일 저장 오류: {e}", True)
+            safe_log(f"오프셋 파일 저장 오류: {e}", True)
     
     def _migrate_legacy_imu_offsets(self, current_offsets: Dict[str, Any]) -> Dict[str, Any]:
         """기존 IMU 오프셋 파일에서 데이터 마이그레이션"""
@@ -169,12 +169,12 @@ class OffsetManager:
                         current_offsets["IMU"]["GYROSCOPE"] = gyro_values
                         current_offsets["IMU"]["ACCELEROMETER"] = accel_values
                         
-                        logging.log("기존 IMU 오프셋 데이터를 마이그레이션했습니다", True)
-                        logging.log(f"자기계: {mag_values}", True)
-                        logging.log(f"자이로스코프: {gyro_values}", True)
-                        logging.log(f"가속도계: {accel_values}", True)
+                        safe_log("기존 IMU 오프셋 데이터를 마이그레이션했습니다", True)
+                        safe_log(f"자기계: {mag_values}", True)
+                        safe_log(f"자이로스코프: {gyro_values}", True)
+                        safe_log(f"가속도계: {accel_values}", True)
         except Exception as e:
-            logging.log(f"기존 IMU 오프셋 마이그레이션 오류: {e}", True)
+            safe_log(f"기존 IMU 오프셋 마이그레이션 오류: {e}", True)
         
         return current_offsets
     
@@ -206,9 +206,9 @@ class OffsetManager:
                             current_offsets["NIR"]["OFFSET"] = value
 
                 
-                logging.log("기존 prevstate.txt 오프셋 데이터를 마이그레이션했습니다", True)
+                safe_log("기존 prevstate.txt 오프셋 데이터를 마이그레이션했습니다", True)
         except Exception as e:
-            logging.log(f"기존 prevstate.txt 오프셋 마이그레이션 오류: {e}", True)
+            safe_log(f"기존 prevstate.txt 오프셋 마이그레이션 오류: {e}", True)
         
         return current_offsets
     
@@ -236,9 +236,9 @@ class OffsetManager:
                     offsets = offsets[k]
                 offsets[keys[-1]] = value
                 self._save_offsets(self.offsets)
-                logging.log(f"오프셋 업데이트: {key} = {value}", True)
+                safe_log(f"오프셋 업데이트: {key} = {value}", True)
             except Exception as e:
-                logging.log(f"오프셋 설정 오류: {e}", True)
+                safe_log(f"오프셋 설정 오류: {e}", True)
     
     def get_imu_offsets(self) -> Tuple[Tuple[int, int, int], Tuple[int, int, int], Tuple[int, int, int]]:
         """IMU 오프셋 가져오기"""
@@ -313,16 +313,16 @@ class OffsetManager:
         with self.lock:
             self.offsets = self.default_offsets.copy()
             self._save_offsets(self.offsets)
-            logging.log("오프셋을 기본값으로 초기화했습니다", True)
+            safe_log("오프셋을 기본값으로 초기화했습니다", True)
     
     def export_offsets(self, filepath: str):
         """오프셋 내보내기"""
         try:
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(self.offsets, f, indent=2, ensure_ascii=False)
-            logging.log(f"오프셋을 {filepath}에 내보냈습니다", True)
+            safe_log(f"오프셋을 {filepath}에 내보냈습니다", True)
         except Exception as e:
-            logging.log(f"오프셋 내보내기 오류: {e}", True)
+            safe_log(f"오프셋 내보내기 오류: {e}", True)
     
     def import_offsets(self, filepath: str):
         """오프셋 가져오기"""
@@ -331,9 +331,9 @@ class OffsetManager:
                 offsets = json.load(f)
                 self.offsets = self._merge_offsets(self.default_offsets, offsets)
                 self._save_offsets(self.offsets)
-            logging.log(f"오프셋을 {filepath}에서 가져왔습니다", True)
+            safe_log(f"오프셋을 {filepath}에서 가져왔습니다", True)
         except Exception as e:
-            logging.log(f"오프셋 가져오기 오류: {e}", True)
+            safe_log(f"오프셋 가져오기 오류: {e}", True)
     
     def get_all_offsets(self) -> Dict[str, Any]:
         """모든 오프셋 가져오기"""

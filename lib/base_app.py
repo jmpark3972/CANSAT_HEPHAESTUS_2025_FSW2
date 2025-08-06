@@ -11,7 +11,8 @@ from multiprocessing import Queue, connection
 from typing import Optional, Dict, Any, Callable
 from abc import ABC, abstractmethod
 
-from lib import appargs, msgstructure, logging, types, prevstate
+from .core import appargs, msgstructure, types, prevstate
+from .logging import safe_log
 
 
 class BaseApp(ABC):

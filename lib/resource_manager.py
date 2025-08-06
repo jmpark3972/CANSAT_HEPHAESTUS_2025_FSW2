@@ -14,7 +14,8 @@ from typing import Dict, List, Optional, Callable
 from datetime import datetime
 from pathlib import Path
 
-from lib import logging, config
+from .safe_log import safe_log
+from .core.config import get_config, set_config
 
 class ResourceManager:
     """리소스 관리자 클래스"""
@@ -38,7 +39,7 @@ class ResourceManager:
         self.disk_warnings = 0
         self.max_warnings = 5
         
-        logging.log("리소스 관리자 초기화 완료")
+        safe_log("리소스 관리자 초기화 완료")
     
     def start_monitoring(self):
         """리소스 모니터링 시작"""
@@ -48,14 +49,14 @@ class ResourceManager:
         self.monitoring = True
         self.monitor_thread = threading.Thread(target=self._monitor_resources, daemon=True)
         self.monitor_thread.start()
-        logging.log("리소스 모니터링 시작")
+        safe_log("리소스 모니터링 시작")
     
     def stop_monitoring(self):
         """리소스 모니터링 중지"""
         self.monitoring = False
         if self.monitor_thread:
             self.monitor_thread.join(timeout=5)
-        logging.log("리소스 모니터링 중지")
+        safe_log("리소스 모니터링 중지")
     
     def _monitor_resources(self):
         """리소스 모니터링 스레드"""
@@ -89,7 +90,7 @@ class ResourceManager:
                 time.sleep(self.check_interval)
                 
             except Exception as e:
-                logging.log(f"리소스 모니터링 오류: {e}", "ERROR")
+                safe_log(f"리소스 모니터링 오류: {e}", True)
                 time.sleep(self.check_interval)
     
     def _check_thresholds(self, memory_percent: float, disk_percent: float, cpu_percent: float):
@@ -97,20 +98,20 @@ class ResourceManager:
         # 메모리 임계값 체크
         if memory_percent > self.memory_threshold:
             self.memory_warnings += 1
-            logging.log(f"메모리 사용량 경고: {memory_percent:.1f}% (임계값: {self.memory_threshold}%)", "WARNING")
+            safe_log(f"메모리 사용량 경고: {memory_percent:.1f}% (임계값: {self.memory_threshold}%)", False)
             
             if self.memory_warnings >= self.max_warnings:
-                logging.log("메모리 사용량이 지속적으로 높습니다. 긴급 정리 실행", "ERROR")
+                safe_log("메모리 사용량이 지속적으로 높습니다. 긴급 정리 실행", True)
                 self._emergency_memory_cleanup()
                 self.memory_warnings = 0
         
         # 디스크 임계값 체크
         if disk_percent > self.disk_threshold:
             self.disk_warnings += 1
-            logging.log(f"디스크 사용량 경고: {disk_percent:.1f}% (임계값: {self.disk_threshold}%)", "WARNING")
+            safe_log(f"디스크 사용량 경고: {disk_percent:.1f}% (임계값: {self.disk_threshold}%)", False)
             
             if self.disk_warnings >= self.max_warnings:
-                logging.log("디스크 사용량이 지속적으로 높습니다. 로그 파일 정리 실행", "ERROR")
+                safe_log("디스크 사용량이 지속적으로 높습니다. 로그 파일 정리 실행", True)
                 self._cleanup_log_files()
                 self.disk_warnings = 0
     
@@ -131,10 +132,10 @@ class ResourceManager:
                 self.cpu_history = self.cpu_history[-self.max_history_size // 2:]
             
             if collected > 0:
-                logging.log(f"메모리 정리 완료: {collected}개 객체 수집")
+                safe_log(f"메모리 정리 완료: {collected}개 객체 수집")
                 
         except Exception as e:
-            logging.log(f"메모리 정리 오류: {e}", "ERROR")
+            safe_log(f"메모리 정리 오류: {e}", True)
     
     def _emergency_memory_cleanup(self):
         """긴급 메모리 정리"""
@@ -155,20 +156,20 @@ class ResourceManager:
                         if proc.info['memory_percent'] > 10:  # 10% 이상 메모리 사용
                             proc_name = proc.info['name']
                             if proc_name and 'python' not in proc_name.lower():
-                                logging.log(f"높은 메모리 사용 프로세스 발견: {proc_name} ({proc.info['memory_percent']:.1f}%)", "WARNING")
+                                safe_log(f"높은 메모리 사용 프로세스 발견: {proc_name} ({proc.info['memory_percent']:.1f}%)", False)
                     except Exception as e:
-                        logging.log(f"프로세스 정보 조회 오류: {e}", "WARNING")
+                        safe_log(f"프로세스 정보 조회 오류: {e}", "WARNING")
             
-            logging.log("긴급 메모리 정리 완료")
+            safe_log("긴급 메모리 정리 완료")
             
         except Exception as e:
-            logging.log(f"긴급 메모리 정리 오류: {e}", "ERROR")
+            safe_log(f"긴급 메모리 정리 오류: {e}", "ERROR")
     
     def _cleanup_log_files(self):
         """로그 파일 정리"""
         try:
-            log_dir = config.get_config("LOGGING.PRIMARY_LOG_DIR", "logs")
-            retention_days = config.get_config("LOGGING.LOG_RETENTION_DAYS", 7)
+            log_dir = config.get_config("safe_log.PRIMARY_LOG_DIR", "logs")
+            retention_days = config.get_config("safe_log_RETENTION_DAYS", 7)
             current_time = time.time()
             
             if os.path.exists(log_dir):
@@ -179,14 +180,14 @@ class ResourceManager:
                         if file_age > retention_days * 24 * 3600:  # 일을 초로 변환
                             try:
                                 os.remove(filepath)
-                                logging.log(f"오래된 로그 파일 삭제: {filename}")
+                                safe_log(f"오래된 로그 파일 삭제: {filename}")
                             except Exception as e:
-                                logging.log(f"로그 파일 삭제 실패: {filename} - {e}", "ERROR")
+                                safe_log(f"로그 파일 삭제 실패: {filename} - {e}", "ERROR")
             
-            logging.log("로그 파일 정리 완료")
+            safe_log("로그 파일 정리 완료")
             
         except Exception as e:
-            logging.log(f"로그 파일 정리 오류: {e}", "ERROR")
+            safe_log(f"로그 파일 정리 오류: {e}", "ERROR")
     
     def get_resource_usage(self) -> Dict[str, float]:
         """현재 리소스 사용량 반환"""
@@ -203,7 +204,7 @@ class ResourceManager:
                 'cpu_percent': cpu
             }
         except Exception as e:
-            logging.log(f"리소스 사용량 조회 오류: {e}", "ERROR")
+            safe_log(f"리소스 사용량 조회 오류: {e}", "ERROR")
             return {}
     
     def get_resource_history(self) -> Dict[str, List[float]]:
@@ -217,7 +218,7 @@ class ResourceManager:
     def register_resource_handler(self, resource_type: str, handler: Callable):
         """리소스 핸들러 등록"""
         self.resource_handlers[resource_type] = handler
-        logging.log(f"리소스 핸들러 등록: {resource_type}")
+        safe_log(f"리소스 핸들러 등록: {resource_type}")
     
     def generate_resource_report(self) -> str:
         """리소스 사용량 리포트 생성"""
@@ -266,7 +267,7 @@ class ResourceManager:
             return "\n".join(report)
             
         except Exception as e:
-            logging.log(f"리소스 리포트 생성 오류: {e}", "ERROR")
+            safe_log(f"리소스 리포트 생성 오류: {e}", "ERROR")
             return f"리소스 리포트 생성 실패: {e}"
 
 # 전역 리소스 관리자 인스턴스
