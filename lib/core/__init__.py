@@ -21,7 +21,7 @@ __all__ = [
     'MsgStructure', 'fill_msg', 'pack_msg', 'unpack_msg', 'send_msg',
     
     # types에서
-    'AppID', 'MsgID',
+    'AppID', 'MID',
     
     # config에서
     'get_config', 'set_config',
