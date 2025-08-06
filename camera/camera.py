@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Camera Module for CANSAT FSW
-Raspberry Pi Camera Module v3 Wide 지원
+CANSAT HEPHAESTUS 2025 FSW2 - 카메라 모듈
+Camera Module V2 (CSI) 지원
+이중 로깅 시스템 통합
 """
 
 import os
@@ -11,6 +12,7 @@ import subprocess
 import threading
 import signal
 import atexit
+import shutil
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any
@@ -19,6 +21,7 @@ from typing import Optional, Dict, Any
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lib import logging, appargs
+from camera import camera_config
 
 # 전역 변수
 _camera_process: Optional[subprocess.Popen] = None
@@ -29,11 +32,14 @@ _recording_thread: Optional[threading.Thread] = None
 _status_thread: Optional[threading.Thread] = None
 _termination_requested: bool = False
 
-# 설정
-VIDEO_DIR = "logs/cansat_videos"
-TEMP_DIR = "logs/cansat_camera_temp"
-LOG_DIR = "logs/cansat_camera_logs"
-VIDEO_DURATION = 5  # 5초 단위로 녹화
+# 설정 (camera_config에서 가져옴)
+VIDEO_DIR = camera_config.VIDEO_DIR
+TEMP_DIR = camera_config.VIDEO_TEMP_DIR
+LOG_DIR = camera_config.VIDEO_LOG_DIR
+DUAL_VIDEO_DIR = camera_config.DUAL_VIDEO_DIR
+DUAL_TEMP_DIR = camera_config.DUAL_VIDEO_TEMP_DIR
+DUAL_LOG_DIR = camera_config.DUAL_VIDEO_LOG_DIR
+VIDEO_DURATION = camera_config.RECORDING_DURATION
 FFMPEG_TIMEOUT = 30  # FFmpeg 타임아웃 (초)
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
@@ -46,12 +52,23 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[Camera] 원본 메시지: {message}")
 
 def ensure_directories():
-    """필요한 디렉토리 생성"""
+    """필요한 디렉토리 생성 (이중 로깅 지원)"""
     try:
+        # 메인 디렉토리 생성
         os.makedirs(VIDEO_DIR, exist_ok=True)
         os.makedirs(TEMP_DIR, exist_ok=True)
         os.makedirs(LOG_DIR, exist_ok=True)
-        safe_log("디렉토리 생성 완료", "INFO", True)
+        safe_log("메인 디렉토리 생성 완료", "INFO", True)
+        
+        # 서브 SD 카드 디렉토리 생성 (이중 로깅)
+        if os.path.exists("/mnt/log_sd"):
+            os.makedirs(DUAL_VIDEO_DIR, exist_ok=True)
+            os.makedirs(DUAL_TEMP_DIR, exist_ok=True)
+            os.makedirs(DUAL_LOG_DIR, exist_ok=True)
+            safe_log("서브 SD 디렉토리 생성 완료 (이중 로깅 활성화)", "INFO", True)
+        else:
+            safe_log("서브 SD 카드가 마운트되지 않음 (단일 로깅 모드)", "WARNING", True)
+        
         return True
     except Exception as e:
         safe_log(f"디렉토리 생성 실패: {e}", "ERROR", True)
