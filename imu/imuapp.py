@@ -173,11 +173,15 @@ def imuapp_init():
         # IMU 센서 초기화 (직접 I2C 연결)
         i2c, sensor = imu.init_imu()
         
-        safe_log("Imuapp initialization complete", "info".upper(), True)
+        if i2c and sensor:
+            safe_log("Imuapp initialization complete", "info".upper(), True)
+        else:
+            safe_log("IMU 센서 초기화 실패, 기본값으로 작동", "warning".upper(), True)
+        
         return i2c, sensor
 
     except Exception as e:
-        safe_log(f"Init error: {e}", "error".upper(), True)
+        safe_log(f"Init error: {e}, 기본값으로 작동", "warning".upper(), True)
         return None, None
 
 # Termination
@@ -218,7 +222,14 @@ def read_imu_data(sensor):
     
     while IMUAPP_RUNSTATUS:
         try:
+            # 센서가 None인 경우 기본값 유지
+            if sensor is None:
+                time.sleep(0.1)
+                continue
+                
             gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
+            
+            # 데이터가 유효한 경우 업데이트
             if gyro is not None and accel is not None and mag is not None and euler is not None:
                 IMU_GYRO = gyro
                 IMU_ACCEL = accel
@@ -246,9 +257,16 @@ def read_imu_data(sensor):
                     IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
                     IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
                     IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+            else:
+                # 데이터가 None인 경우 기본값 유지 (이전 값 보존)
+                # 센서 오류 시에도 시스템이 계속 작동하도록 함
+                pass
                     
         except Exception as e:
             safe_log(f"IMU read error: {e}", "error".upper(), True)
+            # 오류 발생 시에도 기본값 유지
+            pass
+            
         time.sleep(0.1)  # 10 Hz
 
 def send_imu_data(Main_Queue : Queue):
