@@ -79,7 +79,8 @@ def read_fir1_data(sensor):
             if amb is not None and obj is not None:
                 FIR1_AMB = amb
                 FIR1_OBJ = obj
-                safe_log(f"FIR1 데이터 읽기 성공: Ambient={amb:.2f}°C, Object={obj:.2f}°C", "info".upper(), True)
+                # 성공 로그는 제거 (너무 자주 출력됨)
+                # safe_log(f"FIR1 데이터 읽기 성공: Ambient={amb:.2f}°C, Object={obj:.2f}°C", "info".upper(), True)
             else:
                 safe_log("FIR1 데이터 읽기 실패: None 값 반환", "warning".upper(), True)
         except Exception as e:

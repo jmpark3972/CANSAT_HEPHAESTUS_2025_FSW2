@@ -61,11 +61,21 @@ def init_barometer():
 def read_barometer(bmp, offset:float):
     global altitude_altZero
     
+    # 마지막 유효 데이터 저장
+    if not hasattr(read_barometer, "last_valid_data"):
+        read_barometer.last_valid_data = (1013.25, 25.0, 0.0)  # 기본값
+        read_barometer.error_count = 0
+    
     try:
+        # 센서 데이터 읽기
         pressure = bmp.pressure
         temperature = bmp.temperature
         altitude = bmp.altitude
 
+        # 데이터 유효성 검사
+        if pressure is None or temperature is None or altitude is None:
+            raise Exception("센서에서 None 값 반환")
+        
         # Type Checking of barometer data
         if type(pressure) == float:
             pressure = round(pressure, 2)
@@ -82,17 +92,42 @@ def read_barometer(bmp, offset:float):
         else:
             altitude = 0
 
+        # 데이터 범위 검증
+        if pressure < 300 or pressure > 1200:  # hPa 범위
+            raise Exception(f"압력 범위 오류: {pressure} hPa")
+        
+        if temperature < -40 or temperature > 85:  # 섭씨 범위
+            raise Exception(f"온도 범위 오류: {temperature}°C")
+        
+        if altitude < -1000 or altitude > 10000:  # 고도 범위 (미터)
+            raise Exception(f"고도 범위 오류: {altitude} m")
+
         # Apply offset
         altitude = round(altitude - offset, 2)
 
+        # 유효한 데이터인 경우 마지막 유효 데이터 업데이트
+        read_barometer.last_valid_data = (pressure, temperature, altitude)
+        read_barometer.error_count = 0
+
         log_barometer(f"{pressure:.2f}, {temperature:.2f}, {altitude:.2f}")
         
-        return ( pressure, temperature, altitude )
+        return (pressure, temperature, altitude)
         
     except Exception as e:
-        print(f"Barometer 읽기 오류: {e}")
-        log_barometer(f"READ_ERROR,{e}")
-        return (0.0, 0.0, 0.0)
+        read_barometer.error_count += 1
+        
+        # 오류 로깅 (너무 자주 출력하지 않도록)
+        if read_barometer.error_count <= 5 or read_barometer.error_count % 10 == 0:
+            print(f"Barometer 읽기 오류: {e}")
+            log_barometer(f"READ_ERROR,{e}")
+        
+        # 연속 오류가 많으면 하드웨어 점검 안내
+        if read_barometer.error_count >= 50:
+            print(f"Barometer 연속 오류 {read_barometer.error_count}회 - 하드웨어/배선 점검 필요")
+            read_barometer.error_count = 0
+        
+        # 마지막 유효 데이터 반환
+        return read_barometer.last_valid_data
 
 def terminate_barometer(i2c):
     try:

@@ -88,6 +88,10 @@ class TMP007:
             # 객체 온도 읽기
             tobj_raw = self._read_register(self.REG_TOBJ)
             
+            # 유효성 검사
+            if tobj_raw == 0xFFFF or tobj_raw == 0x0000:
+                raise Exception("Invalid temperature reading")
+            
             # 수정된 온도 변환 공식 (TMP007 데이터시트 기준)
             # 14비트 데이터, 0.03125°C/LSB
             # 부호 비트 처리 개선
@@ -98,16 +102,25 @@ class TMP007:
             else:
                 temperature = tobj_raw * 0.03125
             
+            # 온도 범위 검증 (-40°C ~ 125°C)
+            if temperature < -40 or temperature > 125:
+                raise Exception(f"Temperature out of range: {temperature}°C")
+            
             self.last_read_time = time.time()
             return round(temperature, 2)
             
         except Exception as e:
-            raise Exception(f"온도 읽기 실패: {e}")
+            print(f"TMP007 온도 읽기 오류: {e}")
+            return 0.0  # 오류 시 기본값 반환
     
     def read_die_temperature(self):
         """다이 온도 읽기 (섭씨) - 수정된 계산 공식"""
         try:
             tdie_raw = self._read_register(self.REG_TDIE)
+            
+            # 유효성 검사
+            if tdie_raw == 0xFFFF or tdie_raw == 0x0000:
+                raise Exception("Invalid die temperature reading")
             
             # 수정된 온도 변환 공식
             if tdie_raw & 0x8000:  # 음수 온도 (2의 보수)
@@ -116,15 +129,24 @@ class TMP007:
             else:
                 temperature = tdie_raw * 0.03125
             
+            # 온도 범위 검증 (-40°C ~ 125°C)
+            if temperature < -40 or temperature > 125:
+                raise Exception(f"Die temperature out of range: {temperature}°C")
+            
             return round(temperature, 2)
             
         except Exception as e:
-            raise Exception(f"다이 온도 읽기 실패: {e}")
+            print(f"TMP007 다이 온도 읽기 오류: {e}")
+            return 0.0  # 오류 시 기본값 반환
     
     def read_voltage(self):
         """전압 읽기 (마이크로볼트) - 수정된 계산 공식"""
         try:
             voltage_raw = self._read_register(self.REG_VOLTAGE)
+            
+            # 유효성 검사
+            if voltage_raw == 0xFFFF or voltage_raw == 0x0000:
+                raise Exception("Invalid voltage reading")
             
             # 수정된 전압 변환 공식
             # 14비트 데이터, 156.25μV/LSB
@@ -134,10 +156,15 @@ class TMP007:
             else:
                 voltage = voltage_raw * 156.25
             
+            # 전압 범위 검증 (-6.4mV ~ 6.4mV)
+            if voltage < -6400 or voltage > 6400:
+                raise Exception(f"Voltage out of range: {voltage}μV")
+            
             return round(voltage, 2)
             
         except Exception as e:
-            raise Exception(f"전압 읽기 실패: {e}")
+            print(f"TMP007 전압 읽기 오류: {e}")
+            return 0.0  # 오류 시 기본값 반환
     
     def get_status(self):
         """상태 정보 읽기"""
