@@ -11,6 +11,7 @@ class MainAppArg:
 class HkAppArg:
     AppID: types.AppID = 2
     AppName = "HK"
+    MID_Housekeeping:    types.MID = 200
     MID_ReceiveHK:       types.MID = 201
     MID_SendCombinedHK:  types.MID = 202
 
