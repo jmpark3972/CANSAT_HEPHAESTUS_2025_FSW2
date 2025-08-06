@@ -231,3 +231,28 @@ def thermisapp_main(main_q: Queue, main_pipe: connection.Connection):
         THERMISAPP_RUNSTATUS = False
 
     thermisapp_terminate(i2c) 
+
+# ──────────────────────────────
+# ThermisApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class ThermisApp:
+    """Thermis 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """ThermisApp 초기화"""
+        self.app_name = "Thermis"
+        self.app_id = appargs.ThermisAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            thermisapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"ThermisApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global THERMISAPP_RUNSTATUS
+        THERMISAPP_RUNSTATUS = False
+        self.run_status = False 

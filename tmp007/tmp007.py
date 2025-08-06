@@ -266,24 +266,24 @@ if __name__ == "__main__":
             try:
                 data = read_tmp007_data(sensor)
                 if data:
-                    # 객체 온도: {data['object_temperature']}°C
-                    # 다이 온도: {data['die_temperature']}°C
-                    # 전압: {data['voltage']}μV
-                    # 상태: {data['status']}
-                    # "-" * 40
+                    print(f"객체 온도: {data['object_temperature']}°C")
+                    print(f"다이 온도: {data['die_temperature']}°C")
+                    print(f"전압: {data['voltage']}μV")
+                    print(f"상태: {data['status']}")
+                    print("-" * 40)
                 
                 time.sleep(1)
                 
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                # 측정 오류: {e}
+                print(f"측정 오류: {e}")
                 time.sleep(1)
         
     except Exception as e:
-        # TMP007 테스트 실패: {e}
+        print(f"TMP007 테스트 실패: {e}")
     finally:
         try:
             terminate_tmp007(i2c)
         except Exception as e:
-            # TMP007 종료 중 오류: {e} 
+            print(f"TMP007 종료 중 오류: {e}") 

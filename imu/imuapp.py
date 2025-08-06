@@ -541,3 +541,28 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
             pass
 
     return
+
+# ──────────────────────────────
+# ImuApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class ImuApp:
+    """IMU 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """ImuApp 초기화"""
+        self.app_name = "IMU"
+        self.app_id = appargs.ImuAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            imuapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"ImuApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global IMUAPP_RUNSTATUS
+        IMUAPP_RUNSTATUS = False
+        self.run_status = False

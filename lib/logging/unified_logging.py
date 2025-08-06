@@ -362,31 +362,36 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True, app_name
         
         # 메시지 큐에 추가 (비동기 처리)
         try:
+            # level이 문자열이 아닌 경우 문자열로 변환
+            level_str = str(level).upper() if level is not None else "INFO"
             _log_queue.put_nowait((
                 datetime.now().isoformat(sep=' ', timespec='milliseconds'),
-                level.upper(),
+                level_str,
                 app_name,
                 message,
                 printlogs
             ))
         except queue.Full:
             # 큐가 가득 찬 경우 버퍼에 직접 저장
-            _log_buffer.append(f"[QUEUE_FULL] [{level.upper()}] [{app_name}] {message}")
+            level_str = str(level).upper() if level is not None else "INFO"
+            _log_buffer.append(f"[QUEUE_FULL] [{level_str}] [{app_name}] {message}")
             if len(_log_buffer) > _max_buffer_size:
                 _log_buffer.pop(0)
             
             # 콘솔 출력
             if printlogs:
                 try:
-                    print(f"[{level.upper()}] [{app_name}] {message}")
+                    level_str = str(level).upper() if level is not None else "INFO"
+                    print(f"[{level_str}] [{app_name}] {message}")
                 except:
                     pass
         
     except Exception as e:
         # 로깅 시스템 자체에 문제가 있는 경우 최소한의 출력
         try:
+            level_str = str(level).upper() if level is not None else "INFO"
             print(f"[LOGGING_ERROR] {e}")
-            print(f"[ORIGINAL_MESSAGE] [{level.upper()}] [{app_name}] {message}")
+            print(f"[ORIGINAL_MESSAGE] [{level_str}] [{app_name}] {message}")
         except:
             # 모든 출력이 실패한 경우 무시
             pass

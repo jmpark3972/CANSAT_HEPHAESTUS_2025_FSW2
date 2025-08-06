@@ -372,3 +372,28 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     barometerapp_terminate(i2c_instance)
 
     return
+
+# ──────────────────────────────
+# BarometerApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class BarometerApp:
+    """Barometer 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """BarometerApp 초기화"""
+        self.app_name = "Barometer"
+        self.app_id = appargs.BarometerAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            barometerapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"BarometerApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global BAROMETERAPP_RUNSTATUS
+        BAROMETERAPP_RUNSTATUS = False
+        self.run_status = False

@@ -116,13 +116,9 @@ def firapp1_terminate(i2c):
     
     try:
         fir1.terminate_fir1(i2c)
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.info,
-                        "Firapp1 terminated")
+        safe_log("Firapp1 terminated", "INFO", True)
     except Exception as e:
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.error,
-                        f"Terminate error: {e}")
+        safe_log(f"Terminate error: {e}", "ERROR", True)
 
 # ──────────────────────────────
 # 5. 메인 함수
@@ -135,9 +131,7 @@ def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
     i2c, sensor = firapp1_init()
     
     if i2c is None or sensor is None:
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.error,
-                        "FIR1 초기화 실패로 인한 종료")
+        safe_log("FIR1 초기화 실패로 인한 종료", "ERROR", True)
         return
     
     # 스레드 시작
@@ -152,11 +146,32 @@ def firapp1_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
         while FIR1APP_RUNSTATUS:
             time.sleep(1)
     except KeyboardInterrupt:
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.info,
-                        "FIR1 앱 사용자 중단")
+        safe_log("FIR1 앱 사용자 중단", "INFO", True)
     finally:
         firapp1_terminate(i2c)
-        events.LogEvent(appargs.FirApp1Arg.AppName,
-                        events.EventType.info,
-                        "FIR1 앱 종료") 
+        safe_log("FIR1 앱 종료", "INFO", True) 
+
+# ──────────────────────────────
+# 6. FirApp1 클래스 (main.py 호환성)
+# ──────────────────────────────
+class FirApp1:
+    """FIR1 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """FirApp1 초기화"""
+        self.app_name = "FIR1"
+        self.app_id = appargs.FirApp1Arg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            firapp1_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"FirApp1 start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global FIR1APP_RUNSTATUS
+        FIR1APP_RUNSTATUS = False
+        self.run_status = False 

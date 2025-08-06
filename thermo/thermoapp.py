@@ -206,3 +206,28 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
         THERMOAPP_RUNSTATUS = False
 
     thermoapp_terminate(dht)
+
+# ──────────────────────────────
+# ThermoApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class ThermoApp:
+    """Thermo 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """ThermoApp 초기화"""
+        self.app_name = "Thermo"
+        self.app_id = appargs.ThermoAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            thermoapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"ThermoApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global THERMOAPP_RUNSTATUS
+        THERMOAPP_RUNSTATUS = False
+        self.run_status = False

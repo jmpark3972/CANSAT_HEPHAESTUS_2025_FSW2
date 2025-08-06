@@ -456,3 +456,28 @@ def tmp007app_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     tmp007app_terminate(i2c_instance)
 
     return 
+
+# ──────────────────────────────
+# Tmp007App 클래스 (main.py 호환성)
+# ──────────────────────────────
+class Tmp007App:
+    """TMP007 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """Tmp007App 초기화"""
+        self.app_name = "TMP007"
+        self.app_id = appargs.Tmp007AppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            tmp007app_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"Tmp007App start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global TMP007APP_RUNSTATUS
+        TMP007APP_RUNSTATUS = False
+        self.run_status = False 

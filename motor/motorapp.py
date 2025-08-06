@@ -393,3 +393,28 @@ if __name__ == "__main__":
         print()
     finally:
         motorapp_terminate()
+
+# ──────────────────────────────
+# MotorApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class MotorApp:
+    """Motor 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """MotorApp 초기화"""
+        self.app_name = "Motor"
+        self.app_id = appargs.MotorAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            motorapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"MotorApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global MOTORAPP_RUNSTATUS
+        MOTORAPP_RUNSTATUS = False
+        self.run_status = False

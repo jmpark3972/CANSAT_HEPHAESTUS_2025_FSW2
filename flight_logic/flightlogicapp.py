@@ -850,3 +850,28 @@ def update_motor_logic_loop(Main_Queue: Queue):
         except Exception as e:
             # 모터 로직 오류는 조용히 처리 (로그 출력하지 않음)
             time.sleep(0.1) 
+
+# ──────────────────────────────
+# FlightLogicApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class FlightLogicApp:
+    """FlightLogic 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """FlightLogicApp 초기화"""
+        self.app_name = "FlightLogic"
+        self.app_id = appargs.FlightlogicAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            flightlogicapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"FlightLogicApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global FLIGHTLOGICAPP_RUNSTATUS
+        FLIGHTLOGICAPP_RUNSTATUS = False
+        self.run_status = False 
