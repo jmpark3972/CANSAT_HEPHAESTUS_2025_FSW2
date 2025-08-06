@@ -182,9 +182,7 @@ def thermocamapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             else:
                 # 타임아웃 시 루프 계속
                 continue
-            m = msgstructure.MsgStructure()
-            if not msgstructure.unpack_msg(m, raw):
-                continue
+            m = raw
 
             target_apps = (appargs.ThermalcameraAppArg.AppID, appargs.MainAppArg.AppID)
             if m.receiver_app in target_apps:

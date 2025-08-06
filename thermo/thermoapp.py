@@ -193,9 +193,7 @@ def thermoapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
                 # 타임아웃 시 루프 계속
                 continue
                 
-            m = msgstructure.MsgStructure()
-            if not msgstructure.unpack_msg(m, raw):
-                continue
+            m = raw
 
             if m.receiver_app in (appargs.ThermoAppArg.AppID, appargs.MainAppArg.AppID):
                 command_handler(Main_Queue, m, dht)
