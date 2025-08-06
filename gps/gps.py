@@ -143,10 +143,20 @@ def gps_readdata(ser):
     
     if gps_data:
         try:
-            # GPS 시간 파싱
+            # GPS 시간 파싱 (UTC → KST 변환)
             gps_time_raw = gps_data[0][1]
             if gps_time_raw and len(gps_time_raw) >= 6:
-                gps_time = f"{gps_time_raw[0:2]}:{gps_time_raw[2:4]}:{gps_time_raw[4:6]}"
+                # UTC 시간을 파싱
+                utc_hour = int(gps_time_raw[0:2])
+                utc_minute = int(gps_time_raw[2:4])
+                utc_second = int(gps_time_raw[4:6])
+                
+                # UTC → KST 변환 (UTC + 9시간)
+                kst_hour = utc_hour + 9
+                if kst_hour >= 24:
+                    kst_hour -= 24
+                
+                gps_time = f"{kst_hour:02d}:{utc_minute:02d}:{utc_second:02d}"
             else:
                 gps_time = "00:00:00"
         except:

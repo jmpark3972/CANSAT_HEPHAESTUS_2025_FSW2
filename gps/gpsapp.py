@@ -168,7 +168,7 @@ def read_gps_data(gps_instance):
     global GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS, GPSAPP_RUNSTATUS
     while GPSAPP_RUNSTATUS:
         try:
-            lat, lon, alt, time_str, sats = gps.read_gps(gps_instance)
+            lat, lon, alt, time_str, sats = gps.gps_readdata(gps_instance)
             if lat is not None and lon is not None and alt is not None and time_str is not None and sats is not None:
                 GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS = lat, lon, alt, time_str, sats
         except Exception:
