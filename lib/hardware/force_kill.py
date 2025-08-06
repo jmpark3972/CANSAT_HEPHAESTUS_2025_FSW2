@@ -247,5 +247,14 @@ def main():
     else:
         force_kill_all()
 
+# 편의 함수들
+def force_kill_process(pid: int, process_name: str = "Unknown"):
+    """특정 프로세스 강제 종료 (편의 함수)"""
+    return kill_process_safely(pid, process_name)
+
+def force_kill_all_processes():
+    """모든 CANSAT 프로세스 강제 종료 (편의 함수)"""
+    return force_kill_all()
+
 if __name__ == "__main__":
     main() 
