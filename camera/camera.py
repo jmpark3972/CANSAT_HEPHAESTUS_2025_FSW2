@@ -143,18 +143,18 @@ def check_camera_driver() -> bool:
         return False
 
 def check_ffmpeg() -> bool:
-    """FFmpeg 설치 확인"""
+    """FFmpeg 설치 확인 (cam 명령어 사용 시에는 선택사항)"""
     try:
         result = subprocess.run(['ffmpeg', '-version'], 
-                              capture_output=True, text=True, timeout=5)
+                              capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
             safe_log("FFmpeg 설치 확인됨", "INFO", True)
             return True
         else:
-            safe_log("FFmpeg 설치되지 않음", "ERROR", True)
+            safe_log("FFmpeg 설치되지 않음 (cam 명령어 사용으로 대체 가능)", "WARNING", True)
             return False
     except Exception as e:
-        safe_log(f"FFmpeg 확인 오류: {e}", "ERROR", True)
+        safe_log(f"FFmpeg 확인 오류: {e} (cam 명령어 사용으로 대체 가능)", "WARNING", True)
         return False
 
 def init_camera() -> Optional[subprocess.Popen]:
@@ -179,10 +179,10 @@ def init_camera() -> Optional[subprocess.Popen]:
         if not driver_ok:
             safe_log("카메라 드라이버 감지 실패, 하지만 계속 진행", "WARNING", True)
         
-        # FFmpeg 확인
-        if not check_ffmpeg():
-            safe_log("FFmpeg 설치 확인 실패로 카메라 초기화 중단", "ERROR", True)
-            return None
+        # FFmpeg 확인 (경고로 처리하고 계속 진행)
+        ffmpeg_ok = check_ffmpeg()
+        if not ffmpeg_ok:
+            safe_log("FFmpeg 설치 확인 실패, 하지만 cam 명령어로 계속 진행", "WARNING", True)
         
         # 상태 초기화
         _recording_active = False

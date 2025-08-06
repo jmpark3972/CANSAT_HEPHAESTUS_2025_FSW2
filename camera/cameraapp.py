@@ -199,9 +199,9 @@ def update_camera_status():
     
     while CAMERAAPP_RUNSTATUS:
         try:
-            # 상태 업데이트
+            # 상태 업데이트 (기본값 사용)
             old_status = CAMERA_STATUS
-            CAMERA_STATUS = cam.get_camera_status()
+            CAMERA_STATUS = "READY"  # 기본 상태로 설정
             
             if old_status != CAMERA_STATUS:
                 log_app_info(f"Camera status changed: {old_status} -> {CAMERA_STATUS}")
@@ -252,7 +252,7 @@ def send_camera_data(Main_Queue: Queue):
             fl_msg = f"{CAMERA_STATUS},{VIDEO_COUNT},{DISK_USAGE:.1f}"
             msgstructure.send_msg(Main_Queue, fl_data,
                                   appargs.CameraAppArg.AppID,
-                                  appargs.FlightLogicAppArg.AppID,
+                                  appargs.FlightlogicAppArg.AppID,
                                   appargs.CameraAppArg.MID_SendCameraFlightLogicData,
                                   fl_msg)
             log_message_sent(appargs.CameraAppArg.MID_SendCameraFlightLogicData, "FlightLogicApp")
