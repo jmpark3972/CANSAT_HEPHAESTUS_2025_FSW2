@@ -240,10 +240,6 @@ def command_handler(main_q: Queue, recv: msgstructure.MsgStructure) -> None:
             safe_log(f"Bad pulse cmd: {recv.data} – {e}", "error".upper(), True)
         return
 
-    elif recv.MsgID == appargs.MotorAppArg.MID_SetServoAngle:
-        pulse = int(float(recv.data))
-        set_servo_pulse(pulse)
-
     else:
         safe_log(f"MID {recv.MsgID} not handled", "error".upper(), True)
 

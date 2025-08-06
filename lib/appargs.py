@@ -58,7 +58,7 @@ class FlightlogicAppArg:
     MID_SendMotorStatus:          types.MID = 1411  # 모터 상태를 Comm 앱으로 전송
 
     # <NEW/> Motor 각도 지시 (Flightlogic → MotorApp)
-    MID_SetServoAngle = 1402
+    MID_SetServoAngle: types.MID = 1402
 
 class CommAppArg:
     AppID: types.AppID = 16
@@ -78,7 +78,7 @@ class MotorAppArg:
     AppName = "Motor"
     MID_SendHK:          types.MID = 1701   # 1 Hz HK (2401에서 1701로 수정)
     # Flightlogic → MotorApp 각도 지시를 Motor 쪽에서 받을 때 사용할 MID
-    MID_SetServoAngle:   types.MID = 1402
+    MID_SetServoAngle:   types.MID = 1702
 
 # ────────── FIR1 (MLX90614 Channel 0) ──────────
 class FirApp1Arg:

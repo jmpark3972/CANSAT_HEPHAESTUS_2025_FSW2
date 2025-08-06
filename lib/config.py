@@ -329,9 +329,10 @@ def get_team_id(mode: str = None) -> str:
     return TEAM_IDS.get(mode, "SpaceY")
 
 # 설정 파일이 없으면 생성
-if not os.path.exists("lib/config.txt"):
+config_txt_path = os.path.join(os.path.dirname(__file__), "config.txt")
+if not os.path.exists(config_txt_path):
     try:
-        with open("lib/config.txt", "w", encoding="utf-8") as f:
+        with open(config_txt_path, "w", encoding="utf-8") as f:
             f.write(f"FSW_MODE={FSW_MODE}\n")
             f.write(f"TEAM_ID={get_team_id()}\n")
     except Exception as e:

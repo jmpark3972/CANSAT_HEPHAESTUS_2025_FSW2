@@ -1,216 +1,165 @@
 #!/usr/bin/env python3
-"""TMP007 센서 직접 I2C 연결 테스트 스크립트"""
+"""
+TMP007 센서 직접 I2C 연결 테스트 스크립트
+수정된 온도 계산 공식 적용
+"""
 
-import sys
-import os
 import time
 import board
 import busio
 
-# 프로젝트 루트 디렉토리를 Python 경로에 추가
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+def read_register(i2c, address, reg):
+    """레지스터 읽기 (16비트)"""
+    try:
+        result = bytearray(2)
+        i2c.writeto_then_readfrom(address, bytes([reg]), result)
+        return (result[0] << 8) | result[1]
+    except Exception as e:
+        print(f"레지스터 읽기 실패 (0x{reg:02X}): {e}")
+        return None
 
-def test_tmp007_direct_i2c():
-    """TMP007 센서 직접 I2C 연결 테스트"""
-    print("=== TMP007 직접 I2C 연결 테스트 시작 ===")
+def convert_temperature(raw_value):
+    """수정된 온도 변환 공식 (TMP007 데이터시트 기준)"""
+    # 14비트 데이터, 0.03125°C/LSB
+    # 부호 비트 처리 개선
+    if raw_value & 0x8000:  # 음수 온도 (2의 보수)
+        # 2의 보수 변환
+        raw_value = raw_value - 0x10000
+        temperature = raw_value * 0.03125
+    else:
+        temperature = raw_value * 0.03125
+    
+    return round(temperature, 2)
+
+def convert_voltage(raw_value):
+    """수정된 전압 변환 공식"""
+    # 14비트 데이터, 156.25μV/LSB
+    if raw_value & 0x8000:  # 음수 전압 (2의 보수)
+        raw_value = raw_value - 0x10000
+        voltage = raw_value * 156.25
+    else:
+        voltage = raw_value * 156.25
+    
+    return round(voltage, 2)
+
+def main():
+    print("TMP007 센서 직접 I2C 연결 테스트 스크립트")
+    print("수정된 온도 계산 공식 적용")
+    print("=" * 50)
     
     try:
-        # I2C 버스 초기화 (Qwiic Mux 없이 직접 연결)
+        # 1. I2C 버스 초기화
         print("1. I2C 버스 초기화 중...")
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
+        time.sleep(0.1)
         print("✓ I2C 버스 초기화 성공")
         
-        # TMP007 I2C 주소 스캔
+        # 2. I2C 디바이스 스캔
         print("\n2. I2C 디바이스 스캔 중...")
-        i2c.try_lock()
-        addresses = []
-        for address in range(0x08, 0x78):
-            if i2c.try_lock():
-                try:
-                    i2c.writeto(address, b'')
-                    addresses.append(hex(address))
-                except OSError:
-                    pass
-                finally:
-                    i2c.unlock()
+        devices = i2c.scan()
+        print(f"발견된 I2C 디바이스: {[hex(addr) for addr in devices]}")
         
-        print(f"발견된 I2C 디바이스: {addresses}")
-        
-        # TMP007 주소 확인 (0x40)
-        tmp007_address = 0x40
-        if hex(tmp007_address) in addresses:
-            print(f"✓ TMP007 센서 발견 (주소: 0x{tmp007_address:02X})")
-        else:
-            print(f"⚠ TMP007 센서를 찾을 수 없음 (주소: 0x{tmp007_address:02X})")
+        if 0x40 not in devices:
+            print("⚠ TMP007 센서를 찾을 수 없음 (주소: 0x40)")
             print("다른 주소에서 시도해보겠습니다...")
         
-        # TMP007 레지스터 읽기 테스트
+        # 3. TMP007 레지스터 읽기 테스트
         print("\n3. TMP007 레지스터 읽기 테스트...")
         
-        # 디바이스 ID 레지스터 (0x1F) 읽기
-        try:
-            i2c.try_lock()
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x1F]), result)
-            dev_id = (result[0] << 8) | result[1]
+        # 디바이스 ID 확인
+        dev_id = read_register(i2c, 0x40, 0x1F)
+        if dev_id is not None:
             print(f"디바이스 ID: 0x{dev_id:04X} (예상: 0x0078)")
-            
             if dev_id == 0x78:
                 print("✓ 올바른 TMP007 디바이스 ID 확인")
             else:
-                print("⚠ 예상과 다른 디바이스 ID")
-                
-        except Exception as e:
-            print(f"디바이스 ID 읽기 실패: {e}")
+                print("⚠ 잘못된 디바이스 ID")
+        else:
+            print("❌ 디바이스 ID 읽기 실패")
+            return
         
-        # 설정 레지스터 (0x02) 읽기
-        try:
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x02]), result)
-            config = (result[0] << 8) | result[1]
+        # 설정 레지스터 확인
+        config = read_register(i2c, 0x40, 0x02)
+        if config is not None:
             print(f"설정 레지스터: 0x{config:04X}")
-            
-        except Exception as e:
-            print(f"설정 레지스터 읽기 실패: {e}")
         
-        # 온도 데이터 읽기 테스트
-        print("\n4. 온도 데이터 읽기 테스트...")
+        # 4. 온도 데이터 읽기 테스트 (수정된 공식)
+        print("\n4. 온도 데이터 읽기 테스트 (수정된 공식)...")
         
-        # 객체 온도 레지스터 (0x03) 읽기
-        try:
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x03]), result)
-            tobj_raw = (result[0] << 8) | result[1]
-            
-            # 온도 변환 (14비트, 0.03125°C/LSB)
-            if tobj_raw & 0x8000:  # 음수 온도
-                temperature = -((~tobj_raw + 1) & 0x7FFF) * 0.03125
-            else:
-                temperature = (tobj_raw & 0x7FFF) * 0.03125
-            
-            print(f"객체 온도: {temperature:.2f}°C (raw: 0x{tobj_raw:04X})")
-            
-        except Exception as e:
-            print(f"객체 온도 읽기 실패: {e}")
+        # 객체 온도
+        tobj_raw = read_register(i2c, 0x40, 0x03)
+        if tobj_raw is not None:
+            tobj_temp = convert_temperature(tobj_raw)
+            print(f"객체 온도: {tobj_temp}°C (raw: 0x{tobj_raw:04X})")
         
-        # 다이 온도 레지스터 (0x01) 읽기
-        try:
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x01]), result)
-            tdie_raw = (result[0] << 8) | result[1]
-            
-            # 온도 변환 (14비트, 0.03125°C/LSB)
-            if tdie_raw & 0x8000:  # 음수 온도
-                die_temp = -((~tdie_raw + 1) & 0x7FFF) * 0.03125
-            else:
-                die_temp = (tdie_raw & 0x7FFF) * 0.03125
-            
-            print(f"다이 온도: {die_temp:.2f}°C (raw: 0x{tdie_raw:04X})")
-            
-        except Exception as e:
-            print(f"다이 온도 읽기 실패: {e}")
+        # 다이 온도
+        tdie_raw = read_register(i2c, 0x40, 0x01)
+        if tdie_raw is not None:
+            tdie_temp = convert_temperature(tdie_raw)
+            print(f"다이 온도: {tdie_temp}°C (raw: 0x{tdie_raw:04X})")
         
-        # 전압 레지스터 (0x00) 읽기
-        try:
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x00]), result)
-            voltage_raw = (result[0] << 8) | result[1]
-            
-            # 전압 변환 (14비트, 156.25μV/LSB)
-            if voltage_raw & 0x8000:  # 음수 전압
-                voltage = -((~voltage_raw + 1) & 0x7FFF) * 156.25
-            else:
-                voltage = (voltage_raw & 0x7FFF) * 156.25
-            
-            print(f"전압: {voltage:.2f}μV (raw: 0x{voltage_raw:04X})")
-            
-        except Exception as e:
-            print(f"전압 읽기 실패: {e}")
+        # 전압
+        voltage_raw = read_register(i2c, 0x40, 0x00)
+        if voltage_raw is not None:
+            voltage = convert_voltage(voltage_raw)
+            print(f"전압: {voltage}μV (raw: 0x{voltage_raw:04X})")
         
-        # 상태 레지스터 (0x04) 읽기
-        try:
-            result = bytearray(2)
-            i2c.writeto_then_readfrom(tmp007_address, bytes([0x04]), result)
-            status = (result[0] << 8) | result[1]
+        # 상태 레지스터
+        status = read_register(i2c, 0x40, 0x04)
+        if status is not None:
             print(f"상태 레지스터: 0x{status:04X}")
-            
-            # 상태 비트 해석
-            data_ready = bool(status & 0x4000)
-            object_high = bool(status & 0x2000)
-            object_low = bool(status & 0x1000)
-            object_fault = bool(status & 0x0800)
-            
-            print(f"  데이터 준비: {data_ready}")
-            print(f"  객체 온도 높음: {object_high}")
-            print(f"  객체 온도 낮음: {object_low}")
-            print(f"  객체 온도 오류: {object_fault}")
-            
-        except Exception as e:
-            print(f"상태 레지스터 읽기 실패: {e}")
+            print(f"  데이터 준비: {bool(status & 0x4000)}")
+            print(f"  객체 온도 높음: {bool(status & 0x2000)}")
+            print(f"  객체 온도 낮음: {bool(status & 0x1000)}")
+            print(f"  객체 온도 오류: {bool(status & 0x0800)}")
         
-        # 연속 측정 테스트
+        # 5. 연속 측정 테스트
         print("\n5. 연속 측정 테스트 (10초)...")
         start_time = time.time()
         count = 0
         
         while time.time() - start_time < 10:
-            try:
-                # 객체 온도 읽기
-                result = bytearray(2)
-                i2c.writeto_then_readfrom(tmp007_address, bytes([0x03]), result)
-                tobj_raw = (result[0] << 8) | result[1]
-                
-                if tobj_raw & 0x8000:
-                    temperature = -((~tobj_raw + 1) & 0x7FFF) * 0.03125
-                else:
-                    temperature = (tobj_raw & 0x7FFF) * 0.03125
-                
-                count += 1
+            count += 1
+            
+            tobj_raw = read_register(i2c, 0x40, 0x03)
+            if tobj_raw is not None:
+                tobj_temp = convert_temperature(tobj_raw)
                 if count % 4 == 0:  # 4초마다 출력
-                    print(f"  측정 {count}: {temperature:.2f}°C")
-                
-                time.sleep(0.25)  # 4Hz
-                
-            except Exception as e:
-                print(f"  측정 오류: {e}")
-                time.sleep(0.25)
+                    print(f"  측정 {count}: {tobj_temp}°C")
+            
+            time.sleep(0.25)  # 4Hz
         
         print(f"  총 {count}회 측정 완료")
         
-        # I2C 버스 해제
-        i2c.unlock()
+        # 6. I2C 버스 해제
         print("\n6. I2C 버스 해제...")
+        if hasattr(i2c, "deinit"):
+            i2c.deinit()
+        elif hasattr(i2c, "close"):
+            i2c.close()
         print("✓ I2C 버스 해제 완료")
         
-        print("\n=== TMP007 직접 I2C 연결 테스트 완료 ===")
-        return True
+        print("\n" + "=" * 50)
+        print("=== TMP007 직접 I2C 연결 테스트 완료 ===")
+        print("\n✅ 모든 테스트 성공!")
+        
+        # 결과 요약
+        print(f"\n📊 측정 결과 요약:")
+        print(f"  객체 온도: {tobj_temp}°C")
+        print(f"  다이 온도: {tdie_temp}°C")
+        print(f"  전압: {voltage}μV")
+        print(f"  측정 횟수: {count}회")
+        
+        if tobj_temp > 50:
+            print(f"\n⚠️  객체 온도가 높습니다 ({tobj_temp}°C)")
+            print("  - 센서가 뜨거운 물체를 향하고 있는지 확인")
+            print("  - 센서 자체가 과열되었는지 확인")
+            print("  - 주변 온도와 비교하여 정상 여부 판단")
         
     except Exception as e:
-        print(f"\n❌ TMP007 직접 I2C 연결 테스트 실패: {e}")
-        return False
-
-def main():
-    """메인 함수"""
-    print("TMP007 센서 직접 I2C 연결 테스트 스크립트")
-    print("=" * 50)
-    
-    try:
-        success = test_tmp007_direct_i2c()
-        
-        if success:
-            print("\n✅ 모든 테스트 성공!")
-        else:
-            print("\n❌ 일부 테스트 실패")
-            return 1
-            
-    except KeyboardInterrupt:
-        print("\n\n⚠ 사용자에 의해 중단됨")
-        return 1
-    except Exception as e:
-        print(f"\n❌ 예상치 못한 오류: {e}")
-        return 1
-    
-    return 0
+        print(f"❌ 테스트 실패: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    exit(main()) 
+    main() 

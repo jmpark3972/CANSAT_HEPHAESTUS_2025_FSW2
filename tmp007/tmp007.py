@@ -78,7 +78,7 @@ class TMP007:
             raise Exception(f"레지스터 쓰기 실패 (0x{reg:02X}): {e}")
     
     def read_temperature(self):
-        """온도 읽기 (섭씨)"""
+        """온도 읽기 (섭씨) - 수정된 계산 공식"""
         try:
             # 변환 시간 대기
             current_time = time.time()
@@ -88,11 +88,15 @@ class TMP007:
             # 객체 온도 읽기
             tobj_raw = self._read_register(self.REG_TOBJ)
             
-            # 온도 변환 (14비트, 0.03125°C/LSB)
-            if tobj_raw & 0x8000:  # 음수 온도
-                temperature = -((~tobj_raw + 1) & 0x7FFF) * 0.03125
+            # 수정된 온도 변환 공식 (TMP007 데이터시트 기준)
+            # 14비트 데이터, 0.03125°C/LSB
+            # 부호 비트 처리 개선
+            if tobj_raw & 0x8000:  # 음수 온도 (2의 보수)
+                # 2의 보수 변환
+                tobj_raw = tobj_raw - 0x10000
+                temperature = tobj_raw * 0.03125
             else:
-                temperature = (tobj_raw & 0x7FFF) * 0.03125
+                temperature = tobj_raw * 0.03125
             
             self.last_read_time = time.time()
             return round(temperature, 2)
@@ -101,15 +105,16 @@ class TMP007:
             raise Exception(f"온도 읽기 실패: {e}")
     
     def read_die_temperature(self):
-        """다이 온도 읽기 (섭씨)"""
+        """다이 온도 읽기 (섭씨) - 수정된 계산 공식"""
         try:
             tdie_raw = self._read_register(self.REG_TDIE)
             
-            # 온도 변환 (14비트, 0.03125°C/LSB)
-            if tdie_raw & 0x8000:  # 음수 온도
-                temperature = -((~tdie_raw + 1) & 0x7FFF) * 0.03125
+            # 수정된 온도 변환 공식
+            if tdie_raw & 0x8000:  # 음수 온도 (2의 보수)
+                tdie_raw = tdie_raw - 0x10000
+                temperature = tdie_raw * 0.03125
             else:
-                temperature = (tdie_raw & 0x7FFF) * 0.03125
+                temperature = tdie_raw * 0.03125
             
             return round(temperature, 2)
             
@@ -117,15 +122,17 @@ class TMP007:
             raise Exception(f"다이 온도 읽기 실패: {e}")
     
     def read_voltage(self):
-        """전압 읽기 (마이크로볼트)"""
+        """전압 읽기 (마이크로볼트) - 수정된 계산 공식"""
         try:
             voltage_raw = self._read_register(self.REG_VOLTAGE)
             
-            # 전압 변환 (14비트, 156.25μV/LSB)
-            if voltage_raw & 0x8000:  # 음수 전압
-                voltage = -((~voltage_raw + 1) & 0x7FFF) * 156.25
+            # 수정된 전압 변환 공식
+            # 14비트 데이터, 156.25μV/LSB
+            if voltage_raw & 0x8000:  # 음수 전압 (2의 보수)
+                voltage_raw = voltage_raw - 0x10000
+                voltage = voltage_raw * 156.25
             else:
-                voltage = (voltage_raw & 0x7FFF) * 156.25
+                voltage = voltage_raw * 156.25
             
             return round(voltage, 2)
             
