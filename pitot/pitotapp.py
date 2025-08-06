@@ -216,7 +216,7 @@ def pitotapp_init():
     # 설정에서 캘리브레이션 오프셋 로드
     try:
         from lib import config
-        temp_offset = config.get('PITOT.TEMP_CALIBRATION_OFFSET', -60.0)
+        temp_offset = config.get_config('PITOT.TEMP_CALIBRATION_OFFSET', -60.0)
         PRESSURE_OFFSET = getattr(prevstate, "PREV_PITOT_POFF", 0.0)
         TEMP_OFFSET = getattr(prevstate, "PREV_PITOT_TOFF", temp_offset)
         safe_log(f"Pitot temperature calibration offset loaded: {TEMP_OFFSET}°C", "info".upper(), True)

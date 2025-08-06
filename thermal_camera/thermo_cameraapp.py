@@ -104,8 +104,8 @@ def read_cam_data(cam):
         try:
             # channel_guard를 사용하여 안전하게 센서 읽기
             data = tcam.read_cam(cam)
-            if data:
-                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data  # min, max, avg 순서
+            if data and len(data) >= 3:
+                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data[:3]  # min, max, avg 순서 (temps는 무시)
         except Exception as e:
             safe_log(f"Thermal camera read error: {e}", "error".upper(), True)
         time.sleep(0.5)  # 2 Hz
