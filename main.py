@@ -23,7 +23,7 @@ from lib import safe_log, LogRotator
 from multiprocessing import Process, Queue, Pipe, connection
 
 # Load configuration files
-from lib import resource_manager, memory_optimizer
+from lib import resource_manager
 
 def main_safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -33,9 +33,8 @@ def main_safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[MAIN] 로깅 실패: {e}")
         print(f"[MAIN] 원본 메시지: {message}")
 
-# 리소스 모니터링 및 메모리 최적화 시작
+# 리소스 모니터링 시작
 resource_manager.start_resource_monitoring()
-memory_optimizer.start_memory_optimization()
 
 # 로그 로테이션 초기화
 log_rotator = LogRotator(max_size_mb=10, max_age_days=30)
@@ -61,10 +60,9 @@ def terminate_FSW():
     MAINAPP_RUNSTATUS = False
 
     try:
-        # 리소스 모니터링 및 메모리 최적화 중지
+        # 리소스 모니터링 중지
         resource_manager.stop_resource_monitoring()
-        memory_optimizer.stop_memory_optimization()
-        main_safe_log("리소스 모니터링 및 메모리 최적화 중지 완료", "INFO", True)
+        main_safe_log("리소스 모니터링 중지 완료", "INFO", True)
         
         # 로그 로테이션 실행
         log_rotator.rotate_logs()
