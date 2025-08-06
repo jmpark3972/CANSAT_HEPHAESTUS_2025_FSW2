@@ -406,7 +406,10 @@ def send_imu_data(Main_Queue : Queue):
 
         if send_counter >= 10 :
             try:
-                # 고급 데이터 포함 텔레메트리 전송
+                # 기본 데이터만 텔레메트리 전송 (고급 데이터는 로그에만 저장)
+                tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}"
+                
+                # 고급 데이터 로깅
                 if hasattr(imu, 'IMU_ADVANCED_DATA') and IMU_ADVANCED_DATA:
                     quat = IMU_ADVANCED_DATA.get('quaternion', (1.0, 0.0, 0.0, 0.0))
                     lin_acc = IMU_ADVANCED_DATA.get('linear_accel', (0.0, 0.0, 0.0))
@@ -414,9 +417,7 @@ def send_imu_data(Main_Queue : Queue):
                     cal = IMU_ADVANCED_DATA.get('calibration', (0, 0, 0, 0))
                     sys_status = IMU_ADVANCED_DATA.get('system_status', 0)
                     
-                    tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f},{quat[0]:.4f},{quat[1]:.4f},{quat[2]:.4f},{quat[3]:.4f},{lin_acc[0]:.4f},{lin_acc[1]:.4f},{lin_acc[2]:.4f},{grav[0]:.4f},{grav[1]:.4f},{grav[2]:.4f},{cal[0]},{cal[1]},{cal[2]},{cal[3]},{sys_status}"
-                else:
-                    tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}"
+                    safe_log(f"IMU Advanced Data - Quat: ({quat[0]:.4f},{quat[1]:.4f},{quat[2]:.4f},{quat[3]:.4f}), LinAcc: ({lin_acc[0]:.4f},{lin_acc[1]:.4f},{lin_acc[2]:.4f}), Gravity: ({grav[0]:.4f},{grav[1]:.4f},{grav[2]:.4f}), Cal: {cal}, SysStatus: {sys_status}", "debug".upper(), False)
                 
                 status = msgstructure.send_msg(Main_Queue, 
                                             ImuDataToTlmMsg, 

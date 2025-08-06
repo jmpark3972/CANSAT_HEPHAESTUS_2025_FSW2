@@ -214,23 +214,15 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
         
         # Check the length of separated data
-        if (len(sep_data) == 5):  # 고급 데이터 (압력, 온도, 고도, 해수면기압, 해상도정보)
+        if (len(sep_data) == 3):  # 기본 데이터
             # If simulation mode, ignore the pressure and altitude data
             if (tlm_data.mode == "F"):
                 tlm_data.pressure = safe_float(sep_data[0])
                 tlm_data.altitude = safe_float(sep_data[2])
             tlm_data.temperature = safe_float(sep_data[1])
-            tlm_data.barometer_sea_level_pressure = safe_float(sep_data[3])
-            tlm_data.barometer_pressure_resolution = safe_float(sep_data[4])
-        elif (len(sep_data) == 3):  # 기본 데이터
-            # If simulation mode, ignore the pressure and altitude data
-            if (tlm_data.mode == "F"):
-                tlm_data.pressure = safe_float(sep_data[0])
-                tlm_data.altitude = safe_float(sep_data[2])
-            tlm_data.temperature = safe_float(sep_data[1])
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
         else:
-            safe_log(f"ERROR receiving barometer, expected 3 or 5 fields, got {len(sep_data)}", "error".upper(), True)
+            safe_log(f"ERROR receiving barometer, expected 3 fields, got {len(sep_data)}", "error".upper(), True)
             return
 
     # Receive IMU Data
@@ -238,7 +230,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) == 25):  # 고급 데이터 (13개 기본 + 12개 추가)
+        if (len(sep_data) == 13):  # 기본 데이터
             tlm_data.filtered_roll = safe_float(sep_data[0])
             tlm_data.filtered_pitch = safe_float(sep_data[1])
             tlm_data.filtered_yaw = safe_float(sep_data[2])
@@ -257,43 +249,9 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             
             tlm_data.imu_temperature = safe_float(sep_data[12])
             
-            # 추가 데이터
-            tlm_data.imu_quaternion_w = safe_float(sep_data[13])
-            tlm_data.imu_quaternion_x = safe_float(sep_data[14])
-            tlm_data.imu_quaternion_y = safe_float(sep_data[15])
-            tlm_data.imu_quaternion_z = safe_float(sep_data[16])
-            tlm_data.imu_linear_accel_x = safe_float(sep_data[17])
-            tlm_data.imu_linear_accel_y = safe_float(sep_data[18])
-            tlm_data.imu_linear_accel_z = safe_float(sep_data[19])
-            tlm_data.imu_gravity_x = safe_float(sep_data[20])
-            tlm_data.imu_gravity_y = safe_float(sep_data[21])
-            tlm_data.imu_gravity_z = safe_float(sep_data[22])
-            tlm_data.imu_calibration_system = int(safe_float(sep_data[23]))
-            tlm_data.imu_calibration_gyro = int(safe_float(sep_data[24]))
-            tlm_data.imu_calibration_accel = int(safe_float(sep_data[25]))
-            tlm_data.imu_calibration_mag = int(safe_float(sep_data[26]))
-            tlm_data.imu_system_status = int(safe_float(sep_data[27]))
-        elif (len(sep_data) == 13):  # 기본 데이터
-            tlm_data.filtered_roll = safe_float(sep_data[0])
-            tlm_data.filtered_pitch = safe_float(sep_data[1])
-            tlm_data.filtered_yaw = safe_float(sep_data[2])
-            
-            tlm_data.acc_roll = safe_float(sep_data[3])
-            tlm_data.acc_pitch = safe_float(sep_data[4])
-            tlm_data.acc_yaw = safe_float(sep_data[5])
-
-            tlm_data.mag_roll = safe_float(sep_data[6])
-            tlm_data.mag_pitch = safe_float(sep_data[7])
-            tlm_data.mag_yaw = safe_float(sep_data[8])
-        
-            tlm_data.gyro_roll = safe_float(sep_data[9])
-            tlm_data.gyro_pitch = safe_float(sep_data[10])
-            tlm_data.gyro_yaw = safe_float(sep_data[11])
-            
-            tlm_data.imu_temperature = safe_float(sep_data[12])
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
         else:
-            safe_log(f"ERROR receiving IMU, expected 13 or 25 fields, got {len(sep_data)}", "error".upper(), True)
+            safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}", "error".upper(), True)
             return
 
     # Receive GPS Data
@@ -301,23 +259,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) == 11):  # 고급 데이터 (시간, 고도, 위도, 경도, 위성수, HDOP, VDOP, 지상속도, 진행방향, 품질, 고정타입)
-            tlm_data.gps_time = str(sep_data[0])
-            tlm_data.gps_alt = safe_float(sep_data[1])
-            tlm_data.gps_lat = safe_float(sep_data[2])
-            tlm_data.gps_lon = safe_float(sep_data[3])
-            try:
-                tlm_data.gps_sats = int(float(sep_data[4]))
-            except (ValueError, TypeError):
-                safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
-                tlm_data.gps_sats = 0
-            tlm_data.gps_hdop = safe_float(sep_data[5])
-            tlm_data.gps_vdop = safe_float(sep_data[6])
-            tlm_data.gps_ground_speed = safe_float(sep_data[7])
-            tlm_data.gps_course = safe_float(sep_data[8])
-            tlm_data.gps_quality = int(safe_float(sep_data[9]))
-            tlm_data.gps_fix_type = int(safe_float(sep_data[10]))
-        elif (len(sep_data) == 5):  # 기본 데이터
+        if (len(sep_data) == 5):  # 기본 데이터
             tlm_data.gps_time = str(sep_data[0])
             tlm_data.gps_alt = safe_float(sep_data[1])
             tlm_data.gps_lat = safe_float(sep_data[2])
@@ -327,9 +269,9 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
             except (ValueError, TypeError):
                 safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
                 tlm_data.gps_sats = 0
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
         else:
-            safe_log(f"ERROR receiving GPS, expected 5 or 11 fields, got {len(sep_data)}", "error".upper(), True)
+            safe_log(f"ERROR receiving GPS, expected 5 fields, got {len(sep_data)}", "error".upper(), True)
             return
 
     # Receive Voltage Sensor Data
@@ -373,20 +315,11 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 8:  # 고급 데이터 (평균, 최소, 최대, 최대기울기, 평균기울기, 표준편차, 고온픽셀, 저온픽셀)
+        if len(sep_data) == 3:  # 기본 데이터
             tlm_data.thermal_camera_avg = float(sep_data[0])
             tlm_data.thermal_camera_min = float(sep_data[1])
             tlm_data.thermal_camera_max = float(sep_data[2])
-            tlm_data.thermal_camera_max_gradient = float(sep_data[3])
-            tlm_data.thermal_camera_avg_gradient = float(sep_data[4])
-            tlm_data.thermal_camera_std_temp = float(sep_data[5])
-            tlm_data.thermal_camera_hot_pixels = int(sep_data[6])
-            tlm_data.thermal_camera_cold_pixels = int(sep_data[7])
-        elif len(sep_data) == 3:  # 기본 데이터
-            tlm_data.thermal_camera_avg = float(sep_data[0])
-            tlm_data.thermal_camera_min = float(sep_data[1])
-            tlm_data.thermal_camera_max = float(sep_data[2])
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
 
     elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisTlmData:
         sep_data = recv_msg.data.split(",")
@@ -395,30 +328,20 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 9:  # 고급 데이터 (차압, 온도, 유속도, 총압, 정압, 마하수, 공기밀도, 레이놀즈수, 동압)
+        if len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
             tlm_data.pitot_airspeed = float(sep_data[2])
             tlm_data.pitot_total_pressure = float(sep_data[3])
             tlm_data.pitot_static_pressure = float(sep_data[4])
-            tlm_data.pitot_mach_number = float(sep_data[5])
-            tlm_data.pitot_air_density = float(sep_data[6])
-            tlm_data.pitot_reynolds_number = float(sep_data[7])
-            tlm_data.pitot_dynamic_pressure = float(sep_data[8])
-        elif len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
-            tlm_data.pitot_pressure = float(sep_data[0])
-            tlm_data.pitot_temp = float(sep_data[1])
-            tlm_data.pitot_airspeed = float(sep_data[2])
-            tlm_data.pitot_total_pressure = float(sep_data[3])
-            tlm_data.pitot_static_pressure = float(sep_data[4])
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
         elif len(sep_data) == 2:  # 기존 호환성 유지
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
             tlm_data.pitot_airspeed = 0.0
             tlm_data.pitot_total_pressure = 0.0
             tlm_data.pitot_static_pressure = 0.0
-            # 고급 데이터는 기본값 유지
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
 
     # 모터 상태 수신
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
@@ -574,7 +497,7 @@ class _tlm_data_format:
     imu_temperature: float = 0.0
     motor_status: int = 1  # 0=열림, 1=닫힘
     
-    # 추가된 고급 데이터 필드들
+    # 고급 데이터 필드들 (로그에만 저장, 텔레메트리에는 전송하지 않음)
     # Pitot 추가 데이터
     pitot_mach_number: float = 0.0
     pitot_air_density: float = 0.0
@@ -727,17 +650,14 @@ def send_tlm(serial_instance):
                      f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
                      f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
                      f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max}), MaxGrad({tlm_data.thermal_camera_max_gradient:.3f}), Std({tlm_data.thermal_camera_std_temp:.2f})\n" \
+                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
                      f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                      f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
                      f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
                      f"Euler angle({tlm_data.filtered_roll:.6f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
                      f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
-                     f"Quaternion({tlm_data.imu_quaternion_w:.4f}, {tlm_data.imu_quaternion_x:.4f}, {tlm_data.imu_quaternion_y:.4f}, {tlm_data.imu_quaternion_z:.4f})\n" \
-                     f"Linear_Accel({tlm_data.imu_linear_accel_x:.4f}, {tlm_data.imu_linear_accel_y:.4f}, {tlm_data.imu_linear_accel_z:.4f}), Gravity({tlm_data.imu_gravity_x:.4f}, {tlm_data.imu_gravity_y:.4f}, {tlm_data.imu_gravity_z:.4f})\n" \
                      f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
                      f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
-                     f"GPS_Quality({tlm_data.gps_quality}), HDOP({tlm_data.gps_hdop:.2f}), VDOP({tlm_data.gps_vdop:.2f}), Speed({tlm_data.gps_ground_speed:.2f}m/s), Course({tlm_data.gps_course:.1f}°)\n" \
                      f"Motor : Status({tlm_data.motor_status}) \n"
                      #f"Rotation Rate : {tlm_data.rot_rate}\n"
 

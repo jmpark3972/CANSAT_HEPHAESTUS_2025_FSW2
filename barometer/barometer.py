@@ -3,6 +3,7 @@
 
 import time
 import os
+import math
 from datetime import datetime
  
 OFFSET_FILE = './sensorlogs/altitude_offset.txt'
@@ -10,8 +11,11 @@ log_dir = './sensorlogs'
 if not os.path.exists(log_dir): 
     os.makedirs(log_dir)
 
-## Create sensor log file
-barometerlogfile = open(os.path.join(log_dir, 'barometer.txt'), 'a')
+## Create sensor log file (메모리 최적화)
+_barometer_log_buffer = []
+_barometer_log_buffer_size = 50
+_last_barometer_flush_time = time.time()
+_barometer_flush_interval = 10  # 10초마다 플러시
 
 def save_offset(offset):
     with open(OFFSET_FILE, 'w') as f:
@@ -25,11 +29,37 @@ def load_offset():
         return None 
 
 def log_barometer(text):
-
+    """메모리 최적화된 로깅 함수"""
+    global _barometer_log_buffer, _barometer_log_buffer_size, _last_barometer_flush_time, _barometer_flush_interval
+    
     t = datetime.now().isoformat(sep=' ', timespec='milliseconds')
     string_to_write = f'{t},{text}\n'
-    barometerlogfile.write(string_to_write)
-    barometerlogfile.flush()
+    
+    # 버퍼에 추가
+    _barometer_log_buffer.append(string_to_write)
+    
+    # 버퍼가 가득 차거나 시간이 지나면 플러시
+    current_time = time.time()
+    if (len(_barometer_log_buffer) >= _barometer_log_buffer_size or 
+        current_time - _last_barometer_flush_time >= _barometer_flush_interval):
+        _flush_barometer_log_buffer()
+
+def _flush_barometer_log_buffer():
+    """Barometer 로그 버퍼를 파일에 플러시"""
+    global _barometer_log_buffer, _last_barometer_flush_time
+    
+    try:
+        if _barometer_log_buffer:
+            log_file_path = os.path.join(log_dir, 'barometer.txt')
+            with open(log_file_path, 'a') as f:
+                f.writelines(_barometer_log_buffer)
+            
+            # 버퍼 정리
+            _barometer_log_buffer.clear()
+            _last_barometer_flush_time = time.time()
+            
+    except Exception as e:
+        print(f"Barometer 로그 플러시 오류: {e}")
     
 def init_barometer():
     import adafruit_bmp3xx

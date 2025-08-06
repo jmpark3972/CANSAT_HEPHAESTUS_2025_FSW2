@@ -93,15 +93,17 @@ def send_gps_data(Main_Queue : Queue):
             
             # 고급 데이터 포함 텔레메트리 전송
             if hasattr(gps, 'GPS_ADVANCED_DATA') and GPS_ADVANCED_DATA:
+                # 고급 데이터 로깅
                 hdop = GPS_ADVANCED_DATA.get('hdop', 0.0)
                 vdop = GPS_ADVANCED_DATA.get('vdop', 0.0)
                 ground_speed = GPS_ADVANCED_DATA.get('ground_speed', 0.0)
                 course = GPS_ADVANCED_DATA.get('course', 0.0)
                 quality = GPS_ADVANCED_DATA.get('gps_quality', 0)
                 fix_type = GPS_ADVANCED_DATA.get('fix_type', 0)
-                gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int},{hdop:.2f},{vdop:.2f},{ground_speed:.2f},{course:.1f},{quality},{fix_type}"
-            else:
-                gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int}"
+                safe_log(f"GPS Advanced Data - HDOP: {hdop:.2f}, VDOP: {vdop:.2f}, GroundSpeed: {ground_speed:.2f}m/s, Course: {course:.1f}°, Quality: {quality}, FixType: {fix_type}", "debug".upper(), False)
+            
+            # 기본 데이터만 텔레메트리 전송
+            gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int}"
             
             status = msgstructure.send_msg(Main_Queue, 
                                         GpsDataToTlmMsg,

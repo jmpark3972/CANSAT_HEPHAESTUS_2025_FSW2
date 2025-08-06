@@ -271,13 +271,8 @@ def send_barometer_data(Main_Queue : Queue):
 
         if msg_send_count > 10 : 
             # Send telemetry message to COMM app in 1Hz
-            # 고급 데이터 포함 텔레메트리 전송
-            if RESOLUTION_INFO is not None:
-                pressure_res = RESOLUTION_INFO.get('pressure_resolution', 0.01)
-                temp_res = RESOLUTION_INFO.get('temperature_resolution', 0.01)
-                tlm_data = f"{PRESSURE},{TEMPERATURE},{ALTITUDE},{SEA_LEVEL_PRESSURE},{pressure_res}"
-            else:
-                tlm_data = f"{PRESSURE},{TEMPERATURE},{ALTITUDE},{SEA_LEVEL_PRESSURE},{0.01}"
+            # 기본 데이터만 텔레메트리 전송 (고급 데이터는 로그에만 저장)
+            tlm_data = f"{PRESSURE},{TEMPERATURE},{ALTITUDE}"
             
             status = msgstructure.send_msg(Main_Queue, 
                                         BarometerDataToTlmMsg, 
@@ -287,6 +282,12 @@ def send_barometer_data(Main_Queue : Queue):
                                         tlm_data)
             if status == False:
                 safe_log("Error When sending Barometer Tlm Message", "error".upper(), True)
+            
+            # 고급 데이터 로깅
+            if RESOLUTION_INFO is not None:
+                pressure_res = RESOLUTION_INFO.get('pressure_resolution', 0.01)
+                temp_res = RESOLUTION_INFO.get('temperature_resolution', 0.01)
+                safe_log(f"Barometer Advanced Data - SeaLevelPressure: {SEA_LEVEL_PRESSURE:.2f}hPa, PressureRes: {pressure_res}hPa, TempRes: {temp_res}°C", "debug".upper(), False)
 
             msg_send_count = 0
         

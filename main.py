@@ -27,6 +27,7 @@ from multiprocessing import Process, Queue, Pipe, connection
 # Load configuration files
 from lib import config
 from lib import resource_manager
+from lib import memory_optimizer
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
@@ -38,8 +39,9 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[MAIN] 로깅 실패: {e}")
         print(f"[MAIN] 원본 메시지: {message}")
 
-# 리소스 모니터링 시작
+# 리소스 모니터링 및 메모리 최적화 시작
 resource_manager.start_resource_monitoring()
+memory_optimizer.start_memory_optimization()
 
 if config.get_config("FSW_MODE") == "NONE":
     safe_log("CONFIG IS SELECTED AS NONE, TERMINATING FSW", "ERROR", True)
@@ -65,9 +67,10 @@ def terminate_FSW():
     MAINAPP_RUNSTATUS = False
 
     try:
-        # 리소스 모니터링 중지
+        # 리소스 모니터링 및 메모리 최적화 중지
         resource_manager.stop_resource_monitoring()
-        safe_log("리소스 모니터링 중지 완료", "INFO", True)
+        memory_optimizer.stop_memory_optimization()
+        safe_log("리소스 모니터링 및 메모리 최적화 중지 완료", "INFO", True)
         
         # 로깅 시스템 정리
         logging.close_dual_logging_system()

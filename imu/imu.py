@@ -86,7 +86,18 @@ def read_sensor_data(sensor):
         linear_accel = sensor.linear_acceleration  # 중력 제거된 순수 가속도
         gravity = sensor.gravity  # 중력 벡터
         calibration = sensor.calibration_status  # 보정 상태
-        system_status = sensor.system_status  # 시스템 상태
+        try:
+            system_status = sensor.system_status  # 시스템 상태
+        except AttributeError:
+            system_status = 0  # system_status가 지원되지 않는 경우 기본값 사용
+        
+        # 오프셋 적용
+        if gyro is not None and all(val is not None for val in gyro):
+            gyro = tuple(g - o for g, o in zip(gyro, gyro_offset))
+        if accel is not None and all(val is not None for val in accel):
+            accel = tuple(a - o for a, o in zip(accel, accel_offset))
+        if mag is not None and all(val is not None for val in mag):
+            mag = tuple(m - o for m, o in zip(mag, magneto_offset))
         
         # 디버그 로그 (파일로만 기록, 화면 출력 안함)
         log_imu(f"RAW_DATA,{q},{gyro},{accel},{mag},{temp}")
@@ -193,7 +204,11 @@ def read_sensor_data(sensor):
         return (gyro, accel, mag, euler, temp, q, linear_accel, gravity, calibration, system_status)
         
     except Exception as e:
-        print(f"IMU 읽기 오류: {e}")
+        # 에러 타입에 따라 다른 메시지 출력
+        if "system_status" in str(e):
+            print(f"IMU system_status 속성 오류 (정상 동작): {e}")
+        else:
+            print(f"IMU 읽기 오류: {e}")
         log_imu(f"READ_ERROR,{e}")
         # 오류 발생 시 마지막 유효 데이터 반환
         last_data = read_sensor_data.last_valid_data

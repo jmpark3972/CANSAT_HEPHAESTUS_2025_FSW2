@@ -32,6 +32,12 @@ class DualLogger:
         self.recovery_thread = None
         self.running = True
         
+        # 메모리 최적화 설정
+        self.log_buffer = []
+        self.max_buffer_size = 100  # 버퍼 최대 크기
+        self.last_flush_time = time.time()
+        self.flush_interval = 5  # 5초마다 플러시
+        
         # 로그 디렉토리 생성
         self._create_log_directories()
         
@@ -173,7 +179,7 @@ class DualLogger:
             print(f"보조 로그 파일 재생성 오류: {e}")
     
     def log(self, text: str, printlogs: bool = False):
-        """로그 메시지 기록"""
+        """로그 메시지 기록 (메모리 최적화)"""
         try:
             timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
             log_entry = f"[{timestamp}] {text}"
@@ -182,11 +188,34 @@ class DualLogger:
             if printlogs:
                 print(log_entry)
             
-            # 파일에 쓰기
-            self._write_to_files(log_entry)
+            # 버퍼에 추가
+            self.log_buffer.append(log_entry)
+            
+            # 버퍼가 가득 차거나 시간이 지나면 플러시
+            current_time = time.time()
+            if (len(self.log_buffer) >= self.max_buffer_size or 
+                current_time - self.last_flush_time >= self.flush_interval):
+                self._flush_buffer()
             
         except Exception as e:
             print(f"로깅 오류: {e}")
+    
+    def _flush_buffer(self):
+        """로그 버퍼를 파일에 플러시"""
+        try:
+            if self.log_buffer:
+                # 모든 로그 엔트리를 하나의 문자열로 결합
+                combined_logs = '\n'.join(self.log_buffer) + '\n'
+                
+                # 파일에 쓰기
+                self._write_to_files(combined_logs)
+                
+                # 버퍼 정리
+                self.log_buffer.clear()
+                self.last_flush_time = time.time()
+                
+        except Exception as e:
+            print(f"로그 버퍼 플러시 오류: {e}")
     
     def start_backup_thread(self):
         """백업 스레드 시작"""
@@ -252,6 +281,9 @@ class DualLogger:
     def close(self):
         """로깅 시스템 종료"""
         self.running = False
+        
+        # 남은 버퍼 플러시
+        self._flush_buffer()
         
         if self.primary_log_file:
             try:

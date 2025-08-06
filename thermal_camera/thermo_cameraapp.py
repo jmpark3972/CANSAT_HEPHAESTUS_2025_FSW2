@@ -132,22 +132,24 @@ def send_cam_data(Main_Queue: Queue):
                                   f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
 
             if cnt > 10:  # 1 Hz telemetry
-                # 고급 데이터 포함 텔레메트리 전송
+                # 기본 데이터만 텔레메트리 전송 (고급 데이터는 로그에만 저장)
+                msgstructure.send_msg(Main_Queue, tlm_msg,
+                                      appargs.ThermalcameraAppArg.AppID,
+                                      appargs.CommAppArg.AppID,
+                                      appargs.ThermalcameraAppArg.MID_SendCamTlmData,
+                                      f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
+                
+                # 고급 데이터는 로그에만 저장
                 if THERMAL_ANALYSIS is not None:
                     max_grad = THERMAL_ANALYSIS.get('gradient', {}).get('max_gradient', 0.0)
                     avg_grad = THERMAL_ANALYSIS.get('gradient', {}).get('avg_gradient', 0.0)
                     std_temp = THERMAL_ANALYSIS.get('basic_stats', {}).get('std_temp', 0.0)
                     hot_pixels = THERMAL_ANALYSIS.get('distribution', {}).get('ranges', {}).get('hot', 0)
                     cold_pixels = THERMAL_ANALYSIS.get('distribution', {}).get('ranges', {}).get('cold', 0)
-                else:
-                    max_grad = avg_grad = std_temp = 0.0
-                    hot_pixels = cold_pixels = 0
+                    
+                    # 고급 데이터 로깅
+                    safe_log(f"Thermal Camera Advanced Data - MaxGrad: {max_grad:.3f}, AvgGrad: {avg_grad:.3f}, StdTemp: {std_temp:.2f}, HotPixels: {hot_pixels}, ColdPixels: {cold_pixels}", "debug".upper(), False)
                 
-                msgstructure.send_msg(Main_Queue, tlm_msg,
-                                      appargs.ThermalcameraAppArg.AppID,
-                                      appargs.CommAppArg.AppID,
-                                      appargs.ThermalcameraAppArg.MID_SendCamTlmData,
-                                      f"{avg_val:.2f},{min_val:.2f},{max_val:.2f},{max_grad:.3f},{avg_grad:.3f},{std_temp:.2f},{hot_pixels},{cold_pixels}")
                 cnt = 0
 
             cnt += 1
