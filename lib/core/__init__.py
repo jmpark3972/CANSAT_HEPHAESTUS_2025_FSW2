@@ -27,7 +27,7 @@ __all__ = [
     'get_config', 'set_config',
     
     # prevstate에서
-    'reset_prevstate', 'update_prevstate', 'get_prevstate',
+    'reset_prevstate', 'update_prevstate',
     
     # utils에서
     'safe_write_to_file', 'check_and_rotate_log_file'
