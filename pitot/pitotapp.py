@@ -165,7 +165,7 @@ def read_pitot_data(Main_Queue: Queue):
                     # 오프셋 적용
                     with OFFSET_MUTEX:
                         dp_cal = dp - PRESSURE_OFFSET
-                        temp_cal = temp - TEMP_OFFSET
+                        temp_cal = temp + TEMP_OFFSET  # 온도 오프셋은 더하기로 적용
                         
                     # 전역 변수 업데이트
                     PITOT_PRESSURE = dp_cal
