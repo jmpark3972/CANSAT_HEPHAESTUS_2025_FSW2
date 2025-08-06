@@ -38,8 +38,8 @@ from lib import logging
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
     try:
-        formatted_message = f"[Motor] [{level}] {message}"
-        logging.log(formatted_message, printlogs)
+        from lib.logging import safe_log as lib_safe_log
+        lib_safe_log(f"[Motor] {message}", level, printlogs)
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
         print(f"[Motor] 로깅 실패: {e}")
@@ -311,18 +311,18 @@ def read_motor_status():
 import threading
 
 def resilient_thread(target, args=(), name=None):
-            def wrapper():
-            while MOTORAPP_RUNSTATUS:
-                try:
-                    target(*args)
-                except Exception as e:
-                    safe_log(f"Resilient thread error: {e}", "warning".upper(), False)
-                    pass
-            # 더 빠른 종료를 위해 짧은 간격으로 체크
-            for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
-                if not MOTORAPP_RUNSTATUS:
-                    break
-                time.sleep(0.1)
+    def wrapper():
+        while MOTORAPP_RUNSTATUS:
+            try:
+                target(*args)
+            except Exception as e:
+                safe_log(f"Resilient thread error: {e}", "warning".upper(), False)
+                pass
+        # 더 빠른 종료를 위해 짧은 간격으로 체크
+        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
+            if not MOTORAPP_RUNSTATUS:
+                break
+            time.sleep(0.1)
     t = threading.Thread(target=wrapper, name=name)
     t.daemon = True
     t._is_resilient = True

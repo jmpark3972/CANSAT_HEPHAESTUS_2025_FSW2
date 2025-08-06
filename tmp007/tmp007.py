@@ -249,7 +249,7 @@ def terminate_tmp007(i2c):
         elif hasattr(i2c, "close"):
             i2c.close()
     except Exception as e:
-        # TMP007 종료 오류: {e}
+        pass  # TMP007 종료 오류: {e}
 
 
 # 테스트 코드

@@ -35,8 +35,8 @@ HK_LOG_PATH = os.path.join(LOG_DIR, "hk_log.csv")
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
     try:
-        formatted_message = f"[{appargs.BarometerAppArg.AppName}] [{level}] {message}"
-        logging.log(formatted_message, printlogs)
+        from lib.logging import safe_log as lib_safe_log
+        lib_safe_log(f"[{appargs.BarometerAppArg.AppName}] {message}", level, printlogs)
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
         print(f"[Barometer] 로깅 실패: {e}")

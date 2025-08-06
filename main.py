@@ -245,13 +245,13 @@ def load_apps():
         except Exception as e:
             main_safe_log(f"TMP007 앱 로드 실패: {e}", "ERROR", True)
 
-        # Thermal Camera 앱 로드
-        try:
-            from thermal_camera.thermo_cameraapp import ThermalCameraApp
-            thermal_camera_app = ThermalCameraApp()
-            main_safe_log("Thermal Camera 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Thermal Camera 앱 로드 실패: {e}", "ERROR", True)
+        # Thermal Camera 앱 로드 (cv2 모듈 없음으로 인해 비활성화)
+        # try:
+        #     from thermal_camera.thermo_cameraapp import ThermalCameraApp
+        #     thermal_camera_app = ThermalCameraApp()
+        #     main_safe_log("Thermal Camera 앱 로드 완료", "INFO", True)
+        # except Exception as e:
+        #     main_safe_log(f"Thermal Camera 앱 로드 실패: {e}", "ERROR", True)
 
         # Thermo 앱 로드
         try:
