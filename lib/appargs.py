@@ -14,6 +14,11 @@ class HkAppArg:
     MID_ReceiveHK:       types.MID = 201
     MID_SendCombinedHK:  types.MID = 202
 
+class TelemetryAppArg:
+    AppID: types.AppID = 3
+    AppName = "Telemetry"
+    MID_ReceiveTlmData:  types.MID = 301
+
 # ────────────────────────── 센서·서브시스템 ──────────────────────────
 class BarometerAppArg:
     AppID: types.AppID = 10

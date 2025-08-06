@@ -80,7 +80,20 @@ def check_camera_hardware() -> bool:
             safe_log("카메라 하드웨어 감지됨 (dmesg)", "INFO", True)
             return True
         
-        # 방법 4: libcamera-hello 테스트 (v2 호환)
+        # 방법 4: cam 명령어로 카메라 목록 확인 (libcamera-tools)
+        try:
+            result = subprocess.run(['cam', '-l'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0 and 'Available cameras:' in result.stdout:
+                # 카메라가 감지되었는지 확인
+                lines = result.stdout.strip().split('\n')
+                if len(lines) > 1:  # "Available cameras:" 외에 다른 라인이 있으면 카메라가 있음
+                    safe_log("카메라 하드웨어 감지됨 (cam)", "INFO", True)
+                    return True
+        except FileNotFoundError:
+            pass
+        
+        # 방법 5: libcamera-hello 테스트 (v2 호환)
         try:
             result = subprocess.run(['libcamera-hello', '--list-cameras'], 
                                   capture_output=True, text=True, timeout=10)
@@ -90,7 +103,7 @@ def check_camera_hardware() -> bool:
         except FileNotFoundError:
             pass
         
-        # 방법 5: raspistill 테스트 (v2 전용)
+        # 방법 6: raspistill 테스트 (v2 전용)
         try:
             result = subprocess.run(['raspistill', '--help'], 
                                   capture_output=True, text=True, timeout=5)
@@ -216,57 +229,46 @@ def terminate_camera():
         safe_log(f"카메라 종료 오류: {e}", "ERROR", True)
 
 def record_single_video(camera_process: subprocess.Popen, duration: int = VIDEO_DURATION) -> bool:
-    """단일 비디오 녹화"""
+    """단일 비디오 녹화 (cam 명령어 사용)"""
     global _video_count
     
     try:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        temp_filename = f"temp_{timestamp}.mp4"
         final_filename = f"video_{timestamp}.mp4"
-        
-        temp_path = os.path.join(TEMP_DIR, temp_filename)
         final_path = os.path.join(VIDEO_DIR, final_filename)
         
-        # FFmpeg 명령어 구성
-        ffmpeg_cmd = [
-            'ffmpeg',
-            '-f', 'v4l2',
-            '-video_size', '1920x1080',
-            '-framerate', '30',
-            '-i', '/dev/video0',
-            '-t', str(duration),
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-crf', '23',
-            '-y',  # 기존 파일 덮어쓰기
-            temp_path
+        # cam 명령어로 비디오 녹화
+        cam_cmd = [
+            'cam',
+            '-c', '0',  # 카메라 0번 사용
+            '-C', str(duration),  # 지정된 시간만큼 캡처
+            '-F', final_path,  # 파일로 저장
+            '-s', 'width=1920,height=1080,pixelformat=NV12,role=video'  # 스트림 설정
         ]
         
-        safe_log(f"녹화 시작: {duration}초", "INFO", True)
+        safe_log(f"녹화 시작: {duration}초 (cam)", "INFO", True)
         
-        # FFmpeg 실행
-        process = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # cam 명령어 실행
+        process = subprocess.Popen(cam_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         try:
             stdout, stderr = process.communicate(timeout=FFMPEG_TIMEOUT)
             
             if process.returncode == 0:
-                # 임시 파일을 최종 위치로 이동
-                if os.path.exists(temp_path):
-                    os.rename(temp_path, final_path)
+                if os.path.exists(final_path):
                     _video_count += 1
                     safe_log(f"녹화 완료: {final_filename}", "INFO", True)
                     return True
                 else:
-                    safe_log("임시 파일이 생성되지 않음", "ERROR", True)
+                    safe_log("비디오 파일이 생성되지 않음", "ERROR", True)
                     return False
             else:
-                safe_log(f"FFmpeg 오류: {stderr.decode()}", "ERROR", True)
+                safe_log(f"cam 명령어 오류: {stderr.decode()}", "ERROR", True)
                 return False
                 
         except subprocess.TimeoutExpired:
             process.kill()
-            safe_log("FFmpeg 타임아웃", "ERROR", True)
+            safe_log("cam 명령어 타임아웃", "ERROR", True)
             return False
             
     except Exception as e:
