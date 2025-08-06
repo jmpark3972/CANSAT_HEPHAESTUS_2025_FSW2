@@ -281,16 +281,25 @@ def runloop(Main_Queue : Queue):
             except:
                 continue
             
-            # 메시지 타입 체크
-            if not isinstance(recv_msg, bytes):
-                main_safe_log(f"Invalid message type: {type(recv_msg)}", "ERROR", True)
+            # 메시지 타입 체크 및 변환
+            if isinstance(recv_msg, str):
+                # 문자열 메시지를 바이트로 변환
+                try:
+                    recv_msg = recv_msg.encode('utf-8')
+                    main_safe_log(f"문자열 메시지를 바이트로 변환: {recv_msg[:50]}...", "DEBUG", True)
+                except Exception as e:
+                    main_safe_log(f"문자열을 바이트로 변환 실패: {e}", "ERROR", True)
+                    continue
+            elif not isinstance(recv_msg, bytes):
+                main_safe_log(f"지원하지 않는 메시지 타입: {type(recv_msg)}", "ERROR", True)
                 continue
             
             # 메시지 언패킹
             try:
                 unpacked_msg = msgstructure.unpack_msg(recv_msg)
             except Exception as e:
-                main_safe_log(f"Failed to unpack message: {recv_msg}", "ERROR", True)
+                main_safe_log(f"메시지 언패킹 실패: {e}", "WARNING", True)
+                main_safe_log(f"메시지 내용: {recv_msg[:100]}...", "DEBUG", True)
                 continue
             
             main_safe_log(f"Main app received message: {unpacked_msg.MsgID} from {unpacked_msg.sender_app}", "DEBUG", True)
