@@ -226,8 +226,13 @@ def read_pitot_data(Main_Queue: Queue):
                         msgstructure.fill_msg(flight_msg, appargs.PitotAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.PitotAppArg.MID_SendPitotFlightLogicData, flight_data)
                         Main_Queue.put(msgstructure.pack_msg(flight_msg))
                         
-                        # Telemetry용 데이터 전송 (유속도 포함)
-                        tlm_data = f"{dp_cal:.2f},{temp_cal:.2f},{airspeed:.2f},{total_p:.2f},{static_p:.2f}"
+                        # 고급 데이터 계산
+                        mach_number = pitot.calculate_mach_number(airspeed, temp_cal)
+                        air_density = pitot.calculate_air_density(temp_cal, CURRENT_ALTITUDE)
+                        reynolds_number = pitot.calculate_reynolds_number(airspeed, 0.1, temp_cal, CURRENT_ALTITUDE)
+                        
+                        # Telemetry용 고급 데이터 전송 (9개 필드)
+                        tlm_data = f"{dp_cal:.2f},{temp_cal:.2f},{airspeed:.2f},{total_p:.2f},{static_p:.2f},{mach_number:.4f},{air_density:.4f},{reynolds_number:.0f},{dp_cal:.2f}"
                         tlm_msg = msgstructure.MsgStructure()
                         msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
                         Main_Queue.put(msgstructure.pack_msg(tlm_msg))

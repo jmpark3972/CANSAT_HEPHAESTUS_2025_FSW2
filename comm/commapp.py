@@ -214,62 +214,123 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
         
         # Check the length of separated data
-        if (len(sep_data) != 3):
-            safe_log(f"ERROR receiving barometer, expected 3 fields", "error".upper(), True)
+        if (len(sep_data) == 5):  # 고급 데이터 (압력, 온도, 고도, 해수면기압, 해상도정보)
+            # If simulation mode, ignore the pressure and altitude data
+            if (tlm_data.mode == "F"):
+                tlm_data.pressure = safe_float(sep_data[0])
+                tlm_data.altitude = safe_float(sep_data[2])
+            tlm_data.temperature = safe_float(sep_data[1])
+            tlm_data.barometer_sea_level_pressure = safe_float(sep_data[3])
+            tlm_data.barometer_pressure_resolution = safe_float(sep_data[4])
+        elif (len(sep_data) == 3):  # 기본 데이터
+            # If simulation mode, ignore the pressure and altitude data
+            if (tlm_data.mode == "F"):
+                tlm_data.pressure = safe_float(sep_data[0])
+                tlm_data.altitude = safe_float(sep_data[2])
+            tlm_data.temperature = safe_float(sep_data[1])
+            # 고급 데이터는 기본값 유지
+        else:
+            safe_log(f"ERROR receiving barometer, expected 3 or 5 fields, got {len(sep_data)}", "error".upper(), True)
             return
-        
-        # If simulation mode, ignore the pressure and altitude data
-        if (tlm_data.mode == "F"):
-            tlm_data.pressure = safe_float(sep_data[0])
-            tlm_data.altitude = safe_float(sep_data[2])
-
-        tlm_data.temperature = safe_float(sep_data[1])
 
     # Receive IMU Data
     elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuTlmData:
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) != 13):
-            safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}", "error".upper(), True)
-            return
-        
-        tlm_data.filtered_roll = safe_float(sep_data[0])
-        tlm_data.filtered_pitch = safe_float(sep_data[1])
-        tlm_data.filtered_yaw = safe_float(sep_data[2])
-        
-        tlm_data.acc_roll = safe_float(sep_data[3])
-        tlm_data.acc_pitch = safe_float(sep_data[4])
-        tlm_data.acc_yaw = safe_float(sep_data[5])
+        if (len(sep_data) == 25):  # 고급 데이터 (13개 기본 + 12개 추가)
+            tlm_data.filtered_roll = safe_float(sep_data[0])
+            tlm_data.filtered_pitch = safe_float(sep_data[1])
+            tlm_data.filtered_yaw = safe_float(sep_data[2])
+            
+            tlm_data.acc_roll = safe_float(sep_data[3])
+            tlm_data.acc_pitch = safe_float(sep_data[4])
+            tlm_data.acc_yaw = safe_float(sep_data[5])
 
-        tlm_data.mag_roll = safe_float(sep_data[6])
-        tlm_data.mag_pitch = safe_float(sep_data[7])
-        tlm_data.mag_yaw = safe_float(sep_data[8])
-    
-        tlm_data.gyro_roll = safe_float(sep_data[9])
-        tlm_data.gyro_pitch = safe_float(sep_data[10])
-        tlm_data.gyro_yaw = safe_float(sep_data[11])
+            tlm_data.mag_roll = safe_float(sep_data[6])
+            tlm_data.mag_pitch = safe_float(sep_data[7])
+            tlm_data.mag_yaw = safe_float(sep_data[8])
         
-        tlm_data.imu_temperature = safe_float(sep_data[12])
+            tlm_data.gyro_roll = safe_float(sep_data[9])
+            tlm_data.gyro_pitch = safe_float(sep_data[10])
+            tlm_data.gyro_yaw = safe_float(sep_data[11])
+            
+            tlm_data.imu_temperature = safe_float(sep_data[12])
+            
+            # 추가 데이터
+            tlm_data.imu_quaternion_w = safe_float(sep_data[13])
+            tlm_data.imu_quaternion_x = safe_float(sep_data[14])
+            tlm_data.imu_quaternion_y = safe_float(sep_data[15])
+            tlm_data.imu_quaternion_z = safe_float(sep_data[16])
+            tlm_data.imu_linear_accel_x = safe_float(sep_data[17])
+            tlm_data.imu_linear_accel_y = safe_float(sep_data[18])
+            tlm_data.imu_linear_accel_z = safe_float(sep_data[19])
+            tlm_data.imu_gravity_x = safe_float(sep_data[20])
+            tlm_data.imu_gravity_y = safe_float(sep_data[21])
+            tlm_data.imu_gravity_z = safe_float(sep_data[22])
+            tlm_data.imu_calibration_system = int(safe_float(sep_data[23]))
+            tlm_data.imu_calibration_gyro = int(safe_float(sep_data[24]))
+            tlm_data.imu_calibration_accel = int(safe_float(sep_data[25]))
+            tlm_data.imu_calibration_mag = int(safe_float(sep_data[26]))
+            tlm_data.imu_system_status = int(safe_float(sep_data[27]))
+        elif (len(sep_data) == 13):  # 기본 데이터
+            tlm_data.filtered_roll = safe_float(sep_data[0])
+            tlm_data.filtered_pitch = safe_float(sep_data[1])
+            tlm_data.filtered_yaw = safe_float(sep_data[2])
+            
+            tlm_data.acc_roll = safe_float(sep_data[3])
+            tlm_data.acc_pitch = safe_float(sep_data[4])
+            tlm_data.acc_yaw = safe_float(sep_data[5])
+
+            tlm_data.mag_roll = safe_float(sep_data[6])
+            tlm_data.mag_pitch = safe_float(sep_data[7])
+            tlm_data.mag_yaw = safe_float(sep_data[8])
+        
+            tlm_data.gyro_roll = safe_float(sep_data[9])
+            tlm_data.gyro_pitch = safe_float(sep_data[10])
+            tlm_data.gyro_yaw = safe_float(sep_data[11])
+            
+            tlm_data.imu_temperature = safe_float(sep_data[12])
+            # 고급 데이터는 기본값 유지
+        else:
+            safe_log(f"ERROR receiving IMU, expected 13 or 25 fields, got {len(sep_data)}", "error".upper(), True)
+            return
 
     # Receive GPS Data
     elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) != 5):
-            safe_log(f"ERROR receiving GPS, expected 5 fields", "error".upper(), True)
+        if (len(sep_data) == 11):  # 고급 데이터 (시간, 고도, 위도, 경도, 위성수, HDOP, VDOP, 지상속도, 진행방향, 품질, 고정타입)
+            tlm_data.gps_time = str(sep_data[0])
+            tlm_data.gps_alt = safe_float(sep_data[1])
+            tlm_data.gps_lat = safe_float(sep_data[2])
+            tlm_data.gps_lon = safe_float(sep_data[3])
+            try:
+                tlm_data.gps_sats = int(float(sep_data[4]))
+            except (ValueError, TypeError):
+                safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
+                tlm_data.gps_sats = 0
+            tlm_data.gps_hdop = safe_float(sep_data[5])
+            tlm_data.gps_vdop = safe_float(sep_data[6])
+            tlm_data.gps_ground_speed = safe_float(sep_data[7])
+            tlm_data.gps_course = safe_float(sep_data[8])
+            tlm_data.gps_quality = int(safe_float(sep_data[9]))
+            tlm_data.gps_fix_type = int(safe_float(sep_data[10]))
+        elif (len(sep_data) == 5):  # 기본 데이터
+            tlm_data.gps_time = str(sep_data[0])
+            tlm_data.gps_alt = safe_float(sep_data[1])
+            tlm_data.gps_lat = safe_float(sep_data[2])
+            tlm_data.gps_lon = safe_float(sep_data[3])
+            try:
+                tlm_data.gps_sats = int(float(sep_data[4]))  # float을 거쳐서 안전하게 변환
+            except (ValueError, TypeError):
+                safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
+                tlm_data.gps_sats = 0
+            # 고급 데이터는 기본값 유지
+        else:
+            safe_log(f"ERROR receiving GPS, expected 5 or 11 fields, got {len(sep_data)}", "error".upper(), True)
             return
-
-        tlm_data.gps_time = str(sep_data[0])
-        tlm_data.gps_alt = safe_float(sep_data[1])
-        tlm_data.gps_lat = safe_float(sep_data[2])
-        tlm_data.gps_lon = safe_float(sep_data[3])
-        try:
-            tlm_data.gps_sats = int(float(sep_data[4]))  # float을 거쳐서 안전하게 변환
-        except (ValueError, TypeError):
-            safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
-            tlm_data.gps_sats = 0
 
     # Receive Voltage Sensor Data
     #elif recv_msg.MsgID == appargs.VoltageAppArg.MID_SendVoltageTlmData:
@@ -312,10 +373,20 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 3:
+        if len(sep_data) == 8:  # 고급 데이터 (평균, 최소, 최대, 최대기울기, 평균기울기, 표준편차, 고온픽셀, 저온픽셀)
             tlm_data.thermal_camera_avg = float(sep_data[0])
             tlm_data.thermal_camera_min = float(sep_data[1])
             tlm_data.thermal_camera_max = float(sep_data[2])
+            tlm_data.thermal_camera_max_gradient = float(sep_data[3])
+            tlm_data.thermal_camera_avg_gradient = float(sep_data[4])
+            tlm_data.thermal_camera_std_temp = float(sep_data[5])
+            tlm_data.thermal_camera_hot_pixels = int(sep_data[6])
+            tlm_data.thermal_camera_cold_pixels = int(sep_data[7])
+        elif len(sep_data) == 3:  # 기본 데이터
+            tlm_data.thermal_camera_avg = float(sep_data[0])
+            tlm_data.thermal_camera_min = float(sep_data[1])
+            tlm_data.thermal_camera_max = float(sep_data[2])
+            # 고급 데이터는 기본값 유지
 
     elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisTlmData:
         sep_data = recv_msg.data.split(",")
@@ -324,18 +395,30 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
+        if len(sep_data) == 9:  # 고급 데이터 (차압, 온도, 유속도, 총압, 정압, 마하수, 공기밀도, 레이놀즈수, 동압)
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
             tlm_data.pitot_airspeed = float(sep_data[2])
             tlm_data.pitot_total_pressure = float(sep_data[3])
             tlm_data.pitot_static_pressure = float(sep_data[4])
+            tlm_data.pitot_mach_number = float(sep_data[5])
+            tlm_data.pitot_air_density = float(sep_data[6])
+            tlm_data.pitot_reynolds_number = float(sep_data[7])
+            tlm_data.pitot_dynamic_pressure = float(sep_data[8])
+        elif len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
+            tlm_data.pitot_pressure = float(sep_data[0])
+            tlm_data.pitot_temp = float(sep_data[1])
+            tlm_data.pitot_airspeed = float(sep_data[2])
+            tlm_data.pitot_total_pressure = float(sep_data[3])
+            tlm_data.pitot_static_pressure = float(sep_data[4])
+            # 고급 데이터는 기본값 유지
         elif len(sep_data) == 2:  # 기존 호환성 유지
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
             tlm_data.pitot_airspeed = 0.0
             tlm_data.pitot_total_pressure = 0.0
             tlm_data.pitot_static_pressure = 0.0
+            # 고급 데이터는 기본값 유지
 
     # 모터 상태 수신
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
@@ -490,6 +573,50 @@ class _tlm_data_format:
     tmp007_voltage: float = 0.0
     imu_temperature: float = 0.0
     motor_status: int = 1  # 0=열림, 1=닫힘
+    
+    # 추가된 고급 데이터 필드들
+    # Pitot 추가 데이터
+    pitot_mach_number: float = 0.0
+    pitot_air_density: float = 0.0
+    pitot_reynolds_number: float = 0.0
+    pitot_dynamic_pressure: float = 0.0
+    
+    # Thermal Camera 추가 데이터
+    thermal_camera_max_gradient: float = 0.0
+    thermal_camera_avg_gradient: float = 0.0
+    thermal_camera_std_temp: float = 0.0
+    thermal_camera_hot_pixels: int = 0
+    thermal_camera_cold_pixels: int = 0
+    
+    # Barometer 추가 데이터
+    barometer_sea_level_pressure: float = 0.0
+    barometer_pressure_resolution: float = 0.01
+    barometer_temperature_resolution: float = 0.01
+    
+    # GPS 추가 데이터
+    gps_hdop: float = 0.0
+    gps_vdop: float = 0.0
+    gps_ground_speed: float = 0.0
+    gps_course: float = 0.0
+    gps_quality: int = 0
+    gps_fix_type: int = 0
+    
+    # IMU 추가 데이터
+    imu_quaternion_w: float = 1.0
+    imu_quaternion_x: float = 0.0
+    imu_quaternion_y: float = 0.0
+    imu_quaternion_z: float = 0.0
+    imu_linear_accel_x: float = 0.0
+    imu_linear_accel_y: float = 0.0
+    imu_linear_accel_z: float = 0.0
+    imu_gravity_x: float = 0.0
+    imu_gravity_y: float = 0.0
+    imu_gravity_z: float = 0.0
+    imu_calibration_system: int = 0
+    imu_calibration_gyro: int = 0
+    imu_calibration_accel: int = 0
+    imu_calibration_mag: int = 0
+    imu_system_status: int = 0
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -557,24 +684,61 @@ def send_tlm(serial_instance):
                         f"{tlm_data.tmp007_die_temp:.2f}",
                         f"{tlm_data.tmp007_voltage:.2f}",
                         f"{tlm_data.imu_temperature:.2f}",
-                        str(tlm_data.motor_status)])+"\n"
+                        str(tlm_data.motor_status),
+                        # 추가된 고급 데이터 필드들
+                        f"{tlm_data.pitot_mach_number:.4f}",
+                        f"{tlm_data.pitot_air_density:.4f}",
+                        f"{tlm_data.pitot_reynolds_number:.0f}",
+                        f"{tlm_data.pitot_dynamic_pressure:.2f}",
+                        f"{tlm_data.thermal_camera_max_gradient:.3f}",
+                        f"{tlm_data.thermal_camera_avg_gradient:.3f}",
+                        f"{tlm_data.thermal_camera_std_temp:.2f}",
+                        str(tlm_data.thermal_camera_hot_pixels),
+                        str(tlm_data.thermal_camera_cold_pixels),
+                        f"{tlm_data.barometer_sea_level_pressure:.2f}",
+                        f"{tlm_data.barometer_pressure_resolution:.3f}",
+                        f"{tlm_data.barometer_temperature_resolution:.3f}",
+                        f"{tlm_data.gps_hdop:.2f}",
+                        f"{tlm_data.gps_vdop:.2f}",
+                        f"{tlm_data.gps_ground_speed:.2f}",
+                        f"{tlm_data.gps_course:.1f}",
+                        str(tlm_data.gps_quality),
+                        str(tlm_data.gps_fix_type),
+                        f"{tlm_data.imu_quaternion_w:.4f}",
+                        f"{tlm_data.imu_quaternion_x:.4f}",
+                        f"{tlm_data.imu_quaternion_y:.4f}",
+                        f"{tlm_data.imu_quaternion_z:.4f}",
+                        f"{tlm_data.imu_linear_accel_x:.4f}",
+                        f"{tlm_data.imu_linear_accel_y:.4f}",
+                        f"{tlm_data.imu_linear_accel_z:.4f}",
+                        f"{tlm_data.imu_gravity_x:.4f}",
+                        f"{tlm_data.imu_gravity_y:.4f}",
+                        f"{tlm_data.imu_gravity_z:.4f}",
+                        str(tlm_data.imu_calibration_system),
+                        str(tlm_data.imu_calibration_gyro),
+                        str(tlm_data.imu_calibration_accel),
+                        str(tlm_data.imu_calibration_mag),
+                        str(tlm_data.imu_system_status)])+"\n"
 
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
-                    f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
-                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp}), Airspeed({tlm_data.pitot_airspeed}), TotalP({tlm_data.pitot_total_pressure}), StaticP({tlm_data.pitot_static_pressure})\n" \
+                    f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure}), SeaLevelP({tlm_data.barometer_sea_level_pressure})\n" \
+                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp}), Airspeed({tlm_data.pitot_airspeed}), TotalP({tlm_data.pitot_total_pressure}), StaticP({tlm_data.pitot_static_pressure}), Mach({tlm_data.pitot_mach_number:.4f}), Density({tlm_data.pitot_air_density:.4f})\n" \
                      f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
                      f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
                      f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
                      f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
+                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max}), MaxGrad({tlm_data.thermal_camera_max_gradient:.3f}), Std({tlm_data.thermal_camera_std_temp:.2f})\n" \
                      f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
                      f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
                      f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
-                     f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
+                     f"Euler angle({tlm_data.filtered_roll:.6f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
                      f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
+                     f"Quaternion({tlm_data.imu_quaternion_w:.4f}, {tlm_data.imu_quaternion_x:.4f}, {tlm_data.imu_quaternion_y:.4f}, {tlm_data.imu_quaternion_z:.4f})\n" \
+                     f"Linear_Accel({tlm_data.imu_linear_accel_x:.4f}, {tlm_data.imu_linear_accel_y:.4f}, {tlm_data.imu_linear_accel_z:.4f}), Gravity({tlm_data.imu_gravity_x:.4f}, {tlm_data.imu_gravity_y:.4f}, {tlm_data.imu_gravity_z:.4f})\n" \
                      f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
                      f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
-                     f"Motor : Status({tlm_data.motor_status})"
+                     f"GPS_Quality({tlm_data.gps_quality}), HDOP({tlm_data.gps_hdop:.2f}), VDOP({tlm_data.gps_vdop:.2f}), Speed({tlm_data.gps_ground_speed:.2f}m/s), Course({tlm_data.gps_course:.1f}°)\n" \
+                     f"Motor : Status({tlm_data.motor_status}) \n"
                      #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
             safe_log(tlm_debug_text, "debug".upper(), True)

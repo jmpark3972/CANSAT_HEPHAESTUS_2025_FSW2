@@ -44,19 +44,19 @@ class OffsetManager:
             
             # Thermis 오프셋
             "THERMIS": {
-                "TEMPERATURE_OFFSET": 55.0      # °C (기본값)
+                "TEMPERATURE_OFFSET": 70.0      # °C (기본값)
             },
             
             # TMP007 오프셋
             "TMP007": {
-                "TEMPERATURE_OFFSET": 0.0,      # °C
+                "TEMPERATURE_OFFSET": -80,      # °C
                 "VOLTAGE_OFFSET": 0.0           # μV
             },
             
             # Pitot Tube 오프셋
             "PITOT": {
                 "PRESSURE_OFFSET": 0.0,         # Pa
-                "TEMPERATURE_OFFSET": 0.0,    # °C (기본값)
+                "TEMPERATURE_OFFSET": 60.0,    # °C (기본값)
                 "AIRSPEED_OFFSET": 0.0          # m/s
             },
             

@@ -174,6 +174,140 @@ def calculate_airspeed_from_pressures(total_pressure, static_pressure, temperatu
         _log(f"AIRSPEED_FROM_PRESSURES_ERROR,{e}")
         return 0.0
 
+def calculate_mach_number(airspeed, temperature):
+    """
+    마하 수 계산
+    
+    Args:
+        airspeed: 유속도 (m/s)
+        temperature: 온도 (°C)
+    
+    Returns:
+        mach: 마하 수
+    """
+    try:
+        # 온도를 켈빈으로 변환
+        temp_k = temperature + 273.15
+        
+        # 음속 계산: a = sqrt(γ * R * T)
+        # γ (gamma) = 1.4 (공기의 비열비)
+        # R = 287.1 J/(kg·K) (공기의 기체상수)
+        gamma = 1.4
+        R = 287.1
+        speed_of_sound = math.sqrt(gamma * R * temp_k)
+        
+        # 마하 수 계산
+        mach = airspeed / speed_of_sound
+        
+        return round(mach, 4)
+        
+    except Exception as e:
+        _log(f"MACH_CALC_ERROR,{e}")
+        return 0.0
+
+def calculate_air_density(temperature, altitude=0):
+    """
+    공기 밀도 계산
+    
+    Args:
+        temperature: 온도 (°C)
+        altitude: 고도 (m)
+    
+    Returns:
+        density: 공기 밀도 (kg/m³)
+    """
+    try:
+        # 온도를 켈빈으로 변환
+        temp_k = temperature + 273.15
+        
+        # 고도에 따른 대기압 계산
+        if altitude > 0:
+            temp_alt = TEMP_SEA_LEVEL - 0.0065 * altitude
+            pressure_alt = 101325 * (temp_alt / TEMP_SEA_LEVEL) ** 5.256
+        else:
+            pressure_alt = 101325  # 해수면 기압
+        
+        # 공기 밀도 계산: ρ = P / (R * T)
+        density = pressure_alt / (GAS_CONSTANT_AIR * temp_k)
+        
+        return round(density, 4)
+        
+    except Exception as e:
+        _log(f"DENSITY_CALC_ERROR,{e}")
+        return AIR_DENSITY_SEA_LEVEL
+
+def calculate_reynolds_number(airspeed, characteristic_length=0.1, temperature=15, altitude=0):
+    """
+    레이놀즈 수 계산
+    
+    Args:
+        airspeed: 유속도 (m/s)
+        characteristic_length: 특성 길이 (m) - 기본값 0.1m
+        temperature: 온도 (°C)
+        altitude: 고도 (m)
+    
+    Returns:
+        reynolds: 레이놀즈 수
+    """
+    try:
+        # 공기 밀도 계산
+        density = calculate_air_density(temperature, altitude)
+        
+        # 동점성계수 계산 (Sutherland 공식)
+        temp_k = temperature + 273.15
+        # 15°C에서의 동점성계수: 1.48e-5 m²/s
+        mu_0 = 1.48e-5
+        T_0 = 288.15  # 15°C
+        S = 110.4  # Sutherland 상수
+        
+        kinematic_viscosity = mu_0 * (temp_k / T_0) ** 1.5 * (T_0 + S) / (temp_k + S)
+        
+        # 레이놀즈 수 계산: Re = ρ * v * L / μ
+        reynolds = density * airspeed * characteristic_length / kinematic_viscosity
+        
+        return round(reynolds, 0)
+        
+    except Exception as e:
+        _log(f"REYNOLDS_CALC_ERROR,{e}")
+        return 0.0
+
+def read_pitot_advanced(bus, mux=None, altitude=0):
+    """
+    Pitot 센서 고급 데이터 읽기 - 모든 계산된 값들 포함
+    
+    Returns:
+        tuple: (delta_pressure, temperature, airspeed, total_pressure, static_pressure, 
+                mach_number, air_density, reynolds_number, dynamic_pressure)
+    """
+    try:
+        # 기본 데이터 읽기
+        total_p, static_p, temp = read_pitot_detailed(bus, mux)
+        
+        if total_p is None or static_p is None or temp is None:
+            return None, None, None, None, None, None, None, None, None
+        
+        # 동압 계산
+        dynamic_pressure = total_p - static_p
+        
+        # 유속도 계산
+        airspeed = calculate_airspeed(dynamic_pressure, temp, altitude)
+        
+        # 추가 계산값들
+        mach_number = calculate_mach_number(airspeed, temp)
+        air_density = calculate_air_density(temp, altitude)
+        reynolds_number = calculate_reynolds_number(airspeed, 0.1, temp, altitude)
+        
+        # 로그 기록
+        _log(f"ADVANCED_DATA,DP:{dynamic_pressure:.2f},TEMP:{temp:.2f},SPEED:{airspeed:.2f},"
+             f"MACH:{mach_number:.4f},DENSITY:{air_density:.4f},REYNOLDS:{reynolds_number:.0f}")
+        
+        return (dynamic_pressure, temp, airspeed, total_p, static_p, 
+                mach_number, air_density, reynolds_number, dynamic_pressure)
+        
+    except Exception as e:
+        _log(f"ADVANCED_READ_ERROR,{e}")
+        return None, None, None, None, None, None, None, None, None
+
 def terminate_pitot(bus):
     """Pitot 센서 종료"""
     try:

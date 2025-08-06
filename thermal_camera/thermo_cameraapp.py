@@ -99,19 +99,20 @@ MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
     """MLX90640 데이터 읽기 스레드."""
-    global THERMOCAMAPP_RUNSTATUS, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+    global THERMOCAMAPP_RUNSTATUS, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX, THERMAL_ANALYSIS
     while THERMOCAMAPP_RUNSTATUS:
         try:
-            # channel_guard를 사용하여 안전하게 센서 읽기
-            data = tcam.read_cam(cam)
-            if data and len(data) >= 3:
-                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data[:3]  # min, max, avg 순서 (temps는 무시)
+            # 고급 데이터 읽기 (분석 결과 포함)
+            data = tcam.read_cam_advanced(cam)
+            if data and len(data) >= 4:
+                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG, temps, analysis = data
+                THERMAL_ANALYSIS = analysis  # 분석 결과 저장
         except Exception as e:
             safe_log(f"Thermal camera read error: {e}", "error".upper(), True)
         time.sleep(0.5)  # 2 Hz
 
 def send_cam_data(Main_Queue: Queue):
-    global THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+    global THERMAL_AVG, THERMAL_MIN, THERMAL_MAX, THERMAL_ANALYSIS
     cnt = 0
     fl_msg = msgstructure.MsgStructure()
     tlm_msg = msgstructure.MsgStructure()
@@ -131,11 +132,22 @@ def send_cam_data(Main_Queue: Queue):
                                   f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
 
             if cnt > 10:  # 1 Hz telemetry
+                # 고급 데이터 포함 텔레메트리 전송
+                if THERMAL_ANALYSIS is not None:
+                    max_grad = THERMAL_ANALYSIS.get('gradient', {}).get('max_gradient', 0.0)
+                    avg_grad = THERMAL_ANALYSIS.get('gradient', {}).get('avg_gradient', 0.0)
+                    std_temp = THERMAL_ANALYSIS.get('basic_stats', {}).get('std_temp', 0.0)
+                    hot_pixels = THERMAL_ANALYSIS.get('distribution', {}).get('ranges', {}).get('hot', 0)
+                    cold_pixels = THERMAL_ANALYSIS.get('distribution', {}).get('ranges', {}).get('cold', 0)
+                else:
+                    max_grad = avg_grad = std_temp = 0.0
+                    hot_pixels = cold_pixels = 0
+                
                 msgstructure.send_msg(Main_Queue, tlm_msg,
                                       appargs.ThermalcameraAppArg.AppID,
                                       appargs.CommAppArg.AppID,
                                       appargs.ThermalcameraAppArg.MID_SendCamTlmData,
-                                      f"{avg_val:.2f},{min_val:.2f},{max_val:.2f}")
+                                      f"{avg_val:.2f},{min_val:.2f},{max_val:.2f},{max_grad:.3f},{avg_grad:.3f},{std_temp:.2f},{hot_pixels},{cold_pixels}")
                 cnt = 0
 
             cnt += 1

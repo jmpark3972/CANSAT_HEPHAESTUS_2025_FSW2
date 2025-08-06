@@ -197,6 +197,141 @@ def gps_readdata(ser):
         log_gps("No valid GPS data received")
         return ["00:00:00", 0, 0, 0, 0]
 
+def parse_gps_advanced_data(NMEA_lines):
+    """
+    GPS 고급 데이터 파싱 - HDOP, VDOP, 지상속도, 진행방향 등
+    
+    Args:
+        NMEA_lines: NMEA 문장 리스트
+    
+    Returns:
+        dict: 고급 GPS 데이터
+    """
+    advanced_data = {
+        'hdop': 0.0,      # 수평 정밀도 지표
+        'vdop': 0.0,      # 수직 정밀도 지표
+        'ground_speed': 0.0,  # 지상 속도 (m/s)
+        'course': 0.0,    # 진행 방향 (도)
+        'gps_quality': 0, # GPS 품질 (0-2)
+        'fix_type': 0     # 위치 고정 타입 (0-4)
+    }
+    
+    try:
+        for line in NMEA_lines:
+            line_str = line.decode('utf-8', errors='ignore').strip()
+            
+            # GSA 문장에서 HDOP, VDOP 파싱
+            if line_str.startswith('$GPGSA') or line_str.startswith('$GNGSA'):
+                parts = line_str.split(',')
+                if len(parts) >= 17:
+                    try:
+                        advanced_data['gps_quality'] = int(parts[6]) if parts[6] else 0
+                        advanced_data['hdop'] = float(parts[15]) if parts[15] else 0.0
+                        advanced_data['vdop'] = float(parts[16]) if parts[16] else 0.0
+                    except (ValueError, IndexError):
+                        pass
+            
+            # RMC 문장에서 지상속도, 진행방향 파싱
+            elif line_str.startswith('$GPRMC') or line_str.startswith('$GNRMC'):
+                parts = line_str.split(',')
+                if len(parts) >= 12:
+                    try:
+                        # 지상속도 (knots → m/s 변환)
+                        speed_knots = float(parts[7]) if parts[7] else 0.0
+                        advanced_data['ground_speed'] = speed_knots * 0.514444  # 1 knot = 0.514444 m/s
+                        
+                        # 진행방향 (도)
+                        advanced_data['course'] = float(parts[8]) if parts[8] else 0.0
+                        
+                        # 위치 고정 타입
+                        if parts[2] == 'A':  # Active
+                            advanced_data['fix_type'] = 1
+                        elif parts[2] == 'V':  # Void
+                            advanced_data['fix_type'] = 0
+                    except (ValueError, IndexError):
+                        pass
+            
+            # GGA 문장에서 GPS 품질 확인
+            elif line_str.startswith('$GPGGA') or line_str.startswith('$GNGGA'):
+                parts = line_str.split(',')
+                if len(parts) >= 7:
+                    try:
+                        advanced_data['gps_quality'] = int(parts[6]) if parts[6] else 0
+                    except (ValueError, IndexError):
+                        pass
+        
+        return advanced_data
+        
+    except Exception as e:
+        log_gps(f"GPS 고급 데이터 파싱 오류: {e}")
+        return advanced_data
+
+def gps_readdata_advanced(ser):
+    """
+    GPS 고급 데이터 읽기 - 기본 데이터 + 고급 데이터
+    
+    Returns:
+        tuple: (gps_time, alt, lat, lon, fixed_sat, advanced_data)
+    """
+    if not ser or not ser.is_open:
+        log_gps("GPS serial port not available")
+        return ["00:00:00", 0, 0, 0, 0, {}]
+    
+    NMEA_lines = read_gps(ser)
+    gps_data = parse_gps_data(NMEA_lines)
+    advanced_data = parse_gps_advanced_data(NMEA_lines)
+    
+    if gps_data:
+        try:
+            # 기본 GPS 데이터 파싱 (기존 로직)
+            gps_time_raw = gps_data[0][1]
+            if gps_time_raw and len(gps_time_raw) >= 6:
+                utc_hour = int(gps_time_raw[0:2])
+                utc_minute = int(gps_time_raw[2:4])
+                utc_second = int(gps_time_raw[4:6])
+                kst_hour = utc_hour + 9
+                if kst_hour >= 24:
+                    kst_hour -= 24
+                gps_time = f"{kst_hour:02d}:{utc_minute:02d}:{utc_second:02d}"
+            else:
+                gps_time = "00:00:00"
+        except:
+            gps_time = "00:00:00"
+        
+        try:
+            alt_raw = gps_data[0][9]
+            alt = round(float(alt_raw), 2) if alt_raw else 0
+        except:
+            alt = 0
+        
+        try:
+            lat_raw = gps_data[0][2]
+            lat = unit_convert_deg(float(lat_raw)) if lat_raw else 0
+        except:
+            lat = 0
+        
+        try:
+            lon_raw = gps_data[0][4]
+            lon = -unit_convert_deg(float(lon_raw)) if lon_raw else 0
+        except:
+            lon = 0
+        
+        try:
+            sats_raw = gps_data[0][7]
+            fixed_sat = int(sats_raw) if sats_raw else 0
+        except:
+            fixed_sat = 0
+        
+        # 고급 데이터 로그
+        log_gps(f"GPS_ADVANCED,HDOP:{advanced_data['hdop']:.2f},VDOP:{advanced_data['vdop']:.2f},"
+                f"SPEED:{advanced_data['ground_speed']:.2f},COURSE:{advanced_data['course']:.1f},"
+                f"QUALITY:{advanced_data['gps_quality']},FIX:{advanced_data['fix_type']}")
+        
+        return (gps_time, alt, lat, lon, fixed_sat, advanced_data)
+    else:
+        log_gps("No valid GPS data received")
+        return ["00:00:00", 0, 0, 0, 0, {}]
+
 
 def terminate_gps(ser):
     if ser and ser.is_open:

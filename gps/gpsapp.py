@@ -91,7 +91,17 @@ def send_gps_data(Main_Queue : Queue):
             except (ValueError, TypeError):
                 gps_sats_int = 0
             
-            gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int}"
+            # 고급 데이터 포함 텔레메트리 전송
+            if hasattr(gps, 'GPS_ADVANCED_DATA') and GPS_ADVANCED_DATA:
+                hdop = GPS_ADVANCED_DATA.get('hdop', 0.0)
+                vdop = GPS_ADVANCED_DATA.get('vdop', 0.0)
+                ground_speed = GPS_ADVANCED_DATA.get('ground_speed', 0.0)
+                course = GPS_ADVANCED_DATA.get('course', 0.0)
+                quality = GPS_ADVANCED_DATA.get('gps_quality', 0)
+                fix_type = GPS_ADVANCED_DATA.get('fix_type', 0)
+                gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int},{hdop:.2f},{vdop:.2f},{ground_speed:.2f},{course:.1f},{quality},{fix_type}"
+            else:
+                gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{gps_sats_int}"
             
             status = msgstructure.send_msg(Main_Queue, 
                                         GpsDataToTlmMsg,
@@ -178,12 +188,22 @@ def gpsapp_terminate():
 
 
 def read_gps_data(gps_instance):
-    global GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS, GPSAPP_RUNSTATUS
+    global GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS, GPS_ADVANCED_DATA, GPSAPP_RUNSTATUS
     while GPSAPP_RUNSTATUS:
         try:
-            lat, lon, alt, time_str, sats = gps.gps_readdata(gps_instance)
-            if lat is not None and lon is not None and alt is not None and time_str is not None and sats is not None:
-                GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS = lat, lon, alt, time_str, sats
+            # 고급 데이터 읽기 시도
+            result = gps.gps_readdata_advanced(gps_instance)
+            if result and len(result) >= 6:
+                time_str, alt, lat, lon, sats, advanced_data = result
+                if lat is not None and lon is not None and alt is not None and time_str is not None and sats is not None:
+                    GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS = lat, lon, alt, time_str, sats
+                    GPS_ADVANCED_DATA = advanced_data
+            else:
+                # 기본 데이터 읽기 (fallback)
+                lat, lon, alt, time_str, sats = gps.gps_readdata(gps_instance)
+                if lat is not None and lon is not None and alt is not None and time_str is not None and sats is not None:
+                    GPS_LAT, GPS_LON, GPS_ALT, GPS_TIME, GPS_SATS = lat, lon, alt, time_str, sats
+                    GPS_ADVANCED_DATA = {}  # 기본값
         except Exception:
             # 에러 메시지 출력하지 않고, 이전 값 유지
             pass

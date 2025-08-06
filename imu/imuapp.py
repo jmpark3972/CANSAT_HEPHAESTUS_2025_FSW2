@@ -258,6 +258,7 @@ def read_imu_data(sensor):
     """IMU 데이터 읽기 스레드."""
     global IMUAPP_RUNSTATUS, IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
     global IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_ACCX, IMU_ACCY, IMU_ACCZ, IMU_MAGX, IMU_MAGY, IMU_MAGZ, IMU_GYRX, IMU_GYRY, IMU_GYRZ
+    global IMU_ADVANCED_DATA
     
     while IMUAPP_RUNSTATUS:
         try:
@@ -266,40 +267,83 @@ def read_imu_data(sensor):
                 time.sleep(0.1)
                 continue
                 
-            gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
-            
-            # 데이터가 유효한 경우 업데이트
-            if gyro is not None and accel is not None and mag is not None and euler is not None:
-                IMU_GYRO = gyro
-                IMU_ACCEL = accel
-                IMU_MAG = mag
-                IMU_EULER = euler
-                IMU_TEMP = temp if temp is not None else 0.0
+            # 고급 데이터 읽기 시도
+            result = imu.read_sensor_data(sensor)
+            if result and len(result) >= 10:
+                gyro, accel, mag, euler, temp, quaternion, linear_accel, gravity, calibration, system_status = result
                 
-                # 개별 변수들 업데이트
-                if len(euler) >= 3:
-                    IMU_ROLL = euler[0] if euler[0] is not None else 0.0
-                    IMU_PITCH = euler[1] if euler[1] is not None else 0.0
-                    IMU_YAW = euler[2] if euler[2] is not None else 0.0
-                
-                if len(accel) >= 3:
-                    IMU_ACCX = accel[0] if accel[0] is not None else 0.0
-                    IMU_ACCY = accel[1] if accel[1] is not None else 0.0
-                    IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
-                
-                if len(mag) >= 3:
-                    IMU_MAGX = mag[0] if mag[0] is not None else 0.0
-                    IMU_MAGY = mag[1] if mag[1] is not None else 0.0
-                    IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
-                
-                if len(gyro) >= 3:
-                    IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
-                    IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
-                    IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+                # 데이터가 유효한 경우 업데이트
+                if gyro is not None and accel is not None and mag is not None and euler is not None:
+                    IMU_GYRO = gyro
+                    IMU_ACCEL = accel
+                    IMU_MAG = mag
+                    IMU_EULER = euler
+                    IMU_TEMP = temp if temp is not None else 0.0
+                    
+                    # 고급 데이터 저장
+                    IMU_ADVANCED_DATA = {
+                        'quaternion': quaternion,
+                        'linear_accel': linear_accel,
+                        'gravity': gravity,
+                        'calibration': calibration,
+                        'system_status': system_status
+                    }
+                    
+                    # 개별 변수들 업데이트
+                    if len(euler) >= 3:
+                        IMU_ROLL = euler[0] if euler[0] is not None else 0.0
+                        IMU_PITCH = euler[1] if euler[1] is not None else 0.0
+                        IMU_YAW = euler[2] if euler[2] is not None else 0.0
+                    
+                    if len(accel) >= 3:
+                        IMU_ACCX = accel[0] if accel[0] is not None else 0.0
+                        IMU_ACCY = accel[1] if accel[1] is not None else 0.0
+                        IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
+                    
+                    if len(mag) >= 3:
+                        IMU_MAGX = mag[0] if mag[0] is not None else 0.0
+                        IMU_MAGY = mag[1] if mag[1] is not None else 0.0
+                        IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
+                    
+                    if len(gyro) >= 3:
+                        IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
+                        IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
+                        IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+                else:
+                    # 데이터가 None인 경우 기본값 유지 (이전 값 보존)
+                    # 센서 오류 시에도 시스템이 계속 작동하도록 함
+                    pass
             else:
-                # 데이터가 None인 경우 기본값 유지 (이전 값 보존)
-                # 센서 오류 시에도 시스템이 계속 작동하도록 함
-                pass
+                # 기본 데이터 읽기 (fallback)
+                gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
+                if gyro is not None and accel is not None and mag is not None and euler is not None:
+                    IMU_GYRO = gyro
+                    IMU_ACCEL = accel
+                    IMU_MAG = mag
+                    IMU_EULER = euler
+                    IMU_TEMP = temp if temp is not None else 0.0
+                    IMU_ADVANCED_DATA = {}  # 기본값
+                    
+                    # 개별 변수들 업데이트 (기존 로직)
+                    if len(euler) >= 3:
+                        IMU_ROLL = euler[0] if euler[0] is not None else 0.0
+                        IMU_PITCH = euler[1] if euler[1] is not None else 0.0
+                        IMU_YAW = euler[2] if euler[2] is not None else 0.0
+                    
+                    if len(accel) >= 3:
+                        IMU_ACCX = accel[0] if accel[0] is not None else 0.0
+                        IMU_ACCY = accel[1] if accel[1] is not None else 0.0
+                        IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
+                    
+                    if len(mag) >= 3:
+                        IMU_MAGX = mag[0] if mag[0] is not None else 0.0
+                        IMU_MAGY = mag[1] if mag[1] is not None else 0.0
+                        IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
+                    
+                    if len(gyro) >= 3:
+                        IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
+                        IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
+                        IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
                     
         except Exception as e:
             safe_log(f"IMU read error: {e}", "error".upper(), True)
@@ -362,13 +406,24 @@ def send_imu_data(Main_Queue : Queue):
 
         if send_counter >= 10 :
             try:
-                # Send telemetry message to COMM app
+                # 고급 데이터 포함 텔레메트리 전송
+                if hasattr(imu, 'IMU_ADVANCED_DATA') and IMU_ADVANCED_DATA:
+                    quat = IMU_ADVANCED_DATA.get('quaternion', (1.0, 0.0, 0.0, 0.0))
+                    lin_acc = IMU_ADVANCED_DATA.get('linear_accel', (0.0, 0.0, 0.0))
+                    grav = IMU_ADVANCED_DATA.get('gravity', (0.0, 0.0, 0.0))
+                    cal = IMU_ADVANCED_DATA.get('calibration', (0, 0, 0, 0))
+                    sys_status = IMU_ADVANCED_DATA.get('system_status', 0)
+                    
+                    tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f},{quat[0]:.4f},{quat[1]:.4f},{quat[2]:.4f},{quat[3]:.4f},{lin_acc[0]:.4f},{lin_acc[1]:.4f},{lin_acc[2]:.4f},{grav[0]:.4f},{grav[1]:.4f},{grav[2]:.4f},{cal[0]},{cal[1]},{cal[2]},{cal[3]},{sys_status}"
+                else:
+                    tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}"
+                
                 status = msgstructure.send_msg(Main_Queue, 
                                             ImuDataToTlmMsg, 
                                             appargs.ImuAppArg.AppID,
                                             appargs.CommAppArg.AppID,
                                             appargs.ImuAppArg.MID_SendImuTlmData,
-                                            f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}")
+                                            tlm_data)
                 if status == False:
                     consecutive_send_failures += 1
                     if consecutive_send_failures <= max_send_failures:

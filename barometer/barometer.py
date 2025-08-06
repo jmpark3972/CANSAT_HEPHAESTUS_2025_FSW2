@@ -154,6 +154,94 @@ def read_barometer(bmp, offset:float):
         # 마지막 유효 데이터 반환
         return read_barometer.last_valid_data
 
+def calculate_sea_level_pressure(pressure, altitude, temperature):
+    """
+    해수면 기압 계산
+    
+    Args:
+        pressure: 현재 압력 (hPa)
+        altitude: 현재 고도 (m)
+        temperature: 현재 온도 (°C)
+    
+    Returns:
+        sea_level_pressure: 해수면 기압 (hPa)
+    """
+    try:
+        # 온도를 켈빈으로 변환
+        temp_k = temperature + 273.15
+        
+        # 해수면 기압 계산 (국제표준대기모델)
+        # P0 = P * exp(g * h / (R * T))
+        # g = 9.80665 m/s², R = 287.1 J/(kg·K)
+        g = 9.80665
+        R = 287.1
+        
+        sea_level_pressure = pressure * math.exp(g * altitude / (R * temp_k))
+        
+        return round(sea_level_pressure, 2)
+        
+    except Exception as e:
+        print(f"해수면 기압 계산 오류: {e}")
+        return pressure
+
+def get_sensor_resolution(bmp):
+    """
+    센서 해상도 정보 반환
+    
+    Args:
+        bmp: BMP390 센서 객체
+    
+    Returns:
+        dict: 해상도 정보
+    """
+    try:
+        # BMP390의 기본 해상도 (데이터시트 기준)
+        resolution_info = {
+            'pressure_resolution': 0.01,  # hPa (0.01 hPa = 1 Pa)
+            'temperature_resolution': 0.01,  # °C
+            'altitude_resolution': 0.01,  # m
+            'pressure_accuracy': 0.08,  # hPa (±0.08 hPa)
+            'temperature_accuracy': 0.5,  # °C (±0.5°C)
+            'altitude_accuracy': 0.5,  # m (±0.5m)
+            'pressure_range': [300, 1250],  # hPa
+            'temperature_range': [-40, 85],  # °C
+            'altitude_range': [-500, 9000]  # m
+        }
+        
+        return resolution_info
+        
+    except Exception as e:
+        print(f"센서 해상도 정보 오류: {e}")
+        return None
+
+def read_barometer_advanced(bmp, offset:float):
+    """
+    Barometer 고급 데이터 읽기 - 추가 계산값들 포함
+    
+    Returns:
+        tuple: (pressure, temperature, altitude, sea_level_pressure, resolution_info)
+    """
+    try:
+        # 기본 데이터 읽기
+        pressure, temperature, altitude = read_barometer(bmp, offset)
+        
+        # 해수면 기압 계산
+        sea_level_pressure = calculate_sea_level_pressure(pressure, altitude, temperature)
+        
+        # 센서 해상도 정보
+        resolution_info = get_sensor_resolution(bmp)
+        
+        # 고급 데이터 로그
+        log_barometer(f"ADVANCED_DATA,SLP:{sea_level_pressure:.2f},RES_P:{resolution_info['pressure_resolution']:.3f},"
+                     f"RES_T:{resolution_info['temperature_resolution']:.3f}")
+        
+        return (pressure, temperature, altitude, sea_level_pressure, resolution_info)
+        
+    except Exception as e:
+        print(f"Barometer 고급 데이터 읽기 오류: {e}")
+        log_barometer(f"ADVANCED_READ_ERROR,{e}")
+        return (1013.25, 25.0, 0.0, 1013.25, None)
+
 def terminate_barometer(i2c):
     try:
         if hasattr(i2c, "deinit"):

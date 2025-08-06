@@ -101,6 +101,112 @@ def read_cam(sensor, ascii: bool = False):
         print(f"Thermal Camera 데이터 읽기 오류: {e}")
         return None, None, None, None
 
+def analyze_thermal_data(temps):
+    """
+    열화상 데이터 고급 분석
+    
+    Args:
+        temps: 24x32 온도 데이터 리스트
+    
+    Returns:
+        dict: 분석 결과
+    """
+    try:
+        if not temps or len(temps) != 768:
+            return None
+        
+        # 온도 배열을 24x32로 재구성
+        temp_array = np.array(temps).reshape(24, 32)
+        
+        # 기본 통계
+        min_temp = np.min(temp_array)
+        max_temp = np.max(temp_array)
+        avg_temp = np.mean(temp_array)
+        std_temp = np.std(temp_array)
+        
+        # 최고/최저 온도 위치 찾기
+        min_idx = np.unravel_index(np.argmin(temp_array), temp_array.shape)
+        max_idx = np.unravel_index(np.argmax(temp_array), temp_array.shape)
+        
+        # 온도 분포 통계
+        temp_hist, temp_bins = np.histogram(temp_array, bins=10)
+        temp_percentiles = np.percentile(temp_array, [10, 25, 50, 75, 90])
+        
+        # 온도 기울기 (gradient) 계산
+        grad_x = np.gradient(temp_array, axis=1)  # X 방향 기울기
+        grad_y = np.gradient(temp_array, axis=0)  # Y 방향 기울기
+        grad_magnitude = np.sqrt(grad_x**2 + grad_y**2)  # 기울기 크기
+        
+        max_gradient = np.max(grad_magnitude)
+        avg_gradient = np.mean(grad_magnitude)
+        
+        # 온도 분포 영역 분석
+        temp_ranges = {
+            'cold': np.sum(temp_array < avg_temp - std_temp),
+            'normal': np.sum((temp_array >= avg_temp - std_temp) & (temp_array <= avg_temp + std_temp)),
+            'hot': np.sum(temp_array > avg_temp + std_temp)
+        }
+        
+        # 결과 딕셔너리
+        analysis = {
+            'basic_stats': {
+                'min_temp': float(min_temp),
+                'max_temp': float(max_temp),
+                'avg_temp': float(avg_temp),
+                'std_temp': float(std_temp)
+            },
+            'extreme_positions': {
+                'min_pos': {'row': int(min_idx[0]), 'col': int(min_idx[1]), 'temp': float(min_temp)},
+                'max_pos': {'row': int(max_idx[0]), 'col': int(max_idx[1]), 'temp': float(max_temp)}
+            },
+            'distribution': {
+                'percentiles': temp_percentiles.tolist(),
+                'histogram': temp_hist.tolist(),
+                'bins': temp_bins.tolist(),
+                'ranges': temp_ranges
+            },
+            'gradient': {
+                'max_gradient': float(max_gradient),
+                'avg_gradient': float(avg_gradient),
+                'grad_x_range': [float(np.min(grad_x)), float(np.max(grad_x))],
+                'grad_y_range': [float(np.min(grad_y)), float(np.max(grad_y))]
+            }
+        }
+        
+        # 로그 기록
+        log_thermal(f"ANALYSIS,MIN:{min_temp:.2f},MAX:{max_temp:.2f},AVG:{avg_temp:.2f},"
+                   f"STD:{std_temp:.2f},MAX_GRAD:{max_gradient:.3f},AVG_GRAD:{avg_gradient:.3f}")
+        
+        return analysis
+        
+    except Exception as e:
+        print(f"열화상 데이터 분석 오류: {e}")
+        log_thermal(f"ANALYSIS_ERROR,{e}")
+        return None
+
+def read_cam_advanced(sensor):
+    """
+    Thermal Camera 고급 데이터 읽기 - 분석 결과 포함
+    
+    Returns:
+        tuple: (min_temp, max_temp, avg_temp, temps, analysis)
+    """
+    try:
+        # 기본 데이터 읽기
+        min_temp, max_temp, avg_temp, temps = read_cam(sensor)
+        
+        if temps is None:
+            return None, None, None, None, None
+        
+        # 고급 분석 수행
+        analysis = analyze_thermal_data(temps)
+        
+        return min_temp, max_temp, avg_temp, temps, analysis
+        
+    except Exception as e:
+        print(f"Thermal Camera 고급 데이터 읽기 오류: {e}")
+        return None, None, None, None, None
+
 # ──────────────────────
 # 4)  열화상 영상 저장 기능
 # ──────────────────────

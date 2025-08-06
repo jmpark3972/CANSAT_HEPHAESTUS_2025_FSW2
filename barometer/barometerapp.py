@@ -217,13 +217,26 @@ except Exception as e:
 
 def read_barometer_data(bmp):
     """Barometer 데이터 읽기 스레드."""
-    global BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE
+    global BAROMETERAPP_RUNSTATUS, PRESSURE, TEMPERATURE, ALTITUDE, SEA_LEVEL_PRESSURE, RESOLUTION_INFO
     while BAROMETERAPP_RUNSTATUS:
         try:
-            pressure, temperature, altitude = barometer.read_barometer(bmp, 0)
-            PRESSURE = pressure
-            TEMPERATURE = temperature
-            ALTITUDE = altitude
+            # 고급 데이터 읽기
+            result = barometer.read_barometer_advanced(bmp, 0)
+            if result and len(result) >= 5:
+                pressure, temperature, altitude, sea_level_pressure, resolution_info = result
+                PRESSURE = pressure
+                TEMPERATURE = temperature
+                ALTITUDE = altitude
+                SEA_LEVEL_PRESSURE = sea_level_pressure
+                RESOLUTION_INFO = resolution_info
+            else:
+                # 기본 데이터 읽기 (fallback)
+                pressure, temperature, altitude = barometer.read_barometer(bmp, 0)
+                PRESSURE = pressure
+                TEMPERATURE = temperature
+                ALTITUDE = altitude
+                SEA_LEVEL_PRESSURE = pressure  # 기본값
+                RESOLUTION_INFO = None
         except Exception as e:
             safe_log(f"Barometer read error: {e}", "error".upper(), True)
         time.sleep(0.1)  # 10 Hz
@@ -258,12 +271,20 @@ def send_barometer_data(Main_Queue : Queue):
 
         if msg_send_count > 10 : 
             # Send telemetry message to COMM app in 1Hz
+            # 고급 데이터 포함 텔레메트리 전송
+            if RESOLUTION_INFO is not None:
+                pressure_res = RESOLUTION_INFO.get('pressure_resolution', 0.01)
+                temp_res = RESOLUTION_INFO.get('temperature_resolution', 0.01)
+                tlm_data = f"{PRESSURE},{TEMPERATURE},{ALTITUDE},{SEA_LEVEL_PRESSURE},{pressure_res}"
+            else:
+                tlm_data = f"{PRESSURE},{TEMPERATURE},{ALTITUDE},{SEA_LEVEL_PRESSURE},{0.01}"
+            
             status = msgstructure.send_msg(Main_Queue, 
                                         BarometerDataToTlmMsg, 
                                         appargs.BarometerAppArg.AppID,
                                         appargs.CommAppArg.AppID,
                                         appargs.BarometerAppArg.MID_SendBarometerTlmData,
-                                        f"{PRESSURE},{TEMPERATURE},{ALTITUDE}")
+                                        tlm_data)
             if status == False:
                 safe_log("Error When sending Barometer Tlm Message", "error".upper(), True)
 
