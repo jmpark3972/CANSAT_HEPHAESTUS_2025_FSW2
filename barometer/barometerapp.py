@@ -104,6 +104,14 @@ def command_handler (Main_Queue:Queue, recv_msg : msgstructure.MsgStructure, bar
             caldata = barometer.read_barometer(barometer_instance, 0)
             # altitude is the third index
             BAROMETER_OFFSET = float(caldata[2])
+            
+            # 통합 오프셋 시스템에 저장
+            try:
+                from lib.offsets import set_offset
+                set_offset("BAROMETER.ALTITUDE_OFFSET", BAROMETER_OFFSET)
+                safe_log(f"Barometer 오프셋이 통합 시스템에 저장됨: {BAROMETER_OFFSET}m", "info".upper(), True)
+            except Exception as e:
+                safe_log(f"통합 오프셋 시스템 저장 실패: {e}", "warning".upper(), True)
 
         # Use mutex to prevent the barometer process sending the wrong maxalt
         with MAXALT_RESET_MUTEX:
@@ -115,6 +123,7 @@ def command_handler (Main_Queue:Queue, recv_msg : msgstructure.MsgStructure, bar
 
         safe_log(f"Barometer offset changed to {BAROMETER_OFFSET}", "info".upper(), True)
 
+        # 기존 호환성을 위해 prevstate도 업데이트
         prevstate.update_altcal(BAROMETER_OFFSET)
 
     else:
@@ -197,8 +206,14 @@ def barometerapp_terminate(i2c_instance):
 PRESSURE = 0
 TEMPERATURE = 0
 ALTITUDE = 0
-# Set the offset of baromter
-BAROMETER_OFFSET = 0
+# 통합 오프셋 관리 시스템 사용
+try:
+    from lib.offsets import get_barometer_offset
+    BAROMETER_OFFSET = get_barometer_offset()
+    safe_log(f"Barometer 오프셋 로드됨: {BAROMETER_OFFSET}m", "info".upper(), True)
+except Exception as e:
+    BAROMETER_OFFSET = 0
+    safe_log(f"Barometer 오프셋 로드 실패, 기본값 사용: {e}", "warning".upper(), True)
 
 def read_barometer_data(bmp):
     """Barometer 데이터 읽기 스레드."""

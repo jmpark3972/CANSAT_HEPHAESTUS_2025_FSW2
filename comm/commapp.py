@@ -44,7 +44,14 @@ TEAMID = 3139
 # Timedelta for ST command, initially set to 0
 ST_timedelta :timedelta = timedelta(seconds=0)
 
-SIMP_OFFSET = 0
+# 통합 오프셋 관리 시스템 사용
+try:
+    from lib.offsets import get_comm_offset
+    SIMP_OFFSET = get_comm_offset()
+    safe_log(f"통신 SIMP 오프셋 로드됨: {SIMP_OFFSET}", "info".upper(), True)
+except Exception as e:
+    SIMP_OFFSET = 0
+    safe_log(f"통신 SIMP 오프셋 로드 실패, 기본값 사용: {e}", "warning".upper(), True)
 
 # 강화된 로깅 및 데이터 전송 시스템
 import os
@@ -527,7 +534,7 @@ def send_tlm(serial_instance):
                         f"{tlm_data.gps_alt:.2f}",
                         f"{tlm_data.gps_lat:.2f}",
                         f"{tlm_data.gps_lon:.2f}",
-                        f"{tlm_data.gps_sats:.2f}",
+                        str(tlm_data.gps_sats),
                         tlm_data.cmd_echo,
                         #f','
                         f"{tlm_data.filtered_roll:.4f}",
@@ -543,6 +550,9 @@ def send_tlm(serial_instance):
                         f"{tlm_data.thermis_temp:.2f}",
                         f"{tlm_data.pitot_pressure:.2f}",
                         f"{tlm_data.pitot_temp:.2f}",
+                        f"{tlm_data.pitot_airspeed:.2f}",
+                        f"{tlm_data.pitot_total_pressure:.2f}",
+                        f"{tlm_data.pitot_static_pressure:.2f}",
                         f"{tlm_data.tmp007_object_temp:.2f}",
                         f"{tlm_data.tmp007_die_temp:.2f}",
                         f"{tlm_data.tmp007_voltage:.2f}",
@@ -551,7 +561,7 @@ def send_tlm(serial_instance):
 
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
                     f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
-                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
+                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp}), Airspeed({tlm_data.pitot_airspeed}), TotalP({tlm_data.pitot_total_pressure}), StaticP({tlm_data.pitot_static_pressure})\n" \
                      f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
                      f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
                      f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
@@ -666,6 +676,15 @@ def cmd_cal(option:str, Main_Queue:Queue):
     # If simulation mode
     if tlm_data.mode == "S":
         SIMP_OFFSET = tlm_data.altitude
+        
+        # 통합 오프셋 시스템에 저장
+        try:
+            from lib.offsets import set_offset
+            set_offset("COMM.SIMP_OFFSET", SIMP_OFFSET)
+            safe_log(f"통신 SIMP 오프셋이 통합 시스템에 저장됨: {SIMP_OFFSET}", "info".upper(), True)
+        except Exception as e:
+            safe_log(f"통합 오프셋 시스템 저장 실패: {e}", "warning".upper(), True)
+        
         ResetBarometerMaxAltCmd = msgstructure.MsgStructure()
         msgstructure.send_msg(Main_Queue, ResetBarometerMaxAltCmd, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.BarometerAppArg.MID_ResetBarometerMaxAlt, "")
 

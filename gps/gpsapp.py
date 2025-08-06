@@ -85,7 +85,7 @@ def send_gps_data(Main_Queue : Queue):
             gps_time_str = str(GPS_TIME) if GPS_TIME is not None else "00:00:00"
             
             # GPS 데이터 문자열 생성 (GPS_TIME은 이미 문자열이므로 별도 처리)
-            gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{GPS_SATS}"
+            gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{float(GPS_SATS):.0f}"
             
             status = msgstructure.send_msg(Main_Queue, 
                                         GpsDataToTlmMsg,

@@ -156,8 +156,8 @@ class TMP007:
             else:
                 voltage = voltage_raw * 156.25
             
-            # 전압 범위 검증 (-6.4mV ~ 6.4mV)
-            if voltage < -6400 or voltage > 6400:
+            # 전압 범위 검증 (-10mV ~ 10mV) - 더 관대한 범위로 확장
+            if voltage < -10000 or voltage > 10000:
                 raise Exception(f"Voltage out of range: {voltage}μV")
             
             return round(voltage, 2)

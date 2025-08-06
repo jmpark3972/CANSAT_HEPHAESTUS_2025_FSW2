@@ -50,13 +50,64 @@ class DualLogger:
             
             # 서브 로그 디렉토리 (SPI SD 카드)
             if os.path.exists("/mnt/log_sd"):
-                os.makedirs(self.sub_log_dir, exist_ok=True)
-                print(f"✅ 서브 로그 디렉토리 생성: {self.sub_log_dir}")
+                try:
+                    # 서브 SD 카드 권한 확인 및 수정
+                    self._fix_sub_sd_permissions()
+                    
+                    # 필요한 디렉토리들 생성
+                    sub_dirs = [
+                        self.sub_log_dir,
+                        "/mnt/log_sd/cansat_videos",
+                        "/mnt/log_sd/cansat_camera_temp",
+                        "/mnt/log_sd/cansat_camera_logs",
+                        "/mnt/log_sd/thermal_videos"
+                    ]
+                    
+                    for sub_dir in sub_dirs:
+                        try:
+                            os.makedirs(sub_dir, exist_ok=True)
+                            print(f"✅ 서브 디렉토리 생성: {sub_dir}")
+                        except PermissionError:
+                            print(f"⚠️ 권한 오류로 디렉토리 생성 실패: {sub_dir}")
+                            print("   sudo chown -R SpaceY:SpaceY /mnt/log_sd 명령을 실행해주세요")
+                        except Exception as e:
+                            print(f"❌ 디렉토리 생성 실패: {sub_dir} - {e}")
+                            
+                except Exception as e:
+                    print(f"❌ 서브 SD 카드 설정 실패: {e}")
             else:
                 print("⚠️ 서브 로그 디렉토리(/mnt/log_sd)를 찾을 수 없습니다")
                 
         except Exception as e:
             print(f"❌ 로그 디렉토리 설정 실패: {e}")
+    
+    def _fix_sub_sd_permissions(self):
+        """서브 SD 카드 권한 수정 시도"""
+        try:
+            import subprocess
+            import getpass
+            
+            # 현재 사용자 확인
+            current_user = getpass.getuser()
+            
+            # 권한 수정 명령 실행
+            result = subprocess.run(
+                ['sudo', 'chown', '-R', f'{current_user}:{current_user}', '/mnt/log_sd'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                print("✅ 서브 SD 카드 권한 수정 완료")
+            else:
+                print(f"⚠️ 권한 수정 실패: {result.stderr}")
+                
+        except Exception as e:
+            print(f"⚠️ 권한 수정 시도 실패: {e}")
+            print("   수동으로 다음 명령을 실행해주세요:")
+            print("   sudo chown -R SpaceY:SpaceY /mnt/log_sd")
+            print("   sudo chmod -R 755 /mnt/log_sd")
     
     def _start_worker(self):
         """워커 스레드 시작"""

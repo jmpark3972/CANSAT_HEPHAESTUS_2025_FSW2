@@ -34,7 +34,14 @@ THERMISAPP_RUNSTATUS = True
 
 OFFSET_MUTEX = threading.Lock()  # protect offset update & sensor access
 
-TEMP_OFFSET = 50.0  # °C - Added +50 offset for THERMIS sensor
+# 통합 오프셋 관리 시스템 사용
+try:
+    from lib.offsets import get_thermis_offset
+    TEMP_OFFSET = get_thermis_offset()
+    safe_log(f"Thermis 오프셋 로드됨: {TEMP_OFFSET}°C", "info".upper(), True)
+except Exception as e:
+    TEMP_OFFSET = 50.0  # 기본값
+    safe_log(f"Thermis 오프셋 로드 실패, 기본값 사용: {e}", "warning".upper(), True)
 
 TEMP = 0.0
 
@@ -62,6 +69,16 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
 
         with OFFSET_MUTEX:
             TEMP_OFFSET = temp_off
+            
+            # 통합 오프셋 시스템에 저장
+            try:
+                from lib.offsets import set_offset
+                set_offset("THERMIS.TEMPERATURE_OFFSET", TEMP_OFFSET)
+                safe_log(f"Thermis 오프셋이 통합 시스템에 저장됨: {TEMP_OFFSET}°C", "info".upper(), True)
+            except Exception as e:
+                safe_log(f"통합 오프셋 시스템 저장 실패: {e}", "warning".upper(), True)
+        
+        # 기존 호환성을 위해 prevstate도 업데이트
         prevstate.update_thermiscal(TEMP_OFFSET)  # must exist in prevstate
         safe_log(f"THERMIS offset set to temp={TEMP_OFFSET}", "info".upper(), True)
         return

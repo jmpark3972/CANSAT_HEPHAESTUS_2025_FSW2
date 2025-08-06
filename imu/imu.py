@@ -14,13 +14,13 @@ if not os.path.exists(log_dir):
 ## Create sensor log file
 imulogfile = open(os.path.join(log_dir, 'imu.txt'), 'a')
 
+# 통합 오프셋 관리 시스템 사용
 try:
-    offsetfile = open(os.path.join('./imu/offset.txt'),mode='r')
-    magneto_offset = tuple(map(int,offsetfile.readline().strip().split(sep=',')))
-    gyro_offset = tuple(map(int,offsetfile.readline().strip().split(sep=',')))
-    accel_offset = tuple(map(int,offsetfile.readline().strip().split(sep=',')))
-    offsetfile.close()
-except: 
+    from lib.offsets import get_imu_offsets
+    magneto_offset, gyro_offset, accel_offset = get_imu_offsets()
+    print(f"IMU 오프셋 로드됨 - 자기계: {magneto_offset}, 자이로: {gyro_offset}, 가속도: {accel_offset}")
+except Exception as e:
+    print(f"IMU 오프셋 로드 실패, 기본값 사용: {e}")
     magneto_offset = (0,0,0)
     gyro_offset = (0,0,0)
     accel_offset = (0,0,0)
@@ -45,6 +45,11 @@ def init_imu():
         # IMU 센서 직접 연결
         sensor = adafruit_bno055.BNO055_I2C(i2c)
         time.sleep(0.1)
+        
+        # 센서 모드 설정 (NDOF 모드로 설정하여 모든 센서 활성화)
+        sensor.mode = adafruit_bno055.NDOF_MODE
+        time.sleep(0.5)  # 모드 변경 후 안정화 대기
+        
         print("IMU 센서 초기화 완료 (직접 I2C 연결)")
         return i2c, sensor
     except Exception as e:

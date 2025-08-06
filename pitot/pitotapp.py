@@ -101,8 +101,15 @@ def log_csv(filepath: str, headers: list, data: list):
 
 PITOT_BUS = None
 PITOT_MUX = None
-PRESSURE_OFFSET = 0.0
-TEMP_OFFSET = 0.0
+# 통합 오프셋 관리 시스템 사용
+try:
+    from lib.offsets import get_pitot_offsets
+    PRESSURE_OFFSET, TEMP_OFFSET = get_pitot_offsets()
+    safe_log(f"Pitot 오프셋 로드됨 - 압력: {PRESSURE_OFFSET}Pa, 온도: {TEMP_OFFSET}°C", "info".upper(), True)
+except Exception as e:
+    PRESSURE_OFFSET = 0.0
+    TEMP_OFFSET = 0.0
+    safe_log(f"Pitot 오프셋 로드 실패, 기본값 사용: {e}", "warning".upper(), True)
 PITOT_PRESSURE = 0.0
 PITOT_TEMP = 0.0
 PITOT_AIRSPEED = 0.0
@@ -131,6 +138,17 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
         with OFFSET_MUTEX:
             PRESSURE_OFFSET = pressure_off
             TEMP_OFFSET = temp_off
+            
+            # 통합 오프셋 시스템에 저장
+            try:
+                from lib.offsets import set_offset
+                set_offset("PITOT.PRESSURE_OFFSET", PRESSURE_OFFSET)
+                set_offset("PITOT.TEMPERATURE_OFFSET", TEMP_OFFSET)
+                safe_log(f"Pitot 오프셋이 통합 시스템에 저장됨 - 압력: {PRESSURE_OFFSET}Pa, 온도: {TEMP_OFFSET}°C", "info".upper(), True)
+            except Exception as e:
+                safe_log(f"통합 오프셋 시스템 저장 실패: {e}", "warning".upper(), True)
+        
+        # 기존 호환성을 위해 prevstate도 업데이트
         prevstate.update_pitotcal(PRESSURE_OFFSET, TEMP_OFFSET)
         safe_log(f"Pitot offset set to pressure={PRESSURE_OFFSET}, temp={TEMP_OFFSET}", "info".upper(), True)
         return

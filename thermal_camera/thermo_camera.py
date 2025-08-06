@@ -67,9 +67,19 @@ def _ascii_pixel(val: float) -> str:
 def read_cam(sensor, ascii: bool = False):
     """Thermal Camera 센서 데이터 읽기 (MLX90640)"""
     try:
-        # 24x32 픽셀 데이터 읽기
-        frame = [0] * 768  # 24x32 = 768 pixels
-        sensor.getFrame(frame)
+        # 24x32 픽셀 데이터 읽기 (재시도 로직 추가)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                frame = [0] * 768  # 24x32 = 768 pixels
+                sensor.getFrame(frame)
+                break  # 성공하면 루프 탈출
+            except Exception as retry_error:
+                if attempt < max_retries - 1:
+                    time.sleep(0.1)  # 잠시 대기 후 재시도
+                    continue
+                else:
+                    raise retry_error  # 마지막 시도에서도 실패하면 예외 발생
         
         # 온도 계산 (섭씨로 변환 후 +273.15 오프셋 추가)
         temps = [temp - 273.15 + 273.15 for temp in frame]  # 섭씨로 변환 후 +273.15 오프셋 (실제로는 원본 켈빈 값)

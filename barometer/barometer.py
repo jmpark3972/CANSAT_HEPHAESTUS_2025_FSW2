@@ -4,13 +4,26 @@
 import time
 import os
 from datetime import datetime
+from calibrate_barometer import test_load_offset2
 
+OFFSET_FILE = './sensorlogs/altitude_offset.txt'
 log_dir = './sensorlogs'
 if not os.path.exists(log_dir): 
     os.makedirs(log_dir)
 
 ## Create sensor log file
 barometerlogfile = open(os.path.join(log_dir, 'barometer.txt'), 'a')
+
+def save_offset(offset):
+    with open(OFFSET_FILE, 'w') as f:
+        f.write(f"{offset:.2f}")
+
+def load_offset():
+    try:
+        with open(OFFSET_FILE, 'r') as f:
+            return float(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return None 
 
 def log_barometer(text):
 
@@ -60,17 +73,30 @@ def init_barometer():
 # Read Barometer data and returns tuple (pressure, temperature, altitude)
 def read_barometer(bmp, offset:float):
     global altitude_altZero
-    
+    offset2 = load_offset()
+    if offset2 is None:
+        offset2 = 0.0
+
     # 마지막 유효 데이터 저장
     if not hasattr(read_barometer, "last_valid_data"):
         read_barometer.last_valid_data = (1013.25, 25.0, 0.0)  # 기본값
         read_barometer.error_count = 0
     
     try:
-        # 센서 데이터 읽기
-        pressure = bmp.pressure
-        temperature = bmp.temperature
-        altitude = bmp.altitude
+        # 센서 데이터 읽기 (재시도 로직 추가)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                pressure = bmp.pressure
+                temperature = bmp.temperature
+                altitude = bmp.altitude
+                break  # 성공하면 루프 탈출
+            except Exception as retry_error:
+                if attempt < max_retries - 1:
+                    time.sleep(0.1)  # 잠시 대기 후 재시도
+                    continue
+                else:
+                    raise retry_error  # 마지막 시도에서도 실패하면 예외 발생
 
         # 데이터 유효성 검사
         if pressure is None or temperature is None or altitude is None:
@@ -103,7 +129,7 @@ def read_barometer(bmp, offset:float):
             raise Exception(f"고도 범위 오류: {altitude} m")
 
         # Apply offset
-        altitude = round(altitude - offset, 2)
+        altitude = round(altitude - offset - offset2, 2)
 
         # 유효한 데이터인 경우 마지막 유효 데이터 업데이트
         read_barometer.last_valid_data = (pressure, temperature, altitude)

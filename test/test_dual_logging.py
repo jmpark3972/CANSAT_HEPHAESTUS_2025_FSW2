@@ -52,6 +52,30 @@ def test_dual_logging_system():
         "/mnt/log_sd/thermal_videos"
     ]
     
+    # 권한 문제 해결 시도
+    print("   🔧 권한 문제 해결 시도 중...")
+    try:
+        import subprocess
+        import getpass
+        
+        current_user = getpass.getuser()
+        result = subprocess.run(
+            ['sudo', 'chown', '-R', f'{current_user}:{current_user}', '/mnt/log_sd'],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        
+        if result.returncode == 0:
+            print("   ✅ 권한 수정 완료")
+        else:
+            print(f"   ⚠️ 권한 수정 실패: {result.stderr}")
+            print("   💡 수동으로 다음 명령을 실행해주세요:")
+            print("      sudo chown -R SpaceY:SpaceY /mnt/log_sd")
+            print("      sudo chmod -R 755 /mnt/log_sd")
+    except Exception as e:
+        print(f"   ⚠️ 권한 수정 시도 실패: {e}")
+    
     for directory in directories:
         if os.path.exists(directory):
             print(f"✅ {directory}")
@@ -60,6 +84,9 @@ def test_dual_logging_system():
             try:
                 os.makedirs(directory, exist_ok=True)
                 print(f"   📁 생성됨: {directory}")
+            except PermissionError:
+                print(f"   ❌ 권한 오류로 생성 실패: {directory}")
+                print("      sudo chown -R SpaceY:SpaceY /mnt/log_sd 명령을 실행해주세요")
             except Exception as e:
                 print(f"   ❌ 생성 실패: {e}")
     
