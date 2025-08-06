@@ -625,7 +625,14 @@ def send_tlm(serial_instance):
                      f"Motor : Status({tlm_data.motor_status}) \n"
                      #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
-            safe_log(tlm_debug_text, "debug".upper(), True)
+            # DEBUG 레벨로 로그 파일에 저장 (상세 정보)
+            safe_log(tlm_debug_text, "DEBUG", False)
+            
+            # INFO 레벨로 콘솔에 출력 (사용자에게 표시)
+            safe_log(f"Telemetry Debug Info - ID: {tlm_data.team_id}, Time: {tlm_data.mission_time}, Mode: {tlm_data.mode}, State: {tlm_data.state}", "INFO", True)
+            
+            # 상세 정보를 별도 파일에 저장
+            emergency_log_to_file("DEBUG", tlm_debug_text)
 
             # Only send telemetry when telemetry is enabled
             if TELEMETRY_ENABLE:

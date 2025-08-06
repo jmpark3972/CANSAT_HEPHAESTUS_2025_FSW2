@@ -155,12 +155,41 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     try:
         while HKAPP_RUNSTATUS:
-            try:
                 # Receive Message From Pipe with timeout
                 # Non-blocking receive with timeout
                 if Main_Pipe.poll(0.1):  # 0.1초 타임아웃으로 더 빠른 반응
                     try:
                         message = Main_Pipe.recv()
+                        
+                        # 메시지 언패킹
+                        try:
+                            if isinstance(message, bytes):
+                                # 바이트 메시지를 문자열로 디코드
+                                message_str = message.decode('utf-8')
+                            elif isinstance(message, str):
+                                message_str = message
+                            else:
+                                safe_log(f"Unknown message type: {type(message)}", "warning".upper(), True)
+                                continue
+                            
+                            # 메시지 언패킹
+                            recv_msg = msgstructure.MsgStructure()
+                            if not msgstructure.unpack_msg(recv_msg, message_str):
+                                safe_log("Failed to unpack message", "warning".upper(), True)
+                                continue
+                                
+                            # Validate Message, Skip this message if target AppID different from hkapp's AppID
+                            # Exception when the message is from main app
+                            if recv_msg.receiver_app == appargs.HkAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
+                                # Handle Command According to Message ID
+                                command_handler(recv_msg)
+                            else:
+                                safe_log("Receiver MID does not match with hkapp MID", "error".upper(), True)
+                                
+                        except Exception as e:
+                            safe_log(f"Message unpacking error: {e}", "warning".upper(), True)
+                            continue
+                            
                     except (EOFError, BrokenPipeError, ConnectionResetError) as e:
                         safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
                         # 연결이 끊어져도 로깅은 계속
@@ -175,35 +204,6 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                     # 타임아웃 시 루프 계속 (더 짧은 간격)
                     time.sleep(0.01)
                     continue
-                
-                # 메시지 언패킹
-                try:
-                    if isinstance(message, bytes):
-                        # 바이트 메시지를 문자열로 디코드
-                        message_str = message.decode('utf-8')
-                    elif isinstance(message, str):
-                        message_str = message
-                    else:
-                        safe_log(f"Unknown message type: {type(message)}", "warning".upper(), True)
-                        continue
-                    
-                    # 메시지 언패킹
-                    recv_msg = msgstructure.MsgStructure()
-                    if not msgstructure.unpack_msg(recv_msg, message_str):
-                        safe_log("Failed to unpack message", "warning".upper(), True)
-                        continue
-                        
-                except Exception as e:
-                    safe_log(f"Message unpacking error: {e}", "warning".upper(), True)
-                    continue
-            
-            # Validate Message, Skip this message if target AppID different from hkapp's AppID
-            # Exception when the message is from main app
-            if recv_msg.receiver_app == appargs.HkAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:
-                # Handle Command According to Message ID
-                command_handler(recv_msg)
-            else:
-                safe_log("Receiver MID does not match with hkapp MID", "error".upper(), True)
 
     # If error occurs, terminate app gracefully
     except (KeyboardInterrupt, SystemExit):
