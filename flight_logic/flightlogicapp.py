@@ -389,12 +389,10 @@ def update_motor_logic(Main_Queue: Queue):
     # 1. 절대적 고도 조건 (70m 이하) - 최우선
     if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
         set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
-        log_system_event("MOTOR_LOGIC", "1")  # 1 = 닫힘
         return
     
     # 2. 기본 모터 상태 (닫힘)
     set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
-    log_system_event("MOTOR_LOGIC", "1")  # 1 = 닫힘
     
     # 3. 추가 조건들 (필요시 여기에 추가)
     # 예: 시간 기반 조건, 다른 센서 조건 등
@@ -402,7 +400,6 @@ def update_motor_logic(Main_Queue: Queue):
     # 4. 온도 조건 (Thermis 온도 기준) - 35도 이상시 열림
     if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:
         set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
-        log_system_event("MOTOR_LOGIC", "0")  # 0 = 열림
 
 # ──────────────────────────────
 # 10. 카메라 제어 함수
