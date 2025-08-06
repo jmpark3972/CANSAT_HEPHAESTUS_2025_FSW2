@@ -163,103 +163,59 @@ def cleanup_queues():
         main_safe_log(f"큐 정리 실패: {e}", "WARNING", False)
 
 def load_apps():
-    """앱 로드"""
+    """앱 로드 및 프로세스 시작"""
     try:
-        # HK 앱 로드
-        try:
-            from hk.hkapp import HKApp
-            hk_app = HKApp()
-            main_safe_log("HK 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"HK 앱 로드 실패: {e}", "ERROR", True)
+        # 앱 정의 (모듈명, 클래스명, AppID)
+        apps_to_load = [
+            ("hk.hkapp", "HKApp", appargs.HkAppArg.AppID),
+            ("barometer.barometerapp", "BarometerApp", appargs.BarometerAppArg.AppID),
+            ("gps.gpsapp", "GpsApp", appargs.GpsAppArg.AppID),
+            ("imu.imuapp", "ImuApp", appargs.ImuAppArg.AppID),
+            ("flight_logic.flightlogicapp", "FlightLogicApp", appargs.FlightlogicAppArg.AppID),
+            ("comm.commapp", "CommApp", appargs.CommAppArg.AppID),
+            ("motor.motorapp", "MotorApp", appargs.MotorAppArg.AppID),
+            ("fir1.firapp1", "FirApp1", appargs.FirApp1Arg.AppID),
+            ("thermis.thermisapp", "ThermisApp", appargs.ThermisAppArg.AppID),
+            ("tmp007.tmp007app", "Tmp007App", appargs.Tmp007AppArg.AppID),
+            ("thermo.thermoapp", "ThermoApp", appargs.ThermoAppArg.AppID),
+        ]
 
-        # Barometer 앱 로드
-        try:
-            from barometer.barometerapp import BarometerApp
-            barometer_app = BarometerApp()
-            main_safe_log("Barometer 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Barometer 앱 로드 실패: {e}", "ERROR", True)
+        for module_path, class_name, app_id in apps_to_load:
+            try:
+                # 모듈 동적 임포트
+                module = __import__(module_path, fromlist=[class_name])
+                app_class = getattr(module, class_name)
+                
+                # 앱 인스턴스 생성
+                app_instance = app_class()
+                
+                # 프로세스 및 파이프 생성
+                parent_pipe, child_pipe = Pipe()
+                
+                app_elements_instance = app_elements()
+                app_elements_instance.process = Process(target=app_instance.start, args=(main_queue, child_pipe))
+                app_elements_instance.pipe = parent_pipe
+                
+                # 앱 딕셔너리에 추가
+                app_dict[app_id] = app_elements_instance
+                
+                main_safe_log(f"{class_name} 앱 로드 완료", "INFO", True)
+                
+            except Exception as e:
+                main_safe_log(f"{class_name} 앱 로드 실패: {e}", "ERROR", True)
 
-        # GPS 앱 로드
-        try:
-            from gps.gpsapp import GpsApp
-            gps_app = GpsApp()
-            main_safe_log("GPS 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"GPS 앱 로드 실패: {e}", "ERROR", True)
+        # 모든 앱 프로세스 시작
+        main_safe_log("모든 앱 프로세스 시작 중...", "INFO", True)
+        for app_id, app_elem in app_dict.items():
+            try:
+                if app_elem.process and not app_elem.process.is_alive():
+                    app_elem.process.start()
+                    main_safe_log(f"{app_id} 프로세스 시작 완료", "INFO", True)
+                    time.sleep(0.2)  # 프로세스 시작 간격
+            except Exception as e:
+                main_safe_log(f"{app_id} 프로세스 시작 실패: {e}", "ERROR", True)
 
-        # IMU 앱 로드
-        try:
-            from imu.imuapp import ImuApp
-            imu_app = ImuApp()
-            main_safe_log("IMU 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"IMU 앱 로드 실패: {e}", "ERROR", True)
-
-        # FlightLogic 앱 로드
-        try:
-            from flight_logic.flightlogicapp import FlightLogicApp
-            flight_logic_app = FlightLogicApp()
-            main_safe_log("FlightLogic 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"FlightLogic 앱 로드 실패: {e}", "ERROR", True)
-
-        # Comm 앱 로드
-        try:
-            from comm.commapp import CommApp
-            comm_app = CommApp()
-            main_safe_log("Comm 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Comm 앱 로드 실패: {e}", "ERROR", True)
-
-        # Motor 앱 로드
-        try:
-            from motor.motorapp import MotorApp
-            motor_app = MotorApp()
-            main_safe_log("Motor 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Motor 앱 로드 실패: {e}", "ERROR", True)
-
-        # FIR1 앱 로드
-        try:
-            from fir1.firapp1 import FirApp1
-            fir1_app = FirApp1()
-            main_safe_log("FIR1 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"FIR1 앱 로드 실패: {e}", "ERROR", True)
-
-        # Thermis 앱 로드
-        try:
-            from thermis.thermisapp import ThermisApp
-            thermis_app = ThermisApp()
-            main_safe_log("Thermis 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Thermis 앱 로드 실패: {e}", "ERROR", True)
-
-        # TMP007 앱 로드
-        try:
-            from tmp007.tmp007app import Tmp007App
-            tmp007_app = Tmp007App()
-            main_safe_log("TMP007 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"TMP007 앱 로드 실패: {e}", "ERROR", True)
-
-        # Thermal Camera 앱 로드 (cv2 모듈 없음으로 인해 비활성화)
-        # try:
-        #     from thermal_camera.thermo_cameraapp import ThermalCameraApp
-        #     thermal_camera_app = ThermalCameraApp()
-        #     main_safe_log("Thermal Camera 앱 로드 완료", "INFO", True)
-        # except Exception as e:
-        #     main_safe_log(f"Thermal Camera 앱 로드 실패: {e}", "ERROR", True)
-
-        # Thermo 앱 로드
-        try:
-            from thermo.thermoapp import ThermoApp
-            thermo_app = ThermoApp()
-            main_safe_log("Thermo 앱 로드 완료", "INFO", True)
-        except Exception as e:
-            main_safe_log(f"Thermo 앱 로드 실패: {e}", "ERROR", True)
+        main_safe_log("모든 앱 로드 및 프로세스 시작 완료", "INFO", True)
 
     except Exception as e:
         main_safe_log(f"앱 로드 중 오류: {e}", "ERROR", True)
