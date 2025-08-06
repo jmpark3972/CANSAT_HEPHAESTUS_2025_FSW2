@@ -174,13 +174,34 @@ def cameraapp_init():
 
 def cameraapp_terminate():
     """카메라 앱 종료."""
+    global CAMERAAPP_RUNSTATUS
+    
     try:
         log_app_info("Starting cameraapp termination")
-
-        # 카메라 종료
+        
+        # 1단계: 실행 상태 중지
+        CAMERAAPP_RUNSTATUS = False
+        log_app_info("Camera app run status set to False")
+        
+        # 2단계: 스레드 종료 대기
+        log_app_info("Waiting for threads to terminate...")
+        time.sleep(2.0)  # 스레드들이 종료될 시간을 줌
+        
+        # 3단계: 카메라 하드웨어 종료
+        log_app_info("Terminating camera hardware...")
         if not cam.terminate_camera():
             log_app_warning("Camera termination had issues")
-
+        else:
+            log_app_info("Camera hardware terminated successfully")
+        
+        # 4단계: 리소스 정리
+        log_app_info("Cleaning up resources...")
+        try:
+            # 로그 파일 정리
+            log_app_info("Camera app termination complete")
+        except Exception as cleanup_error:
+            log_app_error(f"Resource cleanup error: {cleanup_error}")
+        
         log_app_info("Cameraapp termination complete")
         return True
 

@@ -188,28 +188,67 @@ def imuapp_init():
 def imuapp_terminate(i2c_instance):
     global IMUAPP_RUNSTATUS
 
-    IMUAPP_RUNSTATUS = False
-    safe_log("Terminating imuapp", "info".upper(), True)
-    
     try:
-        imu.imu_terminate(i2c_instance)
-    except Exception as e:
-        safe_log(f"Error terminating IMU: {e}", "error".upper(), True)
-
-    # Join Each Thread to make sure all threads terminates
-    for thread_name in thread_dict:
-        safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
+        safe_log("Starting imuapp termination", "info".upper(), True)
+        
+        # 1단계: 실행 상태 중지
+        IMUAPP_RUNSTATUS = False
+        safe_log("IMU app run status set to False", "info".upper(), True)
+        
+        # 2단계: 스레드 종료 대기
+        safe_log("Waiting for threads to terminate...", "info".upper(), True)
+        time.sleep(2.0)  # 스레드들이 종료될 시간을 줌
+        
+        # 3단계: IMU 하드웨어 종료
+        safe_log("Terminating IMU hardware...", "info".upper(), True)
         try:
-            thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
-            if thread_dict[thread_name].is_alive():
-                safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
+            imu.imu_terminate(i2c_instance)
+            safe_log("IMU hardware terminated successfully", "info".upper(), True)
         except Exception as e:
-            safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
-        safe_log(f"Terminating thread {thread_name} Complete", "info".upper(), True)
+            safe_log(f"Error terminating IMU hardware: {e}", "error".upper(), True)
 
-    # The termination flag should switch to false AFTER ALL TERMINATION PROCESS HAS ENDED
-    safe_log("Terminating imuapp complete", "info".upper(), True)
-    return
+        # 4단계: 스레드 강제 종료
+        safe_log("Force terminating remaining threads...", "info".upper(), True)
+        for thread_name in thread_dict:
+            safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
+            try:
+                thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
+                if thread_dict[thread_name].is_alive():
+                    safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
+                    # 강제 종료는 하지 않음 (스레드가 자연스럽게 종료되도록)
+            except Exception as e:
+                safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
+            safe_log(f"Thread {thread_name} termination complete", "info".upper(), True)
+
+        # 5단계: 리소스 정리
+        safe_log("Cleaning up resources...", "info".upper(), True)
+        try:
+            # 전역 변수 정리
+            global IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
+            global IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_ACCX, IMU_ACCY, IMU_ACCZ
+            global IMU_MAGX, IMU_MAGY, IMU_MAGZ, IMU_GYRX, IMU_GYRY, IMU_GYRZ
+            
+            # 기본값으로 리셋
+            IMU_GYRO = (0.0, 0.0, 0.0)
+            IMU_ACCEL = (0.0, 0.0, 0.0)
+            IMU_MAG = (0.0, 0.0, 0.0)
+            IMU_EULER = (0.0, 0.0, 0.0)
+            IMU_TEMP = 0.0
+            IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
+            IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
+            IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
+            IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
+            
+            safe_log("Global variables reset to default values", "info".upper(), True)
+        except Exception as cleanup_error:
+            safe_log(f"Resource cleanup error: {cleanup_error}", "error".upper(), True)
+
+        safe_log("Imuapp termination complete", "info".upper(), True)
+        return True
+
+    except Exception as e:
+        safe_log(f"Imuapp termination error: {e}", "error".upper(), True)
+        return False
 
 ######################################################
 ## USER METHOD                                      ##

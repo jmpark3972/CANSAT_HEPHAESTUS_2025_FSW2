@@ -137,31 +137,78 @@ def signal_handler(signum, frame):
     _termination_in_progress = True
     MAINAPP_RUNSTATUS = False
     
-    try:
-        for appID in app_dict:
-            if app_dict[appID].process and app_dict[appID].process.is_alive():
-                print(f"강제 종료: {appID}")
-                try:
-                    app_dict[appID].process.terminate()
-                    app_dict[appID].process.join(timeout=0.5)
+    # 종료 메시지 생성
+    termination_message = msgstructure.MsgStructure()
+    msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
+    termination_message_to_send = msgstructure.pack_msg(termination_message)
+    
+    # 1단계: 정상 종료 메시지 전송
+    print("1단계: 정상 종료 메시지 전송 중...")
+    for appID in app_dict:
+        if app_dict[appID].process and app_dict[appID].process.is_alive():
+            try:
+                app_dict[appID].pipe.send(termination_message_to_send)
+                print(f"  - {appID}: 종료 메시지 전송 완료")
+            except Exception as e:
+                print(f"  - {appID}: 종료 메시지 전송 실패: {e}")
+    
+    # 2단계: 프로세스 종료 대기 (3초)
+    print("2단계: 프로세스 정상 종료 대기 중... (3초)")
+    time.sleep(3.0)
+    
+    # 3단계: 강제 종료
+    print("3단계: 강제 종료 실행...")
+    for appID in app_dict:
+        if app_dict[appID].process and app_dict[appID].process.is_alive():
+            print(f"  - {appID}: 강제 종료 실행")
+            try:
+                # 먼저 terminate 시도
+                app_dict[appID].process.terminate()
+                app_dict[appID].process.join(timeout=1.0)
+                
+                # 여전히 살아있으면 kill
+                if app_dict[appID].process.is_alive():
+                    print(f"    {appID}: kill 실행")
+                    app_dict[appID].process.kill()
+                    app_dict[appID].process.join(timeout=1.0)
+                    
+                    # 최후의 수단으로 강제 종료
                     if app_dict[appID].process.is_alive():
-                        app_dict[appID].process.kill()
-                        app_dict[appID].process.join(timeout=0.5)
-                except Exception as e:
-                    safe_log(f"시그널 핸들러에서 프로세스 종료 오류: {e}", "ERROR", True)
-                    try:
-                        app_dict[appID].process.kill()
-                    except Exception as kill_error:
-                        safe_log(f"시그널 핸들러에서 강제 종료 오류: {kill_error}", "ERROR", True)
-    except Exception as e:
-        safe_log(f"시그널 핸들러에서 전체 프로세스 정리 오류: {e}", "ERROR", True)
+                        print(f"    {appID}: 최후 강제 종료")
+                        try:
+                            import psutil
+                            parent = psutil.Process(app_dict[appID].process.pid)
+                            for child in parent.children(recursive=True):
+                                child.kill()
+                            parent.kill()
+                        except:
+                            pass
+            except Exception as e:
+                print(f"    {appID}: 종료 오류: {e}")
     
+    # 4단계: 시스템 정리
+    print("4단계: 시스템 정리 중...")
     try:
-        pass
+        # 리소스 모니터링 중지
+        resource_manager.stop_resource_monitoring()
+        print("  - 리소스 모니터링 중지 완료")
+        
+        # 로깅 시스템 정리
+        logging.close_dual_logging_system()
+        print("  - 로깅 시스템 정리 완료")
+        
+        # 큐 정리
+        try:
+            while not main_queue.empty():
+                main_queue.get_nowait()
+        except:
+            pass
+        print("  - 메시지 큐 정리 완료")
+        
     except Exception as e:
-        print(f"자식 프로세스 정리 오류: {e}")
+        print(f"  - 시스템 정리 오류: {e}")
     
-    print("강제 종료 실행 중...")
+    print("강제 종료 완료. 프로그램을 종료합니다.")
     os._exit(0)
 
 # Setup signal handlers

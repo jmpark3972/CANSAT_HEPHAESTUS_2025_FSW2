@@ -84,12 +84,15 @@ def send_gps_data(Main_Queue : Queue):
             # GPS_TIME이 None이거나 문자열이 아닌 경우 안전하게 처리
             gps_time_str = str(GPS_TIME) if GPS_TIME is not None else "00:00:00"
             
+            # GPS 데이터 문자열 생성 (GPS_TIME은 이미 문자열이므로 별도 처리)
+            gps_tlm_data = f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{GPS_SATS}"
+            
             status = msgstructure.send_msg(Main_Queue, 
                                         GpsDataToTlmMsg,
                                         appargs.GpsAppArg.AppID,
                                         appargs.CommAppArg.AppID,
                                         appargs.GpsAppArg.MID_SendGpsTlmData,
-                                        f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{GPS_SATS}")
+                                        gps_tlm_data)
             if status == False:
                 safe_log("Error When sending GPS Telemetry Message", "error".upper(), True)
             
@@ -100,7 +103,7 @@ def send_gps_data(Main_Queue : Queue):
                                             appargs.GpsAppArg.AppID,
                                             appargs.FlightlogicAppArg.AppID,
                                             appargs.GpsAppArg.MID_SendGpsFlightLogicData,
-                                            f"{GPS_LAT:.6f},{GPS_LON:.6f},{GPS_ALT:.2f},{gps_time_str},{GPS_SATS}")
+                                            gps_tlm_data)
                 if status == False:
                     safe_log("Error When sending GPS FlightLogic Message", "error".upper(), True)
             
