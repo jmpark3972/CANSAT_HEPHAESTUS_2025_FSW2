@@ -353,6 +353,18 @@ def get_performance_metrics() -> Dict[str, Any]:
     """성능 메트릭 가져오기 (편의 함수)"""
     return get_performance_optimizer().get_performance_metrics()
 
+def start_performance_optimization():
+    """성능 최적화 시작 (편의 함수)"""
+    optimizer = get_performance_optimizer()
+    optimizer.start_profiling()
+    safe_log("성능 최적화 시작됨")
+
+def stop_performance_optimization():
+    """성능 최적화 중지 (편의 함수)"""
+    optimizer = get_performance_optimizer()
+    optimizer.stop_profiling()
+    safe_log("성능 최적화 중지됨")
+
 # 성능 최적화 유틸리티 함수들
 @lru_cache(maxsize=128)
 def cached_calculation(value: float) -> float:
