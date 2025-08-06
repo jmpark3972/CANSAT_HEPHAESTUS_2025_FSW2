@@ -82,7 +82,23 @@
 **Files Modified**:
 - `thermal_camera/thermo_cameraapp.py` - Added None value handling for thermal data formatting
 
-### 7. Camera Hardware Detection Issue
+### 7. Motor Status Display Improvement
+**Problem**: Motor open/close status was displayed as long text messages, reducing readability
+
+**Root Cause**: FlightLogic was logging detailed motor status messages instead of simple numeric indicators.
+
+**Fix Applied**:
+- Changed motor status logging to simple numeric format: 0 (open) / 1 (closed)
+- Added motor status transmission to Comm app for telemetry inclusion
+- Removed "Invalid float value" warning messages from Comm app
+- Added motor status field to telemetry data structure
+
+**Files Modified**:
+- `flight_logic/flightlogicapp.py` - Simplified motor status logging, added status transmission
+- `comm/commapp.py` - Removed warning messages, added motor status to telemetry
+- `lib/appargs.py` - Added MID_SendMotorStatus message ID
+
+### 8. Camera Hardware Detection Issue
 **Problem**: Camera app was failing with "카메라 하드웨어 감지되지 않음" error
 
 **Root Cause**: Camera hardware detection was too strict and would fail the entire camera initialization.

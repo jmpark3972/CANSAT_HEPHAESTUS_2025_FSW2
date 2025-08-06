@@ -188,7 +188,7 @@ def safe_float(value, default=0.0):
     try:
         return float(value)
     except (ValueError, TypeError):
-        safe_log(f"Invalid float value: {value}, using default: {default}", "warning".upper(), True)
+        # 경고 메시지 제거 - 조용히 기본값 반환
         return default
 
 def command_handler (recv_msg : msgstructure.MsgStructure):
@@ -320,6 +320,13 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         if len(sep_data) == 2:
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
+
+    # 모터 상태 수신
+    elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
+        try:
+            tlm_data.motor_status = int(recv_msg.data)
+        except (ValueError, TypeError):
+            tlm_data.motor_status = 1  # 기본값: 닫힘
 
     else:
         safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
@@ -463,6 +470,7 @@ class _tlm_data_format:
     tmp007_die_temp: float = 0.0
     tmp007_voltage: float = 0.0
     imu_temperature: float = 0.0
+    motor_status: int = 1  # 0=열림, 1=닫힘
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -526,7 +534,8 @@ def send_tlm(serial_instance):
                         f"{tlm_data.tmp007_object_temp:.2f}",
                         f"{tlm_data.tmp007_die_temp:.2f}",
                         f"{tlm_data.tmp007_voltage:.2f}",
-                        f"{tlm_data.imu_temperature:.2f}"])+"\n"
+                        f"{tlm_data.imu_temperature:.2f}",
+                        str(tlm_data.motor_status)])+"\n"
 
             tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
                     f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
@@ -542,7 +551,8 @@ def send_tlm(serial_instance):
                      f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
                      f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
                      f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
-                     f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n"
+                     f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
+                     f"Motor : Status({tlm_data.motor_status})"
                      #f"Rotation Rate : {tlm_data.rot_rate}\n"
 
             safe_log(tlm_debug_text, "debug".upper(), True)

@@ -50,6 +50,7 @@ class FlightlogicAppArg:
     MID_SendCameraActivateToCam:  types.MID = 1408
     MID_RocketMotorActivate:      types.MID = 1409
     MID_RocketMotorStandby:       types.MID = 1410
+    MID_SendMotorStatus:          types.MID = 1411  # 모터 상태를 Comm 앱으로 전송
 
     # <NEW/> Motor 각도 지시 (Flightlogic → MotorApp)
     MID_SetServoAngle = 1402

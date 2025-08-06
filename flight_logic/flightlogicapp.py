@@ -357,6 +357,30 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
     
     log_system_event("MOTOR_CMD", f"Motor pulse cmd → {pulse} ({state})")
     safe_log(f"Motor pulse cmd → {pulse} ({state})", "INFO", True)
+    
+    # 모터 상태를 Comm 앱으로 전송
+    send_motor_status_to_comm(Main_Queue, pulse)
+
+def send_motor_status_to_comm(Main_Queue: Queue, pulse: int):
+    """모터 상태를 Comm 앱으로 전송"""
+    try:
+        # 펄스값을 0(열림)/1(닫힘)으로 변환
+        motor_status = 0 if pulse == MOTOR_OPEN_PULSE else 1
+        
+        msg = msgstructure.MsgStructure()
+        success = msgstructure.send_msg(Main_Queue, msg,
+                          appargs.FlightlogicAppArg.AppID,
+                          appargs.CommAppArg.AppID,
+                          appargs.FlightlogicAppArg.MID_SendMotorStatus,
+                          str(motor_status))
+        
+        if success:
+            log_system_event("MOTOR_STATUS", f"Motor status {motor_status} sent to Comm")
+        else:
+            log_error("Failed to send motor status to Comm", "send_motor_status_to_comm")
+            
+    except Exception as e:
+        log_error(f"Error sending motor status to Comm: {e}", "send_motor_status_to_comm")
 
 def update_motor_logic(Main_Queue: Queue):
     """온도/고도 조건에 따라 모터 제어"""
@@ -365,12 +389,12 @@ def update_motor_logic(Main_Queue: Queue):
     # 1. 절대적 고도 조건 (70m 이하) - 최우선
     if len(recent_alt) >= RECENT_ALT_CHECK_LEN and all(alt <= MOTOR_CLOSE_ALT_THRESHOLD for alt in recent_alt[-RECENT_ALT_CHECK_LEN:]):
         set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
-        log_system_event("MOTOR_LOGIC", f"Motor closed due to altitude <= {MOTOR_CLOSE_ALT_THRESHOLD}m")
+        log_system_event("MOTOR_LOGIC", "1")  # 1 = 닫힘
         return
     
     # 2. 기본 모터 상태 (닫힘)
     set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
-    log_system_event("MOTOR_LOGIC", "Motor closed (default state)")
+    log_system_event("MOTOR_LOGIC", "1")  # 1 = 닫힘
     
     # 3. 추가 조건들 (필요시 여기에 추가)
     # 예: 시간 기반 조건, 다른 센서 조건 등
@@ -378,7 +402,7 @@ def update_motor_logic(Main_Queue: Queue):
     # 4. 온도 조건 (Thermis 온도 기준) - 35도 이상시 열림
     if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:
         set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
-        log_system_event("MOTOR_LOGIC", f"Motor opened due to Thermis temp >= {THERMIS_TEMP_THRESHOLD}°C")
+        log_system_event("MOTOR_LOGIC", "0")  # 0 = 열림
 
 # ──────────────────────────────
 # 10. 카메라 제어 함수
