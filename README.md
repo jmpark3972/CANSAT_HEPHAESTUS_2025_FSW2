@@ -1,4 +1,4 @@
-FLIGHT SOFTWARE FOR CANSAT AAS 2025
+FLIGHT SOFTWARE FOR CANSAT HEPHAESTUS 2025
 
 To make a new app, copy from sample app and replace 'sample' to app name (case sensitive)
 
@@ -8,7 +8,7 @@ To make a new app, copy from sample app and replace 'sample' to app name (case s
 Please clone this FSW in /home/pi for smooth automatic initialization! Set the raspberry pi name as pi!
 
     cd /home/pi
-    git clone git@github.com:SPACE-Yonsei/CANSAT_AAS_2025_FSW.git
+    git clone git@github.com:HEPHAESTUS/CANSAT_HEPHAESTUS_2025_FSW.git
 
 ## 1. Install Adafruit Blinka
 Before installing Adafruit modules, follow the steps provided in the link below to install adafruit-blinka

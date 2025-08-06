@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-I2C Bus Manager for CANSAT FSW
+I2C Bus Manager for CANSAT HEPHAESTUS 2025 FSW2
 I2C 버스 안정성 및 재시작 메커니즘 제공
 """
 

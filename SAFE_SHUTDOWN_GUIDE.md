@@ -157,4 +157,5 @@ def monitor_process_health():
 
 **개선일**: 2025-08-06  
 **버전**: 2.0  
+**팀**: HEPHAESTUS  
 **담당자**: AI Assistant 

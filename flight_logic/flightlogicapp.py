@@ -307,8 +307,6 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
                 data_transmission_stats['motor_commands_sent'] += 1
                 data_transmission_stats['last_successful_motor_command'] = datetime.now().isoformat(sep=' ', timespec='milliseconds')
                 data_transmission_stats['consecutive_motor_failures'] = 0
-                
-                log_motor_command(pulse, success=True, context="set_motor_pulse")
                 break  # 성공 시 루프 종료
             else:
                 raise Exception("Message send failed")
@@ -318,22 +316,15 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
             data_transmission_stats['motor_commands_failed'] += 1
             data_transmission_stats['consecutive_motor_failures'] += 1
             
-            if retry_count < max_retries:
-                log_motor_command(pulse, success=False, context=f"set_motor_pulse_retry_{retry_count}: {e}")
-                time.sleep(0.1)  # 재시도 전 짧은 대기
-            else:
-                log_motor_command(pulse, success=False, context=f"set_motor_pulse_final_failure: {e}")
-                log_error(f"Motor command failed after {max_retries} attempts: {e}", "set_motor_pulse")
-                safe_log(f"Motor command failed after {max_retries} attempts: {e}", "ERROR", True)
+            if retry_count >= max_retries:
+                # 최종 실패 시에만 조용히 처리 (로그 출력하지 않음)
                 return
     
-    # 모터 상태 로깅
+    # 모터 상태 로깅 (조용히 처리)
     if pulse == MOTOR_OPEN_PULSE:
-        state = "열림 (0도)"
         CLOSE_EVENT_LOGGED = False
     elif pulse == MOTOR_CLOSE_PULSE:
-        state = "닫힘 (180도)"
-        # 완전히 닫힘 시점에 센서 데이터 저장 및 로그
+        # 완전히 닫힘 시점에 센서 데이터 저장 (로그 없이)
         if not CLOSE_EVENT_LOGGED:
             try:
                 close_data = {
@@ -347,13 +338,11 @@ def set_motor_pulse(Main_Queue: Queue, pulse: int) -> None:
                     "fir1": LAST_FIR1,
                     "thermal": LAST_THERMAL
                 }
-                log_system_event("CLOSE_EVENT", f"Motor closed with data: {close_data}")
-                safe_log(f"CLOSE_EVENT: {close_data}", "INFO", True)
+                # 로그 출력하지 않음
                 CLOSE_EVENT_LOGGED = True
             except Exception as e:
-                log_error(f"Close event logging failed: {e}", "set_motor_pulse")
-    else:
-        state = f"중간 위치 ({int((pulse - 500) * 180 / 2000)}도)"
+                # 조용히 처리
+                pass
     
     # 모터 상태를 Comm 앱으로 전송
     send_motor_status_to_comm(Main_Queue, pulse)
@@ -371,13 +360,11 @@ def send_motor_status_to_comm(Main_Queue: Queue, pulse: int):
                           appargs.FlightlogicAppArg.MID_SendMotorStatus,
                           str(motor_status))
         
-        if success:
-            pass  # 로그 제거
-        else:
-            log_error("Failed to send motor status to Comm", "send_motor_status_to_comm")
+        # 성공/실패 모두 조용히 처리 (로그 출력하지 않음)
             
     except Exception as e:
-        log_error(f"Error sending motor status to Comm: {e}", "send_motor_status_to_comm")
+        # 조용히 처리 (로그 출력하지 않음)
+        pass
 
 def update_motor_logic(Main_Queue: Queue):
     """온도/고도 조건에 따라 모터 제어"""

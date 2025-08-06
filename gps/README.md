@@ -1,6 +1,6 @@
 # GPS 모듈 가이드
 
-이 폴더는 CANSAT FSW의 GPS (Global Positioning System) 기능을 담당하는 모듈들을 포함합니다.
+이 폴더는 CANSAT HEPHAESTUS 2025 FSW2의 GPS (Global Positioning System) 기능을 담당하는 모듈들을 포함합니다.
 
 ## 📁 **파일 구조**
 
