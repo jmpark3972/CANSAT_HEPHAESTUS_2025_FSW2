@@ -304,6 +304,23 @@ TEAM_IDS = get_config("TEAM_IDS", {
     "NONE": "SpaceY"
 })
 
+# FSW 설정 상수들 (기존 호환성)
+CONF_NONE = 0
+CONF_PAYLOAD = 1
+CONF_CONTAINER = 2
+CONF_ROCKET = 3
+
+# FSW_CONF 매핑
+FSW_CONF_MAPPING = {
+    "NONE": CONF_NONE,
+    "PAYLOAD": CONF_PAYLOAD,
+    "CONTAINER": CONF_CONTAINER,
+    "ROCKET": CONF_ROCKET
+}
+
+# 현재 FSW 설정
+FSW_CONF = FSW_CONF_MAPPING.get(FSW_MODE, CONF_PAYLOAD)
+
 def get_team_id(mode: str = None) -> str:
     """팀 ID 가져오기 (기존 호환성)"""
     if mode is None:

@@ -30,9 +30,9 @@ _status_thread: Optional[threading.Thread] = None
 _termination_requested: bool = False
 
 # 설정
-VIDEO_DIR = "/home/pi/cansat_videos"
-TEMP_DIR = "/tmp/cansat_camera"
-LOG_DIR = "/home/pi/cansat_logs"
+VIDEO_DIR = "logs/cansat_videos"
+TEMP_DIR = "logs/cansat_camera_temp"
+LOG_DIR = "logs/cansat_camera_logs"
 VIDEO_DURATION = 5  # 5초 단위로 녹화
 FFMPEG_TIMEOUT = 30  # FFmpeg 타임아웃 (초)
 

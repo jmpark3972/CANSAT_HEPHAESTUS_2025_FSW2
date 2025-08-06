@@ -19,7 +19,7 @@ VIDEO_QUALITY = "23"  # h264 품질 (낮을수록 좋은 품질, 18-28 권장)
 # ──────────────────────────────
 # 저장 경로
 # ──────────────────────────────
-VIDEO_DIR = "/home/pi/cansat_videos"  # 최종 비디오 저장 경로
+VIDEO_DIR = "logs/cansat_videos"  # 최종 비디오 저장 경로
 TEMP_DIR = "/tmp/camera_temp"  # 임시 파일 경로
 
 # ──────────────────────────────
