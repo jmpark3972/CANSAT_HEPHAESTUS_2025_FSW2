@@ -71,8 +71,8 @@ def read_cam(sensor, ascii: bool = False):
         frame = [0] * 768  # 24x32 = 768 pixels
         sensor.getFrame(frame)
         
-        # 온도 계산 (섭씨로 변환)
-        temps = [temp - 273.15 for temp in frame]  # 켈빈을 섭씨로 변환
+        # 온도 계산 (섭씨로 변환 후 +273.15 오프셋 추가)
+        temps = [temp - 273.15 + 273.15 for temp in frame]  # 섭씨로 변환 후 +273.15 오프셋 (실제로는 원본 켈빈 값)
         min_temp = min(temps)
         max_temp = max(temps)
         avg_temp = sum(temps) / len(temps)
