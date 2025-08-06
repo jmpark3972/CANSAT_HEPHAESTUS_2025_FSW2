@@ -296,7 +296,11 @@ def runloop(Main_Queue : Queue):
             
             # 메시지 언패킹
             try:
-                unpacked_msg = msgstructure.unpack_msg(recv_msg)
+                unpacked_msg = msgstructure.MsgStructure()
+                if not msgstructure.unpack_msg(unpacked_msg, recv_msg.decode('utf-8')):
+                    main_safe_log(f"메시지 언패킹 실패: 잘못된 메시지 형식", "WARNING", True)
+                    main_safe_log(f"메시지 내용: {recv_msg[:100]}...", "DEBUG", True)
+                    continue
             except Exception as e:
                 main_safe_log(f"메시지 언패킹 실패: {e}", "WARNING", True)
                 main_safe_log(f"메시지 내용: {recv_msg[:100]}...", "DEBUG", True)
