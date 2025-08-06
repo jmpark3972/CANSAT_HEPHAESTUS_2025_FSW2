@@ -155,26 +155,47 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     try:
         while HKAPP_RUNSTATUS:
-            # Receive Message From Pipe with timeout
-            # Non-blocking receive with timeout
-            if Main_Pipe.poll(1.0):  # 1초 타임아웃
-                try:
-                    message = Main_Pipe.recv()
-                except (EOFError, BrokenPipeError, ConnectionResetError) as e:
-                    safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
-                    # 연결이 끊어져도 로깅은 계속
-                    time.sleep(1)
+            try:
+                # Receive Message From Pipe with timeout
+                # Non-blocking receive with timeout
+                if Main_Pipe.poll(0.1):  # 0.1초 타임아웃으로 더 빠른 반응
+                    try:
+                        message = Main_Pipe.recv()
+                    except (EOFError, BrokenPipeError, ConnectionResetError) as e:
+                        safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
+                        # 연결이 끊어져도 로깅은 계속
+                        time.sleep(0.1)
+                        continue
+                    except Exception as e:
+                        safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
+                        # 에러 시 루프 계속
+                        time.sleep(0.1)
+                        continue
+                else:
+                    # 타임아웃 시 루프 계속 (더 짧은 간격)
+                    time.sleep(0.01)
                     continue
-                except Exception as e:
-                    safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
-                    # 에러 시 루프 계속
-                    time.sleep(0.5)
-                    continue
-            else:
-                # 타임아웃 시 루프 계속
-                continue
                 
-            recv_msg = message
+            # 메시지 언패킹
+            try:
+                if isinstance(message, bytes):
+                    # 바이트 메시지를 문자열로 디코드
+                    message_str = message.decode('utf-8')
+                elif isinstance(message, str):
+                    message_str = message
+                else:
+                    safe_log(f"Unknown message type: {type(message)}", "warning".upper(), True)
+                    continue
+                
+                # 메시지 언패킹
+                recv_msg = msgstructure.MsgStructure()
+                if not msgstructure.unpack_msg(recv_msg, message_str):
+                    safe_log("Failed to unpack message", "warning".upper(), True)
+                    continue
+                    
+            except Exception as e:
+                safe_log(f"Message unpacking error: {e}", "warning".upper(), True)
+                continue
             
             # Validate Message, Skip this message if target AppID different from hkapp's AppID
             # Exception when the message is from main app

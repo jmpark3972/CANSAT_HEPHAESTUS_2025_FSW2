@@ -65,6 +65,13 @@ ERROR_LOG_PATH = os.path.join(LOG_DIR, "error_log.csv")
 # 강제 종료 시에도 로그를 저장하기 위한 플래그
 _emergency_logging_enabled = True
 
+# 센서 상태 추적
+_sensor_healthy = True
+_sensor_error_count = 0
+_last_sensor_error_time = 0
+_sensor_recovery_attempts = 0
+_max_sensor_recovery_attempts = 5
+
 def emergency_log_to_file(log_type: str, message: str):
     """강제 종료 시에도 파일에 로그를 저장하는 함수"""
     global _emergency_logging_enabled
@@ -99,167 +106,121 @@ def log_csv(filepath: str, headers: list, data: list):
             writer.writerow(data)
             
     except Exception as e:
+        safe_log(f"CSV 로깅 실패: {e}", "ERROR", True)
         emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
 
-######################################################
-## FUNDEMENTAL METHODS                              ##
-######################################################
-
-# SB Methods
-# Methods for sending/receiving/handling SB messages
-
-# Handles received message
 def command_handler (recv_msg : msgstructure.MsgStructure):
+    """명령 처리 함수"""
     global IMUAPP_RUNSTATUS
-
+    
     if recv_msg.MsgID == appargs.MainAppArg.MID_TerminateProcess:
-        # Change Runstatus to false to start termination process
-        safe_log(f"IMUAPP TERMINATION DETECTED", "info".upper(), True)
+        safe_log("Termination command received", "INFO", True)
         IMUAPP_RUNSTATUS = False
-
     else:
-        safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
-    return
+        safe_log(f"Unknown command: {recv_msg.MsgID}", "WARNING", True)
 
 def send_hk(Main_Queue : Queue):
-    global IMUAPP_RUNSTATUS, IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_TEMP
-    consecutive_hk_failures = 0
-    max_hk_failures = 3
+    """하우스키핑 메시지 전송"""
+    global IMUAPP_RUNSTATUS
     
     while IMUAPP_RUNSTATUS:
         try:
-            imuHK = msgstructure.MsgStructure()
-            hk_payload = f"run={IMUAPP_RUNSTATUS},roll={IMU_ROLL:.2f},pitch={IMU_PITCH:.2f},yaw={IMU_YAW:.2f},temp={IMU_TEMP:.2f}"
-            status = msgstructure.send_msg(Main_Queue, imuHK, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.ImuAppArg.MID_SendHK, hk_payload)
-            if status == False:
-                consecutive_hk_failures += 1
-                if consecutive_hk_failures <= max_hk_failures:
-                    safe_log("Error sending HK message", "error".upper(), True)
-                elif consecutive_hk_failures == max_hk_failures + 1:
-                    safe_log(f"HK send errors suppressed after {max_hk_failures} failures", "warning".upper(), True)
-            else:
-                consecutive_hk_failures = 0
-                
-                # HK 데이터 로깅
-                timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-                hk_row = [timestamp, IMUAPP_RUNSTATUS, IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_TEMP]
-                log_csv(HK_LOG_PATH, ["timestamp", "run", "roll", "pitch", "yaw", "temp"], hk_row)
-                
+            # 하우스키핑 메시지 생성
+            hk_msg = msgstructure.MsgStructure()
+            msgstructure.fill_msg(hk_msg, appargs.ImuAppArg.AppID, appargs.HkAppArg.AppID, appargs.HkAppArg.MID_Housekeeping, "")
+            
+            # 메시지 패킹 및 전송
+            packed_msg = msgstructure.pack_msg(hk_msg)
+            Main_Queue.put(packed_msg)
+            
+            # 하우스키핑 데이터 로깅
+            hk_data = [
+                datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+                IMU_TEMP,
+                IMU_ROLL,
+                IMU_PITCH,
+                IMU_YAW,
+                IMU_ACCX,
+                IMU_ACCY,
+                IMU_ACCZ,
+                IMU_MAGX,
+                IMU_MAGY,
+                IMU_MAGZ,
+                IMU_GYRX,
+                IMU_GYRY,
+                IMU_GYRZ,
+                _sensor_healthy,
+                _sensor_error_count
+            ]
+            
+            hk_headers = ["timestamp", "temp", "roll", "pitch", "yaw", "accx", "accy", "accz", "magx", "magy", "magz", "gyrx", "gyry", "gyrz", "sensor_healthy", "error_count"]
+            log_csv(HK_LOG_PATH, hk_headers, hk_data)
+            
+            time.sleep(1.0)  # 1초마다 하우스키핑
+            
         except Exception as e:
-            consecutive_hk_failures += 1
-            if consecutive_hk_failures <= max_hk_failures:
-                safe_log(f"Exception sending HK: {e}", "error".upper(), True)
-            elif consecutive_hk_failures == max_hk_failures + 1:
-                safe_log(f"HK send exceptions suppressed after {max_hk_failures} failures", "warning".upper(), True)
-        
-        # 더 빠른 종료를 위해 짧은 간격으로 체크
-        for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
-            if not IMUAPP_RUNSTATUS:
-                break
-            time.sleep(0.1)
-    return
+            safe_log(f"HK 전송 오류: {e}", "ERROR", True)
+            emergency_log_to_file("ERROR", f"HK transmission error: {e}")
+            time.sleep(1.0)  # 오류 시에도 계속 시도
 
-######################################################
-## INITIALIZATION, TERMINATION                      ##
-######################################################
-
-# Initialization
 def imuapp_init():
-    """센서 초기화·시리얼 확인."""
+    """IMU 앱 초기화"""
+    global _sensor_healthy, _sensor_error_count, _sensor_recovery_attempts
+    
     try:
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        safe_log("Initializing imuapp", "info".upper(), True)
-
-        # IMU 센서 초기화 (직접 I2C 연결)
-        i2c, sensor = imu.init_imu()
+        safe_log("IMU 앱 초기화 시작", "INFO", True)
         
-        if i2c and sensor:
-            safe_log("Imuapp initialization complete", "info".upper(), True)
+        # IMU 센서 초기화
+        i2c_instance, imu_instance = imu.init_imu()
+        
+        if i2c_instance is not None and imu_instance is not None:
+            safe_log("IMU 센서 초기화 성공", "INFO", True)
+            _sensor_healthy = True
+            _sensor_error_count = 0
+            _sensor_recovery_attempts = 0
+            return i2c_instance, imu_instance
         else:
-            safe_log("IMU 센서 초기화 실패, 기본값으로 작동", "warning".upper(), True)
-        
-        return i2c, sensor
-
+            safe_log("IMU 센서 초기화 실패 - 더미 데이터 모드로 실행", "WARNING", True)
+            _sensor_healthy = False
+            return None, None
+            
     except Exception as e:
-        safe_log(f"Init error: {e}, 기본값으로 작동", "warning".upper(), True)
+        safe_log(f"IMU 앱 초기화 오류: {e}", "ERROR", True)
+        emergency_log_to_file("ERROR", f"IMU app initialization error: {e}")
+        _sensor_healthy = False
         return None, None
 
-# Termination
 def imuapp_terminate(i2c_instance):
-    global IMUAPP_RUNSTATUS
-
+    """IMU 앱 종료"""
+    global _emergency_logging_enabled
+    
     try:
-        safe_log("Starting imuapp termination", "info".upper(), True)
+        safe_log("IMU 앱 종료 시작", "INFO", True)
         
-        # 1단계: 실행 상태 중지
-        IMUAPP_RUNSTATUS = False
-        safe_log("IMU app run status set to False", "info".upper(), True)
+        # 긴급 로깅 비활성화
+        _emergency_logging_enabled = False
         
-        # 2단계: 스레드 종료 대기
-        safe_log("Waiting for threads to terminate...", "info".upper(), True)
-        time.sleep(2.0)  # 스레드들이 종료될 시간을 줌
-        
-        # 3단계: IMU 하드웨어 종료
-        safe_log("Terminating IMU hardware...", "info".upper(), True)
-        try:
-            imu.imu_terminate(i2c_instance)
-            safe_log("IMU hardware terminated successfully", "info".upper(), True)
-        except Exception as e:
-            safe_log(f"Error terminating IMU hardware: {e}", "error".upper(), True)
-
-        # 4단계: 스레드 강제 종료
-        safe_log("Force terminating remaining threads...", "info".upper(), True)
-        for thread_name in thread_dict:
-            safe_log(f"Terminating thread {thread_name}", "info".upper(), True)
+        # I2C 연결 종료
+        if i2c_instance is not None:
             try:
-                thread_dict[thread_name].join(timeout=3)  # 3초 타임아웃
-                if thread_dict[thread_name].is_alive():
-                    safe_log(f"Thread {thread_name} did not terminate gracefully", "warning".upper(), True)
-                    # 강제 종료는 하지 않음 (스레드가 자연스럽게 종료되도록)
+                imu.imu_terminate(i2c_instance)
+                safe_log("I2C 연결 종료 완료", "INFO", True)
             except Exception as e:
-                safe_log(f"Error joining thread {thread_name}: {e}", "error".upper(), True)
-            safe_log(f"Thread {thread_name} termination complete", "info".upper(), True)
-
-        # 5단계: 리소스 정리
-        safe_log("Cleaning up resources...", "info".upper(), True)
-        try:
-            # 전역 변수 정리
-            global IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
-            global IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_ACCX, IMU_ACCY, IMU_ACCZ
-            global IMU_MAGX, IMU_MAGY, IMU_MAGZ, IMU_GYRX, IMU_GYRY, IMU_GYRZ
-            
-            # 기본값으로 리셋
-            IMU_GYRO = (0.0, 0.0, 0.0)
-            IMU_ACCEL = (0.0, 0.0, 0.0)
-            IMU_MAG = (0.0, 0.0, 0.0)
-            IMU_EULER = (0.0, 0.0, 0.0)
-            IMU_TEMP = 0.0
-            IMU_ROLL = IMU_PITCH = IMU_YAW = 0.0
-            IMU_ACCX = IMU_ACCY = IMU_ACCZ = 0.0
-            IMU_MAGX = IMU_MAGY = IMU_MAGZ = 0.0
-            IMU_GYRX = IMU_GYRY = IMU_GYRZ = 0.0
-            
-            safe_log("Global variables reset to default values", "info".upper(), True)
-        except Exception as cleanup_error:
-            safe_log(f"Resource cleanup error: {cleanup_error}", "error".upper(), True)
-
-        safe_log("Imuapp termination complete", "info".upper(), True)
-        return True
-
+                safe_log(f"I2C 종료 오류: {e}", "WARNING", True)
+        
+        safe_log("IMU 앱 종료 완료", "INFO", True)
+        
     except Exception as e:
-        safe_log(f"Imuapp termination error: {e}", "error".upper(), True)
-        return False
-
-######################################################
-## USER METHOD                                      ##
-######################################################
+        safe_log(f"IMU 앱 종료 오류: {e}", "ERROR", True)
 
 def read_imu_data(sensor):
-    """IMU 데이터 읽기 스레드."""
+    """IMU 데이터 읽기 스레드 (개선된 버전)"""
     global IMUAPP_RUNSTATUS, IMU_GYRO, IMU_ACCEL, IMU_MAG, IMU_EULER, IMU_TEMP
     global IMU_ROLL, IMU_PITCH, IMU_YAW, IMU_ACCX, IMU_ACCY, IMU_ACCZ, IMU_MAGX, IMU_MAGY, IMU_MAGZ, IMU_GYRX, IMU_GYRY, IMU_GYRZ
-    global IMU_ADVANCED_DATA
+    global IMU_ADVANCED_DATA, _sensor_healthy, _sensor_error_count, _last_sensor_error_time, _sensor_recovery_attempts
+    
+    consecutive_errors = 0
+    max_consecutive_errors = 10
     
     while IMUAPP_RUNSTATUS:
         try:
@@ -288,199 +249,252 @@ def read_imu_data(sensor):
                     'system_status': 0
                 }
                 
+                # 더미 데이터 로깅
+                high_freq_data = [
+                    datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+                    "DUMMY",
+                    IMU_TEMP,
+                    IMU_ROLL, IMU_PITCH, IMU_YAW,
+                    IMU_ACCX, IMU_ACCY, IMU_ACCZ,
+                    IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                    IMU_GYRX, IMU_GYRY, IMU_GYRZ,
+                    _sensor_healthy,
+                    consecutive_errors
+                ]
+                
+                high_freq_headers = ["timestamp", "data_type", "temp", "roll", "pitch", "yaw", 
+                                   "accx", "accy", "accz", "magx", "magy", "magz", 
+                                   "gyrx", "gyry", "gyrz", "sensor_healthy", "error_count"]
+                log_csv(HIGH_FREQ_LOG_PATH, high_freq_headers, high_freq_data)
+                
                 time.sleep(0.1)  # 10 Hz
                 continue
                 
-            # 고급 데이터 읽기 시도
-            result = imu.read_sensor_data(sensor)
-            if result and len(result) >= 10:
-                gyro, accel, mag, euler, temp, quaternion, linear_accel, gravity, calibration, system_status = result
-                
-                # 데이터가 유효한 경우 업데이트
-                if gyro is not None and accel is not None and mag is not None and euler is not None:
-                    IMU_GYRO = gyro
-                    IMU_ACCEL = accel
-                    IMU_MAG = mag
-                    IMU_EULER = euler
-                    IMU_TEMP = temp if temp is not None else 0.0
+            # 실제 센서 데이터 읽기
+            try:
+                # 고급 데이터 읽기 시도
+                result = imu.read_sensor_data(sensor)
+                if result and len(result) >= 10:
+                    gyro, accel, mag, euler, temp, quaternion, linear_accel, gravity, calibration, system_status = result
                     
-                    # 고급 데이터 저장
-                    IMU_ADVANCED_DATA = {
-                        'quaternion': quaternion,
-                        'linear_accel': linear_accel,
-                        'gravity': gravity,
-                        'calibration': calibration,
-                        'system_status': system_status
-                    }
-                    
-                    # 개별 변수들 업데이트
-                    if len(euler) >= 3:
-                        IMU_ROLL = euler[0] if euler[0] is not None else 0.0
-                        IMU_PITCH = euler[1] if euler[1] is not None else 0.0
-                        IMU_YAW = euler[2] if euler[2] is not None else 0.0
-                    
-                    if len(accel) >= 3:
-                        IMU_ACCX = accel[0] if accel[0] is not None else 0.0
-                        IMU_ACCY = accel[1] if accel[1] is not None else 0.0
-                        IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
-                    
-                    if len(mag) >= 3:
-                        IMU_MAGX = mag[0] if mag[0] is not None else 0.0
-                        IMU_MAGY = mag[1] if mag[1] is not None else 0.0
-                        IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
-                    
-                    if len(gyro) >= 3:
-                        IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
-                        IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
-                        IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+                    # 데이터가 유효한 경우 업데이트
+                    if gyro is not None and accel is not None and mag is not None and euler is not None:
+                        IMU_GYRO = gyro
+                        IMU_ACCEL = accel
+                        IMU_MAG = mag
+                        IMU_EULER = euler
+                        IMU_TEMP = temp if temp is not None else 0.0
+                        
+                        # 고급 데이터 저장
+                        IMU_ADVANCED_DATA = {
+                            'quaternion': quaternion,
+                            'linear_accel': linear_accel,
+                            'gravity': gravity,
+                            'calibration': calibration,
+                            'system_status': system_status
+                        }
+                        
+                        # 개별 변수들 업데이트
+                        if len(euler) >= 3:
+                            IMU_ROLL = euler[0] if euler[0] is not None else 0.0
+                            IMU_PITCH = euler[1] if euler[1] is not None else 0.0
+                            IMU_YAW = euler[2] if euler[2] is not None else 0.0
+                        
+                        if len(accel) >= 3:
+                            IMU_ACCX = accel[0] if accel[0] is not None else 0.0
+                            IMU_ACCY = accel[1] if accel[1] is not None else 0.0
+                            IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
+                        
+                        if len(mag) >= 3:
+                            IMU_MAGX = mag[0] if mag[0] is not None else 0.0
+                            IMU_MAGY = mag[1] if mag[1] is not None else 0.0
+                            IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
+                        
+                        if len(gyro) >= 3:
+                            IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
+                            IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
+                            IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+                        
+                        # 센서 상태 업데이트
+                        _sensor_healthy = True
+                        consecutive_errors = 0
+                        _sensor_error_count = 0
+                        
+                        # 성공적인 데이터 로깅
+                        high_freq_data = [
+                            datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+                            "SENSOR",
+                            IMU_TEMP,
+                            IMU_ROLL, IMU_PITCH, IMU_YAW,
+                            IMU_ACCX, IMU_ACCY, IMU_ACCZ,
+                            IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                            IMU_GYRX, IMU_GYRY, IMU_GYRZ,
+                            _sensor_healthy,
+                            consecutive_errors
+                        ]
+                        
+                        high_freq_headers = ["timestamp", "data_type", "temp", "roll", "pitch", "yaw", 
+                                           "accx", "accy", "accz", "magx", "magy", "magz", 
+                                           "gyrx", "gyry", "gyrz", "sensor_healthy", "error_count"]
+                        log_csv(HIGH_FREQ_LOG_PATH, high_freq_headers, high_freq_data)
+                        
+                    else:
+                        # 데이터가 None인 경우 이전 값 유지하고 오류 카운트 증가
+                        consecutive_errors += 1
+                        _sensor_error_count += 1
+                        _last_sensor_error_time = time.time()
+                        
+                        if consecutive_errors >= max_consecutive_errors:
+                            _sensor_healthy = False
+                            safe_log(f"IMU 센서 데이터 연속 {consecutive_errors}회 실패 - 센서 비정상 상태", "WARNING", True)
+                        
+                        # 오류 상태 로깅
+                        high_freq_data = [
+                            datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+                            "ERROR",
+                            IMU_TEMP,
+                            IMU_ROLL, IMU_PITCH, IMU_YAW,
+                            IMU_ACCX, IMU_ACCY, IMU_ACCZ,
+                            IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                            IMU_GYRX, IMU_GYRY, IMU_GYRZ,
+                            _sensor_healthy,
+                            consecutive_errors
+                        ]
+                        
+                        high_freq_headers = ["timestamp", "data_type", "temp", "roll", "pitch", "yaw", 
+                                           "accx", "accy", "accz", "magx", "magy", "magz", 
+                                           "gyrx", "gyry", "gyrz", "sensor_healthy", "error_count"]
+                        log_csv(HIGH_FREQ_LOG_PATH, high_freq_headers, high_freq_data)
+                        
                 else:
-                    # 데이터가 None인 경우 기본값 유지 (이전 값 보존)
-                    # 센서 오류 시에도 시스템이 계속 작동하도록 함
-                    pass
-            else:
-                # 기본 데이터 읽기 (fallback)
-                gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
-                if gyro is not None and accel is not None and mag is not None and euler is not None:
-                    IMU_GYRO = gyro
-                    IMU_ACCEL = accel
-                    IMU_MAG = mag
-                    IMU_EULER = euler
-                    IMU_TEMP = temp if temp is not None else 0.0
-                    IMU_ADVANCED_DATA = {}  # 기본값
+                    # 기본 데이터 읽기 (fallback)
+                    gyro, accel, mag, euler, temp = imu.read_sensor_data(sensor)
+                    if gyro is not None and accel is not None and mag is not None and euler is not None:
+                        IMU_GYRO = gyro
+                        IMU_ACCEL = accel
+                        IMU_MAG = mag
+                        IMU_EULER = euler
+                        IMU_TEMP = temp if temp is not None else 0.0
+                        IMU_ADVANCED_DATA = {}  # 기본값
+                        
+                        # 개별 변수들 업데이트 (기존 로직)
+                        if len(euler) >= 3:
+                            IMU_ROLL = euler[0] if euler[0] is not None else 0.0
+                            IMU_PITCH = euler[1] if euler[1] is not None else 0.0
+                            IMU_YAW = euler[2] if euler[2] is not None else 0.0
+                        
+                        if len(accel) >= 3:
+                            IMU_ACCX = accel[0] if accel[0] is not None else 0.0
+                            IMU_ACCY = accel[1] if accel[1] is not None else 0.0
+                            IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
+                        
+                        if len(mag) >= 3:
+                            IMU_MAGX = mag[0] if mag[0] is not None else 0.0
+                            IMU_MAGY = mag[1] if mag[1] is not None else 0.0
+                            IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
+                        
+                        if len(gyro) >= 3:
+                            IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
+                            IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
+                            IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
+                        
+                        # 센서 상태 업데이트
+                        _sensor_healthy = True
+                        consecutive_errors = 0
+                        
+                    else:
+                        # fallback도 실패한 경우
+                        consecutive_errors += 1
+                        _sensor_error_count += 1
+                        _last_sensor_error_time = time.time()
+                        
+                        if consecutive_errors >= max_consecutive_errors:
+                            _sensor_healthy = False
+                            safe_log(f"IMU 센서 fallback 데이터도 실패 - 센서 비정상 상태", "WARNING", True)
+                        
+            except Exception as e:
+                consecutive_errors += 1
+                _sensor_error_count += 1
+                _last_sensor_error_time = time.time()
+                
+                # I/O 오류 특별 처리
+                if "Input/output error" in str(e) or "[Errno 5]" in str(e):
+                    safe_log(f"IMU I/O 오류 발생: {e}", "ERROR", True)
+                    emergency_log_to_file("ERROR", f"IMU I/O error: {e}")
                     
-                    # 개별 변수들 업데이트 (기존 로직)
-                    if len(euler) >= 3:
-                        IMU_ROLL = euler[0] if euler[0] is not None else 0.0
-                        IMU_PITCH = euler[1] if euler[1] is not None else 0.0
-                        IMU_YAW = euler[2] if euler[2] is not None else 0.0
-                    
-                    if len(accel) >= 3:
-                        IMU_ACCX = accel[0] if accel[0] is not None else 0.0
-                        IMU_ACCY = accel[1] if accel[1] is not None else 0.0
-                        IMU_ACCZ = accel[2] if accel[2] is not None else 0.0
-                    
-                    if len(mag) >= 3:
-                        IMU_MAGX = mag[0] if mag[0] is not None else 0.0
-                        IMU_MAGY = mag[1] if mag[1] is not None else 0.0
-                        IMU_MAGZ = mag[2] if mag[2] is not None else 0.0
-                    
-                    if len(gyro) >= 3:
-                        IMU_GYRX = gyro[0] if gyro[0] is not None else 0.0
-                        IMU_GYRY = gyro[1] if gyro[1] is not None else 0.0
-                        IMU_GYRZ = gyro[2] if gyro[2] is not None else 0.0
-                    
+                    # I/O 오류 시 센서 재초기화 시도
+                    if _sensor_recovery_attempts < _max_sensor_recovery_attempts:
+                        _sensor_recovery_attempts += 1
+                        safe_log(f"IMU 센서 재초기화 시도 {_sensor_recovery_attempts}/{_max_sensor_recovery_attempts}", "WARNING", True)
+                        try:
+                            # 센서 재초기화
+                            i2c_instance, new_sensor = imuapp_init()
+                            if new_sensor is not None:
+                                sensor = new_sensor
+                                safe_log("IMU 센서 재초기화 성공", "INFO", True)
+                                _sensor_healthy = True
+                                consecutive_errors = 0
+                            else:
+                                safe_log("IMU 센서 재초기화 실패", "ERROR", True)
+                        except Exception as recovery_error:
+                            safe_log(f"IMU 센서 재초기화 오류: {recovery_error}", "ERROR", True)
+                else:
+                    safe_log(f"IMU 읽기 오류: {e}", "ERROR", True)
+                
+                if consecutive_errors >= max_consecutive_errors:
+                    _sensor_healthy = False
+                    safe_log(f"IMU 센서 연속 {consecutive_errors}회 오류 - 센서 비정상 상태", "WARNING", True)
+                
+                # 오류 상태 로깅
+                high_freq_data = [
+                    datetime.now().isoformat(sep=' ', timespec='milliseconds'),
+                    "ERROR",
+                    IMU_TEMP,
+                    IMU_ROLL, IMU_PITCH, IMU_YAW,
+                    IMU_ACCX, IMU_ACCY, IMU_ACCZ,
+                    IMU_MAGX, IMU_MAGY, IMU_MAGZ,
+                    IMU_GYRX, IMU_GYRY, IMU_GYRZ,
+                    _sensor_healthy,
+                    consecutive_errors
+                ]
+                
+                high_freq_headers = ["timestamp", "data_type", "temp", "roll", "pitch", "yaw", 
+                                   "accx", "accy", "accz", "magx", "magy", "magz", 
+                                   "gyrx", "gyry", "gyrz", "sensor_healthy", "error_count"]
+                log_csv(HIGH_FREQ_LOG_PATH, high_freq_headers, high_freq_data)
+            
         except Exception as e:
-            safe_log(f"IMU read error: {e}", "error".upper(), True)
-            # 오류 발생 시에도 기본값 유지
-            pass
+            safe_log(f"IMU 데이터 읽기 스레드 오류: {e}", "ERROR", True)
+            emergency_log_to_file("ERROR", f"IMU data reading thread error: {e}")
+            time.sleep(0.5)  # 오류 시 더 긴 대기
             
         time.sleep(0.1)  # 10 Hz
 
 def send_imu_data(Main_Queue : Queue):
-    global IMU_ROLL
-    global IMU_PITCH
-    global IMU_YAW
-    global IMU_ACCX
-    global IMU_ACCY
-    global IMU_ACCZ
-    global IMU_MAGX
-    global IMU_MAGY
-    global IMU_MAGZ
-    global IMU_GYRX
-    global IMU_GYRY
-    global IMU_GYRZ
-    global IMU_TEMP
-    
+    """IMU 데이터 전송 스레드"""
     global IMUAPP_RUNSTATUS
-
-    ImuDataToTlmMsg = msgstructure.MsgStructure()
-    ImuDataToFlightLogicMsg = msgstructure.MsgStructure()
-    YawDataToMotorMsg = msgstructure.MsgStructure()
     
-    send_counter = 0
-    consecutive_send_failures = 0
-    max_send_failures = 5
-
     while IMUAPP_RUNSTATUS:
-        
-        send_counter += 1
-
-        # Send IMU data to FlightLogic (10Hz)
         try:
-            status = msgstructure.send_msg(Main_Queue, 
-                                        ImuDataToFlightLogicMsg,
-                                        appargs.ImuAppArg.AppID,
-                                        appargs.FlightlogicAppArg.AppID,
-                                        appargs.ImuAppArg.MID_SendImuFlightLogicData,
-                                        f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f}")
-            if status == False:
-                safe_log("Error When sending IMU FlightLogic Message", "error".upper(), True)
+            # IMU 데이터 메시지 생성
+            imu_msg = msgstructure.MsgStructure()
+            
+            # 데이터 문자열 생성
+            imu_data_str = f"{IMU_TEMP:.2f},{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f}"
+            
+            msgstructure.fill_msg(imu_msg, appargs.ImuAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.ImuAppArg.MID_ImuData, imu_data_str)
+            
+            # 메시지 패킹 및 전송
+            packed_msg = msgstructure.pack_msg(imu_msg)
+            Main_Queue.put(packed_msg)
+            
+            time.sleep(0.1)  # 10 Hz
+            
         except Exception as e:
-            safe_log(f"Exception when sending IMU FlightLogic data: {e}", "error".upper(), True)
+            safe_log(f"IMU 데이터 전송 오류: {e}", "ERROR", True)
+            emergency_log_to_file("ERROR", f"IMU data transmission error: {e}")
+            time.sleep(0.5)  # 오류 시 더 긴 대기
 
-        # Send Yaw data to motor
-        # msgstructure.send_msg(Main_Queue, 
-        #                       YawDataToMotorMsg,
-        #                       appargs.ImuAppArg.AppID,
-        #                       appargs.MotorAppArg.AppID,
-        #                       appargs.ImuAppArg.MID_SendYawData,
-        #                       f"{IMU_YAW:.2f}")
-        
-        # Sending data to COMMS app occurs once a second
-
-        if send_counter >= 10 :
-            try:
-                # 기본 데이터만 텔레메트리 전송 (고급 데이터는 로그에만 저장)
-                tlm_data = f"{IMU_ROLL:.2f},{IMU_PITCH:.2f},{IMU_YAW:.2f},{IMU_ACCX:.2f},{IMU_ACCY:.2f},{IMU_ACCZ:.2f},{IMU_MAGX:.2f},{IMU_MAGY:.2f},{IMU_MAGZ:.2f},{IMU_GYRX:.2f},{IMU_GYRY:.2f},{IMU_GYRZ:.2f},{IMU_TEMP:.2f}"
-                
-                # 고급 데이터 로깅
-                if hasattr(imu, 'IMU_ADVANCED_DATA') and IMU_ADVANCED_DATA:
-                    quat = IMU_ADVANCED_DATA.get('quaternion', (1.0, 0.0, 0.0, 0.0))
-                    lin_acc = IMU_ADVANCED_DATA.get('linear_accel', (0.0, 0.0, 0.0))
-                    grav = IMU_ADVANCED_DATA.get('gravity', (0.0, 0.0, 0.0))
-                    cal = IMU_ADVANCED_DATA.get('calibration', (0, 0, 0, 0))
-                    sys_status = IMU_ADVANCED_DATA.get('system_status', 0)
-                    
-                    safe_log(f"IMU Advanced Data - Quat: ({quat[0]:.4f},{quat[1]:.4f},{quat[2]:.4f},{quat[3]:.4f}), LinAcc: ({lin_acc[0]:.4f},{lin_acc[1]:.4f},{lin_acc[2]:.4f}), Gravity: ({grav[0]:.4f},{grav[1]:.4f},{grav[2]:.4f}), Cal: {cal}, SysStatus: {sys_status}", "debug".upper(), False)
-                
-                status = msgstructure.send_msg(Main_Queue, 
-                                            ImuDataToTlmMsg, 
-                                            appargs.ImuAppArg.AppID,
-                                            appargs.CommAppArg.AppID,
-                                            appargs.ImuAppArg.MID_SendImuTlmData,
-                                            tlm_data)
-                if status == False:
-                    consecutive_send_failures += 1
-                    if consecutive_send_failures <= max_send_failures:
-                        safe_log("Error When sending Imu Tlm Message", "error".upper(), True)
-                    elif consecutive_send_failures == max_send_failures + 1:
-                        safe_log(f"IMU send errors suppressed after {max_send_failures} failures", "warning".upper(), True)
-                else:
-                    consecutive_send_failures = 0  # 성공 시 실패 횟수 리셋
-            except Exception as e:
-                consecutive_send_failures += 1
-                if consecutive_send_failures <= max_send_failures:
-                    safe_log(f"Exception when sending IMU data: {e}", "error".upper(), True)
-                elif consecutive_send_failures == max_send_failures + 1:
-                    safe_log(f"IMU send exceptions suppressed after {max_send_failures} failures", "warning".upper(), True)
-            
-            send_counter = 0
-            
-        # Sleep 0.1 second (10Hz telemetry rate)
-        time.sleep(0.1)
-
-    return  
-
-
-# Put user-defined methods here!
-
-######################################################
-## MAIN METHOD                                      ##
-######################################################
-
-thread_dict = dict[str, threading.Thread]()
-
-# This method is called from main app. Initialization, runloop process
 def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
     global IMUAPP_RUNSTATUS
     IMUAPP_RUNSTATUS = True
@@ -493,16 +507,18 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
         safe_log("IMU 센서 연결 실패 - 더미 데이터로 계속 실행", "WARNING", True)
         imu_instance = None  # 센서가 없음을 표시
 
+    # 스레드 딕셔너리
+    thread_dict = {}
+
     # Spawn SB Message Listner Thread
     thread_dict["HKSender_Thread"] = threading.Thread(target=send_hk, args=(Main_Queue, ), name="HKSender_Thread")
     thread_dict["ReadImuData_Thread"] = threading.Thread(target=read_imu_data, args=(imu_instance, ), name="ReadImuData_Thread")
     thread_dict["SendImuData_Thread"] = threading.Thread(target=send_imu_data, args=(Main_Queue, ), name="SendImuData_Thread")
 
-
     # Spawn Each Threads
     for t in thread_dict.values():
-        if not hasattr(t, '_is_resilient') or not t._is_resilient:
-            t.start()
+        t.daemon = True  # 메인 프로세스 종료 시 함께 종료
+        t.start()
 
     try:
         while IMUAPP_RUNSTATUS:

@@ -5,8 +5,8 @@
 
 # Example) python_path = /home/hyunlee/Desktop/flight_code/Python_Cansat_FSW
 
-python_path="/home/pi/CANSAT_HEPHAESTUS_2025_FSW2"
-venv_path="/home/pi/env/bin"
+python_path="/home/SpaceY/Desktop/CANSAT_AAS_2025_FSW"
+venv_path="/home/SpaceY/Desktop/env/bin"
 
 if [ "${python_path}" == "not_configured" ]; then
 echo "Startup Script is not Configured! Please Edit the file"

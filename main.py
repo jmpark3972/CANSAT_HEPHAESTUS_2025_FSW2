@@ -50,8 +50,73 @@ main_queue = Queue()
 class app_elements:
     process : Process = None
     pipe : connection.Connection = None
+    last_heartbeat : float = 0.0
+    failure_count : int = 0
+    is_healthy : bool = True
+    restart_attempts : int = 0
+    max_restart_attempts : int = 3
 
 app_dict: dict[types.AppID, app_elements] = {}
+
+# 앱 상태 모니터링
+app_health_status = {}
+app_failure_threshold = 5  # 5초 동안 응답 없으면 비정상으로 간주
+app_restart_cooldown = 30  # 재시작 후 30초 대기
+
+def monitor_app_health():
+    """앱 상태 모니터링 및 로깅"""
+    global app_health_status
+    
+    current_time = time.time()
+    
+    for app_id, app_elem in app_dict.items():
+        try:
+            # 프로세스 상태 확인
+            if app_elem.process and app_elem.process.is_alive():
+                app_elem.is_healthy = True
+                app_elem.last_heartbeat = current_time
+                app_elem.failure_count = 0
+            else:
+                app_elem.is_healthy = False
+                app_elem.failure_count += 1
+                
+                # 실패 로그 (빈도 제한)
+                if app_elem.failure_count == 1 or app_elem.failure_count % 10 == 0:
+                    main_safe_log(f"App {app_id} is not responding (failure count: {app_elem.failure_count})", "WARNING", True)
+            
+            # 앱 상태 업데이트
+            app_health_status[app_id] = {
+                'healthy': app_elem.is_healthy,
+                'failure_count': app_elem.failure_count,
+                'last_heartbeat': app_elem.last_heartbeat,
+                'restart_attempts': app_elem.restart_attempts
+            }
+            
+        except Exception as e:
+            main_safe_log(f"App health monitoring error for {app_id}: {e}", "ERROR", True)
+
+def log_system_status():
+    """시스템 상태 로깅"""
+    try:
+        healthy_apps = sum(1 for app_elem in app_dict.values() if app_elem.is_healthy)
+        total_apps = len(app_dict)
+        
+        status_msg = f"System Status - Healthy: {healthy_apps}/{total_apps} apps"
+        
+        # 비정상 앱 목록
+        unhealthy_apps = [app_id for app_id, app_elem in app_dict.items() if not app_elem.is_healthy]
+        if unhealthy_apps:
+            status_msg += f", Unhealthy: {unhealthy_apps}"
+        
+        main_safe_log(status_msg, "INFO", True)
+        
+        # 개별 앱 상태 로깅 (디버그 레벨)
+        for app_id, app_elem in app_dict.items():
+            if not app_elem.is_healthy:
+                main_safe_log(f"App {app_id}: failures={app_elem.failure_count}, restart_attempts={app_elem.restart_attempts}", "DEBUG", True)
+                
+    except Exception as e:
+        main_safe_log(f"System status logging error: {e}", "ERROR", True)
 
 def terminate_FSW():
     global MAINAPP_RUNSTATUS, _termination_in_progress
@@ -164,6 +229,106 @@ def cleanup_queues():
     except Exception as e:
         main_safe_log(f"큐 정리 실패: {e}", "WARNING", False)
 
+def restart_app(appID):
+    """앱 재시작 (개선된 버전)"""
+    try:
+        app_elem = app_dict[appID]
+        
+        # 재시작 시도 횟수 체크
+        if app_elem.restart_attempts >= app_elem.max_restart_attempts:
+            main_safe_log(f"App {appID} exceeded max restart attempts ({app_elem.max_restart_attempts}), skipping restart", "WARNING", True)
+            return False
+        
+        # 재시작 쿨다운 체크
+        current_time = time.time()
+        if hasattr(app_elem, 'last_restart_time') and current_time - app_elem.last_restart_time < app_restart_cooldown:
+            main_safe_log(f"App {appID} in restart cooldown, skipping restart", "DEBUG", True)
+            return False
+        
+        main_safe_log(f"Attempting to restart app {appID} (attempt {app_elem.restart_attempts + 1}/{app_elem.max_restart_attempts})", "INFO", True)
+        
+        # 기존 프로세스 종료
+        if app_elem.process and app_elem.process.is_alive():
+            try:
+                app_elem.process.terminate()
+                app_elem.process.join(timeout=1)
+                if app_elem.process.is_alive():
+                    app_elem.process.kill()
+                    app_elem.process.join(timeout=0.5)
+            except Exception as e:
+                main_safe_log(f"Failed to terminate {appID}: {e}", "WARNING", True)
+        
+        # 파이프 정리
+        try:
+            if app_elem.pipe:
+                app_elem.pipe.close()
+        except Exception as e:
+            main_safe_log(f"Pipe close error for {appID}: {e}", "WARNING", True)
+        
+        # 앱 재시작 로직 (load_apps에서 사용하는 것과 동일)
+        try:
+            # 앱 정의에서 해당 앱 찾기
+            apps_to_load = [
+                ("hk.hkapp", "HKApp", appargs.HkAppArg.AppID),
+                ("barometer.barometerapp", "BarometerApp", appargs.BarometerAppArg.AppID),
+                ("gps.gpsapp", "GpsApp", appargs.GpsAppArg.AppID),
+                ("imu.imuapp", "ImuApp", appargs.ImuAppArg.AppID),
+                ("flight_logic.flightlogicapp", "FlightLogicApp", appargs.FlightlogicAppArg.AppID),
+                ("comm.commapp", "CommApp", appargs.CommAppArg.AppID),
+                ("motor.motorapp", "MotorApp", appargs.MotorAppArg.AppID),
+                ("fir1.firapp1", "FirApp1", appargs.FirApp1Arg.AppID),
+                ("thermis.thermisapp", "ThermisApp", appargs.ThermisAppArg.AppID),
+                ("tmp007.tmp007app", "Tmp007App", appargs.Tmp007AppArg.AppID),
+                ("thermo.thermoapp", "ThermoApp", appargs.ThermoAppArg.AppID),
+            ]
+            
+            app_info = None
+            for module_path, class_name, app_id in apps_to_load:
+                if app_id == appID:
+                    app_info = (module_path, class_name, app_id)
+                    break
+            
+            if app_info:
+                module_path, class_name, app_id = app_info
+                
+                # 모듈 동적 임포트
+                module = __import__(module_path, fromlist=[class_name])
+                app_class = getattr(module, class_name)
+                
+                # 앱 인스턴스 생성
+                app_instance = app_class()
+                
+                # 프로세스 및 파이프 생성
+                parent_pipe, child_pipe = Pipe()
+                
+                app_elem.process = Process(target=app_instance.start, args=(main_queue, child_pipe))
+                app_elem.pipe = parent_pipe
+                
+                # 프로세스 시작
+                app_elem.process.start()
+                time.sleep(0.2)  # 프로세스 시작 대기
+                
+                # 재시작 정보 업데이트
+                app_elem.restart_attempts += 1
+                app_elem.last_restart_time = current_time
+                app_elem.failure_count = 0
+                app_elem.is_healthy = True
+                app_elem.last_heartbeat = current_time
+                
+                main_safe_log(f"Successfully restarted {appID}", "INFO", True)
+                return True
+            else:
+                main_safe_log(f"App {appID} not found in app definitions", "ERROR", True)
+                return False
+                
+        except Exception as e:
+            main_safe_log(f"Failed to restart {appID}: {e}", "ERROR", True)
+            return False
+            
+    except Exception as e:
+        main_safe_log(f"Restart failed for {appID}: {e}", "ERROR", True)
+        return False
+
 def load_apps():
     """앱 로드 및 프로세스 시작"""
     try:
@@ -203,6 +368,7 @@ def load_apps():
                 app_elements_instance = app_elements()
                 app_elements_instance.process = Process(target=app_instance.start, args=(main_queue, child_pipe))
                 app_elements_instance.pipe = parent_pipe
+                app_elements_instance.last_heartbeat = time.time()
                 
                 # 앱 딕셔너리에 추가
                 app_dict[app_id] = app_elements_instance
@@ -233,40 +399,15 @@ def load_apps():
         main_safe_log(f"예외 상세: {traceback.format_exc()}", "ERROR", True)
 
 def runloop(Main_Queue : Queue):
-    """메인 루프"""
+    """메인 루프 (개선된 버전)"""
     global MAINAPP_RUNSTATUS
     
     start_time = time.time()
     max_runtime = 3600  # 1시간
-    
-    def restart_app(appID):
-        """앱 재시작"""
-        try:
-            if app_dict[appID].process:
-                try:
-                    app_dict[appID].process.terminate()
-                    app_dict[appID].process.join(timeout=1)
-                    if app_dict[appID].process.is_alive():
-                        app_dict[appID].process.kill()
-                        app_dict[appID].process.join(timeout=0.5)
-                except Exception as e:
-                    main_safe_log(f"Failed to terminate {appID}: {e}", "WARNING", True)
-                
-                try:
-                    if app_dict[appID].pipe:
-                        app_dict[appID].pipe.close()
-                except Exception as e:
-                    main_safe_log(f"Pipe close error for {appID}: {e}", "WARNING", True)
-            
-            # 앱 재시작 로직
-            # 여기에 각 앱별 재시작 코드 추가
-            
-            main_safe_log(f"Successfully restarted {appID}", "INFO", True)
-            
-        except Exception as e:
-            main_safe_log(f"Failed to create process for {appID}", "ERROR", True)
-        except Exception as e:
-            main_safe_log(f"Restart failed for {appID}: {e}", "ERROR", True)
+    last_health_check = time.time()
+    last_status_log = time.time()
+    health_check_interval = 5.0  # 5초마다 앱 상태 체크
+    status_log_interval = 30.0   # 30초마다 시스템 상태 로깅
     
     while MAINAPP_RUNSTATUS:
         try:
@@ -274,6 +415,18 @@ def runloop(Main_Queue : Queue):
             if time.time() - start_time > max_runtime:
                 main_safe_log("Maximum runtime reached, terminating FSW", "WARNING", True)
                 break
+            
+            current_time = time.time()
+            
+            # 주기적 앱 상태 모니터링
+            if current_time - last_health_check >= health_check_interval:
+                monitor_app_health()
+                last_health_check = current_time
+            
+            # 주기적 시스템 상태 로깅
+            if current_time - last_status_log >= status_log_interval:
+                log_system_status()
+                last_status_log = current_time
             
             # 메시지 처리
             try:
@@ -324,34 +477,45 @@ def runloop(Main_Queue : Queue):
             else:
                 # 일반 메시지 처리
                 if unpacked_msg.receiver_app in app_dict:
-                    if app_dict[unpacked_msg.receiver_app].pipe is None:
+                    app_elem = app_dict[unpacked_msg.receiver_app]
+                    
+                    if app_elem.pipe is None:
                         main_safe_log(f"Pipe is None for {unpacked_msg.receiver_app}", "ERROR", True)
                         continue
                     
-                    if not app_dict[unpacked_msg.receiver_app].process.is_alive():
-                        # 경고 메시지 빈도 줄이기 (10초에 한 번만)
-                        current_time = time.time()
-                        if not hasattr(main, '_last_dead_process_warning'):
-                            main._last_dead_process_warning = {}
-                        
-                        app_id = unpacked_msg.receiver_app
-                        if app_id not in main._last_dead_process_warning or current_time - main._last_dead_process_warning[app_id] > 10:
-                            main_safe_log(f"Process {app_id} is dead, skipping message", "WARNING", True)
-                            main._last_dead_process_warning[app_id] = current_time
+                    if not app_elem.process.is_alive():
+                        # 앱이 죽어있으면 재시작 시도
+                        main_safe_log(f"Process {unpacked_msg.receiver_app} is dead, attempting restart", "WARNING", True)
+                        if restart_app(unpacked_msg.receiver_app):
+                            # 재시작 성공 시 메시지 전송 재시도
+                            try:
+                                app_elem.pipe.send(recv_msg)
+                                main_safe_log(f"Message sent to restarted app {unpacked_msg.receiver_app}", "INFO", True)
+                            except Exception as e:
+                                main_safe_log(f"Failed to send message to restarted app {unpacked_msg.receiver_app}: {e}", "ERROR", True)
                         continue
                     
                     try:
-                        app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
+                        app_elem.pipe.send(recv_msg)
+                        # 성공적인 메시지 전송 시 앱 상태 업데이트
+                        app_elem.last_heartbeat = current_time
+                        app_elem.is_healthy = True
+                        app_elem.failure_count = 0
                     except BrokenPipeError:
                         main_safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, attempting restart", "WARNING", True)
                         restart_app(unpacked_msg.receiver_app)
                     except Exception as e:
                         try:
-                            app_dict[unpacked_msg.receiver_app].pipe.close()
+                            app_elem.pipe.close()
                         except:
                             pass
                         main_safe_log(f"파이프 닫기 오류: {e}", "WARNING")
                         main_safe_log(f"Failed to send message to {unpacked_msg.receiver_app}: {e}", "ERROR", True)
+                        
+                        # 메시지 전송 실패 시 앱 상태 업데이트
+                        app_elem.failure_count += 1
+                        if app_elem.failure_count >= app_failure_threshold:
+                            app_elem.is_healthy = False
                 else:
                     main_safe_log(f"Unknown receiver app: {unpacked_msg.receiver_app} (MsgID: {unpacked_msg.MsgID}, Sender: {unpacked_msg.sender_app})", "WARNING", True)
                     
