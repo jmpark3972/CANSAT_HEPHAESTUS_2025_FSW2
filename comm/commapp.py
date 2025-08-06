@@ -266,7 +266,7 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         tlm_data.gps_lat = safe_float(sep_data[2])
         tlm_data.gps_lon = safe_float(sep_data[3])
         try:
-            tlm_data.gps_sats = int(sep_data[4])
+            tlm_data.gps_sats = int(float(sep_data[4]))  # float을 거쳐서 안전하게 변환
         except (ValueError, TypeError):
             safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
             tlm_data.gps_sats = 0
@@ -466,7 +466,7 @@ class _tlm_data_format:
     gps_lon : float = 0.0
     gps_alt : float = 0.0
     gps_time : str = "00:00:00"
-    gps_sats : float = 0.0
+    gps_sats : int = 0
     filtered_roll : float = 0.0
     filtered_pitch : float = 0.0
     filtered_yaw : float = 0.0

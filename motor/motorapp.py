@@ -91,18 +91,20 @@ def motorapp_init() -> None:
 
     # 설정에 따른 초기화
     if config.FSW_CONF == config.CONF_PAYLOAD:
-        safe_log("Payload motor standby", "info".upper(), True)
+        # safe_log("Payload motor standby", "info".upper(), True)  # 불필요한 로그 비활성화
         # 페이로드 모터 초기 위치 설정
         set_servo_pulse(1500)  # 90도 (중립 위치)
     elif config.FSW_CONF == config.CONF_CONTAINER:
-        safe_log("Container motor standby", "info".upper(), True)
+        # safe_log("Container motor standby", "info".upper(), True)  # 불필요한 로그 비활성화
+        pass
     elif config.FSW_CONF == config.CONF_ROCKET:
-        safe_log("Rocket motor standby", "info".upper(), True)
+        # safe_log("Rocket motor standby", "info".upper(), True)  # 불필요한 로그 비활성화
+        pass
     else:
         safe_log("No Valid configuration!", "info".upper(), True)
         PAYLOAD_MOTOR_ENABLE = False
 
-    safe_log("Motorapp initialised", "info".upper(), True)
+    # safe_log("Motorapp initialised", "info".upper(), True)  # 불필요한 로그 비활성화
 
 
 def motorapp_terminate() -> None:
