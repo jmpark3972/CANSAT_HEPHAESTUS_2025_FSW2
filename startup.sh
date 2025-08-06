@@ -1,18 +1,40 @@
+#!/bin/bash
 # This is the startup script
 # This script should be executed on startup
 # configure the path to contain the python code you want to run first
 # the path should be absolute
 
-python_path="home/SpaceY/Desktop/CANSAT_HEPHAESTUS_2025_FSW2"
-venv_path="home/SpaceY/Desktop/env/bin"
+# Example) python_path = /home/hyunlee/Desktop/flight_code/Python_Cansat_FSW
 
-if [ "${python_path}" == "not_configured" ]; then
-echo "Startup Script is not Configured! Please Edit the file"
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+python_path="${SCRIPT_DIR}"
+venv_path="/home/SpaceY/Desktop/env"
 
-else
-echo "Path > ${python_path}"
-echo "venv > ${venv_path}/activate"
-. ${venv_path}/activate;
-cd ${python_path};python3 main.py
+echo "Script directory: ${SCRIPT_DIR}"
+echo "Python path: ${python_path}"
+echo "Virtual environment: ${venv_path}"
 
+# Check if virtual environment exists
+if [ ! -d "${venv_path}" ]; then
+    echo "ERROR: Virtual environment not found at ${venv_path}"
+    echo "Please check the venv_path in the script"
+    exit 1
 fi
+
+# Check if main.py exists
+if [ ! -f "${python_path}/main.py" ]; then
+    echo "ERROR: main.py not found in ${python_path}"
+    echo "Please check the python_path in the script"
+    exit 1
+fi
+
+echo "Path > ${python_path}"
+echo "venv > ${venv_path}/bin/activate"
+
+# Activate virtual environment and run main.py
+source "${venv_path}/bin/activate"
+cd "${python_path}"
+echo "Current directory: $(pwd)"
+echo "Starting main.py..."
+python3 main.py
