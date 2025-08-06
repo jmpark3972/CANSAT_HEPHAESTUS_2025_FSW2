@@ -115,6 +115,8 @@ class ThermalcameraAppArg:
     MID_SendHK: types.MID = 2201
     MID_SendCamTlmData: types.MID = 2202
     MID_SendCamFlightLogicData: types.MID = 2203
+    MID_GetLogStats: types.MID = 2204  # 로그 통계 요청
+    MID_SendLogStats: types.MID = 2205  # 로그 통계 전송
 
 
 class ThermoAppArg:
@@ -136,15 +138,15 @@ class Tmp007AppArg:
     MID_SendTmp007FlightLogicData: types.MID = 2603  # 4 Hz 온도 데이터
     MID_Tmp007Calibration:    types.MID = 2604  # CAL 처리용(옵션)
 
-# ────────── CAMERA (Raspberry Pi Camera Module v3 Wide) ──────────
+# ────────── CAMERA (Raspberry Pi Camera Module v3 Wide) - DISABLED ──────────
 class CameraAppArg:
     AppID: types.AppID = 27          # **고유해야 함**
-    AppName = "Camera"
+    AppName = "Camera (DISABLED)"
     MID_SendHK:            types.MID = 2701
-    MID_SendCameraTlmData:    types.MID = 2702  # 1 Hz 텔레메트리 (status, file_count)
-    MID_SendCameraFlightLogicData: types.MID = 2703  # 5 Hz 카메라 상태
-    MID_CameraActivate:    types.MID = 2704  # FlightLogic에서 카메라 활성화 명령
-    MID_CameraDeactivate:  types.MID = 2705  # FlightLogic에서 카메라 비활성화 명령
+    MID_SendCameraTlmData:    types.MID = 2702  # 1 Hz 텔레메트리 (status, file_count) - 비활성화됨
+    MID_SendCameraFlightLogicData: types.MID = 2703  # 5 Hz 카메라 상태 - 비활성화됨
+    MID_CameraActivate:    types.MID = 2704  # FlightLogic에서 카메라 활성화 명령 - 비활성화됨
+    MID_CameraDeactivate:  types.MID = 2705  # FlightLogic에서 카메라 비활성화 명령 - 비활성화됨
 
 
 # ────────── 샘플/테스트 앱 ──────────

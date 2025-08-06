@@ -39,16 +39,6 @@ CURRENT_THERMIS_TEMP: float = 0.0  # Thermis temperature (°C)
 MOTOR_TARGET_PULSE: int = -1  # 마지막으로 실제 서보에 지시한 각도 (스팸 방지용)
 
 # ──────────────────────────────
-# 3. 카메라 제어 변수
-# ──────────────────────────────
-CAMERA_ACTIVE: bool = False  # 카메라 활성화 상태
-CAMERA_STATUS: str = "IDLE"  # 카메라 상태
-CAMERA_VIDEO_COUNT: int = 0  # 저장된 비디오 파일 수
-CAMERA_DISK_USAGE: float = 0.0  # 디스크 사용량 (%)
-CAMERA_ACTIVATION_TIME: float = 0.0  # 카메라 활성화 시간
-CAMERA_DEACTIVATION_TIME: float = 0.0  # 카메라 비활성화 시간
-
-# ──────────────────────────────
 # 4. 상태 관리 변수
 # ──────────────────────────────
 STATE_LIST = ["발사대 대기", "상승", "최고점", "하강", "모터 완전 닫음", "착륙"]
@@ -399,74 +389,25 @@ def update_motor_logic(Main_Queue: Queue):
         set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
 
 # ──────────────────────────────
-# 10. 카메라 제어 함수
+# 10. 카메라 제어 함수 (비활성화됨)
 # ──────────────────────────────
 def activate_camera(Main_Queue: Queue) -> bool:
-    """카메라 활성화"""
-    global CAMERA_ACTIVE, CAMERA_ACTIVATION_TIME
-    
-    try:
-        if CAMERA_ACTIVE:
-            safe_log("Camera already active", "WARNING", True)
-            return True
-        
-        # 카메라 앱에 활성화 명령 전송
-        camera_msg = msgstructure.MsgStructure()
-        success = msgstructure.send_msg(Main_Queue, camera_msg,
-                              appargs.FlightlogicAppArg.AppID,
-                              appargs.CameraAppArg.AppID,
-                              appargs.CameraAppArg.MID_CameraActivate,
-                              "")
-        
-        if success:
-            CAMERA_ACTIVE = True
-            CAMERA_ACTIVATION_TIME = time.time()
-            log_system_event("CAMERA", "Camera activation command sent successfully")
-            return True
-        else:
-            log_error("Failed to send camera activation command", "activate_camera")
-            return False
-            
-    except Exception as e:
-        log_error(f"Camera activation error: {e}", "activate_camera")
-        return False
+    """카메라 활성화 (비활성화됨)"""
+    safe_log("Camera activation requested but camera is disabled", "INFO", True)
+    return True  # 항상 성공으로 반환
 
 def deactivate_camera(Main_Queue: Queue) -> bool:
-    """카메라 비활성화"""
-    global CAMERA_ACTIVE, CAMERA_DEACTIVATION_TIME
-    
-    try:
-        if not CAMERA_ACTIVE:
-            safe_log("Camera already inactive", "WARNING", True)
-            return True
-        
-        # 카메라 앱에 비활성화 명령 전송
-        camera_msg = msgstructure.MsgStructure()
-        success = msgstructure.send_msg(Main_Queue, camera_msg,
-                              appargs.FlightlogicAppArg.AppID,
-                              appargs.CameraAppArg.AppID,
-                              appargs.CameraAppArg.MID_CameraDeactivate,
-                              "")
-        
-        if success:
-            CAMERA_ACTIVE = False
-            CAMERA_DEACTIVATION_TIME = time.time()
-            log_system_event("CAMERA", "Camera deactivation command sent successfully")
-            return True
-        else:
-            log_error("Failed to send camera deactivation command", "deactivate_camera")
-            return False
-            
-    except Exception as e:
-        log_error(f"Camera deactivation error: {e}", "deactivate_camera")
-        return False
+    """카메라 비활성화 (비활성화됨)"""
+    safe_log("Camera deactivation requested but camera is disabled", "INFO", True)
+    return True  # 항상 성공으로 반환
 
 # ──────────────────────────────
 # 11. 메시지 핸들러
 # ──────────────────────────────
 def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
     """메시지 핸들러"""
-    global CURRENT_TEMP, CURRENT_THERMIS_TEMP, CAMERA_ACTIVE, CAMERA_STATUS, CAMERA_VIDEO_COUNT, CAMERA_DISK_USAGE
+    global CURRENT_TEMP, CURRENT_THERMIS_TEMP
+    # global CAMERA_ACTIVE, CAMERA_STATUS, CAMERA_VIDEO_COUNT, CAMERA_DISK_USAGE  # 카메라 관련 - 비활성화됨
     global LAST_GPS, LAST_IMU_ROLL, LAST_IMU_PITCH, LAST_BAROMETER, LAST_FIR1, LAST_THERMAL
     
     try:
@@ -544,23 +485,9 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
             except Exception as e:
                 log_error(f"Thermal data parsing error: {e}", "command_handler")
         
-        # Camera 상태 데이터
+        # Camera 상태 데이터 (비활성화됨)
         elif recv_msg.MsgID == appargs.CameraAppArg.MID_SendCameraFlightLogicData:
-            try:
-                data = recv_msg.data.split(',')
-                if len(data) >= 4:
-                    CAMERA_STATUS = data[0]
-                    CAMERA_VIDEO_COUNT = int(data[1])
-                    CAMERA_DISK_USAGE = float(data[2])
-                    
-                    # 디스크 사용량 경고
-                    if CAMERA_DISK_USAGE > 95:
-                        log_error(f"Critical disk space: {CAMERA_DISK_USAGE:.1f}%", "camera_status")
-                    elif CAMERA_DISK_USAGE > 85:
-                        log_error(f"Low disk space: {CAMERA_DISK_USAGE:.1f}%", "camera_status")
-                        
-            except Exception as e:
-                log_error(f"Camera status parsing error: {e}", "command_handler")
+            safe_log("Camera status data received but camera is disabled", "INFO", True)
         
         # Pitot 데이터 (2503)
         elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotFlightLogicData:
@@ -770,11 +697,8 @@ def ascent_state_transition(Main_Queue: Queue):
     """상승 상태로 전환"""
     log_and_update_state(1, "CHANGED STATE TO ASCENT")
     
-    # 상승 시 카메라 활성화
-    if activate_camera(Main_Queue):
-        safe_log("Camera activated for ascent phase", "INFO", True)
-    else:
-        safe_log("Failed to activate camera for ascent phase", "ERROR", True)
+    # 상승 시 카메라 활성화 (비활성화됨)
+    safe_log("Camera activation skipped (camera disabled)", "INFO", True)
 
 def apogee_state_transition(Main_Queue: Queue):
     """최고점 상태로 전환"""
@@ -811,17 +735,8 @@ def landed_state_transition(Main_Queue: Queue):
     """착륙 상태로 전환"""
     log_and_update_state(5, "CHANGED STATE TO LANDED")
     
-    # 착륙 후 30초 대기 후 카메라 비활성화
-    def delayed_camera_deactivation():
-        time.sleep(30)  # 30초 대기
-        if deactivate_camera(Main_Queue):
-            safe_log("Camera deactivated after 30 seconds from landing", "INFO", True)
-        else:
-            safe_log("Failed to deactivate camera after landing", "ERROR", True)
-    
-    # 별도 스레드에서 카메라 비활성화 실행
-    deactivation_thread = threading.Thread(target=delayed_camera_deactivation, daemon=True)
-    deactivation_thread.start()
+    # 착륙 후 카메라 비활성화 (비활성화됨)
+    safe_log("Camera deactivation skipped (camera disabled)", "INFO", True)
 
 # ──────────────────────────────
 # 15. 초기화 및 종료 함수

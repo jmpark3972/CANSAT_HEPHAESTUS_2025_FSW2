@@ -685,9 +685,8 @@ def cmd_rbt(Main_Queue: Queue):
     os.system("systemctl reboot -i")
         
 def cmd_cam(option:str, Main_Queue:Queue):
-
-    RouteCamCmdMsg = msgstructure.MsgStructure()
-    msgstructure.send_msg(Main_Queue, RouteCamCmdMsg, appargs.CommAppArg.AppID, appargs.ThermalcameraAppArg.AppID, appargs.CommAppArg.MID_RouteCmd_CAM, option)
+    """카메라 제어 명령 (비활성화됨)"""
+    safe_log(f"Camera command '{option}' received but camera is disabled", "INFO", True)
     return
 
 # This fuction reads command from Ground Station

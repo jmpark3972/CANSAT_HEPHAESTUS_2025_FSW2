@@ -14,8 +14,9 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
         print(f"[ThermalCamera] 원본 메시지: {message}")
 
 from lib import appargs, msgstructure, logging, prevstate
-import signal, threading, time
+import signal, threading, time, os, csv
 from multiprocessing import Queue, connection
+from datetime import datetime
 
 from thermal_camera import thermo_camera as tcam
 
@@ -28,9 +29,115 @@ THERMOCAMAPP_RUNSTATUS = True
 THERMAL_AVG = 0.0
 THERMAL_MIN = 0.0
 THERMAL_MAX = 0.0
+THERMAL_FULL_DATA = None  # 738개 픽셀 전체 데이터
 
 # ──────────────────────────────
-# 1. 메시지 핸들러
+# 1. 강화된 로깅 시스템
+# ──────────────────────────────
+LOG_DIR = "logs/thermal_camera"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# 로그 파일 경로들
+THERMAL_DATA_LOG_PATH = os.path.join(LOG_DIR, "thermal_data.csv")
+THERMAL_STATS_LOG_PATH = os.path.join(LOG_DIR, "thermal_stats.csv")
+THERMAL_PIXEL_LOG_PATH = os.path.join(LOG_DIR, "thermal_pixels.csv")
+
+# CSV 헤더 정의
+THERMAL_DATA_HEADERS = ["timestamp", "epoch", "min_temp", "max_temp", "avg_temp", "pixel_count"]
+THERMAL_STATS_HEADERS = ["timestamp", "epoch", "min_temp", "max_temp", "avg_temp", "std_dev", "hot_pixels", "cold_pixels"]
+THERMAL_PIXEL_HEADERS = ["timestamp", "epoch", "pixel_index", "row", "col", "temperature"]
+
+def log_thermal_data(min_temp: float, max_temp: float, avg_temp: float, temps: list):
+    """열화상 데이터를 CSV로 로깅"""
+    try:
+        timestamp = datetime.now().isoformat()
+        epoch = time.time()
+        
+        # 기본 데이터 로깅
+        with open(THERMAL_DATA_LOG_PATH, 'a', newline='') as f:
+            writer = csv.writer(f)
+            if os.path.getsize(THERMAL_DATA_LOG_PATH) == 0:  # 파일이 비어있으면 헤더 추가
+                writer.writerow(THERMAL_DATA_HEADERS)
+            writer.writerow([timestamp, epoch, min_temp, max_temp, avg_temp, len(temps)])
+        
+        # 통계 데이터 로깅
+        if temps:
+            import numpy as np
+            temp_array = np.array(temps)
+            std_dev = np.std(temp_array)
+            hot_pixels = np.sum(temp_array > avg_temp + std_dev)
+            cold_pixels = np.sum(temp_array < avg_temp - std_dev)
+            
+            with open(THERMAL_STATS_LOG_PATH, 'a', newline='') as f:
+                writer = csv.writer(f)
+                if os.path.getsize(THERMAL_STATS_LOG_PATH) == 0:
+                    writer.writerow(THERMAL_STATS_HEADERS)
+                writer.writerow([timestamp, epoch, min_temp, max_temp, avg_temp, std_dev, hot_pixels, cold_pixels])
+        
+        # 개별 픽셀 데이터 로깅 (선택적 - 용량이 클 수 있음)
+        # 파일 크기 제한: 100MB (약 50만 행)
+        if temps and len(temps) == 768:  # 24x32 = 768 픽셀
+            file_size = os.path.getsize(THERMAL_PIXEL_LOG_PATH) if os.path.exists(THERMAL_PIXEL_LOG_PATH) else 0
+            max_size = 100 * 1024 * 1024  # 100MB
+            
+            if file_size < max_size:
+                with open(THERMAL_PIXEL_LOG_PATH, 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    if file_size == 0:  # 파일이 비어있으면 헤더 추가
+                        writer.writerow(THERMAL_PIXEL_HEADERS)
+                    
+                    for i, temp in enumerate(temps):
+                        row = i // 32  # 32열
+                        col = i % 32   # 32행
+                        writer.writerow([timestamp, epoch, i, row, col, temp])
+            else:
+                safe_log("Thermal pixel log file size limit reached (100MB)", "WARNING", True)
+                    
+    except Exception as e:
+        safe_log(f"Thermal data logging error: {e}", "ERROR", True)
+
+def get_log_stats():
+    """로그 파일 통계 반환"""
+    try:
+        stats = {}
+        for log_file in [THERMAL_DATA_LOG_PATH, THERMAL_STATS_LOG_PATH, THERMAL_PIXEL_LOG_PATH]:
+            if os.path.exists(log_file):
+                with open(log_file, 'r') as f:
+                    lines = f.readlines()
+                    stats[os.path.basename(log_file)] = len(lines) - 1  # 헤더 제외
+                
+                # 파일 크기 정보 추가
+                file_size = os.path.getsize(log_file)
+                stats[f"{os.path.basename(log_file)}_size_mb"] = round(file_size / (1024 * 1024), 2)
+            else:
+                stats[os.path.basename(log_file)] = 0
+                stats[f"{os.path.basename(log_file)}_size_mb"] = 0
+        return stats
+    except Exception as e:
+        safe_log(f"Log stats error: {e}", "ERROR", True)
+        return {}
+
+def backup_logs():
+    """로그 파일 백업"""
+    try:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = os.path.join(LOG_DIR, f"backup_{timestamp}")
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        for log_file in [THERMAL_DATA_LOG_PATH, THERMAL_STATS_LOG_PATH, THERMAL_PIXEL_LOG_PATH]:
+            if os.path.exists(log_file):
+                import shutil
+                backup_path = os.path.join(backup_dir, os.path.basename(log_file))
+                shutil.copy2(log_file, backup_path)
+                safe_log(f"Backed up {log_file} to {backup_path}", "INFO", True)
+        
+        return backup_dir
+    except Exception as e:
+        safe_log(f"Log backup error: {e}", "ERROR", True)
+        return None
+
+# ──────────────────────────────
+# 2. 메시지 핸들러
 # ──────────────────────────────
 def command_handler(Main_Queue: Queue,
                     recv_msg: msgstructure.MsgStructure):
@@ -42,7 +149,22 @@ def command_handler(Main_Queue: Queue,
         THERMOCAMAPP_RUNSTATUS = False
         return
 
-    # (2) 기타 커맨드는 필요 시 확장
+    # (2) 로그 통계 요청 (새로운 명령어)
+    elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_GetLogStats:
+        stats = get_log_stats()
+        stats_msg = f"Log stats: {stats}"
+        safe_log(stats_msg, "INFO", True)
+        
+        # HK 앱으로 로그 통계 전송
+        hk_msg = msgstructure.MsgStructure()
+        msgstructure.send_msg(Main_Queue, hk_msg,
+                              appargs.ThermalcameraAppArg.AppID,
+                              appargs.HkAppArg.AppID,
+                              appargs.ThermalcameraAppArg.MID_SendLogStats,
+                              str(stats))
+        return
+
+    # (3) 기타 커맨드는 필요 시 확장
     safe_log(f"MID {recv_msg.MsgID} not handled", "error".upper(), True)
 
 # ──────────────────────────────
@@ -99,13 +221,20 @@ MIN_T, MAX_T, AVG_T = 0.0, 0.0, 0.0
 
 def read_cam_data(cam):
     """MLX90640 데이터 읽기 스레드."""
-    global THERMOCAMAPP_RUNSTATUS, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX
+    global THERMOCAMAPP_RUNSTATUS, THERMAL_AVG, THERMAL_MIN, THERMAL_MAX, THERMAL_FULL_DATA
     while THERMOCAMAPP_RUNSTATUS:
         try:
             # channel_guard를 사용하여 안전하게 센서 읽기
             data = tcam.read_cam(cam)
-            if data:
-                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG = data  # min, max, avg 순서
+            if data and len(data) >= 4:  # min, max, avg, temps 순서
+                THERMAL_MIN, THERMAL_MAX, THERMAL_AVG, temps = data
+                THERMAL_FULL_DATA = temps  # 768개 픽셀 데이터
+                
+                # 상세 로깅 (2Hz로 실행되므로 로그 파일이 커질 수 있음)
+                log_thermal_data(THERMAL_MIN, THERMAL_MAX, THERMAL_AVG, temps)
+                
+                safe_log(f"Thermal data: min={THERMAL_MIN:.1f}°C, max={THERMAL_MAX:.1f}°C, avg={THERMAL_AVG:.1f}°C, pixels={len(temps)}", "DEBUG", False)
+                
         except Exception as e:
             safe_log(f"Thermal camera read error: {e}", "error".upper(), True)
         time.sleep(0.5)  # 2 Hz
