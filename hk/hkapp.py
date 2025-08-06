@@ -155,7 +155,7 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
 
     try:
         while HKAPP_RUNSTATUS:
-                # Receive Message From Pipe with timeout
+            # Receive Message From Pipe with timeout
                 # Non-blocking receive with timeout
                 if Main_Pipe.poll(0.1):  # 0.1초 타임아웃으로 더 빠른 반응
                     try:
