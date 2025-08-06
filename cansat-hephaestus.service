@@ -1,0 +1,26 @@
+[Unit]
+Description=CANSAT HEPHAESTUS 2025 FSW2 Flight Software
+After=network.target pigpiod.service
+Wants=pigpiod.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/CANSAT_HEPHAESTUS_2025_FSW2
+Environment=PATH=/home/pi/env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/pi/env/bin/python3 /home/pi/CANSAT_HEPHAESTUS_2025_FSW2/main.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# 하드웨어 접근 권한
+SupplementaryGroups=gpio video i2c
+
+# 환경 변수 설정
+Environment=PYTHONPATH=/home/pi/CANSAT_HEPHAESTUS_2025_FSW2
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=multi-user.target 

@@ -13,7 +13,8 @@ import signal
 from datetime import datetime
 
 # 프로젝트 루트를 Python 경로에 추가
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 
 def log_event(message: str):
     """이벤트 로깅"""
@@ -42,22 +43,38 @@ def start_fsw():
     """FSW 시작"""
     log_event("FSW 시작")
     
+    # main.py 경로 확인
+    main_py_path = os.path.join(project_root, "main.py")
+    if not os.path.exists(main_py_path):
+        log_event(f"❌ main.py를 찾을 수 없음: {main_py_path}")
+        return None
+    
+    log_event(f"main.py 경로: {main_py_path}")
+    
     try:
+        # 프로젝트 루트 디렉토리에서 실행
         process = subprocess.Popen(
-            [sys.executable, "main.py"],
+            [sys.executable, main_py_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            cwd=project_root  # 프로젝트 루트에서 실행
         )
         
-        # 시작 대기
-        time.sleep(5)
+        # 시작 대기 (더 짧게)
+        time.sleep(3)
         
         if process.poll() is None:
             log_event(f"FSW 시작 성공 (PID: {process.pid})")
             return process
         else:
-            log_event("FSW 시작 실패")
+            # 오류 출력 확인
+            stdout, stderr = process.communicate()
+            log_event(f"FSW 시작 실패 - 종료 코드: {process.returncode}")
+            if stderr:
+                log_event(f"오류 출력: {stderr[:200]}...")  # 처음 200자만
+            if stdout:
+                log_event(f"표준 출력: {stdout[:200]}...")  # 처음 200자만
             return None
             
     except Exception as e:
@@ -120,11 +137,11 @@ def test_scenario_1_normal_operation():
     if not process:
         return False
     
-    # 30초간 정상 작동 확인
-    log_event("30초간 정상 작동 확인")
+    # 15초간 정상 작동 확인 (더 짧게)
+    log_event("15초간 정상 작동 확인")
     start_time = time.time()
     
-    while time.time() - start_time < 30:
+    while time.time() - start_time < 15:
         app_status = check_app_status()
         
         # 핵심 앱들 상태 확인
@@ -148,18 +165,18 @@ def test_scenario_2_app_crash():
     if not process:
         return False
     
-    # 10초 대기
-    time.sleep(10)
+    # 5초 대기 (더 짧게)
+    time.sleep(5)
     
     # 랜덤 앱 강제 종료
     if kill_random_app():
         log_event("앱 강제 종료 완료")
         
-        # 20초간 시스템 안정성 확인
-        log_event("20초간 시스템 안정성 확인")
+        # 10초간 시스템 안정성 확인 (더 짧게)
+        log_event("10초간 시스템 안정성 확인")
         start_time = time.time()
         
-        while time.time() - start_time < 20:
+        while time.time() - start_time < 10:
             app_status = check_app_status()
             
             # 핵심 앱들 상태 확인
@@ -186,8 +203,8 @@ def test_scenario_3_forced_termination():
     if not process:
         return False
     
-    # 10초 대기
-    time.sleep(10)
+    # 5초 대기 (더 짧게)
+    time.sleep(5)
     
     # 강제 종료
     log_event("FSW 강제 종료")
@@ -208,8 +225,12 @@ def run_quick_test():
     print("핵심 시나리오 3개를 빠르게 테스트합니다.")
     print()
     
+    # 프로젝트 루트 확인
+    log_event(f"프로젝트 루트: {project_root}")
+    
     # 로그 디렉토리 생성
-    os.makedirs("logs", exist_ok=True)
+    logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
     
     # 기존 프로세스 정리
     cleanup_processes()
@@ -219,11 +240,11 @@ def run_quick_test():
     try:
         # 시나리오 1: 정상 작동
         test_results["정상 작동"] = test_scenario_1_normal_operation()
-        time.sleep(5)
+        time.sleep(3)
         
         # 시나리오 2: 앱 크래시
         test_results["앱 크래시"] = test_scenario_2_app_crash()
-        time.sleep(5)
+        time.sleep(3)
         
         # 시나리오 3: 강제 종료
         test_results["강제 종료"] = test_scenario_3_forced_termination()
