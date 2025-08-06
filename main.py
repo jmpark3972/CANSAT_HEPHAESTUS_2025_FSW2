@@ -524,6 +524,12 @@ def runloop(Main_Queue : Queue):
                         main_safe_log(f"Termination message received, but receiver app {unpacked_msg.receiver_app} not found", "WARNING", True)
                     elif unpacked_msg.MsgID == appargs.HkAppArg.MID_Housekeeping:
                         main_safe_log(f"HK message received, but receiver app {unpacked_msg.receiver_app} not found", "WARNING", True)
+                    elif unpacked_msg.MsgID == appargs.MainAppArg.MID_SendHK:
+                        # CommApp에서 보낸 디버그 상태 메시지 처리
+                        if unpacked_msg.data == "DEBUG_ON":
+                            main_safe_log("🔍 DEBUG MODE ENABLED - CommApp debug output will be shown", "INFO", True)
+                        elif unpacked_msg.data == "DEBUG_OFF":
+                            main_safe_log("🔍 DEBUG MODE DISABLED - CommApp debug output hidden", "INFO", True)
                     else:
                         main_safe_log(f"Unhandled message type {unpacked_msg.MsgID} for unknown receiver {unpacked_msg.receiver_app}", "WARNING", True)
             

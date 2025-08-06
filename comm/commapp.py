@@ -14,6 +14,11 @@ def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     try:
         from lib.logging import safe_log as lib_safe_log
         lib_safe_log(f"[Comm] {message}", level, printlogs)
+        
+        # DEBUG 레벨일 때는 항상 콘솔에 출력 (메인 프로세스에서도 볼 수 있도록)
+        if level.upper() == "DEBUG" or os.environ.get("LOG_LEVEL", "INFO").upper() == "DEBUG":
+            print(f"[Comm-DEBUG] {message}")
+            
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
         print(f"[Comm] 로깅 실패: {e}")
@@ -612,30 +617,22 @@ def send_tlm(serial_instance):
                         str(tlm_data.imu_calibration_mag),
                         str(tlm_data.imu_system_status)])+"\n"
 
-            tlm_debug_text = f"\n=== TELEMETRY DEBUG INFO ===\n" \
-                    f"ID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
-                    f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure}), SeaLevelP({tlm_data.barometer_sea_level_pressure})\n" \
-                     f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
-                     f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
-                     f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
-                     f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
-                     f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
-                     f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
-                     f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
-                     f"Euler angle({tlm_data.filtered_roll:.6f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
-                     f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
-                     f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
-                     f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
-                     f"Motor : Status({tlm_data.motor_status}) \n" \
-                     f"=== END DEBUG INFO ===\n"
-                     #f"Rotation Rate : {tlm_data.rot_rate}\n"
-
-            # 항상 표시되도록 INFO 레벨로 로그
-            safe_log(tlm_debug_text, "INFO", True)
-            
-            # 상세 정보를 별도 파일에 저장
-            emergency_log_to_file("DEBUG", tlm_debug_text)
+            # DEBUG 모드일 때만 디버그 텍스트 출력
+            if os.environ.get("LOG_LEVEL", "INFO").upper() == "DEBUG":
+                tlm_debug_text = f"\n=== TELEMETRY DEBUG INFO ===\n" \
+                        f"ID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
+                        f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure}), SeaLevelP({tlm_data.barometer_sea_level_pressure})\n" \
+                         f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
+                         f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
+                         f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
+                         f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
+                         f"GPS : Time({tlm_data.gps_time}), Alt({tlm_data.gps_alt}), Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Sats({tlm_data.gps_sats})\n" \
+                         f"IMU : Temp({tlm_data.imu_temperature}), Roll({tlm_data.filtered_roll}), Pitch({tlm_data.filtered_pitch}), Yaw({tlm_data.filtered_yaw})\n" \
+                         f"Motor : Status({tlm_data.motor_status})\n" \
+                         f"CMD Echo : {tlm_data.cmd_echo}\n" \
+                         f"=== END DEBUG INFO ===\n"
+                
+                safe_log(tlm_debug_text, "debug".upper(), True)
 
             # Only send telemetry when telemetry is enabled
             if TELEMETRY_ENABLE:
@@ -692,9 +689,17 @@ def cmd_debug(option:str, Main_Queue:Queue):
     if option == "ON":
         os.environ["LOG_LEVEL"] = "DEBUG"
         safe_log("Debug output enabled", "info".upper(), True)
+        safe_log("🔍 DEBUG MODE ACTIVATED - Detailed CommApp output will be shown", "debug".upper(), True)
+        # 메인 프로세스에도 디버그 상태 전달
+        debug_msg = msgstructure.MsgStructure()
+        msgstructure.send_msg(Main_Queue, debug_msg, appargs.CommAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_SendHK, "DEBUG_ON")
     elif option == "OFF":
         os.environ["LOG_LEVEL"] = "INFO"
         safe_log("Debug output disabled", "info".upper(), True)
+        safe_log("🔍 DEBUG MODE DEACTIVATED - CommApp debug output hidden", "debug".upper(), True)
+        # 메인 프로세스에도 디버그 상태 전달
+        debug_msg = msgstructure.MsgStructure()
+        msgstructure.send_msg(Main_Queue, debug_msg, appargs.CommAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_SendHK, "DEBUG_OFF")
     else:
         safe_log(f"Debug command option '{option}' not recognized. Use 'ON' or 'OFF'", "warning".upper(), True)
     return
