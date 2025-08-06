@@ -360,9 +360,7 @@ def motorapp_main(main_q: Queue, main_pipe: connection.Connection):
                     # 타임아웃 시 루프 계속
                     continue
                     
-                m = msgstructure.MsgStructure()
-                if not msgstructure.unpack_msg(m, raw):
-                    continue
+                m = raw
 
                 if m.receiver_app in (appargs.MotorAppArg.AppID, appargs.MainAppArg.AppID):
                     command_handler(main_q, m)

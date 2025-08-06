@@ -852,12 +852,7 @@ def flightlogicapp_main(Main_Queue: Queue, Main_Pipe: connection.Connection):
             try:
                 # 메시지 수신
                 if Main_Pipe.poll(0.1):
-                    message = Main_Pipe.recv()
-                    recv_msg = msgstructure.MsgStructure()
-                    
-                    # Unpack Message, Skip this message if unpacked message is not valid
-                    if msgstructure.unpack_msg(recv_msg, message) == False:
-                        continue
+                    recv_msg = Main_Pipe.recv()
                     
                     # Validate Message, Skip this message if target AppID different from flightlogicapp's AppID
                     if recv_msg.receiver_app == appargs.FlightlogicAppArg.AppID or recv_msg.receiver_app == appargs.MainAppArg.AppID:

@@ -166,11 +166,7 @@ def hkapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 # 타임아웃 시 루프 계속
                 continue
                 
-            recv_msg = msgstructure.MsgStructure()
-
-            # Unpack Message, Skip this message if unpacked message is not valid
-            if msgstructure.unpack_msg(recv_msg, message) == False:
-                continue
+            recv_msg = message
             
             # Validate Message, Skip this message if target AppID different from hkapp's AppID
             # Exception when the message is from main app

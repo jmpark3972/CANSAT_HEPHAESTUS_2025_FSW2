@@ -487,7 +487,7 @@ def runloop(Main_Queue : Queue):
                             safe_log(f"Process {unpacked_msg.receiver_app} is dead, skipping message", "WARNING", True)
                             continue
                             
-                        app_dict[unpacked_msg.receiver_app].pipe.send(recv_msg)
+                        app_dict[unpacked_msg.receiver_app].pipe.send(unpacked_msg)
                     except BrokenPipeError:
                         safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, but continuing", "WARNING", True)
                         try:
