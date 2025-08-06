@@ -77,6 +77,14 @@ def read_cam(sensor, ascii: bool = False):
         max_temp = max(temps)
         avg_temp = sum(temps) / len(temps)
         
+        # 738개 전체 데이터를 로그에 저장
+        try:
+            timestamp = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+            temp_str = ",".join([f"{temp:.2f}" for temp in temps])
+            log_thermal(f"THERMAL_DATA:{temp_str}")
+        except Exception as log_e:
+            print(f"Thermal data logging error: {log_e}")
+        
         return min_temp, max_temp, avg_temp, temps
         
     except Exception as e:
