@@ -109,5 +109,7 @@ def convert(buf):
     # ─ 온도 (16-bit, unsigned) ─
     rawT = (buf[4] << 8) | buf[5]            # [23:08]
     temp = (rawT / 65536.0) * 125.0 - 40.0   # –40 ~ +85 °C
+    # 온도 캘리브레이션: -60도 오프셋 적용
+    temp = temp - 60.0
 
     return dp, temp 

@@ -95,7 +95,8 @@ DEFAULT_CONFIG = {
         "I2C_ADDRESS": 0x28,
         "READ_INTERVAL": 0.1,       # 초
         "TELMETRY_INTERVAL": 1.0,   # 초
-        "FLIGHTLOGIC_INTERVAL": 0.1  # 초 (10Hz)
+        "FLIGHTLOGIC_INTERVAL": 0.1,  # 초 (10Hz)
+        "TEMP_CALIBRATION_OFFSET": -60.0  # 온도 캘리브레이션 오프셋
     },
     
     # 열화상 카메라 설정

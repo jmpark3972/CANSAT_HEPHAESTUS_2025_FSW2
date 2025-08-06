@@ -213,9 +213,18 @@ def pitotapp_init():
     """Pitot 앱 초기화"""
     global PITOT_BUS, PITOT_MUX, PRESSURE_OFFSET, TEMP_OFFSET
     
-    # 캘리브레이션 오프셋 로드
-    PRESSURE_OFFSET = getattr(prevstate, "PREV_PITOT_POFF", 0.0)
-    TEMP_OFFSET = getattr(prevstate, "PREV_PITOT_TOFF", 0.0)
+    # 설정에서 캘리브레이션 오프셋 로드
+    try:
+        from lib import config
+        temp_offset = config.get('PITOT.TEMP_CALIBRATION_OFFSET', -60.0)
+        PRESSURE_OFFSET = getattr(prevstate, "PREV_PITOT_POFF", 0.0)
+        TEMP_OFFSET = getattr(prevstate, "PREV_PITOT_TOFF", temp_offset)
+        safe_log(f"Pitot temperature calibration offset loaded: {TEMP_OFFSET}°C", "info".upper(), True)
+    except Exception as e:
+        safe_log(f"Failed to load pitot calibration from config: {e}", "warning".upper(), True)
+        # 기본값 사용
+        PRESSURE_OFFSET = getattr(prevstate, "PREV_PITOT_POFF", 0.0)
+        TEMP_OFFSET = getattr(prevstate, "PREV_PITOT_TOFF", -60.0)
     
     # Pitot 센서 초기화
     PITOT_BUS, PITOT_MUX = pitot.init_pitot()
