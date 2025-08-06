@@ -317,9 +317,18 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 2:
+        if len(sep_data) == 5:  # 차압, 온도, 유속도, 총압, 정압
             tlm_data.pitot_pressure = float(sep_data[0])
             tlm_data.pitot_temp = float(sep_data[1])
+            tlm_data.pitot_airspeed = float(sep_data[2])
+            tlm_data.pitot_total_pressure = float(sep_data[3])
+            tlm_data.pitot_static_pressure = float(sep_data[4])
+        elif len(sep_data) == 2:  # 기존 호환성 유지
+            tlm_data.pitot_pressure = float(sep_data[0])
+            tlm_data.pitot_temp = float(sep_data[1])
+            tlm_data.pitot_airspeed = 0.0
+            tlm_data.pitot_total_pressure = 0.0
+            tlm_data.pitot_static_pressure = 0.0
 
     # 모터 상태 수신
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
@@ -466,6 +475,9 @@ class _tlm_data_format:
     thermis_temp: float = 0.0
     pitot_pressure: float = 0.0
     pitot_temp: float = 0.0
+    pitot_airspeed: float = 0.0
+    pitot_total_pressure: float = 0.0
+    pitot_static_pressure: float = 0.0
     tmp007_object_temp: float = 0.0
     tmp007_die_temp: float = 0.0
     tmp007_voltage: float = 0.0

@@ -63,7 +63,7 @@ def emergency_log_to_file(log_type: str, message: str):
     except Exception as e:
         print(f"Emergency logging failed: {e}")
 
-def log_high_freq_pitot_data(pressure, temperature):
+def log_high_freq_pitot_data(pressure, temperature, airspeed, total_pressure, static_pressure):
     """고주파수 Pitot 데이터를 CSV로 로깅"""
     try:
         timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
@@ -72,12 +72,12 @@ def log_high_freq_pitot_data(pressure, temperature):
         if not os.path.exists(HIGH_FREQ_LOG_PATH):
             with open(HIGH_FREQ_LOG_PATH, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['timestamp', 'pressure', 'temperature'])
+                writer.writerow(['timestamp', 'pressure', 'temperature', 'airspeed', 'total_pressure', 'static_pressure'])
         
         # 데이터 추가
         with open(HIGH_FREQ_LOG_PATH, 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([timestamp, pressure, temperature])
+            writer.writerow([timestamp, pressure, temperature, airspeed, total_pressure, static_pressure])
             
     except Exception as e:
         emergency_log_to_file("ERROR", f"High frequency pitot logging failed: {e}")
@@ -98,23 +98,30 @@ def log_csv(filepath: str, headers: list, data: list):
             
     except Exception as e:
         emergency_log_to_file("ERROR", f"CSV logging failed: {e}")
+
 PITOT_BUS = None
 PITOT_MUX = None
 PRESSURE_OFFSET = 0.0
 TEMP_OFFSET = 0.0
 PITOT_PRESSURE = 0.0
 PITOT_TEMP = 0.0
+PITOT_AIRSPEED = 0.0
+PITOT_TOTAL_PRESSURE = 0.0
+PITOT_STATIC_PRESSURE = 0.0
+CURRENT_ALTITUDE = 0.0  # 현재 고도 (barometer에서 받아올 예정)
 OFFSET_MUTEX = threading.Lock()
 
 # ──────────────────────────────────────────────────────────
 # 2) 명령 처리
 # ──────────────────────────────────────────────────────────
 def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
-    global PITOTAPP_RUNSTATUS, PRESSURE_OFFSET, TEMP_OFFSET
+    global PITOTAPP_RUNSTATUS, PRESSURE_OFFSET, TEMP_OFFSET, CURRENT_ALTITUDE
+    
     if recv.MsgID == appargs.MainAppArg.MID_TerminateProcess:
         safe_log("PITOTAPP termination detected", "info".upper(), True)
         PITOTAPP_RUNSTATUS = False
         return
+        
     if recv.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
         try:
             pressure_off, temp_off = map(float, recv.data.split(','))
@@ -127,25 +134,36 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
         prevstate.update_pitotcal(PRESSURE_OFFSET, TEMP_OFFSET)
         safe_log(f"Pitot offset set to pressure={PRESSURE_OFFSET}, temp={TEMP_OFFSET}", "info".upper(), True)
         return
+        
+    # Barometer에서 고도 정보 수신
+    elif recv.MsgID == appargs.BarometerAppArg.MID_SendBarometerTlmData:
+        try:
+            sep_data = recv.data.split(",")
+            if len(sep_data) >= 3:
+                CURRENT_ALTITUDE = float(sep_data[2])  # 고도 정보
+        except Exception as e:
+            safe_log(f"Altitude update error: {e}", "warning".upper(), True)
+        return
+        
     safe_log(f"Unhandled MID {recv.MsgID}", "error".upper(), True)
 
 # ──────────────────────────────────────────────────────────
 # 3) HK 전송 스레드
 # ──────────────────────────────────────────────────────────
 def send_hk(Main_Queue: Queue):
-    global PITOT_PRESSURE, PITOT_TEMP
+    global PITOT_PRESSURE, PITOT_TEMP, PITOT_AIRSPEED, PITOT_TOTAL_PRESSURE, PITOT_STATIC_PRESSURE
     while PITOTAPP_RUNSTATUS:
         try:
             hk_msg = msgstructure.MsgStructure()
-            hk_payload = f"run={PITOTAPP_RUNSTATUS},pressure={PITOT_PRESSURE:.2f},temp={PITOT_TEMP:.2f}"
+            hk_payload = f"run={PITOTAPP_RUNSTATUS},pressure={PITOT_PRESSURE:.2f},temp={PITOT_TEMP:.2f},airspeed={PITOT_AIRSPEED:.2f},total_p={PITOT_TOTAL_PRESSURE:.2f},static_p={PITOT_STATIC_PRESSURE:.2f}"
             msgstructure.fill_msg(hk_msg, appargs.PitotAppArg.AppID, appargs.MainAppArg.AppID, appargs.PitotAppArg.MID_SendHK, hk_payload)
             status = Main_Queue.put(msgstructure.pack_msg(hk_msg))
             
             if status:
                 # HK 데이터 로깅
                 timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
-                hk_row = [timestamp, PITOTAPP_RUNSTATUS, PITOT_PRESSURE, PITOT_TEMP]
-                log_csv(HK_LOG_PATH, ["timestamp", "run", "pressure", "temperature"], hk_row)
+                hk_row = [timestamp, PITOTAPP_RUNSTATUS, PITOT_PRESSURE, PITOT_TEMP, PITOT_AIRSPEED, PITOT_TOTAL_PRESSURE, PITOT_STATIC_PRESSURE]
+                log_csv(HK_LOG_PATH, ["timestamp", "run", "pressure", "temperature", "airspeed", "total_pressure", "static_pressure"], hk_row)
                 
             time.sleep(5.0)  # 5초마다 HK 전송
         except Exception as e:
@@ -156,46 +174,73 @@ def send_hk(Main_Queue: Queue):
 # 4) Pitot 데이터 읽기 스레드
 # ──────────────────────────────────────────────────────────
 def read_pitot_data(Main_Queue: Queue):
-    global PITOT_BUS, PITOT_MUX, PITOT_PRESSURE, PITOT_TEMP
+    global PITOT_BUS, PITOT_MUX, PITOT_PRESSURE, PITOT_TEMP, PITOT_AIRSPEED, PITOT_TOTAL_PRESSURE, PITOT_STATIC_PRESSURE, CURRENT_ALTITUDE
+    
     while PITOTAPP_RUNSTATUS:
         try:
             if PITOT_BUS:
+                # 기본 차압 데이터 읽기
                 dp, temp = pitot.read_pitot(PITOT_BUS, PITOT_MUX)
+                
                 if dp is not None and temp is not None:
                     # 오프셋 적용
                     with OFFSET_MUTEX:
                         dp_cal = dp - PRESSURE_OFFSET
                         temp_cal = temp + TEMP_OFFSET  # 온도 오프셋은 더하기로 적용
+                    
+                    # 상세 압력 데이터 읽기 (총압, 정압)
+                    total_p, static_p, temp_detailed = pitot.read_pitot_detailed(PITOT_BUS, PITOT_MUX)
+                    
+                    if total_p is not None and static_p is not None:
+                        # 유속도 계산
+                        airspeed = pitot.calculate_airspeed(dp_cal, temp_cal, CURRENT_ALTITUDE)
                         
-                    # 전역 변수 업데이트
-                    PITOT_PRESSURE = dp_cal
-                    PITOT_TEMP = temp_cal
-                    
-                    # FlightLogic용 데이터 전송
-                    flight_data = f"{dp_cal:.2f},{temp_cal:.2f}"
-                    flight_msg = msgstructure.MsgStructure()
-                    msgstructure.fill_msg(flight_msg, appargs.PitotAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.PitotAppArg.MID_SendPitotFlightLogicData, flight_data)
-                    Main_Queue.put(msgstructure.pack_msg(flight_msg))
-                    
-                    # Telemetry용 데이터 전송
-                    tlm_data = f"{dp_cal:.2f},{temp_cal:.2f}"
-                    tlm_msg = msgstructure.MsgStructure()
-                    msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
-                    Main_Queue.put(msgstructure.pack_msg(tlm_msg))
-                    
-                    # 고주파수 로깅 (20Hz)
-                    log_high_freq_pitot_data(dp_cal, temp_cal)
+                        # 전역 변수 업데이트
+                        PITOT_PRESSURE = dp_cal
+                        PITOT_TEMP = temp_cal
+                        PITOT_AIRSPEED = airspeed
+                        PITOT_TOTAL_PRESSURE = total_p
+                        PITOT_STATIC_PRESSURE = static_p
+                        
+                        # FlightLogic용 데이터 전송 (기존 형식 유지)
+                        flight_data = f"{dp_cal:.2f},{temp_cal:.2f}"
+                        flight_msg = msgstructure.MsgStructure()
+                        msgstructure.fill_msg(flight_msg, appargs.PitotAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.PitotAppArg.MID_SendPitotFlightLogicData, flight_data)
+                        Main_Queue.put(msgstructure.pack_msg(flight_msg))
+                        
+                        # Telemetry용 데이터 전송 (유속도 포함)
+                        tlm_data = f"{dp_cal:.2f},{temp_cal:.2f},{airspeed:.2f},{total_p:.2f},{static_p:.2f}"
+                        tlm_msg = msgstructure.MsgStructure()
+                        msgstructure.fill_msg(tlm_msg, appargs.PitotAppArg.AppID, appargs.CommAppArg.AppID, appargs.PitotAppArg.MID_SendPitotTlmData, tlm_data)
+                        Main_Queue.put(msgstructure.pack_msg(tlm_msg))
+                        
+                        # 고주파수 로깅 (20Hz)
+                        log_high_freq_pitot_data(dp_cal, temp_cal, airspeed, total_p, static_p)
+                        
+                        safe_log(f"Pitot data: DP={dp_cal:.2f}Pa, T={temp_cal:.2f}°C, V={airspeed:.2f}m/s, TotalP={total_p:.2f}Pa, StaticP={static_p:.2f}Pa", "debug".upper(), False)
+                    else:
+                        # 상세 데이터 읽기 실패 시 기본값으로 로깅
+                        log_high_freq_pitot_data(dp_cal, temp_cal, 0.0, 0.0, 0.0)
+                        PITOT_AIRSPEED = 0.0
+                        PITOT_TOTAL_PRESSURE = 0.0
+                        PITOT_STATIC_PRESSURE = 0.0
                 else:
                     # 센서 읽기 실패 시 기본값으로 로깅
-                    log_high_freq_pitot_data(0.0, 0.0)
+                    log_high_freq_pitot_data(0.0, 0.0, 0.0, 0.0, 0.0)
                     # 전역 변수도 기본값으로 설정
                     PITOT_PRESSURE = 0.0
                     PITOT_TEMP = 0.0
+                    PITOT_AIRSPEED = 0.0
+                    PITOT_TOTAL_PRESSURE = 0.0
+                    PITOT_STATIC_PRESSURE = 0.0
             else:
                 # PITOT_BUS가 None인 경우 기본값으로 로깅
-                log_high_freq_pitot_data(0.0, 0.0)
+                log_high_freq_pitot_data(0.0, 0.0, 0.0, 0.0, 0.0)
                 PITOT_PRESSURE = 0.0
                 PITOT_TEMP = 0.0
+                PITOT_AIRSPEED = 0.0
+                PITOT_TOTAL_PRESSURE = 0.0
+                PITOT_STATIC_PRESSURE = 0.0
             
             time.sleep(0.05)  # 20Hz (50ms 간격)
             
@@ -204,6 +249,9 @@ def read_pitot_data(Main_Queue: Queue):
             # 오류 발생 시에도 기본값 설정
             PITOT_PRESSURE = 0.0
             PITOT_TEMP = 0.0
+            PITOT_AIRSPEED = 0.0
+            PITOT_TOTAL_PRESSURE = 0.0
+            PITOT_STATIC_PRESSURE = 0.0
             time.sleep(1.0)
 
 # ──────────────────────────────────────────────────────────
