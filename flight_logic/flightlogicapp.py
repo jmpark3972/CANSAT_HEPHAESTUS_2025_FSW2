@@ -458,7 +458,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # DHT11 온도 데이터
         elif recv_msg.MsgID == appargs.ThermoAppArg.MID_SendThermoFlightLogicData:
             try:
-                data = recv_msg.MsgData.split(',')
+                data = recv_msg.data.split(',')
                 if len(data) >= 2:
                     CURRENT_TEMP = float(data[0])
                     log_sensor_data("DHT11", {"temperature": CURRENT_TEMP, "humidity": data[1]})
@@ -468,7 +468,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # Thermis 온도 데이터
         elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisFlightLogicData:
             try:
-                data = recv_msg.MsgData.split(',')
+                data = recv_msg.data.split(',')
                 if len(data) >= 1:
                     CURRENT_THERMIS_TEMP = float(data[0])
                     log_sensor_data("Thermis", {"temperature": CURRENT_THERMIS_TEMP})
@@ -478,7 +478,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # IMU 데이터
         elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuFlightLogicData:
             try:
-                data = recv_msg.MsgData.split(',')
+                data = recv_msg.data.split(',')
                 if len(data) >= 3:
                     LAST_IMU_ROLL = float(data[0])
                     LAST_IMU_PITCH = float(data[1])
@@ -489,7 +489,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # GPS 데이터
         elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
             try:
-                LAST_GPS = recv_msg.MsgData
+                LAST_GPS = recv_msg.data
                 log_sensor_data("GPS", {"data": LAST_GPS})
             except Exception as e:
                 log_error(f"GPS data parsing error: {e}", "command_handler")
@@ -497,7 +497,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # Barometer 데이터
         elif recv_msg.MsgID == appargs.BarometerAppArg.MID_SendBarometerFlightLogicData:
             try:
-                data = recv_msg.MsgData.split(',')
+                data = recv_msg.data.split(',')
                 if len(data) >= 1:
                     altitude = float(data[0])
                     LAST_BAROMETER = altitude
@@ -509,7 +509,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # FIR1 데이터
         elif recv_msg.MsgID == appargs.FirApp1Arg.MID_SendFIR1Data:
             try:
-                LAST_FIR1 = recv_msg.MsgData
+                LAST_FIR1 = recv_msg.data
                 log_sensor_data("FIR1", {"data": LAST_FIR1})
             except Exception as e:
                 log_error(f"FIR1 data parsing error: {e}", "command_handler")
@@ -517,7 +517,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # Thermal Camera 데이터
         elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamFlightLogicData:
             try:
-                LAST_THERMAL = recv_msg.MsgData
+                LAST_THERMAL = recv_msg.data
                 log_sensor_data("Thermal", {"data": LAST_THERMAL})
             except Exception as e:
                 log_error(f"Thermal data parsing error: {e}", "command_handler")
@@ -525,7 +525,7 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
         # Camera 상태 데이터
         elif recv_msg.MsgID == appargs.CameraAppArg.MID_SendCameraFlightLogicData:
             try:
-                data = recv_msg.MsgData.split(',')
+                data = recv_msg.data.split(',')
                 if len(data) >= 4:
                     CAMERA_STATUS = data[0]
                     CAMERA_VIDEO_COUNT = int(data[1])
@@ -539,6 +539,43 @@ def command_handler(recv_msg: msgstructure.MsgStructure, Main_Queue: Queue):
                         
             except Exception as e:
                 log_error(f"Camera status parsing error: {e}", "command_handler")
+        
+        # Pitot 데이터 (2503)
+        elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotFlightLogicData:
+            try:
+                data = recv_msg.data.split(',')
+                if len(data) >= 2:
+                    pressure = float(data[0])
+                    temp = float(data[1])
+                    log_sensor_data("Pitot", {"pressure": pressure, "temperature": temp})
+            except Exception as e:
+                log_error(f"Pitot data parsing error: {e}", "command_handler")
+        
+        # TMP007 데이터 (2603)
+        elif recv_msg.MsgID == appargs.Tmp007AppArg.MID_SendTmp007FlightLogicData:
+            try:
+                data = recv_msg.data.split(',')
+                if len(data) >= 3:
+                    object_temp = float(data[0])
+                    die_temp = float(data[1])
+                    voltage = float(data[2])
+                    log_sensor_data("TMP007", {"object_temp": object_temp, "die_temp": die_temp, "voltage": voltage})
+            except Exception as e:
+                log_error(f"TMP007 data parsing error: {e}", "command_handler")
+        
+        # GPS FlightLogic 데이터 (1203)
+        elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsFlightLogicData:
+            try:
+                data = recv_msg.data.split(',')
+                if len(data) >= 5:
+                    lat = float(data[0])
+                    lon = float(data[1])
+                    alt = float(data[2])
+                    time_str = data[3]
+                    sats = int(data[4])
+                    log_sensor_data("GPS_FL", {"lat": lat, "lon": lon, "alt": alt, "time": time_str, "sats": sats})
+            except Exception as e:
+                log_error(f"GPS FlightLogic data parsing error: {e}", "command_handler")
         
         # 기타 메시지
         else:

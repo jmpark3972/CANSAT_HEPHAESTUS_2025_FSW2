@@ -49,6 +49,7 @@ class FlightlogicAppArg:
     MID_SendSimulationStatustoTlm: types.MID = 1407
     MID_SendCameraActivateToCam:  types.MID = 1408
     MID_RocketMotorActivate:      types.MID = 1409
+    MID_RocketMotorStandby:       types.MID = 1410
 
     # <NEW/> Motor 각도 지시 (Flightlogic → MotorApp)
     MID_SetServoAngle = 1402

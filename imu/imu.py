@@ -76,21 +76,31 @@ def read_sensor_data(sensor):
         else:
             read_sensor_data.none_count = 0
             
+            # quaternion 값들이 None인지 확인
+            if any(val is None for val in q):
+                print("[경고] IMU quaternion에 None 값 포함")
+                return None, None, None, None, None
+            
             # 오일러 각도 계산 (유효한 데이터가 있을 때만)
             import math
-            roll = math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2]))
-            pitch = math.asin(2 * (q[0] * q[2] - q[3] * q[1]))
-            yaw = math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3]))
-            
-            # 라디안을 도로 변환
-            roll_deg = math.degrees(roll)
-            pitch_deg = math.degrees(pitch)
-            yaw_deg = math.degrees(yaw)
-            
-            # 처리된 데이터 로그 (파일로만 기록)
-            log_imu(f"PROCESSED,{roll_deg:.2f},{pitch_deg:.2f},{yaw_deg:.2f}")
-            
-            return (gyro, accel, mag, (roll_deg, pitch_deg, yaw_deg), temp)
+            try:
+                roll = math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2]))
+                pitch = math.asin(2 * (q[0] * q[2] - q[3] * q[1]))
+                yaw = math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3]))
+                
+                # 라디안을 도로 변환
+                roll_deg = math.degrees(roll)
+                pitch_deg = math.degrees(pitch)
+                yaw_deg = math.degrees(yaw)
+                
+                # 처리된 데이터 로그 (파일로만 기록)
+                log_imu(f"PROCESSED,{roll_deg:.2f},{pitch_deg:.2f},{yaw_deg:.2f}")
+                
+                return (gyro, accel, mag, (roll_deg, pitch_deg, yaw_deg), temp)
+            except (TypeError, ValueError) as e:
+                print(f"IMU 각도 계산 오류: {e}")
+                log_imu(f"ANGLE_CALC_ERROR,{e}")
+                return None, None, None, None, None
         
     except Exception as e:
         print(f"IMU 읽기 오류: {e}")
