@@ -6,9 +6,10 @@ CANSAT HEPHAESTUS 2025 FSW2 - 라이브러리 패키지
 
 # 핵심 기능들
 from .core import *
+from .core import appargs, msgstructure, types, config, prevstate, utils
 
 # 로깅 시스템
-from .logging import safe_log, get_unified_logger, LogLevel, LogCategory
+from .logging import safe_log, get_unified_logger, LogLevel, LogCategory, LogRotator
 
 # 최적화 기능들
 from .optimization import (
@@ -32,7 +33,6 @@ from .base_app import BaseApp, SensorApp, CommunicationApp, create_app_instance,
 from .type_hints import *
 from .offsets import *
 from .resource_manager import start_resource_monitoring, stop_resource_monitoring
-from .logging import LogRotator
 
 __all__ = [
     # 핵심 기능들 (core에서)
