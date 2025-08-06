@@ -38,10 +38,10 @@ def init_thermis():
         ads = ADS.ADS1115(i2c)
         chan = AnalogIn(ads, ADS.P0)
         time.sleep(0.1)
-        print("Thermis 센서 초기화 완료 (직접 I2C 연결)")
+        # Thermis 센서 초기화 완료 (직접 I2C 연결)
         return i2c, chan
     except Exception as e:
-        print(f"Thermis 초기화 실패: {e}")
+        # Thermis 초기화 실패: {e}
         raise Exception(f"Thermis 초기화 실패: {e}")
 
 def terminate_thermis(i2c):
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         while True:
             temp = read_thermis(chan)
             if temp is not None:
-                print(f"Temperature: {temp:.2f} °C")
+                pass  # Temperature: {temp:.2f} °C
             time.sleep(1.0)
     except KeyboardInterrupt:
         pass

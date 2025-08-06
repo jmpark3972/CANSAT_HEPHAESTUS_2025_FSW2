@@ -63,8 +63,8 @@ def command_handler(Main_Queue: Queue, recv: msgstructure.MsgStructure):
     if recv.MsgID == appargs.CommAppArg.MID_RouteCmd_CAL:
         try:
             temp_off = float(recv.data)
-        except Exception:
-            safe_log("CAL cmd parse error", "error".upper(), True)
+        except Exception as e:
+            safe_log(f"CAL cmd parse error: {e}", "error".upper(), True)
             return
 
         with OFFSET_MUTEX:

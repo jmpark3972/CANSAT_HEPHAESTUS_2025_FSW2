@@ -1,31 +1,67 @@
-# CANSAT HEPHAESTUS 2025 FSW2 - lib 패키지
-# 공통 라이브러리 모듈들
+#!/usr/bin/env python3
+"""
+CANSAT HEPHAESTUS 2025 FSW2 - 라이브러리 패키지
+모든 공통 기능들을 제공하는 메인 라이브러리 패키지입니다.
+"""
 
-# 강제 종료 유틸리티
-from . import force_kill
+# 핵심 기능들
+from .core import *
 
-# 진단 스크립트
-from . import diagnostic_script
+# 로깅 시스템
+from .logging import safe_log, get_unified_logger, LogLevel, LogCategory
 
-# 편의 함수들
-def force_kill_cansat():
-    """CANSAT 프로세스들을 강제 종료"""
-    from .force_kill import force_kill_all
-    force_kill_all()
+# 최적화 기능들
+from .optimization import (
+    start_memory_optimization, stop_memory_optimization,
+    start_performance_optimization, stop_performance_optimization,
+    start_performance_monitoring, stop_performance_monitoring,
+    optimize_data_structure
+)
 
-def check_cansat_status():
-    """CANSAT 시스템 상태 확인"""
-    from .force_kill import check_system_status
-    check_system_status()
+# 하드웨어 관련 기능들
+from .hardware import (
+    I2CManager, get_i2c_manager,
+    force_kill_process, force_kill_all_processes,
+    setup_exception_handler, handle_exception
+)
 
-def run_diagnostic():
-    """시스템 진단 실행"""
-    from .diagnostic_script import run_full_diagnostic
-    run_full_diagnostic()
+# 기본 앱 클래스
+from .base_app import BaseApp, SensorApp, CommunicationApp, create_app_instance, run_app
 
-def quick_diagnostic():
-    """빠른 시스템 진단"""
-    from .diagnostic_script import check_system_resources, check_cansat_processes, check_gpio_access
-    check_system_resources()
-    check_cansat_processes()
-    check_gpio_access() 
+# 기타 유틸리티들
+from .type_hints import *
+from .offsets import *
+from .resource_manager import start_resource_monitoring, stop_resource_monitoring
+from .logging import LogRotator
+
+__all__ = [
+    # 핵심 기능들 (core에서)
+    'MainAppArg', 'HkAppArg', 'BarometerAppArg', 'GpsAppArg', 'ImuAppArg',
+    'FlightlogicAppArg', 'CommAppArg', 'MotorAppArg', 'FirApp1Arg',
+    'ThermisAppArg', 'Tmp007AppArg', 'ThermalcameraAppArg', 'ThermoAppArg',
+    'MsgStructure', 'fill_msg', 'pack_msg', 'unpack_msg', 'send_msg',
+    'AppID', 'MsgID', 'get_config', 'set_config', 'load_config',
+    'reset_prevstate', 'update_prevstate', 'get_prevstate',
+    'safe_write_to_file', 'check_and_rotate_log_file',
+    
+    # 로깅 시스템
+    'safe_log', 'get_unified_logger', 'LogLevel', 'LogCategory',
+    
+    # 최적화 기능들
+    'start_memory_optimization', 'stop_memory_optimization',
+    'start_performance_optimization', 'stop_performance_optimization',
+    'start_performance_monitoring', 'stop_performance_monitoring',
+    'optimize_data_structure',
+    
+    # 하드웨어 관련 기능들
+    'I2CManager', 'get_i2c_manager',
+    'force_kill_process', 'force_kill_all_processes',
+    'setup_exception_handler', 'handle_exception',
+    
+    # 기본 앱 클래스
+    'BaseApp', 'SensorApp', 'CommunicationApp', 'create_app_instance', 'run_app',
+    
+    # 기타 유틸리티들
+    'start_resource_monitoring', 'stop_resource_monitoring',
+    'LogRotator'
+] 

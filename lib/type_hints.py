@@ -289,7 +289,9 @@ def is_valid_mid(mid: Any) -> bool:
     """MID 유효성 검사"""
     if not isinstance(mid, int):
         return False
-    return 1000 <= mid <= 9999  # 1000 ~ 9999
+    MIN_MID = 1000
+    MAX_MID = 9999
+    return MIN_MID <= mid <= MAX_MID  # 1000 ~ 9999
 
 # 타입 변환 함수들
 def to_temperature(value: Any) -> Optional[Temperature]:

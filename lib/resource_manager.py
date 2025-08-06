@@ -156,8 +156,8 @@ class ResourceManager:
                             proc_name = proc.info['name']
                             if proc_name and 'python' not in proc_name.lower():
                                 logging.log(f"높은 메모리 사용 프로세스 발견: {proc_name} ({proc.info['memory_percent']:.1f}%)", "WARNING")
-                    except:
-                        pass
+                    except Exception as e:
+                        logging.log(f"프로세스 정보 조회 오류: {e}", "WARNING")
             
             logging.log("긴급 메모리 정리 완료")
             

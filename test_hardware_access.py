@@ -16,8 +16,8 @@ def safe_print(message: str):
         timestamp = datetime.now().strftime('%H:%M:%S.%f')[:-3]
         print(f"[{timestamp}] {message}")
         sys.stdout.flush()
-    except:
-        pass
+    except Exception as e:
+        print(f"[SAFE_PRINT_ERROR] {message} (Error: {e})")
 
 def test_i2c_access():
     """Test I2C bus access"""

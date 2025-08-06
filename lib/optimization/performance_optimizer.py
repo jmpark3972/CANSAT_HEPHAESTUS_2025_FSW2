@@ -375,29 +375,29 @@ if __name__ == "__main__":
     # 성능 최적화 테스트
     optimizer = get_performance_optimizer()
     
-    print("성능 최적화 시스템 테스트 시작")
+    # 성능 최적화 시스템 테스트 시작
     
     # 캐시 테스트
-    print("\n1. 캐시 테스트")
+    # 1. 캐시 테스트
     start_time = time.time()
     result1 = cached_calculation(10.0)
     result2 = cached_calculation(10.0)  # 캐시된 결과
     end_time = time.time()
-    print(f"결과: {result1}, {result2}")
-    print(f"실행 시간: {end_time - start_time:.3f}초")
+    # 결과: {result1}, {result2}
+    # 실행 시간: {end_time - start_time:.3f}초
     
     # 모니터링 테스트
-    print("\n2. 모니터링 테스트")
+    # 2. 모니터링 테스트
     monitored_function([1, 2, 3, 4, 5])
     
     # 메트릭 출력
-    print("\n3. 성능 메트릭")
+    # 3. 성능 메트릭
     metrics = get_performance_metrics()
-    print(f"캐시 히트율: {metrics['cache_hit_rate']:.2%}")
+    # 캐시 히트율: {metrics['cache_hit_rate']:.2%}
     
     # 리포트 생성
-    print("\n4. 성능 리포트")
+    # 4. 성능 리포트
     report = optimizer.generate_performance_report()
-    print(report)
+    # report
     
-    print("\n성능 최적화 시스템 테스트 완료") 
+    # 성능 최적화 시스템 테스트 완료 

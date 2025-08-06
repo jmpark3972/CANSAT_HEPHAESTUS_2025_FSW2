@@ -44,8 +44,8 @@ def check_system_resources():
             if result.returncode == 0:
                 temp = result.stdout.strip().split('=')[1]
                 log_diagnostic(f"시스템 온도: {temp}")
-        except:
-            pass
+        except Exception as e:
+            log_diagnostic(f"시스템 온도 확인 오류: {e}")
         
         return memory.percent < 90 and disk.percent < 95
     except Exception as e:

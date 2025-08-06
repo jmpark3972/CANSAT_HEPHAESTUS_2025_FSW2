@@ -55,7 +55,8 @@ class TMP007:
             # 상태 레지스터 초기화
             self._write_register(self.REG_STATUS, 0x0000)
             
-            print(f"TMP007 초기화 성공 (주소: 0x{self.address:02X})")
+            # print(f"TMP007 초기화 성공 (주소: 0x{self.address:02X})")
+        # 로깅 시스템으로 대체됨
             
         except Exception as e:
             raise Exception(f"TMP007 초기화 실패: {e}")
@@ -110,7 +111,7 @@ class TMP007:
             return round(temperature, 2)
             
         except Exception as e:
-            print(f"TMP007 온도 읽기 오류: {e}")
+            # TMP007 온도 읽기 오류: {e}
             return 0.0  # 오류 시 기본값 반환
     
     def read_die_temperature(self):
@@ -136,7 +137,7 @@ class TMP007:
             return round(temperature, 2)
             
         except Exception as e:
-            print(f"TMP007 다이 온도 읽기 오류: {e}")
+            # TMP007 다이 온도 읽기 오류: {e}
             return 0.0  # 오류 시 기본값 반환
     
     def read_voltage(self):
@@ -163,7 +164,7 @@ class TMP007:
             return round(voltage, 2)
             
         except Exception as e:
-            print(f"TMP007 전압 읽기 오류: {e}")
+            # TMP007 전압 읽기 오류: {e}
             return 0.0  # 오류 시 기본값 반환
     
     def get_status(self):
@@ -212,11 +213,11 @@ def init_tmp007():
         sensor = TMP007(i2c, address=0x40)
         time.sleep(0.1)  # 안정화 대기
         
-        print("TMP007 센서 초기화 완료 (직접 I2C 연결)")
+        # TMP007 센서 초기화 완료 (직접 I2C 연결)
         return i2c, sensor
         
     except Exception as e:
-        print(f"TMP007 초기화 실패: {e}")
+        # TMP007 초기화 실패: {e}
         raise Exception(f"TMP007 초기화 실패: {e}")
 
 def read_tmp007_data(sensor):
@@ -236,7 +237,7 @@ def read_tmp007_data(sensor):
         }
         
     except Exception as e:
-        print(f"TMP007 데이터 읽기 오류: {e}")
+        # TMP007 데이터 읽기 오류: {e}
         return None
 
 
@@ -248,41 +249,41 @@ def terminate_tmp007(i2c):
         elif hasattr(i2c, "close"):
             i2c.close()
     except Exception as e:
-        print(f"TMP007 종료 오류: {e}")
+        # TMP007 종료 오류: {e}
 
 
 # 테스트 코드
 if __name__ == "__main__":
     try:
-        print("TMP007 센서 테스트 시작...")
+        # TMP007 센서 테스트 시작...
         
         # 센서 초기화
         i2c, sensor = init_tmp007()
         
-        print("온도 측정 시작 (Ctrl+C로 종료)...")
+        # 온도 측정 시작 (Ctrl+C로 종료)...
         
         while True:
             try:
                 data = read_tmp007_data(sensor)
                 if data:
-                    print(f"객체 온도: {data['object_temperature']}°C")
-                    print(f"다이 온도: {data['die_temperature']}°C")
-                    print(f"전압: {data['voltage']}μV")
-                    print(f"상태: {data['status']}")
-                    print("-" * 40)
+                    # 객체 온도: {data['object_temperature']}°C
+                    # 다이 온도: {data['die_temperature']}°C
+                    # 전압: {data['voltage']}μV
+                    # 상태: {data['status']}
+                    # "-" * 40
                 
                 time.sleep(1)
                 
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                print(f"측정 오류: {e}")
+                # 측정 오류: {e}
                 time.sleep(1)
         
     except Exception as e:
-        print(f"TMP007 테스트 실패: {e}")
+        # TMP007 테스트 실패: {e}
     finally:
         try:
             terminate_tmp007(i2c)
         except Exception as e:
-            print(f"TMP007 종료 중 오류: {e}") 
+            # TMP007 종료 중 오류: {e} 

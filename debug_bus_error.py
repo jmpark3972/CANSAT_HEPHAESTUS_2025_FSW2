@@ -21,8 +21,8 @@ def safe_print(message: str):
     try:
         print(f"[{datetime.now().strftime('%H:%M:%S.%f')[:-3]}] {message}")
         sys.stdout.flush()
-    except:
-        pass
+    except Exception as e:
+        print(f"[SAFE_PRINT_ERROR] {message} (Error: {e})")
 
 def get_memory_usage():
     """Get current memory usage"""

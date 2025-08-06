@@ -297,8 +297,9 @@ def read_motor_status():
             status = get_motor_status()
             if status is not None:
                 MOTOR_STATUS = status
-        except Exception:
+        except Exception as e:
             # 에러 메시지 출력하지 않고, 이전 값 유지
+            safe_log(f"모터 상태 읽기 실패: {e}", "warning".upper(), False)
             pass
         # 더 빠른 종료를 위해 짧은 간격으로 체크
         for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
@@ -310,12 +311,13 @@ def read_motor_status():
 import threading
 
 def resilient_thread(target, args=(), name=None):
-    def wrapper():
-        while MOTORAPP_RUNSTATUS:
-            try:
-                target(*args)
-            except Exception:
-                pass
+            def wrapper():
+            while MOTORAPP_RUNSTATUS:
+                try:
+                    target(*args)
+                except Exception as e:
+                    safe_log(f"Resilient thread error: {e}", "warning".upper(), False)
+                    pass
             # 더 빠른 종료를 위해 짧은 간격으로 체크
             for _ in range(10):  # 1초를 10개 구간으로 나누어 체크
                 if not MOTORAPP_RUNSTATUS:

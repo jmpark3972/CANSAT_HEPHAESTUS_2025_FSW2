@@ -1002,13 +1002,17 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
                     try:
                         message = Main_Pipe.recv()
-                    except (EOFError, BrokenPipeError, ConnectionResetError):
-                        safe_log("Pipe connection lost", "error".upper(), True)
-                        log_error("Pipe connection lost", "commapp_main")
-                        break
+                    except (EOFError, BrokenPipeError, ConnectionResetError) as e:
+                        safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
+                        log_error(f"Pipe connection lost: {e}", "commapp_main")
+                        # 연결이 끊어져도 로깅은 계속
+                        time.sleep(1)
+                        continue
                     except Exception as e:
-                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
+                        safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
                         log_error(f"Pipe receive error: {e}", "commapp_main")
+                        # 에러 시 루프 계속
+                        time.sleep(0.5)
                         continue
                 else:
                     # 타임아웃 시 루프 계속
@@ -1029,13 +1033,28 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 log_error(f"Main loop error: {e}", "commapp_main")
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
-    # If error occurs, terminate app
+    # If error occurs, terminate app gracefully
+    except (KeyboardInterrupt, SystemExit):
+        safe_log("Comm app received termination signal", "info".upper(), True)
+        COMMAPP_RUNSTATUS = False
     except Exception as e:
-        safe_log(f"commapp error : {e}", "error".upper(), True)
+        safe_log(f"commapp critical error : {e}", "error".upper(), True)
         log_error(f"Critical commapp error: {e}", "commapp_main")
         COMMAPP_RUNSTATUS = False
+        # 치명적 오류 발생 시에도 로깅은 계속
+        try:
+            safe_log("Comm app attempting graceful shutdown", "info".upper(), True)
+        except:
+            pass
 
     # Termination Process after runloop
-    commapp_terminate(serial_instance)
+    try:
+        commapp_terminate(serial_instance)
+    except Exception as e:
+        # 종료 과정에서 오류가 발생해도 최소한의 로깅 시도
+        try:
+            print(f"[Comm] Termination error: {e}")
+        except:
+            pass
 
     return

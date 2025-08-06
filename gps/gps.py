@@ -159,35 +159,40 @@ def gps_readdata(ser):
                 gps_time = f"{kst_hour:02d}:{utc_minute:02d}:{utc_second:02d}"
             else:
                 gps_time = "00:00:00"
-        except:
+        except Exception as e:
+            log_gps(f"GPS 시간 파싱 오류: {e}")
             gps_time = "00:00:00"
         
         try:
             # 고도 파싱
             alt_raw = gps_data[0][9]
             alt = round(float(alt_raw), 2) if alt_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고도 파싱 오류: {e}")
             alt = 0
         
         try:
             # 위도 파싱
             lat_raw = gps_data[0][2]
             lat = unit_convert_deg(float(lat_raw)) if lat_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 위도 파싱 오류: {e}")
             lat = 0
         
         try:
             # 경도 파싱 (서경 보정)
             lon_raw = gps_data[0][4]
             lon = -unit_convert_deg(float(lon_raw)) if lon_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 경도 파싱 오류: {e}")
             lon = 0
         
         try:
             # 위성 수 파싱
             sats_raw = gps_data[0][7]
             fixed_sat = int(sats_raw) if sats_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 위성 수 파싱 오류: {e}")
             fixed_sat = 0
         
         result = [gps_time, alt, lat, lon, fixed_sat]
@@ -295,31 +300,36 @@ def gps_readdata_advanced(ser):
                 gps_time = f"{kst_hour:02d}:{utc_minute:02d}:{utc_second:02d}"
             else:
                 gps_time = "00:00:00"
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고급 시간 파싱 오류: {e}")
             gps_time = "00:00:00"
         
         try:
             alt_raw = gps_data[0][9]
             alt = round(float(alt_raw), 2) if alt_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고급 고도 파싱 오류: {e}")
             alt = 0
         
         try:
             lat_raw = gps_data[0][2]
             lat = unit_convert_deg(float(lat_raw)) if lat_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고급 위도 파싱 오류: {e}")
             lat = 0
         
         try:
             lon_raw = gps_data[0][4]
             lon = -unit_convert_deg(float(lon_raw)) if lon_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고급 경도 파싱 오류: {e}")
             lon = 0
         
         try:
             sats_raw = gps_data[0][7]
             fixed_sat = int(sats_raw) if sats_raw else 0
-        except:
+        except Exception as e:
+            log_gps(f"GPS 고급 위성 수 파싱 오류: {e}")
             fixed_sat = 0
         
         # 고급 데이터 로그

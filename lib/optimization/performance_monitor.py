@@ -209,7 +209,8 @@ class PerformanceMonitor:
             with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
                 temp = float(f.read().strip()) / 1000.0
                 return temp
-        except:
+        except Exception as e:
+            print(f"Temperature reading error: {e}")
             return None
     
     def _check_thresholds(self, metrics: SystemMetrics):

@@ -28,24 +28,23 @@ from multiprocessing import Process, Queue, Pipe, connection
 from lib import config
 from lib import resource_manager
 from lib import memory_optimizer
-from lib import log_rotation
+from lib import LogRotator
 
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
     try:
-        formatted_message = f"[{appargs.MainAppArg.AppName}] [{level}] {message}"
-        logging.log(formatted_message, printlogs)
+        logging.safe_log(message, level, printlogs, appargs.MainAppArg.AppName)
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
-        print(f"[MAIN] 로깅 실패: {e}")
-        print(f"[MAIN] 원본 메시지: {message}")
+        pass  # [MAIN] 로깅 실패: {e}
+        pass  # [MAIN] 원본 메시지: {message}
 
 # 리소스 모니터링 및 메모리 최적화 시작
 resource_manager.start_resource_monitoring()
 memory_optimizer.start_memory_optimization()
 
 # 로그 로테이션 초기화
-log_rotator = log_rotation.LogRotator(max_size_mb=10, max_age_days=30)
+log_rotator = LogRotator(max_size_mb=10, max_age_days=30)
 
 if config.get_config("FSW_MODE") == "NONE":
     safe_log("CONFIG IS SELECTED AS NONE, TERMINATING FSW", "ERROR", True)
@@ -66,7 +65,7 @@ def terminate_FSW():
     if _termination_in_progress:
         return  # Already terminating
     _termination_in_progress = True
-    print(f"\nFSW 종료 프로세스 시작...")
+    # FSW 종료 프로세스 시작...
     
     MAINAPP_RUNSTATUS = False
 
@@ -81,10 +80,10 @@ def terminate_FSW():
         safe_log("로그 로테이션 완료", "INFO", True)
         
         # 로깅 시스템 정리
-        logging.close_dual_logging_system()
+        # 통합 로깅 시스템은 자동으로 정리됨
         safe_log("로깅 시스템 정리 완료", "INFO", True)
     except Exception as e:
-        print(f"시스템 정리 실패: {e}")
+        pass  # 시스템 정리 실패: {e}
 
     termination_message = msgstructure.MsgStructure()
     msgstructure.fill_msg(termination_message, appargs.MainAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_TerminateProcess, "")
@@ -131,7 +130,7 @@ def terminate_FSW():
     except Exception as e:
         safe_log(f"Child process cleanup error: {e}", "ERROR", True)
     
-    print("FSW 종료 완료. 프로그램을 종료합니다.")
+    # FSW 종료 완료. 프로그램을 종료합니다.
     os._exit(0)
 
 # Flag to prevent multiple termination calls
@@ -140,11 +139,11 @@ _termination_in_progress = False
 def signal_handler(signum, frame):
     global MAINAPP_RUNSTATUS, _termination_in_progress
     if _termination_in_progress:
-        print("이미 종료 중입니다. 강제 종료 실행...")
+        # 이미 종료 중입니다. 강제 종료 실행...
         os._exit(0)
         return
     
-    print(f"\n시그널 {signum} 수신, FSW 종료 중...")
+    # 시그널 {signum} 수신, FSW 종료 중...
     _termination_in_progress = True
     MAINAPP_RUNSTATUS = False
     
@@ -154,24 +153,24 @@ def signal_handler(signum, frame):
     termination_message_to_send = msgstructure.pack_msg(termination_message)
     
     # 1단계: 정상 종료 메시지 전송
-    print("1단계: 정상 종료 메시지 전송 중...")
+    # 1단계: 정상 종료 메시지 전송 중...
     for appID in app_dict:
         if app_dict[appID].process and app_dict[appID].process.is_alive():
             try:
                 app_dict[appID].pipe.send(termination_message_to_send)
-                print(f"  - {appID}: 종료 메시지 전송 완료")
+                # - {appID}: 종료 메시지 전송 완료
             except Exception as e:
-                print(f"  - {appID}: 종료 메시지 전송 실패: {e}")
+                pass  # - {appID}: 종료 메시지 전송 실패: {e}
     
     # 2단계: 프로세스 종료 대기 (3초)
-    print("2단계: 프로세스 정상 종료 대기 중... (3초)")
+    # 2단계: 프로세스 정상 종료 대기 중... (3초)
     time.sleep(3.0)
     
     # 3단계: 강제 종료
-    print("3단계: 강제 종료 실행...")
+    # 3단계: 강제 종료 실행...
     for appID in app_dict:
         if app_dict[appID].process and app_dict[appID].process.is_alive():
-            print(f"  - {appID}: 강제 종료 실행")
+            # - {appID}: 강제 종료 실행
             try:
                 # 먼저 terminate 시도
                 app_dict[appID].process.terminate()
@@ -179,47 +178,47 @@ def signal_handler(signum, frame):
                 
                 # 여전히 살아있으면 kill
                 if app_dict[appID].process.is_alive():
-                    print(f"    {appID}: kill 실행")
+                    # {appID}: kill 실행
                     app_dict[appID].process.kill()
                     app_dict[appID].process.join(timeout=1.0)
                     
                     # 최후의 수단으로 강제 종료
                     if app_dict[appID].process.is_alive():
-                        print(f"    {appID}: 최후 강제 종료")
+                        # {appID}: 최후 강제 종료
                         try:
                             import psutil
                             parent = psutil.Process(app_dict[appID].process.pid)
                             for child in parent.children(recursive=True):
                                 child.kill()
                             parent.kill()
-                        except:
-                            pass
+                        except Exception as e:
+                            safe_log(f"자식 프로세스 종료 실패: {e}", "WARNING", False)
             except Exception as e:
-                print(f"    {appID}: 종료 오류: {e}")
+                pass  # {appID}: 종료 오류: {e}
     
     # 4단계: 시스템 정리
-    print("4단계: 시스템 정리 중...")
+    # 4단계: 시스템 정리 중...
     try:
         # 리소스 모니터링 중지
         resource_manager.stop_resource_monitoring()
-        print("  - 리소스 모니터링 중지 완료")
+        # - 리소스 모니터링 중지 완료
         
         # 로깅 시스템 정리
-        logging.close_dual_logging_system()
-        print("  - 로깅 시스템 정리 완료")
+        # 통합 로깅 시스템은 자동으로 정리됨
+        # - 로깅 시스템 정리 완료
         
         # 큐 정리
         try:
             while not main_queue.empty():
                 main_queue.get_nowait()
-        except:
-            pass
-        print("  - 메시지 큐 정리 완료")
+        except Exception as e:
+            safe_log(f"큐 정리 실패: {e}", "WARNING", False)
+        # - 메시지 큐 정리 완료
         
     except Exception as e:
-        print(f"  - 시스템 정리 오류: {e}")
+        pass  # - 시스템 정리 오류: {e}
     
-    print("강제 종료 완료. 프로그램을 종료합니다.")
+    # 강제 종료 완료. 프로그램을 종료합니다.
     os._exit(0)
 
 # Setup signal handlers
@@ -432,27 +431,6 @@ except Exception as e:
 
 
 
-# CameraApp (Raspberry Pi Camera Module v3 Wide)
-try:
-    from camera import cameraapp
-    
-    parent_pipe, child_pipe = Pipe()
-    
-    # Add Process, pipe to elements dictionary
-    cameraapp_elements = app_elements()
-    cameraapp_elements.process = Process(target = cameraapp.cameraapp_main, args = (main_queue, child_pipe, ))
-    cameraapp_elements.pipe = parent_pipe
-    
-    # Add the process to dictionary
-    app_dict[appargs.CameraAppArg.AppID] = cameraapp_elements
-    safe_log("Camera 앱 로드 완료", "INFO", True)
-except Exception as e:
-    safe_log(f"Camera 앱 로드 실패: {e}", "ERROR", True)
-
-
-
-
-
 
 # Main Runloop
 def runloop(Main_Queue : Queue):
@@ -463,6 +441,113 @@ def runloop(Main_Queue : Queue):
     
     # 프로세스 상태 모니터링
     last_health_check = time.time()
+    last_restart_attempt = {}  # 앱별 마지막 재시작 시도 시간
+    
+    # 중요도별 앱 분류
+    critical_apps = [
+        appargs.HkAppArg.AppID,
+        appargs.CommAppArg.AppID,
+        appargs.FlightlogicAppArg.AppID
+    ]
+    
+    non_critical_apps = [
+        appargs.FirApp1Arg.AppID,
+        appargs.ThermalcameraAppArg.AppID,
+        appargs.Tmp007AppArg.AppID
+    ]
+    
+    # 센서 앱들 (중간 중요도)
+    sensor_apps = [
+        appargs.BarometerAppArg.AppID,
+        appargs.GpsAppArg.AppID,
+        appargs.ImuAppArg.AppID,
+        appargs.ThermisAppArg.AppID,
+        appargs.ThermoAppArg.AppID,
+        appargs.MotorAppArg.AppID
+    ]
+    
+    def restart_app(appID):
+        """앱 재시작 함수"""
+        try:
+            if appID not in last_restart_attempt:
+                last_restart_attempt[appID] = 0
+            
+            # 재시작 간격 제한 (30초)
+            if time.time() - last_restart_attempt[appID] < 30:
+                return False
+                
+            last_restart_attempt[appID] = time.time()
+            
+            # 기존 프로세스 정리
+            if app_dict[appID].process and app_dict[appID].process.is_alive():
+                try:
+                    app_dict[appID].process.terminate()
+                    app_dict[appID].process.join(timeout=5)
+                    if app_dict[appID].process.is_alive():
+                        app_dict[appID].process.kill()
+                except Exception as e:
+                    safe_log(f"Failed to terminate {appID}: {e}", "WARNING", True)
+            
+            # 파이프 정리
+            try:
+                app_dict[appID].pipe.close()
+            except Exception as e:
+                safe_log(f"Pipe close error for {appID}: {e}", "WARNING", True)
+            
+            # 새 파이프 생성
+            parent_pipe, child_pipe = Pipe()
+            app_dict[appID].pipe = parent_pipe
+            
+            # 앱별 프로세스 재생성
+            if appID == appargs.HkAppArg.AppID:
+                from hk import hkapp
+                app_dict[appID].process = Process(target=hkapp.hkapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.CommAppArg.AppID:
+                from comm import commapp
+                app_dict[appID].process = Process(target=commapp.commapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.FlightlogicAppArg.AppID:
+                from flight_logic import flightlogicapp
+                app_dict[appID].process = Process(target=flightlogicapp.flightlogicapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.BarometerAppArg.AppID:
+                from barometer import barometerapp
+                app_dict[appID].process = Process(target=barometerapp.barometerapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.GpsAppArg.AppID:
+                from gps import gpsapp
+                app_dict[appID].process = Process(target=gpsapp.gpsapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.ImuAppArg.AppID:
+                from imu import imuapp
+                app_dict[appID].process = Process(target=imuapp.imuapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.ThermisAppArg.AppID:
+                from thermis import thermisapp
+                app_dict[appID].process = Process(target=thermisapp.thermisapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.FirApp1Arg.AppID:
+                from fir1 import firapp1
+                app_dict[appID].process = Process(target=firapp1.firapp1_main, args=(main_queue, child_pipe))
+            elif appID == appargs.ThermoAppArg.AppID:
+                from thermo import thermoapp
+                app_dict[appID].process = Process(target=thermoapp.thermoapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.Tmp007AppArg.AppID:
+                from tmp007 import tmp007app
+                app_dict[appID].process = Process(target=tmp007app.tmp007app_main, args=(main_queue, child_pipe))
+            elif appID == appargs.ThermalcameraAppArg.AppID:
+                from thermal_camera import thermo_cameraapp
+                app_dict[appID].process = Process(target=thermo_cameraapp.thermo_cameraapp_main, args=(main_queue, child_pipe))
+            elif appID == appargs.MotorAppArg.AppID:
+                from motor import motorapp
+                app_dict[appID].process = Process(target=motorapp.motorapp_main, args=(main_queue, child_pipe))
+            
+            # 프로세스 시작
+            if app_dict[appID].process:
+                app_dict[appID].process.start()
+                safe_log(f"Successfully restarted {appID}", "INFO", True)
+                return True
+            else:
+                safe_log(f"Failed to create process for {appID}", "ERROR", True)
+                return False
+                
+        except Exception as e:
+            safe_log(f"Restart failed for {appID}: {e}", "ERROR", True)
+            return False
     
     try:
         while MAINAPP_RUNSTATUS:
@@ -478,33 +563,32 @@ def runloop(Main_Queue : Queue):
                 if int(time.time()) % 60 < 10:  # 매분 처음 10초 동안
                     generate_system_status_report()
                 
+                # 프로세스 상태 확인 및 재시작
                 for appID in app_dict:
                     if app_dict[appID].process and not app_dict[appID].process.is_alive():
-                        safe_log(f"Process {appID} is dead, attempting restart", "WARNING", True)
-                        try:
-                            app_dict[appID].pipe.close()
-                        except Exception as e:
-                            safe_log(f"Pipe close error for dead process {appID}: {e}", "ERROR", True)
+                        safe_log(f"Process {appID} is dead, checking restart policy", "WARNING", True)
                         
-                        # 중요도별 앱 분류
-                        critical_apps = [
-                            appargs.HkAppArg.AppID,
-                            appargs.CommAppArg.AppID,
-                            appargs.FlightlogicAppArg.AppID
-                        ]
-                        
-                        non_critical_apps = [
-                            appargs.FirApp1Arg.AppID,
-                            appargs.ThermalcameraAppArg.AppID,
-                            appargs.Tmp007AppArg.AppID
-                        ]
-                        
-                        if appID in non_critical_apps:
-                            safe_log(f"Non-critical process {appID} is dead, continuing without restart", "INFO", True)
-                        elif appID in critical_apps:
-                            safe_log(f"Critical process {appID} is dead, system may be unstable but continuing", "ERROR", True)
+                        # 중요도별 재시작 정책
+                        if appID in critical_apps:
+                            safe_log(f"Critical app {appID} is dead, attempting restart", "ERROR", True)
+                            if restart_app(appID):
+                                safe_log(f"Critical app {appID} restarted successfully", "INFO", True)
+                            else:
+                                safe_log(f"Critical app {appID} restart failed, system may be unstable", "ERROR", True)
+                        elif appID in sensor_apps:
+                            safe_log(f"Sensor app {appID} is dead, attempting restart", "WARNING", True)
+                            if restart_app(appID):
+                                safe_log(f"Sensor app {appID} restarted successfully", "INFO", True)
+                            else:
+                                safe_log(f"Sensor app {appID} restart failed, continuing without sensor", "WARNING", True)
+                        elif appID in non_critical_apps:
+                            safe_log(f"Non-critical app {appID} is dead, continuing without restart", "INFO", True)
                         else:
-                            safe_log(f"Process {appID} is dead, continuing", "WARNING", True)
+                            safe_log(f"Unknown app {appID} is dead, attempting restart", "WARNING", True)
+                            if restart_app(appID):
+                                safe_log(f"Unknown app {appID} restarted successfully", "INFO", True)
+                            else:
+                                safe_log(f"Unknown app {appID} restart failed, continuing", "WARNING", True)
                 
             try:
                 recv_msg = Main_Queue.get(timeout=0.5)
@@ -553,7 +637,10 @@ def runloop(Main_Queue : Queue):
                             
                         app_dict[unpacked_msg.receiver_app].pipe.send(unpacked_msg)
                     except BrokenPipeError:
-                        safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, but continuing", "WARNING", True)
+                        safe_log(f"Broken pipe for {unpacked_msg.receiver_app}, attempting restart", "WARNING", True)
+                        # 파이프 오류 시 재시작 시도
+                        if unpacked_msg.receiver_app in critical_apps or unpacked_msg.receiver_app in sensor_apps:
+                            restart_app(unpacked_msg.receiver_app)
                         try:
                             app_dict[unpacked_msg.receiver_app].pipe.close()
                         except Exception as e:
@@ -579,12 +666,12 @@ def runloop(Main_Queue : Queue):
     except KeyboardInterrupt:
         safe_log("KeyboardInterrupt Detected, Terminating FSW", "INFO", True)
         MAINAPP_RUNSTATUS = False
-        print("KeyboardInterrupt 감지됨. 강제 종료합니다.")
+        # KeyboardInterrupt 감지됨. 강제 종료합니다.
         
         try:
             for appID in app_dict:
                 if app_dict[appID].process and app_dict[appID].process.is_alive():
-                    print(f"강제 종료: {appID}")
+                    # 강제 종료: {appID}
                     app_dict[appID].process.kill()
         except Exception as e:
             safe_log(f"KeyboardInterrupt에서 프로세스 강제 종료 오류: {e}", "ERROR", True)
@@ -593,15 +680,15 @@ def runloop(Main_Queue : Queue):
     except Exception as e:
         safe_log(f"Critical error in main loop: {e}", "ERROR", True)
         MAINAPP_RUNSTATUS = False
-        print("치명적 오류 발생. 강제 종료합니다.")
+        # 치명적 오류 발생. 강제 종료합니다.
         os._exit(0)
 
-    print("정상 종료 완료.")
+    # 정상 종료 완료.
     return
 
 
 def cleanup_on_exit():
-    print("\n프로그램 종료 시 정리 작업 실행...")
+    # 프로그램 종료 시 정리 작업 실행...
     try:
         terminate_FSW()
     except Exception as e:
@@ -685,7 +772,7 @@ if __name__ == '__main__':
     try:
         safe_log("로깅 시스템 초기화 완료", "INFO", True)
     except Exception as e:
-        print(f"로깅 시스템 초기화 실패: {e}")
+        pass  # 로깅 시스템 초기화 실패: {e}
 
     atexit.register(cleanup_on_exit)
 
@@ -703,7 +790,6 @@ if __name__ == '__main__':
             appargs.ThermoAppArg.AppID,
             appargs.Tmp007AppArg.AppID,  # TMP007 센서 앱
             appargs.ThermalcameraAppArg.AppID,
-            appargs.CameraAppArg.AppID,  # 카메라 앱
             appargs.CommAppArg.AppID,    # 통신 앱
             appargs.MotorAppArg.AppID,   # 모터 앱
             appargs.FlightlogicAppArg.AppID,  # 비행 로직 앱
@@ -719,8 +805,7 @@ if __name__ == '__main__':
         non_critical_apps = [
             appargs.FirApp1Arg.AppID,
             appargs.ThermalcameraAppArg.AppID,
-            appargs.Tmp007AppArg.AppID,
-            appargs.CameraAppArg.AppID
+            appargs.Tmp007AppArg.AppID
         ]
         
         # 핵심 앱들 시작

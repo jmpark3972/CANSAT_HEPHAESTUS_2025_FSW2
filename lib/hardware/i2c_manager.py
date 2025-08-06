@@ -99,7 +99,8 @@ class I2CBusManager:
                 timeout=2
             )
             return result.returncode == 0
-        except:
+        except Exception as e:
+            logging.warning(f"I2C device health check failed for 0x{address:02X}: {e}")
             return False
     
     def restart_i2c_bus(self, bus_number: int = 1) -> bool:

@@ -85,7 +85,7 @@ if __name__ == "__main__":
     try:
         while True:
             t, h = read_dht(sensor)
-            print(f"Temp = {t} °C,  Humidity = {h} %")
+            # Temp = {t} °C,  Humidity = {h} %
             time.sleep(2.0)  # DHT11 은 최소 1 ~ 2 초 간격 필요
     except KeyboardInterrupt:
         pass

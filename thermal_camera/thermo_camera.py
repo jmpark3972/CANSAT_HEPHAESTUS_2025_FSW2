@@ -36,10 +36,12 @@ def init_thermal_camera():
         sensor = adafruit_mlx90640.MLX90640(i2c, address=0x33)
         sensor.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ
         time.sleep(0.1)
-        print("Thermal Camera MLX90640 센서 초기화 완료 (주소: 0x33)")
+        # print("Thermal Camera MLX90640 센서 초기화 완료 (주소: 0x33)")
+    # 로깅 시스템으로 대체됨
         return i2c, sensor
     except Exception as e:
-        print(f"Thermal Camera 초기화 실패: {e}")
+        # print(f"Thermal Camera 초기화 실패: {e}")
+        # 로깅 시스템으로 대체됨
         raise Exception(f"Thermal Camera 초기화 실패: {e}")
 
 def terminate_cam(i2c) -> None:

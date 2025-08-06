@@ -216,8 +216,8 @@ def check_system_status():
             log_action("⚠️ pigpiod가 여전히 실행 중입니다")
         else:
             log_action("✅ pigpiod가 종료되었습니다")
-    except:
-        pass
+    except Exception as e:
+        log_action(f"pigpiod 상태 확인 오류: {e}")
 
 def force_kill_all():
     """모든 CANSAT 관련 프로세스 강제 종료"""

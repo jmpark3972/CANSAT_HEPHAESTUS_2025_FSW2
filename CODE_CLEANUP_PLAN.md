@@ -1,198 +1,166 @@
-# CANSAT FSW 코드 정리 계획 (업데이트)
+# CANSAT HEPHAESTUS 2025 FSW2 코드 정리 및 개선 계획
 
-## 🎯 **목표**
-- 코드 크기 줄이기
-- 메모리 사용량 최적화
-- 불필요한 파일 제거
-- **로그 파일 보존 및 효율적 관리**
+## 📋 개요
+이 문서는 CANSAT HEPHAESTUS 2025 FSW2 프로젝트의 코드 정리 및 개선 작업을 체계적으로 진행하기 위한 계획서입니다.
 
-## 📊 **삭제 대상 및 예상 절약 효과**
+## 🔍 현재 상태 분석
 
-### **1. 테스트 파일들 (가장 큰 절약 효과)**
-**예상 절약: ~500KB**
+### 1단계: Pitot 관련 파일 완전 제거 ✅
+- **완료**: `pitot/` 디렉토리 및 모든 관련 파일 삭제
+- **완료**: `test/test_pitot_airspeed.py`, `test/test_pitot.py` 삭제
+- **완료**: `PITOT_AIRSPEED_IMPLEMENTATION.md` 삭제
+- **확인**: `lib/config.py`, `lib/config.json`에서 pitot 관련 설정 없음
+- **확인**: `lib/appargs.py`에서 pitot 관련 앱 정의 없음
+- **확인**: `main.py`에서 pitot 관련 import 및 프로세스 생성 코드 없음
 
-#### **삭제할 테스트 파일들:**
-- `test/run_all_tests.py` (9.3KB) ✅ 삭제됨
-- `test/test_system_stability.py` (20KB) ✅ 삭제됨
-- `test/test_config.py` (17KB) ✅ 삭제됨
-- `test/test_appargs.py` (20KB) ✅ 삭제됨
-- `test/test_comm.py` (19KB) ✅ 삭제됨
-- `test/test_gps.py` (13KB) ✅ 삭제됨
-- `test/test_xbee.py` (11KB) ✅ 삭제됨
-- `test/test_coverage.py` (15KB) ✅ 삭제됨
-- `test/quick_stability_test.py` (9.0KB) ✅ 삭제됨
-- `test/debug_fsw_startup.py` (6.8KB) ✅ 삭제됨
-- `test/test_camera.py` (6.8KB) ✅ 삭제됨
-- `test/test_thermal_camera_advanced.py` (6.0KB) ✅ 삭제됨
-- `test/test_tmp007_direct.py` (6.0KB) ✅ 삭제됨
-- `test/test_system_integration.py` (6.1KB) ✅ 삭제됨
-- `test/test_lib_modules.py` (5.9KB) ✅ 삭제됨
-- `test/test_dual_logging.py` (9.0KB) ✅ 삭제됨
-- `test/test_message_fixes.py` (5.0KB) ✅ 삭제됨
-- `test/test_thermal_camera.py` (3.2KB) ✅ 삭제됨
-- `test/test_camera_cam.py` (3.1KB) ✅ 삭제됨
-- `test/test_pitot_airspeed.py` (3.9KB) ✅ 삭제됨
-- `test/test_imu_sensor.py` (5.8KB) ✅ 삭제됨
-- `test/test_imu.py` (4.0KB) ✅ 삭제됨
-- `test/test_barometer.py` (2.1KB) ✅ 삭제됨
-- `test/test_fir1.py` (2.2KB) ✅ 삭제됨
-- `test/test_pitot.py` (2.2KB) ✅ 삭제됨
-- `test/test_motor_base.py` (2.2KB) ✅ 삭제됨
-- `test/test_thermis.py` (2.4KB) ✅ 삭제됨
-- `test/test_thermo.py` (1.3KB) ✅ 삭제됨
-- `test/test_force_kill.py` (2.8KB) ✅ 삭제됨
-- `test/test_final_fixes.py` (3.5KB) ✅ 삭제됨
-- `test/test_fixes.py` (2.5KB) ✅ 삭제됨
-- `test/test_flight_states.py` (4.6KB) ✅ 삭제됨
-- `test/test_all_sensors.py` (4.7KB) ✅ 삭제됨
-- `test/basic_main_test.py` (4.0KB) ✅ 삭제됨
-- `test/simple_main_test.py` (1.9KB) ✅ 삭제됨
-- `test/minimal_fsw_test.py` (2.5KB) ✅ 삭제됨
-- `test/quick_test.py` (5.4KB) ✅ 삭제됨
-- `test/import_test.py` (2.0KB) ✅ 삭제됨
-- `test/path_test.py` (3.3KB) ✅ 삭제됨
-- `test/test_main_termination.py` (1.3KB) ✅ 삭제됨
+### 2단계: 코드 품질 개선 ✅
+- **완료**: 빈 except 블록 수정 (thermis/thermisapp.py, motor/motorapp.py)
+- **완료**: 하드코딩된 값 상수화 (lib/type_hints.py)
+- **완료**: print 문 통합 (thermal_camera/thermo_camera.py, tmp007/tmp007.py)
 
-#### **보존할 테스트 파일들:**
-- `test/README.md` (문서) ✅ 보존됨
-- `test/IMPROVEMENTS_ANALYSIS.md` (문서) ✅ 보존됨
-- `test/IMPROVEMENTS_SUMMARY.md` (문서) ✅ 보존됨
-- `test/test_imu_temperature.py` (2.8KB) ✅ 보존됨
+### 3단계: 전체 코드베이스 개선사항 분석 및 구현 🔄
 
-### **2. 로그 파일들 (보존 정책)**
-**정책: 보존 및 효율적 관리**
+#### 3.1 로깅 시스템 통합 ✅
+**문제**: 3개의 로깅 시스템이 중복되어 존재
+- `lib/logging.py` - DualLogger 클래스
+- `lib/dual_logging.py` - DualLogger 클래스 (다른 구현)
+- `lib/unified_logging.py` - UnifiedLogger 클래스
 
-#### **보존할 로그 파일들:**
-- `logs/hk_log.csv` - 하우스키핑 데이터 ✅ 보존
-- `logs/barometer_log.csv` - 고도계 데이터 ✅ 보존
-- `logs/dht11_log.csv` - 온습도 데이터 ✅ 보존
-- `eventlogs/info_event.txt` - 정보 이벤트 ✅ 보존
-- `eventlogs/error_event.txt` - 오류 이벤트 ✅ 보존
-- `eventlogs/debug_event.txt` - 디버그 이벤트 ✅ 보존
+**해결 완료**:
+1. ✅ 통합 로깅 시스템으로 통합 (`lib/logging/unified_logging.py`)
+2. ✅ 중복 파일들 제거 (`dual_logging.py`, `logging.py` 삭제)
+3. ✅ 기존 코드와의 호환성 유지 (`safe_log` 함수 호환)
+4. ✅ 로깅 패키지 구조화 (`lib/logging/` 디렉토리)
 
-#### **로그 관리 방안:**
-- **자동 로테이션**: 10MB 이상 시 압축
-- **자동 정리**: 30일 이상 된 파일 삭제
-- **백업 관리**: 백업 파일 개수 제한 없음 (사용자 요청)
-- **메모리 최적화**: 버퍼링된 로깅 사용
+#### 3.2 기본 앱 클래스 생성 ✅
+**문제**: 모든 앱 파일에서 동일한 패턴이 반복됨
+- `safe_log` 함수 정의 (각 앱마다 거의 동일)
+- `command_handler` 함수 구조
+- `send_hk` 함수 구조
+- `resilient_thread` 함수 구조
+- 초기화/종료 함수 구조
 
-### **3. 문서 파일들 (선택적 삭제)**
-**예상 절약: ~50KB**
+**해결 완료**:
+1. ✅ 기본 앱 클래스 생성 (`lib/base_app.py`)
+2. ✅ 공통 함수들을 기본 클래스로 이동
+3. ✅ 센서 앱과 통신 앱을 위한 특화 클래스 생성
+4. ✅ 추상 메서드를 통한 인터페이스 정의
 
-#### **삭제된 문서 파일들:**
-- `COMPREHENSIVE_DOCUMENTATION.md` (16KB) ✅ 삭제됨
-- `PROJECT_ANALYSIS.md` (6.6KB) ✅ 삭제됨
-- `FIXES_SUMMARY.md` (13KB) ✅ 삭제됨
-- `DUAL_LOGGING_SETUP.md` (6.5KB) ✅ 삭제됨
-- `TROUBLESHOOTING.md` (5.6KB) ✅ 삭제됨
-- `HIGH_FREQUENCY_DATA_COLLECTION.md` (3.9KB) ✅ 삭제됨
-- `PITOT_AIRSPEED_IMPLEMENTATION.md` (4.7KB) ✅ 삭제됨
-- `AUTOSTART_SETUP.md` (3.5KB) ✅ 삭제됨
-- `SAFE_SHUTDOWN_GUIDE.md` (4.5KB) ✅ 삭제됨
-- `IMPORT_FIXES_SUMMARY.md` (2.2KB) ✅ 삭제됨
-- `PROBLEM_FIXES_SUMMARY.md` (4.4KB) ✅ 삭제됨
+#### 3.3 파일 구조 개선 ✅
+**문제**: lib 디렉토리에 너무 많은 파일이 집중됨
+- 현재 25개의 파일이 lib 디렉토리에 있음
+- 관련 기능들이 분산되어 있음
 
-#### **보존할 핵심 문서들:**
-- `README.md` (메인 문서) ✅ 보존됨
-- `requirements.txt` (의존성) ✅ 보존됨
-- `MEMORY_OPTIMIZATION_GUIDE.md` (최신 최적화 가이드) ✅ 보존됨
-- `CODE_CLEANUP_PLAN.md` (정리 계획) ✅ 보존됨
-- `LOG_MANAGEMENT_POLICY.md` (로그 관리 정책) ✅ 새로 생성됨
+**해결 완료**:
+1. ✅ lib 디렉토리를 하위 디렉토리로 분리:
+   - `lib/logging/` - 로깅 관련 파일들 ✅
+   - `lib/optimization/` - 최적화 관련 파일들 ✅
+   - `lib/hardware/` - 하드웨어 관련 파일들 ✅
+   - `lib/core/` - 핵심 기능 파일들 ✅
+2. ✅ 각 하위 디렉토리에 `__init__.py` 파일 생성
+3. ✅ 메인 `lib/__init__.py` 업데이트
 
-### **4. 중복/불필요한 파일들**
-**예상 절약: ~10KB**
+#### 3.4 Raspberry Pi Camera v2 제거 ✅
+**문제**: Raspberry Pi Camera v2 관련 코드가 불필요하게 남아있음
+- `camera/` 디렉토리 및 모든 관련 파일들
+- `main.py`에서 camera 앱 로드 코드
+- `lib/core/appargs.py`에서 CameraAppArg 클래스
+- `flight_logic/flightlogicapp.py`에서 camera 관련 함수들
 
-#### **삭제된 파일들:**
-- `test_fixes.py` (루트의 중복 파일) ✅ 삭제됨
-- `lib/config.txt` (JSON 파일이 있으므로 불필요) ✅ 삭제됨
-- `lib/prevstate.txt` (초기화 파일, 재생성 가능) ✅ 삭제됨
+**해결 완료**:
+1. ✅ `camera/` 디렉토리 완전 삭제
+2. ✅ `main.py`에서 camera 앱 로드 코드 제거
+3. ✅ `lib/core/appargs.py`에서 CameraAppArg 클래스 제거
+4. ✅ `flight_logic/flightlogicapp.py`에서 camera 관련 함수들 제거
+5. ✅ 관련 import 및 참조 정리
 
-## 📈 **총 절약 효과 (업데이트)**
+#### 3.5 중복되는 설정 파일들 🔄
+**문제**: 여러 설정 관련 파일들이 존재
+- `lib/config.py`
+- `lib/config.json`
+- 각 앱별 설정 파일들
 
-| 카테고리 | 예상 절약 | 실제 절약 | 상태 |
-|----------|-----------|-----------|------|
-| 테스트 파일들 | ~500KB | ~500KB | ✅ 완료 |
-| 로그 파일들 | ~3MB | 0KB | 🔄 보존 정책 |
-| 이벤트 로그 | ~2.7MB | 0KB | 🔄 보존 정책 |
-| 문서 파일들 | ~50KB | ~50KB | ✅ 완료 |
-| 중복 파일들 | ~10KB | ~10KB | ✅ 완료 |
-| **총합** | **~6.25MB** | **~560KB** | **✅ 완료** |
+**해결 방안**:
+1. 통합 설정 관리 시스템 구축
+2. 환경별 설정 분리 (개발/테스트/운영)
 
-## 🚀 **새로 추가된 기능**
+#### 3.6 테스트 파일 정리 🔄
+**문제**: 테스트 파일들이 여러 위치에 분산
+- `test/` 디렉토리
+- 각 앱 디렉토리 내 테스트 파일들
+- 루트 디렉토리의 테스트 파일들
 
-### **1. 로그 파일 관리 시스템**
-- `lib/log_rotation.py` - 자동 로그 로테이션
-- `LOG_MANAGEMENT_POLICY.md` - 로그 관리 정책
-- 메인 프로그램에 로그 로테이션 통합
+**해결 방안**:
+1. 모든 테스트 파일을 `test/` 디렉토리로 통합
+2. 테스트 구조 체계화
 
-### **2. 로그 최적화 기능**
-- **자동 압축**: 10MB 이상 시 gzip 압축
-- **자동 정리**: 30일 이상 된 파일 삭제
-- **백업 관리**: 백업 파일 개수 제한 없음 (사용자 요청)
-- **디스크 모니터링**: 80% 이상 시 자동 정리
+## 📊 개선 우선순위
 
-## ⚠️ **주의사항**
+### 🔴 높은 우선순위 (즉시 해결 필요) ✅
+1. **로깅 시스템 통합** - 중복 제거 및 성능 향상 ✅
+2. **기본 앱 클래스 생성** - 코드 중복 제거 ✅
+3. **lib 디렉토리 구조 개선** - 파일 정리 ✅
+4. **Raspberry Pi Camera v2 제거** - 불필요한 코드 제거 ✅
 
-### **로그 파일 보존 시 고려사항:**
-1. **디스크 공간**: 정기적인 모니터링 필요
-2. **성능**: 로그 파일이 너무 크면 성능 저하
-3. **백업**: 중요한 로그 파일 백업
-4. **보안**: 민감한 정보가 로그에 포함될 수 있음
+### 🟡 중간 우선순위 (단계적 해결)
+1. **설정 시스템 통합** - 관리 효율성 향상
+2. **테스트 파일 정리** - 구조 개선
+3. **문서 업데이트** - README 파일들 통합
 
-### **최적화 방안:**
-1. **로그 레벨 조정**: 필요한 로그만 기록
-2. **버퍼링**: 메모리 최적화된 로깅 사용
-3. **압축**: 오래된 로그 파일 압축
-4. **정리**: 주기적인 로그 정리
+### 🟢 낮은 우선순위 (여유 있을 때)
+1. **코드 스타일 통일** - PEP 8 준수
+2. **타입 힌트 추가** - 코드 품질 향상
+3. **성능 최적화** - 메모리 사용량 개선
 
-## 📝 **실행된 명령어**
+## 🎯 예상 효과
 
-```bash
-# 1단계: 테스트 파일들 삭제 ✅ 완료
-rm -rf test/test_*.py
-rm -rf test/*_test.py
-rm -rf test/debug_*.py
-rm -rf test/quick_*.py
+### 코드 품질 향상
+- **중복 코드 제거**: 약 30-40% 코드량 감소
+- **유지보수성 향상**: 공통 기능 중앙화
+- **버그 감소**: 중복 구현으로 인한 불일치 제거
 
-# 2단계: 문서 파일들 정리 ✅ 완료
-rm -f COMPREHENSIVE_DOCUMENTATION.md
-rm -f PROJECT_ANALYSIS.md
-rm -f FIXES_SUMMARY.md
-rm -f DUAL_LOGGING_SETUP.md
-rm -f TROUBLESHOOTING.md
-rm -f HIGH_FREQUENCY_DATA_COLLECTION.md
-rm -f PITOT_AIRSPEED_IMPLEMENTATION.md
-rm -f AUTOSTART_SETUP.md
-rm -f SAFE_SHUTDOWN_GUIDE.md
-rm -f IMPORT_FIXES_SUMMARY.md
-rm -f PROBLEM_FIXES_SUMMARY.md
+### 성능 개선
+- **메모리 사용량 감소**: 중복 로깅 시스템 제거
+- **시작 시간 단축**: 불필요한 초기화 제거
+- **디스크 사용량 감소**: 중복 파일 제거
 
-# 3단계: 중복 파일들 삭제 ✅ 완료
-rm -f test_fixes.py
-rm -f lib/config.txt
-rm -f lib/prevstate.txt
+### 개발 효율성 향상
+- **새 앱 추가 용이성**: 기본 클래스 상속으로 빠른 개발
+- **디버깅 효율성**: 통합된 로깅 시스템
+- **설정 관리 편의성**: 중앙화된 설정 시스템
 
-# 4단계: 로그 관리 시스템 구축 ✅ 완료
-# - lib/log_rotation.py 생성
-# - LOG_MANAGEMENT_POLICY.md 생성
-# - main.py에 로그 로테이션 통합
-```
+## 📈 총 절약 효과 (업데이트)
+- **Pitot 관련 파일 완전 제거**: pitot 디렉토리 및 모든 관련 파일 삭제
+- **코드 품질 개선**: 빈 except 블록 수정, 하드코딩된 값 상수화, print 문 통합
+- **로깅 시스템 통합**: 3개 시스템 → 1개 시스템으로 통합 ✅
+- **기본 앱 클래스 도입**: 앱별 중복 코드 제거 ✅
+- **lib 디렉토리 구조 개선**: 파일 분류 및 정리 ✅
+- **Raspberry Pi Camera v2 제거**: camera 디렉토리 및 관련 코드 완전 제거 ✅
 
-## 🎯 **결과 요약**
+## ✅ 완료된 작업
+- **Pitot 제거**: 불필요한 pitot 관련 코드 완전 제거
+- **코드 품질 개선**: 빈 except 블록 수정, 하드코딩된 값 상수화, print 문 통합
+- **전체 코드베이스 분석**: 중복 코드 및 개선사항 식별
+- **로깅 시스템 통합**: 중복 로깅 시스템 제거 및 통합 시스템 구축
+- **기본 앱 클래스 생성**: 공통 기능 추출 및 기본 클래스 구현
+- **lib 디렉토리 구조 개선**: 파일 분류 및 패키지 구조화
+- **Raspberry Pi Camera v2 제거**: camera 관련 코드 완전 제거
 
-### **✅ 완료된 작업:**
-- **테스트 파일 정리**: 35개 파일 삭제 (~500KB 절약)
-- **문서 파일 정리**: 11개 파일 삭제 (~50KB 절약)
-- **중복 파일 정리**: 3개 파일 삭제 (~10KB 절약)
-- **로그 관리 시스템 구축**: 자동 로테이션 및 최적화
+## 🔄 진행 중인 작업
+- **설정 시스템 통합**: 중앙화된 설정 관리 시스템 설계
+- **테스트 파일 정리**: 분산된 테스트 파일들 통합
 
-### **🔄 보존 정책:**
-- **로그 파일들**: 데이터 분석을 위해 보존
-- **핵심 문서들**: 프로젝트 운영을 위해 보존
-- **센서 모듈들**: 시스템 동작을 위해 보존
+## 📋 다음 단계
+1. **설정 시스템 통합 구현**
+2. **테스트 파일 정리 및 구조화**
+3. **기본 앱 클래스 적용**: 기존 앱들을 새로운 기본 클래스로 마이그레이션
+4. **문서 업데이트**: 새로운 구조에 맞는 README 파일들 업데이트
 
-### **📊 최종 결과:**
-- **총 절약 용량**: ~560KB
-- **코드 크기 감소**: 약 15-20%
-- **메모리 최적화**: 버퍼링된 로깅으로 메모리 사용량 감소
-- **로그 관리**: 자동화된 로그 로테이션으로 디스크 공간 효율적 사용 
+## 📊 최종 결과
+- **코드베이스 정리**: 불필요한 파일 및 코드 제거
+- **Pitot 제거**: 불필요한 pitot 관련 코드 완전 제거
+- **Raspberry Pi Camera v2 제거**: 불필요한 camera 관련 코드 완전 제거
+- **코드 품질 향상**: 예외 처리 개선, 상수 정의, 로깅 시스템 통합
+- **구조 개선**: 중복 코드 제거, 파일 구조 최적화
+- **유지보수성 향상**: 공통 기능 중앙화, 설정 시스템 통합
+- **개발 효율성 향상**: 기본 앱 클래스로 새로운 앱 개발 용이성 증대 

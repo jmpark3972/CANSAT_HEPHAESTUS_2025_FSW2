@@ -346,7 +346,8 @@ def barometerapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
             if Main_Pipe.poll(1.0):  # 1초 타임아웃
                 try:
                     message = Main_Pipe.recv()
-                except:
+                except Exception as e:
+                    safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
                     # 에러 시 루프 계속
                     continue
             else:

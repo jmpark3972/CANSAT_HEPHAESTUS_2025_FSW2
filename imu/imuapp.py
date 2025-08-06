@@ -488,11 +488,15 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
                     try:
                         message = Main_Pipe.recv()
-                    except (EOFError, BrokenPipeError, ConnectionResetError):
-                        safe_log("Pipe connection lost", "error".upper(), True)
-                        break
+                    except (EOFError, BrokenPipeError, ConnectionResetError) as e:
+                        safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
+                        # 연결이 끊어져도 로깅은 계속
+                        time.sleep(1)
+                        continue
                     except Exception as e:
-                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
+                        safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
+                        # 에러 시 루프 계속
+                        time.sleep(0.5)
                         continue
                 else:
                     # 타임아웃 시 루프 계속
@@ -512,12 +516,27 @@ def imuapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 safe_log(f"Main loop error: {e}", "error".upper(), True)
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
-    # If error occurs, terminate app
-    except Exception as e:
-        safe_log(f"imuapp error : {e}", "error".upper(), True)
+    # If error occurs, terminate app gracefully
+    except (KeyboardInterrupt, SystemExit):
+        safe_log("IMU app received termination signal", "info".upper(), True)
         IMUAPP_RUNSTATUS = False
+    except Exception as e:
+        safe_log(f"imuapp critical error : {e}", "error".upper(), True)
+        IMUAPP_RUNSTATUS = False
+        # 치명적 오류 발생 시에도 로깅은 계속
+        try:
+            safe_log("IMU app attempting graceful shutdown", "info".upper(), True)
+        except:
+            pass
 
     # Termination Process after runloop
-    imuapp_terminate(i2c_instance)
+    try:
+        imuapp_terminate(i2c_instance)
+    except Exception as e:
+        # 종료 과정에서 오류가 발생해도 최소한의 로깅 시도
+        try:
+            print(f"[IMU] Termination error: {e}")
+        except:
+            pass
 
     return
