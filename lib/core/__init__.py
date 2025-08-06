@@ -7,7 +7,7 @@ CANSAT HEPHAESTUS 2025 FSW2 - 핵심 기능 패키지
 from .appargs import *
 from .msgstructure import *
 from .types import *
-from .config import get_config, set_config, load_config
+from .config import get_config, set_config
 from .prevstate import *
 from .utils import *
 
@@ -24,7 +24,7 @@ __all__ = [
     'AppID', 'MsgID',
     
     # config에서
-    'get_config', 'set_config', 'load_config',
+    'get_config', 'set_config',
     
     # prevstate에서
     'reset_prevstate', 'update_prevstate', 'get_prevstate',

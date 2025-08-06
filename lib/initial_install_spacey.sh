@@ -53,14 +53,6 @@ pip3 install adafruit-circuitpython-ads1x15
 pip3 install adafruit-circuitpython-motor
 pip3 install adafruit-circuitpython-mlx90614
 
-# 5. 비디오 라이브러리 설치
-echo ""
-echo "📹 5. 비디오 라이브러리 설치..."
-yes | sudo apt install ffmpeg
-yes | pip install opencv-python
-yes | sudo apt install python3-picamera2
-yes | sudo apt install libcamera-tools
-
 # 6. 기본 모듈 설치
 echo ""
 echo "📚 6. 기본 모듈 설치..."
