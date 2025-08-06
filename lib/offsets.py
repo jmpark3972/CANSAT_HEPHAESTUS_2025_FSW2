@@ -44,7 +44,7 @@ class OffsetManager:
             
             # Thermis 오프셋
             "THERMIS": {
-                "TEMPERATURE_OFFSET": 70.0      # °C (기본값)
+                "TEMPERATURE_OFFSET": 55.0      # °C (기본값)
             },
             
             # TMP007 오프셋
@@ -56,7 +56,7 @@ class OffsetManager:
             # Pitot Tube 오프셋
             "PITOT": {
                 "PRESSURE_OFFSET": 0.0,         # Pa
-                "TEMPERATURE_OFFSET": -60.0,    # °C (기본값)
+                "TEMPERATURE_OFFSET": 0.0,    # °C (기본값)
                 "AIRSPEED_OFFSET": 0.0          # m/s
             },
             
@@ -108,12 +108,16 @@ class OffsetManager:
                     # 기본값과 병합
                     return self._merge_offsets(self.default_offsets, offsets)
             else:
-                # 기본 오프셋으로 파일 생성
-                self._save_offsets(self.default_offsets)
+                # 기본 오프셋으로 시작
+                current_offsets = self.default_offsets.copy()
+                
                 # 기존 IMU 오프셋 파일에서 데이터 마이그레이션
-                self._migrate_legacy_imu_offsets()
-                self._migrate_legacy_prevstate_offsets() # prevstate.txt 마이그레이션 추가
-                return self.offsets
+                current_offsets = self._migrate_legacy_imu_offsets(current_offsets)
+                current_offsets = self._migrate_legacy_prevstate_offsets(current_offsets)
+                
+                # 파일 저장
+                self._save_offsets(current_offsets)
+                return current_offsets
         except Exception as e:
             logging.log(f"오프셋 파일 로드 오류: {e}", True)
             return self.default_offsets.copy()
@@ -145,7 +149,7 @@ class OffsetManager:
         except Exception as e:
             logging.log(f"오프셋 파일 저장 오류: {e}", True)
     
-    def _migrate_legacy_imu_offsets(self):
+    def _migrate_legacy_imu_offsets(self, current_offsets: Dict[str, Any]) -> Dict[str, Any]:
         """기존 IMU 오프셋 파일에서 데이터 마이그레이션"""
         try:
             legacy_offset_file = Path("imu/offset.py")
@@ -166,9 +170,9 @@ class OffsetManager:
                         accel_values = [int(x.strip()) for x in accel_line.split(',')]
                         
                         # 새로운 시스템에 설정
-                        self.set("IMU.MAGNETOMETER", mag_values)
-                        self.set("IMU.GYROSCOPE", gyro_values)
-                        self.set("IMU.ACCELEROMETER", accel_values)
+                        current_offsets["IMU"]["MAGNETOMETER"] = mag_values
+                        current_offsets["IMU"]["GYROSCOPE"] = gyro_values
+                        current_offsets["IMU"]["ACCELEROMETER"] = accel_values
                         
                         logging.log("기존 IMU 오프셋 데이터를 마이그레이션했습니다", True)
                         logging.log(f"자기계: {mag_values}", True)
@@ -176,8 +180,10 @@ class OffsetManager:
                         logging.log(f"가속도계: {accel_values}", True)
         except Exception as e:
             logging.log(f"기존 IMU 오프셋 마이그레이션 오류: {e}", True)
+        
+        return current_offsets
     
-    def _migrate_legacy_prevstate_offsets(self):
+    def _migrate_legacy_prevstate_offsets(self, current_offsets: Dict[str, Any]) -> Dict[str, Any]:
         """기존 prevstate.txt 파일에서 오프셋 데이터 마이그레이션"""
         try:
             prevstate_file = Path("lib/prevstate.txt")
@@ -187,32 +193,34 @@ class OffsetManager:
                         line = line.strip()
                         if line.startswith('THERMO_TOFF='):
                             value = float(line.split('=')[1])
-                            self.set("THERMO.TEMPERATURE_OFFSET", value)
+                            current_offsets["THERMO"]["TEMPERATURE_OFFSET"] = value
                         elif line.startswith('THERMO_HOFF='):
                             value = float(line.split('=')[1])
-                            self.set("THERMO.HUMIDITY_OFFSET", value)
+                            current_offsets["THERMO"]["HUMIDITY_OFFSET"] = value
                         elif line.startswith('FIR_AOFF='):
                             value = float(line.split('=')[1])
-                            self.set("FIR1.AMBIENT_OFFSET", value)
+                            current_offsets["FIR1"]["AMBIENT_OFFSET"] = value
                         elif line.startswith('FIR_OOFF='):
                             value = float(line.split('=')[1])
-                            self.set("FIR1.OBJECT_OFFSET", value)
+                            current_offsets["FIR1"]["OBJECT_OFFSET"] = value
                         elif line.startswith('THERMIS_OFF='):
                             value = float(line.split('=')[1])
-                            self.set("THERMIS.TEMPERATURE_OFFSET", value)
+                            current_offsets["THERMIS"]["TEMPERATURE_OFFSET"] = value
                         elif line.startswith('NIR_OFFSET='):
                             value = float(line.split('=')[1])
-                            self.set("NIR.OFFSET", value)
+                            current_offsets["NIR"]["OFFSET"] = value
                         elif line.startswith('PITOT_POFF='):
                             value = float(line.split('=')[1])
-                            self.set("PITOT.PRESSURE_OFFSET", value)
+                            current_offsets["PITOT"]["PRESSURE_OFFSET"] = value
                         elif line.startswith('PITOT_TOFF='):
                             value = float(line.split('=')[1])
-                            self.set("PITOT.TEMPERATURE_OFFSET", value)
+                            current_offsets["PITOT"]["TEMPERATURE_OFFSET"] = value
                 
                 logging.log("기존 prevstate.txt 오프셋 데이터를 마이그레이션했습니다", True)
         except Exception as e:
             logging.log(f"기존 prevstate.txt 오프셋 마이그레이션 오류: {e}", True)
+        
+        return current_offsets
     
     def get(self, key: str, default: Any = None) -> Any:
         """오프셋값 가져오기 (점 표기법 지원)"""
@@ -399,6 +407,10 @@ def get_thermis_offset() -> float:
 def get_pitot_offsets() -> Tuple[float, float]:
     """Pitot 오프셋 가져오기 (기존 호환성)"""
     return get_offset_manager().get_pitot_offsets()
+
+def get_comm_offset() -> float:
+    """통신 SIMP 오프셋 가져오기 (기존 호환성)"""
+    return get_offset_manager().get_comm_offset()
 
 if __name__ == "__main__":
     # 오프셋 관리자 테스트

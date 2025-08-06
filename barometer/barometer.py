@@ -4,8 +4,7 @@
 import time
 import os
 from datetime import datetime
-from calibrate_barometer import test_load_offset2
-
+ 
 OFFSET_FILE = './sensorlogs/altitude_offset.txt'
 log_dir = './sensorlogs'
 if not os.path.exists(log_dir): 
