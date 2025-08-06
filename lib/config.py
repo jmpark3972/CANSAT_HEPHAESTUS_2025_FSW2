@@ -129,7 +129,7 @@ DEFAULT_CONFIG = {
     
     # 비행 로직 설정
     "FLIGHT_LOGIC": {
-        "THERMIS_TEMP_THRESHOLD": 40.0,      # °C
+        "THERMIS_TEMP_THRESHOLD": 35.0,      # °C
         "MOTOR_CLOSE_ALT_THRESHOLD": 70.0,   # m
         "ASCENT_ALT_THRESHOLD": 75.0,        # m
         "DESCENT_ALT_OFFSET": 20.0,          # m

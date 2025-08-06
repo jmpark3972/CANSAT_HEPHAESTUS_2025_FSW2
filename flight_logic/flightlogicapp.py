@@ -27,7 +27,7 @@ MOTOR_OPEN_PULSE = 500    # 0도 (열림)
 MOTOR_CLOSE_PULSE = 2500  # 180도 (닫힘)
 
 # 모터 제어 조건
-THERMIS_TEMP_THRESHOLD = 40.0  # Thermis 온도 임계값 (°C)
+THERMIS_TEMP_THRESHOLD = 35.0  # Thermis 온도 임계값 (°C)
 MOTOR_CLOSE_ALT_THRESHOLD = 70.0  # 모터 완전 닫음 고도 (m)
 RECENT_ALT_CHECK_LEN = 5  # 최근 고도 체크 개수
 
@@ -368,13 +368,17 @@ def update_motor_logic(Main_Queue: Queue):
         log_system_event("MOTOR_LOGIC", f"Motor closed due to altitude <= {MOTOR_CLOSE_ALT_THRESHOLD}m")
         return
     
-    # 2. 온도 조건 (Thermis 온도 기준)
+    # 2. 기본 모터 상태 (닫힘)
+    set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
+    log_system_event("MOTOR_LOGIC", "Motor closed (default state)")
+    
+    # 3. 추가 조건들 (필요시 여기에 추가)
+    # 예: 시간 기반 조건, 다른 센서 조건 등
+    
+    # 4. 온도 조건 (Thermis 온도 기준) - 35도 이상시 열림
     if CURRENT_THERMIS_TEMP >= THERMIS_TEMP_THRESHOLD:
         set_motor_pulse(Main_Queue, MOTOR_OPEN_PULSE)  # 0도 (열림)
         log_system_event("MOTOR_LOGIC", f"Motor opened due to Thermis temp >= {THERMIS_TEMP_THRESHOLD}°C")
-    else:
-        set_motor_pulse(Main_Queue, MOTOR_CLOSE_PULSE)  # 180도 (닫힘)
-        log_system_event("MOTOR_LOGIC", f"Motor closed due to Thermis temp < {THERMIS_TEMP_THRESHOLD}°C")
 
 # ──────────────────────────────
 # 10. 카메라 제어 함수
