@@ -18,7 +18,8 @@ from functools import wraps, lru_cache
 from collections import deque
 import weakref
 
-from lib import logging, config
+from ..logging import safe_log
+from ..core.config import get_config, set_config
 
 class PerformanceOptimizer:
     """성능 최적화 관리자"""
@@ -49,7 +50,7 @@ class PerformanceOptimizer:
         self.cache_lock = threading.Lock()
         self.cache_ttl = 300  # 5분
         
-        logging.log("성능 최적화 시스템 초기화 완료")
+        safe_log("성능 최적화 시스템 초기화 완료")
     
     def start_profiling(self, output_file: str = "performance_profile.prof"):
         """프로파일링 시작"""
@@ -59,7 +60,7 @@ class PerformanceOptimizer:
         self.profiling = True
         self.profiler = cProfile.Profile()
         self.profiler.enable()
-        logging.log(f"프로파일링 시작: {output_file}")
+        safe_log(f"프로파일링 시작: {output_file}")
     
     def stop_profiling(self, output_file: str = "performance_profile.prof"):
         """프로파일링 중지 및 결과 저장"""
@@ -78,11 +79,11 @@ class PerformanceOptimizer:
             stats = pstats.Stats(self.profiler, stream=s).sort_stats('cumulative')
             stats.print_stats(20)  # 상위 20개 함수
             
-            logging.log("프로파일링 결과:")
-            logging.log(s.getvalue())
+            safe_log("프로파일링 결과:")
+            safe_log(s.getvalue())
             
         except Exception as e:
-            logging.log(f"프로파일링 결과 저장 오류: {e}", "ERROR")
+            safe_log(f"프로파일링 결과 저장 오류: {e}", True)
         
         self.profiler = None
     
@@ -114,10 +115,10 @@ class PerformanceOptimizer:
                 
                 # 성능 경고
                 if execution_time > 1.0:  # 1초 이상
-                    logging.log(f"성능 경고: {func_name} 실행 시간 {execution_time:.3f}초", "WARNING")
+                    safe_log(f"성능 경고: {func_name} 실행 시간 {execution_time:.3f}초", True)
                 
                 if memory_delta > 1024 * 1024:  # 1MB 이상
-                    logging.log(f"메모리 경고: {func_name} 메모리 사용량 {memory_delta / 1024 / 1024:.2f}MB", "WARNING")
+                    safe_log(f"메모리 경고: {func_name} 메모리 사용량 {memory_delta / 1024 / 1024:.2f}MB", True)
         
         return wrapper
     
@@ -230,10 +231,10 @@ class PerformanceOptimizer:
                         self.memory_pool[pool_name] = self.memory_pool[pool_name][:5]
             
             if collected > 0:
-                logging.log(f"메모리 최적화 완료: {collected}개 객체 수집")
+                safe_log(f"메모리 최적화 완료: {collected}개 객체 수집")
             
         except Exception as e:
-            logging.log(f"메모리 최적화 오류: {e}", "ERROR")
+            safe_log(f"메모리 최적화 오류: {e}", True)
     
     def get_performance_metrics(self) -> Dict[str, Any]:
         """성능 메트릭 반환"""
@@ -307,20 +308,20 @@ class PerformanceOptimizer:
             return "\n".join(report)
             
         except Exception as e:
-            logging.log(f"성능 리포트 생성 오류: {e}", "ERROR")
+            safe_log(f"성능 리포트 생성 오류: {e}", True)
             return f"성능 리포트 생성 실패: {e}"
     
     def clear_cache(self):
         """캐시 정리"""
         with self.cache_lock:
             self.cache.clear()
-        logging.log("캐시 정리 완료")
+        safe_log("캐시 정리 완료")
     
     def clear_memory_pool(self):
         """메모리 풀 정리"""
         with self.pool_lock:
             self.memory_pool.clear()
-        logging.log("메모리 풀 정리 완료")
+        safe_log("메모리 풀 정리 완료")
 
 # 전역 성능 최적화 인스턴스
 _performance_optimizer = None
