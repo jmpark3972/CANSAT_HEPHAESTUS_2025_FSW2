@@ -201,7 +201,6 @@ signal.signal(signal.SIGTERM, signal_handler)
 atexit.register(terminate_FSW)
 
 def cleanup_child_processes():  """자식 프로세스 정리"""
-   
     try:
         for appID in app_dict:
             if app_dict[appID].process and app_dict[appID].process.is_alive():
