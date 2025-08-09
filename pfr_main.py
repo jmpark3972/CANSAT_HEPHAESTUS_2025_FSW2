@@ -63,8 +63,8 @@ app_health_status = {}
 app_failure_threshold = 5  # 5초 동안 응답 없으면 비정상으로 간주
 app_restart_cooldown = 30  # 재시작 후 30초 대기
 
-def monitor_app_health():
-    """앱 상태 모니터링 및 로깅"""
+def monitor_app_health(): """앱 상태 모니터링 및 로깅"""
+    
     global app_health_status
     
     current_time = time.time()
@@ -95,8 +95,8 @@ def monitor_app_health():
         except Exception as e:
             main_safe_log(f"App health monitoring error for {app_id}: {e}", "ERROR", True)
 
-def log_system_status():
-    """시스템 상태 로깅"""
+def log_system_status(): """시스템 상태 로깅"""
+   
     try:
         healthy_apps = sum(1 for app_elem in app_dict.values() if app_elem.is_healthy)
         total_apps = len(app_dict)
@@ -118,7 +118,7 @@ def log_system_status():
     except Exception as e:
         main_safe_log(f"System status logging error: {e}", "ERROR", True)
 
-def terminate_FSW():
+def terminate_FSW(): # FSW 종료
     global MAINAPP_RUNSTATUS, _termination_in_progress
     if _termination_in_progress:
         return  # Already terminating
@@ -200,8 +200,8 @@ signal.signal(signal.SIGTERM, signal_handler)
 # 종료 시 정리 함수 등록
 atexit.register(terminate_FSW)
 
-def cleanup_child_processes():
-    """자식 프로세스 정리"""
+def cleanup_child_processes():  """자식 프로세스 정리"""
+   
     try:
         for appID in app_dict:
             if app_dict[appID].process and app_dict[appID].process.is_alive():
@@ -229,8 +229,7 @@ def cleanup_queues():
     except Exception as e:
         main_safe_log(f"큐 정리 실패: {e}", "WARNING", False)
 
-def restart_app(appID):
-    """앱 재시작 (개선된 버전)"""
+def restart_app(appID): # 강제 종료 시 앱 재시작
     try:
         app_elem = app_dict[appID]
         
@@ -329,8 +328,7 @@ def restart_app(appID):
         main_safe_log(f"Restart failed for {appID}: {e}", "ERROR", True)
         return False
 
-def load_apps():
-    """앱 로드 및 프로세스 시작"""
+def load_apps(): # 앱 로드 및 프로세스 시작
     try:
         main_safe_log("load_apps() 함수 시작", "INFO", True)
         
@@ -398,8 +396,7 @@ def load_apps():
         import traceback
         main_safe_log(f"예외 상세: {traceback.format_exc()}", "ERROR", True)
 
-def runloop(Main_Queue : Queue):
-    """메인 루프 (개선된 버전)"""
+def runloop(Main_Queue : Queue): # 메인 루프
     global MAINAPP_RUNSTATUS
     
     start_time = time.time()
@@ -539,8 +536,7 @@ def runloop(Main_Queue : Queue):
     
     main_safe_log("Main loop terminated", "INFO", True)
 
-def main():
-    """메인 함수"""
+def main(): # 메인 함수
     try:
         main_safe_log("CANSAT HEPHAESTUS 2025 FSW2 시작", "INFO", True)
         
