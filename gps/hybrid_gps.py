@@ -48,6 +48,11 @@ class HybridGPSSystem:
     """하이브리드 GPS 시스템"""
     
     def __init__(self):
+        # 로그 파일 설정 (먼저 초기화)
+        self.log_dir = './logs'
+        os.makedirs(self.log_dir, exist_ok=True)
+        self.log_file = os.path.join(self.log_dir, 'hybrid_gps.log')
+        
         self.gps_data = None
         self.wifi_data = None
         self.cell_data = None
@@ -73,11 +78,6 @@ class HybridGPSSystem:
         
         # API 키 (실제 사용 시 환경변수로 설정)
         self.google_api_key = os.getenv('GOOGLE_MAPS_API_KEY', '')
-        
-        # 로그 파일 설정
-        self.log_dir = './logs'
-        os.makedirs(self.log_dir, exist_ok=True)
-        self.log_file = os.path.join(self.log_dir, 'hybrid_gps.log')
         
     def _init_gps(self):
         """GPS 모듈 초기화"""
