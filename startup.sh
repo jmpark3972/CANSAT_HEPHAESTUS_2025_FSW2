@@ -16,3 +16,4 @@ echo "venv > ${venv_path}/activate"
 cd ${python_path};python3 main.py
 
 fi
+
