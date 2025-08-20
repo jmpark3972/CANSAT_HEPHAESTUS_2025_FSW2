@@ -46,13 +46,29 @@ def init_gps():
             print(f"Available addresses: {[hex(addr) for addr in scanned_devices]}")
             return None, None
         
-        # Configure GPS settings for optimal performance
-        gps.send_command(b'PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
-        gps.send_command(b'PMTK220,1000')  # Update rate: 1Hz
-        gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')  # Enable all data
-        
-        print("✓ GPS settings configured")
-        log_gps("MAX-M10S GPS module initialized successfully")
+        # Configure GPS settings for optimal performance with error handling
+        try:
+            # Reset GPS module first
+            gps.send_command(b'PMTK000')
+            time.sleep(1)
+            
+            # Configure basic settings
+            gps.send_command(b'PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
+            time.sleep(0.5)
+            gps.send_command(b'PMTK220,1000')  # Update rate: 1Hz
+            time.sleep(0.5)
+            
+            # Enable all data
+            gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')
+            time.sleep(0.5)
+            
+            print("✓ GPS settings configured")
+            log_gps("MAX-M10S GPS module initialized successfully")
+            
+        except Exception as config_error:
+            print(f"⚠️ GPS configuration warning: {config_error}")
+            log_gps(f"CONFIG_WARNING,{config_error}")
+            # Continue anyway - GPS might still work with default settings
         
         return i2c, gps
         
@@ -67,36 +83,89 @@ def read_gps(gps, timeout=2.0):
         return None
     
     try:
-        # Update GPS data
-        gps.update()
-        
-        # Check if we have a fix
-        if gps.has_fix:
-            gps_data = {
-                'latitude': gps.latitude,
-                'longitude': gps.longitude,
-                'altitude': gps.altitude_m,
-                'speed': gps.speed_knots,
-                'course': gps.track_angle_deg,
-                'satellites': gps.satellites,
-                'fix_quality': gps.fix_quality,
-                'timestamp': datetime.now().isoformat(),
-                'has_fix': True
-            }
-            
-            # Log GPS data
-            log_gps(f"FIX,{gps_data['latitude']:.6f},{gps_data['longitude']:.6f},"
-                   f"{gps_data['altitude']:.1f},{gps_data['speed']:.1f},"
-                   f"{gps_data['satellites']},{gps_data['fix_quality']}")
-            
-            return gps_data
-        else:
-            # No fix available
-            log_gps("NO_FIX")
+        # Update GPS data with error handling
+        try:
+            gps.update()
+        except Exception as update_error:
+            print(f"GPS update error: {update_error}")
+            log_gps(f"UPDATE_ERROR,{update_error}")
             return {
                 'has_fix': False,
-                'satellites': gps.satellites,
-                'timestamp': datetime.now().isoformat()
+                'satellites': 0,
+                'timestamp': datetime.now().isoformat(),
+                'error': str(update_error)
+            }
+        
+        # Check if we have a fix with safe data access
+        try:
+            has_fix = gps.has_fix
+            satellites = gps.satellites if hasattr(gps, 'satellites') else 0
+            fix_quality = gps.fix_quality if hasattr(gps, 'fix_quality') else 0
+            
+            if has_fix:
+                # Safely extract GPS data with validation
+                try:
+                    lat = gps.latitude
+                    lon = gps.longitude
+                    alt = gps.altitude_m if hasattr(gps, 'altitude_m') else 0
+                    speed = gps.speed_knots if hasattr(gps, 'speed_knots') else 0
+                    course = gps.track_angle_deg if hasattr(gps, 'track_angle_deg') else 0
+                    
+                    # Validate coordinates
+                    if lat is None or lon is None or not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                        print("Invalid GPS coordinates received")
+                        log_gps("INVALID_COORDINATES")
+                        return {
+                            'has_fix': False,
+                            'satellites': satellites,
+                            'timestamp': datetime.now().isoformat()
+                        }
+                    
+                    gps_data = {
+                        'latitude': lat,
+                        'longitude': lon,
+                        'altitude': alt,
+                        'speed': speed,
+                        'course': course,
+                        'satellites': satellites,
+                        'fix_quality': fix_quality,
+                        'timestamp': datetime.now().isoformat(),
+                        'has_fix': True
+                    }
+                    
+                    # Log GPS data
+                    log_gps(f"FIX,{gps_data['latitude']:.6f},{gps_data['longitude']:.6f},"
+                           f"{gps_data['altitude']:.1f},{gps_data['speed']:.1f},"
+                           f"{gps_data['satellites']},{gps_data['fix_quality']}")
+                    
+                    return gps_data
+                    
+                except Exception as data_error:
+                    print(f"GPS data extraction error: {data_error}")
+                    log_gps(f"DATA_ERROR,{data_error}")
+                    return {
+                        'has_fix': False,
+                        'satellites': satellites,
+                        'timestamp': datetime.now().isoformat(),
+                        'error': str(data_error)
+                    }
+            else:
+                # No fix available
+                log_gps("NO_FIX")
+                return {
+                    'has_fix': False,
+                    'satellites': satellites,
+                    'timestamp': datetime.now().isoformat()
+                }
+                
+        except Exception as fix_error:
+            print(f"GPS fix check error: {fix_error}")
+            log_gps(f"FIX_ERROR,{fix_error}")
+            return {
+                'has_fix': False,
+                'satellites': 0,
+                'timestamp': datetime.now().isoformat(),
+                'error': str(fix_error)
             }
             
     except Exception as e:

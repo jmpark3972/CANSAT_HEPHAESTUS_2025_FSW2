@@ -233,12 +233,16 @@ class HybridGPSSystem:
             # Google API 키가 있으면 Google Geolocation API 사용
             if self.google_api_key:
                 try:
-                    payload = {
-                        'wifiAccessPoints': [
-                            {'macAddress': f"00:00:00:00:00:{i:02x}", 'signalStrength': -50}
-                            for i, _ in enumerate(networks[:5])  # 상위 5개 네트워크만 사용
-                        ]
-                    }
+                    # WiFi 네트워크를 Google API 형식으로 변환
+                    wifi_access_points = []
+                    for i, network in enumerate(networks[:5]):  # 상위 5개 네트워크만 사용
+                        wifi_access_points.append({
+                            'macAddress': f"00:00:00:00:00:{i:02x}",
+                            'signalStrength': -50 - (i * 5),  # 신호 강도 시뮬레이션
+                            'signalToNoiseRatio': 40 - (i * 2)
+                        })
+                    
+                    payload = {'wifiAccessPoints': wifi_access_points}
                     
                     response = requests.post(
                         f'https://www.googleapis.com/geolocation/v1/geolocate?key={self.google_api_key}',
@@ -249,20 +253,21 @@ class HybridGPSSystem:
                     if response.status_code == 200:
                         data = response.json()
                         location = data['location']
+                        accuracy = data.get('accuracy', 100.0)
                         
                         wifi_location = LocationData(
                             latitude=location['lat'],
                             longitude=location['lng'],
-                            accuracy=data.get('accuracy', 100.0),
+                            accuracy=accuracy,
                             source=LocationSource.WIFI,
                             wifi_networks=[n['ssid'] for n in networks[:5]]
                         )
                         
                         self.last_wifi_fix = wifi_location
-                        self._log(f"Google WiFi 위치: {wifi_location.latitude:.6f}, {wifi_location.longitude:.6f}")
+                        self._log(f"Google WiFi 위치: {wifi_location.latitude:.6f}, {wifi_location.longitude:.6f} (정확도: {accuracy:.1f}m)")
                         return wifi_location
                     else:
-                        self._log(f"Google WiFi 위치 API 오류: {response.status_code}", "WARNING")
+                        self._log(f"Google WiFi 위치 API 오류: {response.status_code} - {response.text}", "WARNING")
                 except Exception as api_error:
                     self._log(f"Google API 호출 실패: {api_error}", "WARNING")
             

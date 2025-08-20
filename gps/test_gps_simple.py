@@ -39,24 +39,33 @@ def test_max_m10s_gps():
             gps.send_command(b'PMTK220,1000')  # Update rate: 1Hz
             print("✓ GPS settings configured")
             
-            # Test GPS reading
+            # Test GPS reading with error handling
             print("Testing GPS data reading (30 seconds)...")
             start_time = time.time()
             fix_count = 0
+            error_count = 0
             
             while time.time() - start_time < 30:
-                gps.update()
-                
-                if gps.has_fix:
-                    fix_count += 1
-                    print(f"Fix #{fix_count}: Lat={gps.latitude:.6f}, Lon={gps.longitude:.6f}, "
-                          f"Alt={gps.altitude_m:.1f}m, Sats={gps.satellites}")
+                try:
+                    gps.update()
                     
-                    if fix_count >= 3:
-                        print("✓ GPS test successful!")
+                    if gps.has_fix:
+                        fix_count += 1
+                        print(f"Fix #{fix_count}: Lat={gps.latitude:.6f}, Lon={gps.longitude:.6f}, "
+                              f"Alt={gps.altitude_m:.1f}m, Sats={gps.satellites}")
+                        
+                        if fix_count >= 3:
+                            print("✓ GPS test successful!")
+                            break
+                    else:
+                        print(".", end="", flush=True)
+                        
+                except Exception as e:
+                    error_count += 1
+                    print(f"E", end="", flush=True)  # Show error with 'E'
+                    if error_count > 10:  # Stop if too many errors
+                        print(f"\n⚠️ Too many errors ({error_count}), stopping test")
                         break
-                else:
-                    print(".", end="", flush=True)
                 
                 time.sleep(1)
             
