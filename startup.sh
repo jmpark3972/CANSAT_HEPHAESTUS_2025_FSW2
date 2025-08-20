@@ -16,7 +16,4 @@ echo "venv > ${venv_path}/activate"
 cd ${python_path};python3 main.py
 
 fi
-<<<<<<< HEAD
 
-=======
->>>>>>> 008c3c9 (WIP: local edits before pulling remote)

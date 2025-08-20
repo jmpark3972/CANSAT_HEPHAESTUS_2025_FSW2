@@ -14,3 +14,10 @@ as_test.py
 See/
 [53/
 /logs/
+logs/
+eventlogs/
+*.log
+*.mp4
+*.gif
+*.csv
+*.json
