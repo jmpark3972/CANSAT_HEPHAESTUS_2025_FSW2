@@ -50,17 +50,26 @@ def init_gps():
         try:
             # Reset GPS module first
             gps.send_command(b'PMTK000')
-            time.sleep(1)
+            time.sleep(2)  # Longer wait for reset
             
-            # Configure basic settings
+            # Wait for GPS to stabilize
+            print("Waiting for GPS module to stabilize...")
+            for i in range(5):
+                try:
+                    gps.update()
+                    time.sleep(1)
+                except:
+                    pass
+            
+            # Configure basic settings with longer delays
             gps.send_command(b'PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
-            time.sleep(0.5)
+            time.sleep(1)
             gps.send_command(b'PMTK220,1000')  # Update rate: 1Hz
-            time.sleep(0.5)
+            time.sleep(1)
             
             # Enable all data
             gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')
-            time.sleep(0.5)
+            time.sleep(1)
             
             print("✓ GPS settings configured")
             log_gps("MAX-M10S GPS module initialized successfully")
@@ -83,17 +92,36 @@ def read_gps(gps, timeout=2.0):
         return None
     
     try:
-        # Update GPS data with error handling
-        try:
-            gps.update()
-        except Exception as update_error:
-            print(f"GPS update error: {update_error}")
-            log_gps(f"UPDATE_ERROR,{update_error}")
+        # Update GPS data with error handling and retry logic
+        update_success = False
+        retry_count = 0
+        max_retries = 3
+        
+        while not update_success and retry_count < max_retries:
+            try:
+                gps.update()
+                update_success = True
+            except Exception as update_error:
+                retry_count += 1
+                error_msg = str(update_error)
+                
+                # Log the specific error
+                if "invalid literal for int()" in error_msg:
+                    log_gps(f"HEX_PARSE_ERROR,{error_msg}")
+                    print(f"GPS hex parse error (attempt {retry_count}/{max_retries})")
+                else:
+                    log_gps(f"UPDATE_ERROR,{error_msg}")
+                    print(f"GPS update error: {error_msg}")
+                
+                # Wait before retry
+                time.sleep(0.5)
+        
+        if not update_success:
             return {
                 'has_fix': False,
                 'satellites': 0,
                 'timestamp': datetime.now().isoformat(),
-                'error': str(update_error)
+                'error': f"Failed after {max_retries} attempts"
             }
         
         # Check if we have a fix with safe data access
