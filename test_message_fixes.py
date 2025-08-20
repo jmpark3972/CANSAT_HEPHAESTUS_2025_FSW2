@@ -103,7 +103,7 @@ def test_app_args():
                not hasattr(appargs.FirApp1Arg, mid_name) and \
                not hasattr(appargs.ThermalcameraAppArg, mid_name) and \
                not hasattr(appargs.CameraAppArg, mid_name) and \
-               not hasattr(appargs.PitotAppArg, mid_name) and \
+
                not hasattr(appargs.Tmp007AppArg, mid_name):
                 print(f"❌ Missing message ID: {mid_name}")
                 return False

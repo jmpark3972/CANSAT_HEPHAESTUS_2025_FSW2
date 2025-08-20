@@ -48,7 +48,7 @@ def test_motor_status_fixes():
     # 5. 설정 확인
     print("\n5. 설정 확인:")
     print(f"   - THERMIS_TEMP_THRESHOLD: {config.DEFAULT_CONFIG['THERMIS']['TEMP_THRESHOLD']}°C")
-    print(f"   - PITOT_TEMP_CALIBRATION_OFFSET: {config.DEFAULT_CONFIG['PITOT']['TEMP_CALIBRATION_OFFSET']}°C")
+
     print("   ✓ 설정값들이 올바르게 적용됨")
     
     print("\n=== 테스트 완료 ===")
