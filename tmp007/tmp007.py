@@ -189,7 +189,7 @@ def read_tmp007_data(sensor):
     """TMP007 센서 데이터 읽기"""
     try:
         # 모든 데이터 읽기
-        object_temp = sensor.read_temperature()
+        object_temp = sensor.read_temperature() - 90
         die_temp = sensor.read_die_temperature()
         voltage = sensor.read_voltage()
         status = sensor.get_status()

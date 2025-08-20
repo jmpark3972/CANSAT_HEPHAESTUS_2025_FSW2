@@ -3,8 +3,8 @@
 # configure the path to contain the python code you want to run first
 # the path should be absolute
 
-python_path="home/SpaceY/Desktop/CANSAT_HEPHAESTUS_2025_FSW2"
-venv_path="home/SpaceY/Desktop/env/bin"
+python_path="/home/SpaceY/Desktop/CANSAT_HEPHAESTUS_2025_FSW2"
+venv_path="/home/SpaceY/Desktop/env/bin"
 
 if [ "${python_path}" == "not_configured" ]; then
 echo "Startup Script is not Configured! Please Edit the file"

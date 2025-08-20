@@ -5,11 +5,20 @@ from lib import appargs
 from lib import msgstructure
 from lib import logging
 
+# 로그 레벨을 DEBUG로 설정 (환경변수 설정)
+import os
+os.environ["LOG_LEVEL"] = "DEBUG"
+
 def safe_log(message: str, level: str = "INFO", printlogs: bool = True):
     """안전한 로깅 함수 - lib/logging.py 사용"""
     try:
-        formatted_message = f"[Comm] [{level}] {message}"
-        logging.log(formatted_message, printlogs)
+        from lib.logging import safe_log as lib_safe_log
+        lib_safe_log(f"[Comm] {message}", level, printlogs)
+        
+        # DEBUG 레벨일 때는 항상 콘솔에 출력 (메인 프로세스에서도 볼 수 있도록)
+        if level.upper() == "DEBUG" or os.environ.get("LOG_LEVEL", "INFO").upper() == "DEBUG":
+            print(f"[Comm-DEBUG] {message}")
+            
     except Exception as e:
         # 로깅 실패 시에도 최소한 콘솔에 출력
         print(f"[Comm] 로깅 실패: {e}")
@@ -44,7 +53,14 @@ TEAMID = 3139
 # Timedelta for ST command, initially set to 0
 ST_timedelta :timedelta = timedelta(seconds=0)
 
-SIMP_OFFSET = 0
+# 통합 오프셋 관리 시스템 사용
+try:
+    from lib.offsets import get_comm_offset
+    SIMP_OFFSET = get_comm_offset()
+    safe_log(f"통신 SIMP 오프셋 로드됨: {SIMP_OFFSET}", "info".upper(), True)
+except Exception as e:
+    SIMP_OFFSET = 0
+    safe_log(f"통신 SIMP 오프셋 로드 실패, 기본값 사용: {e}", "warning".upper(), True)
 
 # 강화된 로깅 및 데이터 전송 시스템
 import os
@@ -207,62 +223,65 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
         sep_data = recv_msg.data.split(",")
         
         # Check the length of separated data
-        if (len(sep_data) != 3):
-            safe_log(f"ERROR receiving barometer, expected 3 fields", "error".upper(), True)
+        if (len(sep_data) == 3):  # 기본 데이터
+            # If simulation mode, ignore the pressure and altitude data
+            if (tlm_data.mode == "F"):
+                tlm_data.pressure = safe_float(sep_data[0])
+                tlm_data.altitude = safe_float(sep_data[2])
+            tlm_data.temperature = safe_float(sep_data[1])
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
+        else:
+            safe_log(f"ERROR receiving barometer, expected 3 fields, got {len(sep_data)}", "error".upper(), True)
             return
-        
-        # If simulation mode, ignore the pressure and altitude data
-        if (tlm_data.mode == "F"):
-            tlm_data.pressure = safe_float(sep_data[0])
-            tlm_data.altitude = safe_float(sep_data[2])
-
-        tlm_data.temperature = safe_float(sep_data[1])
 
     # Receive IMU Data
     elif recv_msg.MsgID == appargs.ImuAppArg.MID_SendImuTlmData:
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) != 13):
+        if (len(sep_data) == 13):  # 기본 데이터
+            tlm_data.filtered_roll = safe_float(sep_data[0])
+            tlm_data.filtered_pitch = safe_float(sep_data[1])
+            tlm_data.filtered_yaw = safe_float(sep_data[2])
+            
+            tlm_data.acc_roll = safe_float(sep_data[3])
+            tlm_data.acc_pitch = safe_float(sep_data[4])
+            tlm_data.acc_yaw = safe_float(sep_data[5])
+
+            tlm_data.mag_roll = safe_float(sep_data[6])
+            tlm_data.mag_pitch = safe_float(sep_data[7])
+            tlm_data.mag_yaw = safe_float(sep_data[8])
+        
+            tlm_data.gyro_roll = safe_float(sep_data[9])
+            tlm_data.gyro_pitch = safe_float(sep_data[10])
+            tlm_data.gyro_yaw = safe_float(sep_data[11])
+            
+            tlm_data.imu_temperature = safe_float(sep_data[12])
+            
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
+        else:
             safe_log(f"ERROR receiving IMU, expected 13 fields, got {len(sep_data)}", "error".upper(), True)
             return
-        
-        tlm_data.filtered_roll = safe_float(sep_data[0])
-        tlm_data.filtered_pitch = safe_float(sep_data[1])
-        tlm_data.filtered_yaw = safe_float(sep_data[2])
-        
-        tlm_data.acc_roll = safe_float(sep_data[3])
-        tlm_data.acc_pitch = safe_float(sep_data[4])
-        tlm_data.acc_yaw = safe_float(sep_data[5])
-
-        tlm_data.mag_roll = safe_float(sep_data[6])
-        tlm_data.mag_pitch = safe_float(sep_data[7])
-        tlm_data.mag_yaw = safe_float(sep_data[8])
-    
-        tlm_data.gyro_roll = safe_float(sep_data[9])
-        tlm_data.gyro_pitch = safe_float(sep_data[10])
-        tlm_data.gyro_yaw = safe_float(sep_data[11])
-        
-        tlm_data.imu_temperature = safe_float(sep_data[12])
 
     # Receive GPS Data
     elif recv_msg.MsgID == appargs.GpsAppArg.MID_SendGpsTlmData:
         sep_data = recv_msg.data.split(",")
 
         # Check the length of separated data
-        if (len(sep_data) != 5):
-            safe_log(f"ERROR receiving GPS, expected 5 fields", "error".upper(), True)
+        if (len(sep_data) == 5):  # 기본 데이터
+            tlm_data.gps_time = str(sep_data[0])
+            tlm_data.gps_alt = safe_float(sep_data[1])
+            tlm_data.gps_lat = safe_float(sep_data[2])
+            tlm_data.gps_lon = safe_float(sep_data[3])
+            try:
+                tlm_data.gps_sats = int(float(sep_data[4]))  # float을 거쳐서 안전하게 변환
+            except (ValueError, TypeError):
+                safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
+                tlm_data.gps_sats = 0
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
+        else:
+            safe_log(f"ERROR receiving GPS, expected 5 fields, got {len(sep_data)}", "error".upper(), True)
             return
-
-        tlm_data.gps_time = str(sep_data[0])
-        tlm_data.gps_alt = safe_float(sep_data[1])
-        tlm_data.gps_lat = safe_float(sep_data[2])
-        tlm_data.gps_lon = safe_float(sep_data[3])
-        try:
-            tlm_data.gps_sats = int(sep_data[4])
-        except (ValueError, TypeError):
-            safe_log(f"Invalid GPS satellites value: {sep_data[4]}, using default: 0", "warning".upper(), True)
-            tlm_data.gps_sats = 0
 
     # Receive Voltage Sensor Data
     #elif recv_msg.MsgID == appargs.VoltageAppArg.MID_SendVoltageTlmData:
@@ -305,21 +324,18 @@ def command_handler (recv_msg : msgstructure.MsgStructure):
 
     elif recv_msg.MsgID == appargs.ThermalcameraAppArg.MID_SendCamTlmData:
         sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 3:
+        if len(sep_data) == 3:  # 기본 데이터
             tlm_data.thermal_camera_avg = float(sep_data[0])
             tlm_data.thermal_camera_min = float(sep_data[1])
             tlm_data.thermal_camera_max = float(sep_data[2])
+            # 고급 데이터는 로그에만 저장 (텔레메트리에는 전송하지 않음)
 
     elif recv_msg.MsgID == appargs.ThermisAppArg.MID_SendThermisTlmData:
         sep_data = recv_msg.data.split(",")
         if len(sep_data) == 1:
             tlm_data.thermis_temp = float(sep_data[0])
 
-    elif recv_msg.MsgID == appargs.PitotAppArg.MID_SendPitotTlmData:
-        sep_data = recv_msg.data.split(",")
-        if len(sep_data) == 2:
-            tlm_data.pitot_pressure = float(sep_data[0])
-            tlm_data.pitot_temp = float(sep_data[1])
+
 
     # 모터 상태 수신
     elif recv_msg.MsgID == appargs.FlightlogicAppArg.MID_SendMotorStatus:
@@ -450,7 +466,7 @@ class _tlm_data_format:
     gps_lon : float = 0.0
     gps_alt : float = 0.0
     gps_time : str = "00:00:00"
-    gps_sats : float = 0.0
+    gps_sats : int = 0
     filtered_roll : float = 0.0
     filtered_pitch : float = 0.0
     filtered_yaw : float = 0.0
@@ -464,13 +480,49 @@ class _tlm_data_format:
     thermal_camera_min: float = 0.0
     thermal_camera_max: float = 0.0
     thermis_temp: float = 0.0
-    pitot_pressure: float = 0.0
-    pitot_temp: float = 0.0
     tmp007_object_temp: float = 0.0
     tmp007_die_temp: float = 0.0
     tmp007_voltage: float = 0.0
     imu_temperature: float = 0.0
     motor_status: int = 1  # 0=열림, 1=닫힘
+    
+    # 고급 데이터 필드들 (로그에만 저장, 텔레메트리에는 전송하지 않음)
+    # Thermal Camera 추가 데이터
+    thermal_camera_max_gradient: float = 0.0
+    thermal_camera_avg_gradient: float = 0.0
+    thermal_camera_std_temp: float = 0.0
+    thermal_camera_hot_pixels: int = 0
+    thermal_camera_cold_pixels: int = 0
+    
+    # Barometer 추가 데이터
+    barometer_sea_level_pressure: float = 0.0
+    barometer_pressure_resolution: float = 0.01
+    barometer_temperature_resolution: float = 0.01
+    
+    # GPS 추가 데이터
+    gps_hdop: float = 0.0
+    gps_vdop: float = 0.0
+    gps_ground_speed: float = 0.0
+    gps_course: float = 0.0
+    gps_quality: int = 0
+    gps_fix_type: int = 0
+    
+    # IMU 추가 데이터
+    imu_quaternion_w: float = 1.0
+    imu_quaternion_x: float = 0.0
+    imu_quaternion_y: float = 0.0
+    imu_quaternion_z: float = 0.0
+    imu_linear_accel_x: float = 0.0
+    imu_linear_accel_y: float = 0.0
+    imu_linear_accel_z: float = 0.0
+    imu_gravity_x: float = 0.0
+    imu_gravity_y: float = 0.0
+    imu_gravity_z: float = 0.0
+    imu_calibration_system: int = 0
+    imu_calibration_gyro: int = 0
+    imu_calibration_accel: int = 0
+    imu_calibration_mag: int = 0
+    imu_system_status: int = 0
 
 tlm_data = _tlm_data_format()
 TELEMETRY_ENABLE = True
@@ -515,7 +567,7 @@ def send_tlm(serial_instance):
                         f"{tlm_data.gps_alt:.2f}",
                         f"{tlm_data.gps_lat:.2f}",
                         f"{tlm_data.gps_lon:.2f}",
-                        f"{tlm_data.gps_sats:.2f}",
+                        str(tlm_data.gps_sats),
                         tlm_data.cmd_echo,
                         #f','
                         f"{tlm_data.filtered_roll:.4f}",
@@ -529,33 +581,58 @@ def send_tlm(serial_instance):
                         f"{tlm_data.thermal_camera_min:.2f}",
                         f"{tlm_data.thermal_camera_max:.2f}",
                         f"{tlm_data.thermis_temp:.2f}",
-                        f"{tlm_data.pitot_pressure:.2f}",
-                        f"{tlm_data.pitot_temp:.2f}",
                         f"{tlm_data.tmp007_object_temp:.2f}",
                         f"{tlm_data.tmp007_die_temp:.2f}",
                         f"{tlm_data.tmp007_voltage:.2f}",
                         f"{tlm_data.imu_temperature:.2f}",
-                        str(tlm_data.motor_status)])+"\n"
+                        str(tlm_data.motor_status),
+                        # 추가된 고급 데이터 필드들
+                        f"{tlm_data.thermal_camera_max_gradient:.3f}",
+                        f"{tlm_data.thermal_camera_avg_gradient:.3f}",
+                        f"{tlm_data.thermal_camera_std_temp:.2f}",
+                        str(tlm_data.thermal_camera_hot_pixels),
+                        str(tlm_data.thermal_camera_cold_pixels),
+                        f"{tlm_data.barometer_sea_level_pressure:.2f}",
+                        f"{tlm_data.barometer_pressure_resolution:.3f}",
+                        f"{tlm_data.barometer_temperature_resolution:.3f}",
+                        f"{tlm_data.gps_hdop:.2f}",
+                        f"{tlm_data.gps_vdop:.2f}",
+                        f"{tlm_data.gps_ground_speed:.2f}",
+                        f"{tlm_data.gps_course:.1f}",
+                        str(tlm_data.gps_quality),
+                        str(tlm_data.gps_fix_type),
+                        f"{tlm_data.imu_quaternion_w:.4f}",
+                        f"{tlm_data.imu_quaternion_x:.4f}",
+                        f"{tlm_data.imu_quaternion_y:.4f}",
+                        f"{tlm_data.imu_quaternion_z:.4f}",
+                        f"{tlm_data.imu_linear_accel_x:.4f}",
+                        f"{tlm_data.imu_linear_accel_y:.4f}",
+                        f"{tlm_data.imu_linear_accel_z:.4f}",
+                        f"{tlm_data.imu_gravity_x:.4f}",
+                        f"{tlm_data.imu_gravity_y:.4f}",
+                        f"{tlm_data.imu_gravity_z:.4f}",
+                        str(tlm_data.imu_calibration_system),
+                        str(tlm_data.imu_calibration_gyro),
+                        str(tlm_data.imu_calibration_accel),
+                        str(tlm_data.imu_calibration_mag),
+                        str(tlm_data.imu_system_status)])+"\n"
 
-            tlm_debug_text = f"\nID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
-                    f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure})\n" \
-                     f"Pitot : Pressure({tlm_data.pitot_pressure}), Temperature({tlm_data.pitot_temp})\n" \
-                     f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
-                     f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
-                     f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
-                     f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
-                     f"Thermal_camera : Average({tlm_data.thermal_camera_avg}), Min({tlm_data.thermal_camera_min}), Max({tlm_data.thermal_camera_max})\n" \
-                     f"IMU : Gyro({tlm_data.gyro_roll}, {tlm_data.gyro_pitch}, {tlm_data.gyro_yaw}), " \
-                     f"Accel({tlm_data.acc_roll}, {tlm_data.acc_pitch}, {tlm_data.acc_yaw}), " \
-                     f"Mag({tlm_data.mag_roll}, {tlm_data.mag_pitch}, {tlm_data.mag_yaw})\n" \
-                     f"Euler angle({tlm_data.filtered_roll:4f}, {tlm_data.filtered_pitch:.4f}, {tlm_data.filtered_yaw:.4f}), " \
-                     f"Temperature({tlm_data.imu_temperature:.2f}°C)\n" \
-                     f"Gps : Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Alt({tlm_data.gps_alt}), " \
-                     f"Time({tlm_data.gps_time}), Sats({tlm_data.gps_sats})\n" \
-                     f"Motor : Status({tlm_data.motor_status})"
-                     #f"Rotation Rate : {tlm_data.rot_rate}\n"
-
-            safe_log(tlm_debug_text, "debug".upper(), True)
+            # DEBUG 모드일 때만 디버그 텍스트 출력
+            if os.environ.get("LOG_LEVEL", "INFO").upper() == "DEBUG":
+                tlm_debug_text = f"\n=== TELEMETRY DEBUG INFO ===\n" \
+                        f"ID : {tlm_data.team_id} TIME : {tlm_data.mission_time}, PCK_CNT : {tlm_data.packet_count}, MODE : {tlm_data.mode}, STATE : {tlm_data.state}\n"\
+                        f"Barometer : Altitude({tlm_data.altitude}), Temperature({tlm_data.temperature}), Pressure({tlm_data.pressure}), SeaLevelP({tlm_data.barometer_sea_level_pressure})\n" \
+                         f"Thermo : Temperature({tlm_data.thermo_temp}), Humidity({tlm_data.thermo_humi})\n" \
+                         f"TMP007 : Object({tlm_data.tmp007_object_temp}), Die({tlm_data.tmp007_die_temp}), Voltage({tlm_data.tmp007_voltage})\n" \
+                         f"Thermis : Temperature({tlm_data.thermis_temp})\n" \
+                         f"FIR1 : Ambient({tlm_data.fir1_amb}), Object({tlm_data.fir1_obj})\n" \
+                         f"GPS : Time({tlm_data.gps_time}), Alt({tlm_data.gps_alt}), Lat({tlm_data.gps_lat}), Lon({tlm_data.gps_lon}), Sats({tlm_data.gps_sats})\n" \
+                         f"IMU : Temp({tlm_data.imu_temperature}), Roll({tlm_data.filtered_roll}), Pitch({tlm_data.filtered_pitch}), Yaw({tlm_data.filtered_yaw})\n" \
+                         f"Motor : Status({tlm_data.motor_status})\n" \
+                         f"CMD Echo : {tlm_data.cmd_echo}\n" \
+                         f"=== END DEBUG INFO ===\n"
+                
+                safe_log(tlm_debug_text, "debug".upper(), True)
 
             # Only send telemetry when telemetry is enabled
             if TELEMETRY_ENABLE:
@@ -607,6 +684,26 @@ def cmd_cx(option:str, Main_Queue:Queue):
 
     return
 
+def cmd_debug(option:str, Main_Queue:Queue):
+    """디버그 출력 제어 명령"""
+    if option == "ON":
+        os.environ["LOG_LEVEL"] = "DEBUG"
+        safe_log("Debug output enabled", "info".upper(), True)
+        safe_log("🔍 DEBUG MODE ACTIVATED - Detailed CommApp output will be shown", "debug".upper(), True)
+        # 메인 프로세스에도 디버그 상태 전달
+        debug_msg = msgstructure.MsgStructure()
+        msgstructure.send_msg(Main_Queue, debug_msg, appargs.CommAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_SendHK, "DEBUG_ON")
+    elif option == "OFF":
+        os.environ["LOG_LEVEL"] = "INFO"
+        safe_log("Debug output disabled", "info".upper(), True)
+        safe_log("🔍 DEBUG MODE DEACTIVATED - CommApp debug output hidden", "debug".upper(), True)
+        # 메인 프로세스에도 디버그 상태 전달
+        debug_msg = msgstructure.MsgStructure()
+        msgstructure.send_msg(Main_Queue, debug_msg, appargs.CommAppArg.AppID, appargs.MainAppArg.AppID, appargs.MainAppArg.MID_SendHK, "DEBUG_OFF")
+    else:
+        safe_log(f"Debug command option '{option}' not recognized. Use 'ON' or 'OFF'", "warning".upper(), True)
+    return
+
 def cmd_st(option:str, Main_Queue:Queue):
 
     safe_log("Setting Time", "info".upper(), True)
@@ -654,6 +751,15 @@ def cmd_cal(option:str, Main_Queue:Queue):
     # If simulation mode
     if tlm_data.mode == "S":
         SIMP_OFFSET = tlm_data.altitude
+        
+        # 통합 오프셋 시스템에 저장
+        try:
+            from lib.offsets import set_offset
+            set_offset("COMM.SIMP_OFFSET", SIMP_OFFSET)
+            safe_log(f"통신 SIMP 오프셋이 통합 시스템에 저장됨: {SIMP_OFFSET}", "info".upper(), True)
+        except Exception as e:
+            safe_log(f"통합 오프셋 시스템 저장 실패: {e}", "warning".upper(), True)
+        
         ResetBarometerMaxAltCmd = msgstructure.MsgStructure()
         msgstructure.send_msg(Main_Queue, ResetBarometerMaxAltCmd, appargs.CommAppArg.AppID, appargs.FlightlogicAppArg.AppID, appargs.BarometerAppArg.MID_ResetBarometerMaxAlt, "")
 
@@ -732,6 +838,10 @@ def read_cmd(Main_Queue:Queue, serial_instance):
     # Camera Control
     cam_re_header = f"CMD,{TEAMID},CAM,"
     cam_re_option = "(ON|OFF)$"
+
+    # Debug Control
+    debug_re_header = f"CMD,{TEAMID},DEBUG,"
+    debug_re_option = "(ON|OFF)$"
 
     while COMMAPP_RUNSTATUS:
         try:
@@ -846,6 +956,15 @@ def read_cmd(Main_Queue:Queue, serial_instance):
                 # Activate Camera
                 cmd_cam(option, Main_Queue)
 
+            # debug
+            elif re.fullmatch(debug_re_header+debug_re_option, rcv_cmd):
+                set_cmdecho(rcv_cmd)
+
+                option = re.search(debug_re_option, rcv_cmd).group()
+                
+                # Control Debug Output
+                cmd_debug(option, Main_Queue)
+
             else:
                 safe_log(f"Invalid command {rcv_cmd}", "error".upper(), True)
 
@@ -923,13 +1042,17 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 if Main_Pipe.poll(0.5):  # 0.5초 타임아웃으로 단축
                     try:
                         message = Main_Pipe.recv()
-                    except (EOFError, BrokenPipeError, ConnectionResetError):
-                        safe_log("Pipe connection lost", "error".upper(), True)
-                        log_error("Pipe connection lost", "commapp_main")
-                        break
+                    except (EOFError, BrokenPipeError, ConnectionResetError) as e:
+                        safe_log(f"Pipe connection lost: {e}", "warning".upper(), True)
+                        log_error(f"Pipe connection lost: {e}", "commapp_main")
+                        # 연결이 끊어져도 로깅은 계속
+                        time.sleep(1)
+                        continue
                     except Exception as e:
-                        safe_log(f"Pipe receive error: {e}", "error".upper(), True)
+                        safe_log(f"Pipe receive error: {e}", "warning".upper(), False)
                         log_error(f"Pipe receive error: {e}", "commapp_main")
+                        # 에러 시 루프 계속
+                        time.sleep(0.5)
                         continue
                 else:
                     # 타임아웃 시 루프 계속
@@ -950,13 +1073,53 @@ def commapp_main(Main_Queue : Queue, Main_Pipe : connection.Connection):
                 log_error(f"Main loop error: {e}", "commapp_main")
                 time.sleep(0.1)  # 에러 시 짧은 대기
 
-    # If error occurs, terminate app
+    # If error occurs, terminate app gracefully
+    except (KeyboardInterrupt, SystemExit):
+        safe_log("Comm app received termination signal", "info".upper(), True)
+        COMMAPP_RUNSTATUS = False
     except Exception as e:
-        safe_log(f"commapp error : {e}", "error".upper(), True)
+        safe_log(f"commapp critical error : {e}", "error".upper(), True)
         log_error(f"Critical commapp error: {e}", "commapp_main")
         COMMAPP_RUNSTATUS = False
+        # 치명적 오류 발생 시에도 로깅은 계속
+        try:
+            safe_log("Comm app attempting graceful shutdown", "info".upper(), True)
+        except:
+            pass
 
     # Termination Process after runloop
-    commapp_terminate(serial_instance)
+    try:
+        commapp_terminate(serial_instance)
+    except Exception as e:
+        # 종료 과정에서 오류가 발생해도 최소한의 로깅 시도
+        try:
+            print(f"[Comm] Termination error: {e}")
+        except:
+            pass
 
     return
+
+# ──────────────────────────────
+# CommApp 클래스 (main.py 호환성)
+# ──────────────────────────────
+class CommApp:
+    """Comm 앱 클래스 - main.py 호환성을 위한 래퍼"""
+    
+    def __init__(self):
+        """CommApp 초기화"""
+        self.app_name = "Comm"
+        self.app_id = appargs.CommAppArg.AppID
+        self.run_status = True
+    
+    def start(self, main_queue: Queue, main_pipe: connection.Connection):
+        """앱 시작 - main.py에서 호출됨"""
+        try:
+            commapp_main(main_queue, main_pipe)
+        except Exception as e:
+            safe_log(f"CommApp start error: {e}", "ERROR", True)
+    
+    def stop(self):
+        """앱 중지"""
+        global COMMAPP_RUNSTATUS
+        COMMAPP_RUNSTATUS = False
+        self.run_status = False
