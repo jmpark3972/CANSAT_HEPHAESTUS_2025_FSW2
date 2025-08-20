@@ -1,0 +1,93 @@
+{
+  "timestamp": "2025-08-20 12:54:01.960",
+  "processes": {
+    "2": {
+      "alive": true,
+      "pid": 1221,
+      "exitcode": null
+    },
+    "10": {
+      "alive": true,
+      "pid": 1223,
+      "exitcode": null
+    },
+    "12": {
+      "alive": true,
+      "pid": 1224,
+      "exitcode": null
+    },
+    "13": {
+      "alive": true,
+      "pid": 1225,
+      "exitcode": null
+    },
+    "14": {
+      "alive": true,
+      "pid": 1244,
+      "exitcode": null
+    },
+    "16": {
+      "alive": true,
+      "pid": 1238,
+      "exitcode": null
+    },
+    "17": {
+      "alive": true,
+      "pid": 1243,
+      "exitcode": null
+    },
+    "20": {
+      "alive": true,
+      "pid": 1227,
+      "exitcode": null
+    },
+    "24": {
+      "alive": false,
+      "pid": null,
+      "exitcode": 0
+    },
+    "26": {
+      "alive": true,
+      "pid": 1231,
+      "exitcode": null
+    },
+    "22": {
+      "alive": true,
+      "pid": 1235,
+      "exitcode": null
+    },
+    "23": {
+      "alive": true,
+      "pid": 1230,
+      "exitcode": null
+    },
+    "25": {
+      "alive": true,
+      "pid": 1233,
+      "exitcode": null
+    },
+    "27": {
+      "alive": true,
+      "pid": 1237,
+      "exitcode": null
+    }
+  },
+  "memory_usage": {
+    "rss_mb": 25.2734375,
+    "vms_mb": 728.63671875,
+    "percent": 6.063161840502296
+  },
+  "disk_usage": {
+    "total_gb": 28.40093994140625,
+    "used_gb": 6.141590118408203,
+    "free_gb": 20.79720687866211,
+    "percent": 22.8
+  },
+  "transmission_stats": {
+    "packets_sent": 0,
+    "packets_failed": 0,
+    "last_successful_transmission": null,
+    "consecutive_failures": 0,
+    "max_consecutive_failures": 0
+  }
+}
