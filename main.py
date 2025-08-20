@@ -253,22 +253,23 @@ try:
 except Exception as e:
     safe_log(f"FlightLogic 앱 로드 실패: {e}", "ERROR", True)
 
-# CommApp
-try:
-    from comm import commapp
-    
-    parent_pipe, child_pipe = Pipe()
-    
-    # Add Process, pipe to elements dictionary
-    commapp_elements = app_elements()
-    commapp_elements.process = Process(target = commapp.commapp_main, args = (main_queue, child_pipe, ))
-    commapp_elements.pipe = parent_pipe
-    
-    # Add the process to dictionary
-    app_dict[appargs.CommAppArg.AppID] = commapp_elements
-    safe_log("Comm 앱 로드 완료", "INFO", True)
-except Exception as e:
-    safe_log(f"Comm 앱 로드 실패: {e}", "ERROR", True)
+# CommApp (XBee 통신 비활성화)
+# try:
+#     from comm import commapp
+#     
+#     parent_pipe, child_pipe = Pipe()
+#     
+#     # Add Process, pipe to elements dictionary
+#     commapp_elements = app_elements()
+#     commapp_elements.process = Process(target = commapp.commapp_main, args = (main_queue, child_pipe, ))
+#     commapp_elements.pipe = parent_pipe
+#     
+#     # Add the process to dictionary
+#     app_dict[appargs.CommAppArg.AppID] = commapp_elements
+#     safe_log("Comm 앱 로드 완료", "INFO", True)
+# except Exception as e:
+#     safe_log(f"Comm 앱 로드 실패: {e}", "ERROR", True)
+safe_log("Comm 앱 비활성화됨 (XBee 통신 끄기)", "INFO", True)
 
 # Motorapp
 try:

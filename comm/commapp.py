@@ -39,7 +39,8 @@ from comm import xbeereset
 
 import os
 # Runstatus of application. Application is terminated when false
-COMMAPP_RUNSTATUS = True
+# XBee 통신 기능 비활성화
+COMMAPP_RUNSTATUS = False
 
 # Team ID of each conf
 _TEAMID_PAYLOAD = 3139
