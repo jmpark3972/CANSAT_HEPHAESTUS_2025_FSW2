@@ -77,7 +77,7 @@ class HybridGPSSystem:
         }
         
         # API 키 (실제 사용 시 환경변수로 설정)
-        self.google_api_key = os.getenv('GOOGLE_MAPS_API_KEY', '')
+        self.google_api_key = os.getenv('GOOGLE_MAPS_API_KEY', 'AIzaSyBa2R_xba0AbZf5w-AcpgbYpotqJ5on7_s')
         
     def _init_gps(self):
         """GPS 모듈 초기화"""
