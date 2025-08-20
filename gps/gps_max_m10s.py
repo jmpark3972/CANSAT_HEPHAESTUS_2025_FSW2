@@ -33,9 +33,18 @@ def init_gps():
         i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
         print("✓ I2C bus initialized")
         
-        # Initialize GPS module
-        gps = GPS_GtopI2C(i2c)
-        print("✓ MAX-M10S GPS module initialized")
+        # Scan for I2C devices
+        scanned_devices = i2c.scan()
+        print(f"I2C devices found: {[hex(addr) for addr in scanned_devices]}")
+        
+        # MAX-M10S GPS module uses address 0x42
+        if 0x42 in scanned_devices:
+            gps = GPS_GtopI2C(i2c, address=0x42)
+            print("✓ MAX-M10S GPS module initialized (address 0x42)")
+        else:
+            print(f"✗ MAX-M10S GPS module not found at address 0x42")
+            print(f"Available addresses: {[hex(addr) for addr in scanned_devices]}")
+            return None, None
         
         # Configure GPS settings for optimal performance
         gps.send_command(b'PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0')
