@@ -51,7 +51,7 @@ def test_all_sensors():
         ("FIR1", "test_fir1.py"),
         ("TMP007", "test_tmp007.py"),
         ("Thermal Camera", "test_thermal_camera.py"),
-        ("Pitot", "test_pitot.py"),
+
         ("Thermo", "test_thermo.py"),
         ("Thermis", "test_thermis.py"),
         ("GPS", "test_gps.py"),
@@ -104,7 +104,7 @@ def test_single_sensor():
         "3": ("FIR1", "test_fir1.py"),
         "4": ("TMP007", "test_tmp007.py"),
         "5": ("Thermal Camera", "test_thermal_camera.py"),
-        "6": ("Pitot", "test_pitot.py"),
+
         "7": ("Thermo", "test_thermo.py"),
         "8": ("Thermis", "test_thermis.py"),
         "9": ("GPS", "test_gps.py"),

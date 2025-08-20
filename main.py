@@ -308,10 +308,6 @@ except Exception as e:
 # THERMISApp
 try:
     from thermis import thermisapp
-    import sys
-    import os
-    sys.path.append(os.path.join(os.path.dirname(__file__), 'pitot'))
-    import pitotapp
     
     parent_pipe, child_pipe = Pipe()
     
@@ -377,20 +373,7 @@ try:
 except Exception as e:
     safe_log(f"Thermo 앱 로드 실패: {e}", "ERROR", True)
 
-# PitotApp
-try:
-    parent_pipe, child_pipe = Pipe()
-    
-    # Add Process, pipe to elements dictionary
-    pitotapp_elements = app_elements()
-    pitotapp_elements.process = Process(target = pitotapp.pitotapp_main, args = (main_queue, child_pipe, ))
-    pitotapp_elements.pipe = parent_pipe
-    
-    # Add the process to dictionary
-    app_dict[appargs.PitotAppArg.AppID] = pitotapp_elements
-    safe_log("Pitot 앱 로드 완료", "INFO", True)
-except Exception as e:
-    safe_log(f"Pitot 앱 로드 실패: {e}", "ERROR", True)
+
 
 # CameraApp (Raspberry Pi Camera Module v3 Wide) - DISABLED
 # 카메라 하드웨어가 설치되지 않아 비활성화됨
@@ -617,7 +600,6 @@ if __name__ == '__main__':
             appargs.FirApp1Arg.AppID,
             appargs.ThermoAppArg.AppID,
             appargs.Tmp007AppArg.AppID,  # TMP007 센서 앱
-            appargs.PitotAppArg.AppID,
             appargs.ThermalcameraAppArg.AppID,
             # appargs.CameraAppArg.AppID,  # 카메라 앱 - 비활성화됨
             appargs.CommAppArg.AppID,    # 통신 앱

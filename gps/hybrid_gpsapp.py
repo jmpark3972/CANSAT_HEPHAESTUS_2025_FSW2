@@ -218,7 +218,9 @@ def send_hybrid_gps_data(Main_Queue: Queue):
     while HYBRID_GPSAPP_RUNSTATUS:
         try:
             # Send hybrid GPS data to Flight Logic in 10Hz
-            gps_payload = f"{LATITUDE:.6f},{LONGITUDE:.6f},{ALTITUDE:.1f},{ACCURACY:.1f},{LOCATION_SOURCE.value},{SATELLITES},{HAS_FIX}"
+            # Format: lat,lon,alt,time_str,sats (FlightLogic expects this format)
+            time_str = datetime.now().strftime("%H:%M:%S")
+            gps_payload = f"{LATITUDE:.6f},{LONGITUDE:.6f},{ALTITUDE:.1f},{time_str},{SATELLITES}"
             
             status = msgstructure.send_msg(Main_Queue,
                                           HybridGpsDataToFlightLogicMsg,

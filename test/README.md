@@ -12,7 +12,7 @@
 - **test_tmp007_direct.py** - 비접촉 온도 센서 (TMP007) 직접 I2C 연결 테스트
 - **test_thermal_camera.py** - 열화상 카메라 (MLX90640) 기본 테스트
 - **test_thermal_camera_advanced.py** - 열화상 카메라 고급 테스트 (FPS, 통계 등)
-- **test_pitot.py** - 공기속도 측정 (Pitot Tube)
+
 - **test_thermo.py** - 온도 및 습도 센서 (DHT11)
 - **test_thermis.py** - 온도 센서 (Thermis)
 - **test_gps.py** - 위치 및 시간 정보 (GPS)
@@ -50,8 +50,7 @@ python3 test/test_thermal_camera.py
 python3 test/test_thermal_camera_advanced.py
 python3 test/test_thermal_camera_advanced.py -r 4 -n 10  # 4Hz, 10프레임
 
-# Pitot 테스트
-python3 test/test_pitot.py
+
 
 # Thermo 테스트
 python3 test/test_thermo.py

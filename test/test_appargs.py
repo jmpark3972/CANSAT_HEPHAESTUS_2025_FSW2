@@ -103,7 +103,7 @@ def test_mid_uniqueness():
             "ThermalCamera (2200-2299)": [],
             "Thermo (2300-2399)": [],
             "Thermis (2400-2499)": [],
-            "Pitot (2500-2599)": [],
+
             "TMP007 (2600-2699)": [],
             "Camera (2700-2799)": [],
             "기타": []
@@ -132,8 +132,7 @@ def test_mid_uniqueness():
                 ranges["Thermo (2300-2399)"].append((mid_name, mid_value))
             elif 2400 <= mid_value <= 2499:
                 ranges["Thermis (2400-2499)"].append((mid_name, mid_value))
-            elif 2500 <= mid_value <= 2599:
-                ranges["Pitot (2500-2599)"].append((mid_name, mid_value))
+
             elif 2600 <= mid_value <= 2699:
                 ranges["TMP007 (2600-2699)"].append((mid_name, mid_value))
             elif 2700 <= mid_value <= 2799:
@@ -279,7 +278,7 @@ def test_data_flow_consistency():
             (appargs.FirApp1Arg, "MID_SendFIR1Data"),
             (appargs.ThermalcameraAppArg, "MID_SendCamTlmData"),
             (appargs.ThermisAppArg, "MID_SendThermisTlmData"),
-            (appargs.PitotAppArg, "MID_SendPitotTlmData"),
+
             (appargs.Tmp007AppArg, "MID_SendTmp007TlmData"),
             (appargs.CameraAppArg, "MID_SendCameraTlmData")
         ]
@@ -294,7 +293,7 @@ def test_data_flow_consistency():
             (appargs.ImuAppArg, "MID_SendImuFlightLogicData"),
             (appargs.ThermoAppArg, "MID_SendThermoFlightLogicData"),
             (appargs.ThermisAppArg, "MID_SendThermisFlightLogicData"),
-            (appargs.PitotAppArg, "MID_SendPitotFlightLogicData"),
+
             (appargs.Tmp007AppArg, "MID_SendTmp007FlightLogicData"),
             (appargs.CameraAppArg, "MID_SendCameraFlightLogicData")
         ]
@@ -381,8 +380,8 @@ def test_app_dependencies():
         dependencies = {
             "Main": ["모든 앱"],
             "HK": ["모든 앱"],
-            "Comm": ["Barometer", "IMU", "GPS", "Thermo", "FIR1", "ThermalCamera", "Thermis", "Pitot", "TMP007", "Camera", "FlightLogic"],
-            "FlightLogic": ["Barometer", "IMU", "GPS", "Thermo", "Thermis", "Pitot", "TMP007", "Camera"],
+            "Comm": ["Barometer", "IMU", "GPS", "Thermo", "FIR1", "ThermalCamera", "Thermis", "TMP007", "Camera", "FlightLogic"],
+            "FlightLogic": ["Barometer", "IMU", "GPS", "Thermo", "Thermis", "TMP007", "Camera"],
             "Motor": ["FlightLogic", "IMU"],
             "Camera": ["FlightLogic"],
             "Barometer": [],
@@ -392,7 +391,7 @@ def test_app_dependencies():
             "FIR1": [],
             "ThermalCamera": [],
             "Thermis": [],
-            "Pitot": [],
+
             "TMP007": []
         }
         
@@ -446,7 +445,7 @@ def test_naming_conventions():
                                mid_attr_name.startswith('MID_Payload') or
                                mid_attr_name.startswith('MID_Rocket') or
                                mid_attr_name.startswith('MID_Thermis') or
-                               mid_attr_name.startswith('MID_Pitot') or
+
                                mid_attr_name.startswith('MID_Tmp007') or
                                mid_attr_name.startswith('MID_Fir1')):
                             naming_issues.append(f"{attr_name}.{mid_attr_name}: 명명 규칙 불일치")

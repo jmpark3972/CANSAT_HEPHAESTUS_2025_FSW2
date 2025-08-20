@@ -27,12 +27,7 @@
   - `logs/tmp007/hk_log.csv`: HK 데이터 로그
   - `logs/tmp007/error_log.csv`: 오류 로그
 
-### 4. Pitot 앱 (`pitot/pitotapp.py`)
-- **데이터 수집 주파수**: 5Hz → **20Hz** (50ms 간격)
-- **새로운 로그 파일**:
-  - `logs/pitot/high_freq_pitot_log.csv`: 20Hz 고주파수 Pitot 데이터
-  - `logs/pitot/hk_log.csv`: HK 데이터 로그
-  - `logs/pitot/error_log.csv`: 오류 로그
+
 
 ## 로깅 시스템 특징
 
@@ -56,7 +51,7 @@
 | IMU | 100Hz | **200Hz** | `high_freq_imu_log.csv` |
 | Barometer | 5Hz | **50Hz** | `high_freq_barometer_log.csv` |
 | TMP007 | 4Hz | **10Hz** | `high_freq_tmp007_log.csv` |
-| Pitot | 5Hz | **20Hz** | `high_freq_pitot_log.csv` |
+
 
 ## CommApp Telemetry
 - CommApp은 여전히 1Hz로 XBee를 통해 지상국에 데이터 전송
@@ -83,11 +78,7 @@ timestamp,object_temp,die_temp,voltage
 2024-01-01 12:00:00.123,25.6,26.1,3.3
 ```
 
-### Pitot 고주파수 로그
-```csv
-timestamp,pressure,temperature
-2024-01-01 12:00:00.123,1013.25,25.6
-```
+
 
 ## 주의사항
 

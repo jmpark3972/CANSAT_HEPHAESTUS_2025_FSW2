@@ -251,8 +251,7 @@ def test_telemetry_format():
             f"{tlm_data.thermal_camera_min:.2f}",
             f"{tlm_data.thermal_camera_max:.2f}",
             f"{tlm_data.thermis_temp:.2f}",
-            f"{tlm_data.pitot_pressure:.2f}",
-            f"{tlm_data.pitot_temp:.2f}",
+
             f"{tlm_data.tmp007_object_temp:.2f}",
             f"{tlm_data.tmp007_die_temp:.2f}",
             f"{tlm_data.tmp007_voltage:.2f}",

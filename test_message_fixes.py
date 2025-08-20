@@ -89,7 +89,7 @@ def test_app_args():
             'MID_SendFIR1Data',
             'MID_SendCamFlightLogicData',
             'MID_SendCameraFlightLogicData',
-            'MID_SendPitotFlightLogicData',
+
             'MID_SendTmp007FlightLogicData',
             'MID_SendGpsFlightLogicData'
         ]

@@ -87,8 +87,7 @@ def test_telemetry_format():
         tlm_data.thermal_camera_min = 24.0
         tlm_data.thermal_camera_max = 27.0
         tlm_data.thermis_temp = 25.8
-        tlm_data.pitot_pressure = 1013.25
-        tlm_data.pitot_temp = 25.2
+
         tlm_data.tmp007_object_temp = 25.1
         tlm_data.tmp007_die_temp = 26.0
         tlm_data.tmp007_voltage = 3.3
@@ -132,8 +131,7 @@ def test_telemetry_format():
             f"{tlm_data.thermal_camera_min:.2f}",
             f"{tlm_data.thermal_camera_max:.2f}",
             f"{tlm_data.thermis_temp:.2f}",
-            f"{tlm_data.pitot_pressure:.2f}",
-            f"{tlm_data.pitot_temp:.2f}",
+
             f"{tlm_data.tmp007_object_temp:.2f}",
             f"{tlm_data.tmp007_die_temp:.2f}",
             f"{tlm_data.tmp007_voltage:.2f}",

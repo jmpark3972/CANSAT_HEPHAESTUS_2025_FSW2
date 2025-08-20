@@ -56,7 +56,7 @@ class SystemStabilitySimulator:
             "ThermoApp",      # 온도계
             "ThermisApp",     # 열화상
             "Tmp007App",      # 온도센서
-            "PitotApp",       # 속도계
+
             "CameraApp",      # 카메라
             "MotorApp"        # 모터
         ]
