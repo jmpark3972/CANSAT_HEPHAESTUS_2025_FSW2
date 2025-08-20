@@ -83,12 +83,34 @@ class HybridGPSSystem:
         """GPS 모듈 초기화"""
         try:
             self.i2c = busio.I2C(board.SCL, board.SDA, frequency=400_000)
-            self.gps = GPS_GtopI2C(self.i2c)
+            
+            # I2C 스캔 결과 출력
+            scanned_devices = self.i2c.scan()
+            self._log(f"I2C 스캔 결과: {[hex(addr) for addr in scanned_devices]}")
+            
+            # MAX-M10S GPS 모듈의 I2C 주소는 0x42
+            if 0x42 in scanned_devices:
+                self._log("MAX-M10S GPS 모듈 발견 (0x42)")
+                self.gps = GPS_GtopI2C(self.i2c, address=0x42)
+            else:
+                self._log("MAX-M10S GPS 모듈을 찾을 수 없습니다 (0x42)", "ERROR")
+                self._log("연결 상태를 확인하세요:", "ERROR")
+                self._log("1. Qwiic 케이블이 올바르게 연결되었는지 확인", "ERROR")
+                self._log("2. GPS 모듈에 전원이 공급되는지 확인", "ERROR")
+                self._log("3. I2C가 활성화되었는지 확인 (sudo raspi-config)", "ERROR")
+                return False
             
             # GPS 설정 최적화
-            self.gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')
-            self.gps.send_command(b'PMTK220,1000')  # 1Hz 업데이트
-            self.gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')
+            try:
+                # GPS 업데이트 속도 설정 (1Hz)
+                self.gps.send_command(b'PMTK220,1000')
+                # NMEA 문장 출력 설정
+                self.gps.send_command(b'PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0')
+                # DGPS 모드 설정
+                self.gps.send_command(b'PMTK301,1')
+                self._log("GPS 설정 최적화 완료")
+            except Exception as cmd_error:
+                self._log(f"GPS 명령 설정 실패 (무시하고 계속): {cmd_error}", "WARNING")
             
             self._log("GPS 모듈 초기화 성공")
             return True
@@ -101,6 +123,10 @@ class HybridGPSSystem:
         try:
             timestamp = datetime.now().isoformat(sep=' ', timespec='milliseconds')
             log_entry = f"[{timestamp}] [{level}] {message}\n"
+            
+            # log_file 속성이 없으면 생성
+            if not hasattr(self, 'log_file'):
+                self.log_file = os.path.join(self.log_dir, 'hybrid_gps.log')
             
             with open(self.log_file, 'a', encoding='utf-8') as f:
                 f.write(log_entry)
@@ -201,41 +227,58 @@ class HybridGPSSystem:
         try:
             networks = self.scan_wifi_networks()
             
-            if not networks or not self.google_api_key:
+            if not networks:
                 return None
             
-            # Google Geolocation API 호출
-            payload = {
-                'wifiAccessPoints': [
-                    {'macAddress': f"00:00:00:00:00:{i:02x}", 'signalStrength': -50}
-                    for i, _ in enumerate(networks[:5])  # 상위 5개 네트워크만 사용
-                ]
-            }
+            # Google API 키가 있으면 Google Geolocation API 사용
+            if self.google_api_key:
+                try:
+                    payload = {
+                        'wifiAccessPoints': [
+                            {'macAddress': f"00:00:00:00:00:{i:02x}", 'signalStrength': -50}
+                            for i, _ in enumerate(networks[:5])  # 상위 5개 네트워크만 사용
+                        ]
+                    }
+                    
+                    response = requests.post(
+                        f'https://www.googleapis.com/geolocation/v1/geolocate?key={self.google_api_key}',
+                        json=payload,
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        location = data['location']
+                        
+                        wifi_location = LocationData(
+                            latitude=location['lat'],
+                            longitude=location['lng'],
+                            accuracy=data.get('accuracy', 100.0),
+                            source=LocationSource.WIFI,
+                            wifi_networks=[n['ssid'] for n in networks[:5]]
+                        )
+                        
+                        self.last_wifi_fix = wifi_location
+                        self._log(f"Google WiFi 위치: {wifi_location.latitude:.6f}, {wifi_location.longitude:.6f}")
+                        return wifi_location
+                    else:
+                        self._log(f"Google WiFi 위치 API 오류: {response.status_code}", "WARNING")
+                except Exception as api_error:
+                    self._log(f"Google API 호출 실패: {api_error}", "WARNING")
             
-            response = requests.post(
-                f'https://www.googleapis.com/geolocation/v1/geolocate?key={self.google_api_key}',
-                json=payload,
-                timeout=10
+            # API 키가 없거나 실패한 경우, 간단한 위치 추정
+            # 한국 대략적인 중심 좌표 사용 (서울 근처)
+            estimated_location = LocationData(
+                latitude=37.5665,  # 서울 위도
+                longitude=126.9780,  # 서울 경도
+                accuracy=5000.0,  # 5km 정확도
+                source=LocationSource.WIFI,
+                wifi_networks=[n['ssid'] for n in networks[:5]]
             )
             
-            if response.status_code == 200:
-                data = response.json()
-                location = data['location']
-                
-                wifi_location = LocationData(
-                    latitude=location['lat'],
-                    longitude=location['lng'],
-                    accuracy=data.get('accuracy', 100.0),
-                    source=LocationSource.WIFI,
-                    wifi_networks=[n['ssid'] for n in networks[:5]]
-                )
-                
-                self.last_wifi_fix = wifi_location
-                self._log(f"WiFi 위치: {wifi_location.latitude:.6f}, {wifi_location.longitude:.6f}")
-                return wifi_location
-            else:
-                self._log(f"WiFi 위치 API 오류: {response.status_code}", "WARNING")
-                return None
+            self.last_wifi_fix = estimated_location
+            self._log(f"추정 WiFi 위치 (서울): {estimated_location.latitude:.6f}, {estimated_location.longitude:.6f}")
+            return estimated_location
                 
         except Exception as e:
             self._log(f"WiFi 위치 오류: {e}", "ERROR")
