@@ -202,22 +202,22 @@ try:
 except Exception as e:
     safe_log(f"Barometer 앱 로드 실패: {e}", "ERROR", True)
 
-# GpsApp
+# HybridGpsApp (하이브리드 GPS + WiFi + Cell Tower)
 try:
-    from gps import gpsapp
+    from gps import hybrid_gpsapp
     
     parent_pipe, child_pipe = Pipe()
     
     # Add Process, pipe to elements dictionary
-    gpsapp_elements = app_elements()
-    gpsapp_elements.process = Process(target = gpsapp.gpsapp_main, args = (main_queue, child_pipe, ))
-    gpsapp_elements.pipe = parent_pipe
+    hybrid_gpsapp_elements = app_elements()
+    hybrid_gpsapp_elements.process = Process(target = hybrid_gpsapp.hybrid_gpsapp_main, args = (main_queue, child_pipe, ))
+    hybrid_gpsapp_elements.pipe = parent_pipe
     
     # Add the process to dictionary
-    app_dict[appargs.GpsAppArg.AppID] = gpsapp_elements
-    safe_log("GPS 앱 로드 완료", "INFO", True)
+    app_dict[appargs.GpsAppArg.AppID] = hybrid_gpsapp_elements
+    safe_log("하이브리드 GPS 앱 로드 완료 (GPS + WiFi + Cell Tower)", "INFO", True)
 except Exception as e:
-    safe_log(f"GPS 앱 로드 실패: {e}", "ERROR", True)
+    safe_log(f"하이브리드 GPS 앱 로드 실패: {e}", "ERROR", True)
 
 # ImuApp
 try:
